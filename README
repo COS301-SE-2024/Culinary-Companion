@@ -1,1 +1,56 @@
-This is our readme.`
+# TeckTonic - Culinary Companion - Project Description
+
+Culinary Companion is a Progressive Web Application (PWA) designed to act as a virtual sous-chef. It uses AI and food science to suggest ingredient substitutions based on dietary constraints or available ingredients, adjusting other recipe components and steps accordingly. It also standardizes recipes from various sources for better processing.
+
+## Demo Video
+Watch our recorded demo video [here](https://link-to-your-video.com).
+
+## Functional Requirements (SRS) Document
+Access the full Functional Requirements (SRS) document [here](https://link-to-your-srs-document.com).
+
+## GitHub Project Board
+View our project management board [here](https://github.com/your-repo/project-board).
+
+## Team Members
+
+### John Doe
+- **Role:** Frontend/UI Developer
+- **Profile:** Experienced in developing responsive and user-friendly interfaces using Flutter. Passionate about creating visually appealing and intuitive applications.
+- [LinkedIn](https://www.linkedin.com/in/johndoe)
+
+### Jane Smith
+- **Role:** Backend Engineer
+- **Profile:** Skilled in Python and machine learning applications. Focused on developing robust and scalable backend systems.
+- [LinkedIn](https://www.linkedin.com/in/janesmith)
+
+### Alex Johnson
+- **Role:** Database Engineer
+- **Profile:** Expertise in PostgreSQL and graph databases. Responsible for designing and managing the application's database to ensure efficient data handling and storage.
+- [LinkedIn](https://www.linkedin.com/in/alexjohnson)
+
+### Emily Davis
+- **Role:** Database Engineer
+- **Profile:** Specializes in data modeling and database optimization. Works on capturing ingredient profiles and recommending substitutions.
+- [LinkedIn](https://www.linkedin.com/in/emilydavis)
+
+## Individual Professional Profiles
+
+### John Doe
+An experienced frontend developer with a knack for creating engaging and accessible user interfaces. Well-versed in Flutter and passionate about bringing design concepts to life.
+- [LinkedIn](https://www.linkedin.com/in/johndoe)
+
+### Jane Smith
+A backend engineer who thrives in developing efficient and scalable systems. Proficient in Python and machine learning, dedicated to ensuring seamless integration with the frontend.
+- [LinkedIn](https://www.linkedin.com/in/janesmith)
+
+### Alex Johnson
+A database engineer focused on optimizing data structures and ensuring efficient data retrieval. Skilled in PostgreSQL and graph databases, dedicated to maintaining the application's data integrity.
+- [LinkedIn](https://www.linkedin.com/in/alexjohnson)
+
+### Emily Davis
+A detail-oriented database engineer with expertise in data modeling. Works on capturing and analyzing ingredient data to provide accurate and useful substitutions.
+- [LinkedIn](https://www.linkedin.com/in/emilydavis)
+
+---
+
+Thank you for visiting our project repository. For more information, please feel free to reach out to any of our team members via LinkedIn.
