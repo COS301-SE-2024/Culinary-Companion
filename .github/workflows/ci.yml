@@ -2,9 +2,10 @@ name: CI
 on:
   pull_request:
     branches:
-      -master
-      -main
-      -dev
+      - master
+      - main
+      - dev
+      - initial-structure
 
 jobs:
   flutter_test:
