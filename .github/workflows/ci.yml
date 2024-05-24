@@ -23,8 +23,16 @@ jobs:
         with:
           channel: "stable"
 
-      - run: flutter pub get
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: ./path_to_your_flutter_project
 
-      - run: flutter analyze
+      - name: Analyze code
+        run: flutter analyze
+        working-directory: ./path_to_your_flutter_project
+
+      - name: Run tests
+        run: flutter test
+        working-directory: ./path_to_your_flutter_project
 
       - run: flutter test
