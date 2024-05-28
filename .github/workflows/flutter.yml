@@ -18,10 +18,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Flutter
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          flutter-version: '2.10.2'  # Replace with the desired Flutter version
+
+      - name: Setup Flutter
+        run: flutter config --no-analytics && flutter doctor
 
       - name: Install dependencies
         run: flutter pub get
