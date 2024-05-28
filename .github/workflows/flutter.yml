@@ -26,8 +26,6 @@ jobs:
       - name: Setup Flutter
         run: flutter config --no-analytics && flutter doctor
 
-      - name: Install dependencies
-        run: flutter pub get
 
       - name: Run Flutter Lint
         run: flutter analyze
