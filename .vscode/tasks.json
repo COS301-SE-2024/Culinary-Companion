@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Run Lint",
+        "type": "shell",
+        "command": "flutter analyze",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": [
+          "$dart"
+        ],
+        "detail": "Run Flutter linter"
+      },
+      {
+        "label": "Run Build",
+        "type": "shell",
+        "command": "flutter build apk", // You can change this to build other targets
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+  
