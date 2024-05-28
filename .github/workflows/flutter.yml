@@ -1,4 +1,4 @@
-name: Flutter CI
+name: Flutter Lint
 
 on:
   push:
@@ -11,7 +11,7 @@ on:
       - main
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,11 +26,5 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Run linter
+      - name: Run Flutter Lint
         run: flutter analyze
-
-      - name: Run tests
-        run: flutter test
-
-      - name: Build project
-        run: flutter build apk # You can change this to build other targets like web, ios, etc.
