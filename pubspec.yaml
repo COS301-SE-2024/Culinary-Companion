@@ -67,6 +67,10 @@ flutter:
     - assets/food1.jpeg
     - assets/food2.jpeg
     - assets/food3.jpeg
+    - assets/food4.cms
+    - assets/food5.webp
+    - assets/food6.jpeg
+    - assets/food7.jpeg
     - assets/profile.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

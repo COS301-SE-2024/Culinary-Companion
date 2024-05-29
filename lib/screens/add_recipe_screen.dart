@@ -59,7 +59,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Culinary Companion'),
         bottom: TabBar(
           controller: _tabController,
           tabs: [
