@@ -14,42 +14,42 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final String edgeFunctionUrl = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/hello-world';
 
-  Future<void> loginUser(String email, String password) async {
-    try {
-      final response = await http.post(
-        Uri.parse(edgeFunctionUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'email': email, 'password': password}),
-      );
-
-      if (response.statusCode == 200) {
-        final responseBody = jsonDecode(response.body);
-        // Authentication successful, handle the user object as needed
-        print('Login successful: ${responseBody['user']}');
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        final responseBody = jsonDecode(response.body);
-        // Authentication failed, handle the error
-        print('Login failed: ${responseBody['error']}');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login failed: ${responseBody['error']}')),
-        );
-      }
-    } catch (error) {
-      print('Error: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: $error')),
-      );
-    }
-  }
-
   void _handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      // Perform login logic here
-      // If successful, navigate to the home screen
-      loginUser(_email, _password);
-    }
+  if (_formKey.currentState!.validate()) {
+    // Perform login logic here
+    // If successful, navigate to the home screen
+    loginUser(_email, _password, 'signIn');
   }
+}
+
+Future<void> loginUser(String email, String password, String action) async {
+  try {
+    final response = await http.post(
+      Uri.parse(edgeFunctionUrl),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'action': action, 'email': email, 'password': password}),
+    );
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      // Authentication successful, handle the user object as needed
+      print('Login successful: ${responseBody['user']}');
+      Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      final responseBody = jsonDecode(response.body);
+      // Authentication failed, handle the error
+      print('Login failed: ${responseBody['error']}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login failed: ${responseBody['error']}')),
+      );
+    }
+  } catch (error) {
+    print('Error: $error');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Login failed: $error')),
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {
