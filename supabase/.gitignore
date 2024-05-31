@@ -7,3 +7,8 @@
 .branches
 .temp
 .env
+
+# Supabase
+.branches
+.temp
+.env

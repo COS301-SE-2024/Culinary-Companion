@@ -25,7 +25,8 @@ Deno.serve(async (req) => {
     const { action, email, password } = await req.json();
 
     switch (action) {
-      case 'signIn':
+      case 'signIn': 
+      {
         const signInResponse = await supabase.auth.signInWithPassword({ email, password });
 
         if (signInResponse.error) {
@@ -39,8 +40,9 @@ Deno.serve(async (req) => {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-
+    }
       case 'signUp':
+        {
         const signUpResponse = await supabase.auth.signUp({ email, password });
 
         if (signUpResponse.error) {
@@ -54,7 +56,7 @@ Deno.serve(async (req) => {
           status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
-
+    }
       default:
         return new Response(JSON.stringify({ error: 'Invalid action' }), {
           status: 400,
