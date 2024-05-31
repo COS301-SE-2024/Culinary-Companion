@@ -31,6 +31,8 @@ Deno.serve(async (req) => {
                 return getIngredientNames();
             case 'getShoppingList':
                 return getShoppingList(userId);
+            case 'getAvailableIngredients':
+                return getAvailableIngredients(userId);                
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -45,6 +47,7 @@ Deno.serve(async (req) => {
     }
 });
 
+// Get all the ingredients and their attributes
 async function getAllIngredients() {
     try {
         const { data: ingredients, error } = await supabase
@@ -66,6 +69,7 @@ async function getAllIngredients() {
     }
 }
 
+// Get all the ingredient names and their ids
 async function getIngredientNames() {
     try {
         const { data: ingredients, error } = await supabase
@@ -92,6 +96,7 @@ async function getIngredientNames() {
     }
 }
 
+// Get the shopping list per user id
 async function getShoppingList(userId: string) {
   try {
       if (!userId) {
@@ -140,6 +145,58 @@ async function getShoppingList(userId: string) {
       });
   }
 }
+
+// Get the pantry list per user id
+async function getAvailableIngredients(userId: string) {
+  try {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
+    // Fetch available ingredients
+    const { data: availableIngredients, error: availableIngredientsError } = await supabase
+      .from('availableingredients')
+      .select('ingredientid, quantity, measurmentunit')
+      .eq('userid', userId);
+
+    if (availableIngredientsError) {
+      throw new Error(availableIngredientsError.message);
+    }
+
+    // Fetch ingredient names
+    const ingredientIds = availableIngredients.map(item => item.ingredientid);
+    const { data: ingredients, error: ingredientsError } = await supabase
+      .from('ingredient')
+      .select('ingredientid, name')
+      .in('ingredientid', ingredientIds);
+
+    if (ingredientsError) {
+      throw new Error(ingredientsError.message);
+    }
+
+    // Combine available ingredients with names
+    const availableIngredientsWithNames = availableIngredients.map(item => {
+      const ingredient = ingredients.find(ingredient => ingredient.ingredientid === item.ingredientid);
+      return {
+        ingredientid: item.ingredientid,
+        quantity: item.quantity,
+        measurmentunit: item.measurmentunit,
+        name: ingredient ? ingredient.name : 'Unknown',
+      };
+    });
+
+    return new Response(
+      JSON.stringify({ availableIngredients: availableIngredientsWithNames }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+}
+
 
 
 /* To invoke locally:
