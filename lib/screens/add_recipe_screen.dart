@@ -83,7 +83,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
         borderRadius: BorderRadius.circular(10),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFF0B3D36)),
+        borderSide: const BorderSide(color: Color(0xFF0B3D36)),
         borderRadius: BorderRadius.circular(10),
       ),
     );
@@ -96,9 +96,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: 'Scan Recipe'),
-            Tab(text: 'Paste Recipe'),
-            Tab(text: 'Add My Own Recipe'),
+            const Tab(text: 'Scan Recipe'),
+            const Tab(text: 'Paste Recipe'),
+            const Tab(text: 'Add My Own Recipe'),
           ],
         ),
       ),
@@ -110,16 +110,16 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.camera_alt, size: 100),
-                SizedBox(height: 16),
-                Text(
+                const Icon(Icons.camera_alt, size: 100),
+                const SizedBox(height: 16),
+                const Text(
                   'Drag & Drop Recipe Here',
                   style: TextStyle(fontSize: 18),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 OutlinedButton(
                   onPressed: () {},
-                  child: Text('Browse Files'),
+                  child: const Text('Browse Files'),
                 ),
               ],
             ),
@@ -129,31 +129,97 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.text_fields, size: 100),
-                SizedBox(height: 16),
-                Text(
-                  'Paste Text',
-                  style: TextStyle(fontSize: 18),
+                const SizedBox(height: 20),
+                const Padding(
+                  padding: EdgeInsets.only(left: 32.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Paste Recipe',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(height: 8),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: Text('Analyze Recipe'),
+                const SizedBox(height: 40),
+                const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32.0),
+                    child: TextField(
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      expands: true,
+                      textAlign: TextAlign.left,
+                      decoration: InputDecoration(
+                        hintText: 'Paste your recipe here...',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add functionality to format the pasted recipe
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFFDC945F), // Set the background color
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                      ),
+                      child: const Text(
+                        'Format Recipe',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add functionality to analyze the pasted recipe
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFF1A2D27), // Set the background color
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                        side: const BorderSide(
+                            color: Color(0xFFDC945F), width: 2),
+                      ),
+                      child: const Text(
+                        'Analyze Recipe',
+                        style: TextStyle(
+                          color: Color(0xFFDC945F),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           // Form Screen
           Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20.0),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Recipe Details:',
+                  const Text('Recipe Details:',
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
@@ -167,7 +233,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                             decoration: _buildInputDecoration('Name of Recipe',
                                 icon: Icons.fastfood),
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           TextField(
                             controller: _descriptionController,
                             decoration: _buildInputDecoration(
@@ -175,21 +241,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                 icon: Icons.description),
                             maxLines: 3,
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           TextField(
                             controller: _cookingTimeController,
                             decoration: _buildInputDecoration(
                                 'Cooking Time (min)',
                                 icon: Icons.timer),
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           TextField(
                             controller: _prepTimeController,
                             decoration: _buildInputDecoration(
                                 'Preparation Time (min)',
                                 icon: Icons.timer_off),
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
                             value: _selectedCuisine,
                             onChanged: (value) {
@@ -206,7 +272,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                             decoration: _buildInputDecoration('Type of Cuisine',
                                 icon: Icons.restaurant),
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
                             value: _selectedCourse,
                             onChanged: (value) {
@@ -223,13 +289,13 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                             decoration: _buildInputDecoration('Type of Course',
                                 icon: Icons.category),
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           Row(
                             children: [
-                              Text('Spice Level:',
+                              const Text('Spice Level:',
                                   style: TextStyle(fontSize: 16)),
-                              SizedBox(width: 16),
-                              Icon(Icons.local_fire_department,
+                              const SizedBox(width: 16),
+                              const Icon(Icons.local_fire_department,
                                   color: Colors.red),
                               Expanded(
                                 child: Slider(
@@ -247,12 +313,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               ),
                             ],
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           Row(
                             children: [
-                              Text('Serving Amount:',
+                              const Text('Serving Amount:',
                                   style: TextStyle(fontSize: 16)),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
                               NumberSpinner(
                                 initialValue: 1,
                                 onChanged: (value) {
@@ -264,13 +330,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               ),
                             ],
                           ),
-                          // TextField(
-                          //   controller: _servingAmountController,
-                          //   decoration: _buildInputDecoration('Serving Amount',
-                          //       icon: Icons.people),
-                          // ),
-                          SizedBox(height: 24),
-                          Text('Ingredients:',
+                          const SizedBox(height: 24),
+                          const Text('Ingredients:',
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                           ..._ingredients.map((ingredient) {
@@ -291,7 +352,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                           _buildInputDecoration('Ingredient'),
                                     ),
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Expanded(
                                     child: TextField(
                                       onChanged: (value) {
@@ -304,7 +365,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                           _buildInputDecoration('Quantity'),
                                     ),
                                   ),
-                                  SizedBox(width: 8),
+                                  const SizedBox(width: 8),
                                   Expanded(
                                     child: TextField(
                                       onChanged: (value) {
@@ -316,7 +377,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                     ),
                                   ),
                                   IconButton(
-                                    icon: Icon(Icons.remove_circle_outline,
+                                    icon: const Icon(
+                                        Icons.remove_circle_outline,
                                         color: Colors.red),
                                     onPressed: () =>
                                         _removeIngredientField(index),
@@ -328,12 +390,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           Align(
                             alignment: Alignment.center,
                             child: IconButton(
-                              icon: Icon(Icons.add_circle_outline),
+                              icon: const Icon(Icons.add_circle_outline),
                               onPressed: _addIngredientField,
                             ),
                           ),
-                          SizedBox(height: 24),
-                          Text('Methods:',
+                          const SizedBox(height: 24),
+                          const Text('Methods:',
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                           ..._methods.map((method) {
@@ -355,7 +417,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                     ),
                                   ),
                                   IconButton(
-                                    icon: Icon(Icons.remove_circle_outline,
+                                    icon: const Icon(
+                                        Icons.remove_circle_outline,
                                         color: Colors.red),
                                     onPressed: () => _removeMethodField(index),
                                   ),
@@ -366,20 +429,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           Align(
                             alignment: Alignment.center,
                             child: IconButton(
-                              icon: Icon(Icons.add_circle_outline),
+                              icon: const Icon(Icons.add_circle_outline),
                               onPressed: _addMethodField,
                             ),
                           ),
-                          SizedBox(height: 24),
+                          const SizedBox(height: 24),
                           Center(
                             child: ElevatedButton(
                               onPressed: _submitRecipe,
-                              child: Text('Add Recipe'),
+                              child: const Text('Add Recipe'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF0B3D36),
-                                padding: EdgeInsets.symmetric(
+                                backgroundColor: const Color(0xFF0B3D36),
+                                padding: const EdgeInsets.symmetric(
                                     horizontal: 40, vertical: 20),
-                                textStyle: TextStyle(
+                                textStyle: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -439,15 +502,15 @@ class _NumberSpinnerState extends State<NumberSpinner> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-          icon: Icon(Icons.remove),
+          icon: const Icon(Icons.remove),
           onPressed: _decrement,
         ),
         Text(
           _value.toString(),
-          style: TextStyle(fontSize: 18),
+          style: const TextStyle(fontSize: 18),
         ),
         IconButton(
-          icon: Icon(Icons.add),
+          icon: const Icon(Icons.add),
           onPressed: _increment,
         ),
       ],
