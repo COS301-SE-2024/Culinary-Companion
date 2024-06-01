@@ -41,7 +41,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
     final recipeData = {
       'name': _nameController.text,
       'description': _descriptionController.text,
-      'methods': _methods.join('\n'),
+      'methods': _methods.join(','),
       'cookTime': int.parse(_cookingTimeController.text),
       'cuisine': _selectedCuisine,
       'spiceLevel': _spiceLevel,
