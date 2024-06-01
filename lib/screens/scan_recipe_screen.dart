@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:http/http.dart' as http; // Add this line to import the http package
+import 'package:http/http.dart'
+    as http; // Add this line to import the http package
 import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
 
 class ScanRecipeScreen extends StatefulWidget {
@@ -10,14 +11,13 @@ class ScanRecipeScreen extends StatefulWidget {
 }
 
 class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
-
   @override
   void initState() {
     super.initState();
-     _fetchIngredientNames();
+    _fetchIngredientNames();
     _loadDontShowAgainPreference();
-     _fetchShoppingList();
-      _fetchPantryList();
+    _fetchShoppingList();
+    _fetchPantryList();
   }
 
   final Map<String, List<String>> _shoppingList = {};
@@ -46,7 +46,8 @@ class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
   Future<void> _fetchIngredientNames() async {
     try {
       final response = await http.post(
-        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: '{"action": "getIngredientNames"}', // Body of the request
         headers: {'Content-Type': 'application/json'},
       );
@@ -68,76 +69,76 @@ class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
   }
 
   Future<void> _fetchShoppingList() async {
-  try {
-    final response = await http.post(
-      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: jsonEncode({
-        'action': 'getShoppingList',
-        'userId': 'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
-      }), // Body of the request
-      headers: {'Content-Type': 'application/json'},
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'getShoppingList',
+          'userId': 'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
+        }), // Body of the request
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      // If the request is successful, parse the response JSON
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final List<dynamic> shoppingList = data['shoppingList'];
-      setState(() {
-        _shoppingList.clear();
-        for (var item in shoppingList) {
-          final ingredientName = item['ingredientName'].toString();
-          final category = item['category'] ?? 'Other';
-          _shoppingList.putIfAbsent(category, () => []);
-          _shoppingList[category]?.add(ingredientName);
-        }
-      });
-    } else {
-      // Handle other status codes, such as 404 or 500
-      print('Failed to fetch shopping list: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        // If the request is successful, parse the response JSON
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final List<dynamic> shoppingList = data['shoppingList'];
+        setState(() {
+          _shoppingList.clear();
+          for (var item in shoppingList) {
+            final ingredientName = item['ingredientName'].toString();
+            final category = item['category'] ?? 'Other';
+            _shoppingList.putIfAbsent(category, () => []);
+            _shoppingList[category]?.add(ingredientName);
+          }
+        });
+      } else {
+        // Handle other status codes, such as 404 or 500
+        print('Failed to fetch shopping list: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle network errors or other exceptions
+      print('Error fetching shopping list: $error');
     }
-  } catch (error) {
-    // Handle network errors or other exceptions
-    print('Error fetching shopping list: $error');
   }
-}
-Future<void> _fetchPantryList() async {
-  try {
-    final response = await http.post(
-      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: jsonEncode({
-        'action': 'getAvailableIngredients',
-        'userId': 'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
-      }), // Body of the request
-      headers: {'Content-Type': 'application/json'},
-    );
 
-    if (response.statusCode == 200) {
-      // If the request is successful, parse the response JSON
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final List<dynamic> pantryList = data['availableIngredients'];
-      setState(() {
-        _pantryList.clear();
-        for (var item in pantryList) {
-          final ingredientName = item['name'].toString();
-          final category = item['category'] ?? 'Other';
-          _pantryList.putIfAbsent(category, () => []);
-          _pantryList[category]?.add(ingredientName);
-        }
-      });
-    } else {
-      // Handle other status codes, such as 404 or 500
-      print('Failed to fetch pantry list: ${response.statusCode}');
+  Future<void> _fetchPantryList() async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'getAvailableIngredients',
+          'userId': 'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
+        }), // Body of the request
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // If the request is successful, parse the response JSON
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final List<dynamic> pantryList = data['availableIngredients'];
+        setState(() {
+          _pantryList.clear();
+          for (var item in pantryList) {
+            final ingredientName = item['name'].toString();
+            final category = item['category'] ?? 'Other';
+            _pantryList.putIfAbsent(category, () => []);
+            _pantryList[category]?.add(ingredientName);
+          }
+        });
+      } else {
+        // Handle other status codes, such as 404 or 500
+        print('Failed to fetch pantry list: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle network errors or other exceptions
+      print('Error fetching pantry list: $error');
     }
-  } catch (error) {
-    // Handle network errors or other exceptions
-    print('Error fetching pantry list: $error');
   }
-}
-
 
   bool _dontShowAgain = false;
-
-
 
   Future<void> _loadDontShowAgainPreference() async {
     final prefs = await SharedPreferences.getInstance();
@@ -165,19 +166,24 @@ Future<void> _fetchPantryList() async {
   }
 
   void _toggleCheckbox(String category, String item, bool type) {
-    if (type) {
-      if (_dontShowAgain) {
-        _moveItem(category, item);
-      } else {
-        _showConfirmationDialog(category, item);
-      }
-    } else {
-      if (_dontShowAgain) {
-        _movePantryItem(category, item);
-      } else {
-        _showPantryConfirmationDialog(category, item);
-      }
-    }
+    setState(() {
+      final isChecked = !(_checkboxStates[item] ?? false);
+      _checkboxStates[item] = isChecked;
+      //_checkboxStates[item] = !(_checkboxStates[item] ?? false);
+    });
+    // if (type) {
+    //   if (_dontShowAgain) {
+    //     _moveItem(category, item);
+    //   } else {
+    //     _showConfirmationDialog(category, item);
+    //   }
+    // } else {
+    //   if (_dontShowAgain) {
+    //     _movePantryItem(category, item);
+    //   } else {
+    //     _showPantryConfirmationDialog(category, item);
+    //   }
+    // }
   }
 
   void _movePantryItem(String category, String item) {
@@ -372,10 +378,18 @@ Future<void> _fetchPantryList() async {
       body: Row(
         children: <Widget>[
           // Shopping List Column
+          // Pantry List Column
           Expanded(
+            //Container(
+            //width: 600.0,
             child: Padding(
-              padding: const EdgeInsets.only(
-                  top: 20.0), // Adjust the top padding as needed
+              padding: const EdgeInsets.fromLTRB(
+                //100.0, // left padding
+                0,
+                20.0, // top padding
+                0.0, // right padding
+                0.0, // bottom padding
+              ), // Adjust the top padding as needed
               child: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start, // Left-align children
@@ -403,7 +417,7 @@ Future<void> _fetchPantryList() async {
                           ...entry.value.asMap().entries.map((item) =>
                               _buildCheckableListItem(entry.key, item.value,
                                   item.key % 2 == 1, true)),
-                          Divider(thickness: 2),
+                          //Divider(thickness: 2),
                         ];
                       }).toList(),
                     ),
@@ -414,9 +428,28 @@ Future<void> _fetchPantryList() async {
                       onPressed: () {
                         _showAddItemDialog(context, 'Shopping');
                       },
-                      child: Text('Add'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Color(0xFFDC945F), // Button background color
+                        foregroundColor: Colors.white, // Text color
+                        fixedSize:
+                            Size(48.0, 48.0), // Ensure the button is square
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(16), // Rounded corners
+                        ),
+                        padding: EdgeInsets.all(0), // Remove default padding
+                      ),
+                      child: Center(
+                        child: Text(
+                          '+',
+                          style: TextStyle(
+                            fontSize: 35, // Increase the font size
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
@@ -424,9 +457,16 @@ Future<void> _fetchPantryList() async {
 
           // Pantry List Column
           Expanded(
+            //Container(
+            //width: 600.0,
             child: Padding(
-              padding: const EdgeInsets.only(
-                  top: 20.0), // Adjust the top padding as needed
+              padding: const EdgeInsets.fromLTRB(
+                //100.0, // left padding
+                0,
+                20.0, // top padding
+                0.0, // right padding
+                0.0, // bottom padding
+              ), // Adjust the top padding as needed
               child: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start, // Left-align children
@@ -454,7 +494,7 @@ Future<void> _fetchPantryList() async {
                           ...entry.value.asMap().entries.map((item) =>
                               _buildCheckableListItem(entry.key, item.value,
                                   item.key % 2 == 1, false)),
-                          Divider(thickness: 2),
+                          //Divider(thickness: 2),
                         ];
                       }).toList(),
                     ),
@@ -465,9 +505,28 @@ Future<void> _fetchPantryList() async {
                       onPressed: () {
                         _showAddItemDialog(context, 'Pantry');
                       },
-                      child: Text('Add'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            Color(0xFFDC945F), // Button background color
+                        foregroundColor: Colors.white, // Text color
+                        fixedSize:
+                            Size(48.0, 48.0), // Ensure the button is square
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(16), // Rounded corners
+                        ),
+                        padding: EdgeInsets.all(0), // Remove default padding
+                      ),
+                      child: Center(
+                        child: Text(
+                          '+',
+                          style: TextStyle(
+                            fontSize: 35, // Increase the font size
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                  )
                 ],
               ),
             ),
@@ -494,33 +553,48 @@ Future<void> _fetchPantryList() async {
   Widget _buildCheckableListItem(
       String category, String title, bool shaded, bool listType) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-          vertical: 4.0), // Add vertical padding between items if needed
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Container(
-        color: shaded ? Color(0xFF293E37) : Colors.transparent,
-        padding: EdgeInsets.symmetric(
-            horizontal: 10.0, vertical: 5.0), // Adjust padding here
-        child: Container(
-          padding: EdgeInsets.symmetric(
-              horizontal: 40.0), // Adjust horizontal padding as needed
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(4.0),
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
           child: ListTile(
-            leading: Transform.scale(
-              scale:
-                  1, // Adjust the scale as needed to make the checkbox larger or smaller
-              child: Checkbox(
-                value: _checkboxStates[title] ?? false,
-                onChanged: (bool? value) {
-                  _toggleCheckbox(category, title, listType);
-                },
-              ),
-            ),
+            contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+            leading: listType
+                ? // Conditionally include the checkbox
+                Container(
+                    decoration: BoxDecoration(),
+                    child: Transform.scale(
+                      scale: 1,
+                      child: Checkbox(
+                        value: _checkboxStates[title] ?? false,
+                        onChanged: (bool? value) {
+                          _toggleCheckbox(category, title, listType);
+                        },
+                      ),
+                    ),
+                  )
+                : null,
             title: Padding(
-              padding: const EdgeInsets.only(
-                  left: 16.0), // 20px padding between checkbox and text
+              padding: const EdgeInsets.only(left: 16.0),
               child: Text(title),
             ),
+            trailing: IconButton(
+              icon: SizedBox(
+                width: 22, // Set the desired width
+                height: 22, // Set the desired height
+                child: Image.asset('trash-can.png'),
+              ),
+              onPressed: () {
+                _confirmRemoveItem(context, category, title, listType);
+              },
+            ),
             onTap: () {
-              _toggleCheckbox(category, title, listType);
+              if (listType) {
+                _toggleCheckbox(category, title, listType);
+              }
             },
           ),
         ),
@@ -528,83 +602,189 @@ Future<void> _fetchPantryList() async {
     );
   }
 
+  void _confirmRemoveItem(
+      BuildContext context, String category, String title, bool listType) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Theme(
+          // Apply custom theme to the AlertDialog
+          data: ThemeData(
+            // Set the background color to white
+            dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+          ),
+          child: AlertDialog(
+            title: Text("Confirm Remove"),
+            content: Text(
+                "Are you sure you want to remove '$title' from the ${listType ? 'Shopping List' : 'Pantry'}?"),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  side: BorderSide(
+                    color: Colors.orange,
+                    width: 1.5, // Border thickness
+                  ), // Outline color
+                ),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color(0xFFDC945F), // Set the color to orange
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFFDC945F), // Background color
+                ),
+                child: Text(
+                  'Remove',
+                  style: TextStyle(
+                    color: Colors.white, // Set the color to white
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Dismiss the dialog
+                  _removeItem(category, title, listType); // Remove the item
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _removeItem(String category, String title, bool listType) {
+    setState(() {
+      if (listType) {
+        _shoppingList[category]?.remove(title);
+        if (_shoppingList[category]?.isEmpty ?? true) {
+          _shoppingList.remove(category);
+        }
+      } else {
+        _pantryList[category]?.remove(title);
+        if (_pantryList[category]?.isEmpty ?? true) {
+          _pantryList.remove(category);
+        }
+      }
+      _checkboxStates.remove(title);
+    });
+  }
+
   void _showAddItemDialog(BuildContext context, String type) {
     final TextEditingController _textFieldController = TextEditingController();
-    String? selectedCategory;
+    final TextEditingController _foodTypeController = TextEditingController();
+    // String? selectedCategory;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Add New Item To $type List'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TypeAheadFormField<String>(
-                textFieldConfiguration: TextFieldConfiguration(
-                  decoration: InputDecoration(labelText: 'Select Food Type'),
+        return Theme(
+          // Apply custom theme to the AlertDialog
+          data: ThemeData(
+            // Set the background color to white
+            dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+          ),
+          child: AlertDialog(
+            title: Text('Add New Item To $type List'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                TypeAheadFormField<String>(
+                  textFieldConfiguration: TextFieldConfiguration(
+                    controller: _foodTypeController, // Use the controller here
+                    decoration: InputDecoration(labelText: 'Select Food Type'),
+                  ),
+                  suggestionsCallback: (pattern) {
+                    return _categories.where((category) =>
+                        category.toLowerCase().contains(pattern.toLowerCase()));
+                  },
+                  itemBuilder: (context, suggestion) {
+                    return ListTile(
+                      title: Text(suggestion),
+                    );
+                  },
+                  onSuggestionSelected: (suggestion) {
+                    _foodTypeController.text = suggestion;
+                  },
+                  validator: (value) =>
+                      value == null ? 'Please select a category' : null,
                 ),
-                suggestionsCallback: (pattern) {
-                  return _categories.where((category) =>
-                      category.toLowerCase().contains(pattern.toLowerCase()));
+                TypeAheadFormField<String>(
+                  textFieldConfiguration: TextFieldConfiguration(
+                    controller: _textFieldController,
+                    decoration: InputDecoration(hintText: "Enter item name"),
+                  ),
+                  suggestionsCallback: (pattern) {
+                    return _items.where((item) =>
+                        item.toLowerCase().contains(pattern.toLowerCase()));
+                  },
+                  itemBuilder: (context, suggestion) {
+                    return ListTile(
+                      title: Text(suggestion),
+                    );
+                  },
+                  onSuggestionSelected: (suggestion) {
+                    _textFieldController.text = suggestion;
+                  },
+                  validator: (value) =>
+                      value!.isEmpty ? 'Please enter an item name' : null,
+                ),
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  side: BorderSide(
+                    color: Colors.orange,
+                    width: 1.5, // Border thickness
+                  ), // Outline color
+                ),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color(0xFFDC945F), // Set the color to orange
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
                 },
-                itemBuilder: (context, suggestion) {
-                  return ListTile(
-                    title: Text(suggestion),
-                  );
-                },
-                onSuggestionSelected: (suggestion) {
-                  selectedCategory = suggestion;
-                },
-                validator: (value) =>
-                    value == null ? 'Please select a category' : null,
               ),
-              TypeAheadFormField<String>(
-                textFieldConfiguration: TextFieldConfiguration(
-                  controller: _textFieldController,
-                  decoration: InputDecoration(hintText: "Enter item name"),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFFDC945F), // Background color
                 ),
-                suggestionsCallback: (pattern) {
-                  return _items.where((item) =>
-                      item.toLowerCase().contains(pattern.toLowerCase()));
+                child: Text(
+                  'Add',
+                  style: TextStyle(
+                    color: Colors.white, // Set the color to orange
+                  ),
+                ),
+                onPressed: () {
+                  if (_foodTypeController.text.isNotEmpty &&
+                      _textFieldController.text.isNotEmpty) {
+                    if (type == 'Shopping') {
+                      _addItem(
+                        _foodTypeController.text,
+                        _textFieldController.text,
+                        true,
+                      );
+                    } else {
+                      _addItem(
+                        _foodTypeController.text,
+                        _textFieldController.text,
+                        false,
+                      );
+                    }
+                    Navigator.of(context).pop();
+                  }
                 },
-                itemBuilder: (context, suggestion) {
-                  return ListTile(
-                    title: Text(suggestion),
-                  );
-                },
-                onSuggestionSelected: (suggestion) {
-                  _textFieldController.text = suggestion;
-                },
-                validator: (value) =>
-                    value!.isEmpty ? 'Please enter an item name' : null,
               ),
             ],
           ),
-          actions: <Widget>[
-            TextButton(
-              child: Text('CANCEL'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text('ADD'),
-              onPressed: () {
-                if (selectedCategory != null &&
-                    _textFieldController.text.isNotEmpty) {
-                  if (type == 'Shopping') {
-                    _addItem(
-                        selectedCategory!, _textFieldController.text, true);
-                  } else {
-                    _addItem(
-                        selectedCategory!, _textFieldController.text, false);
-                  }
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-          ],
         );
       },
     );
