@@ -4,7 +4,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String currentRoute;
   final Function(String)? onChange;
 
-  Navbar({required this.currentRoute, this.onChange});
+  const Navbar({required this.currentRoute, this.onChange});
 
   @override
   Widget build(BuildContext context) {

@@ -15,17 +15,6 @@ class CulinaryCompanionApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Culinary Companion',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: Color(0xFF1A2D27), // Background color
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(),
-          filled: true,
-          fillColor: Colors.white12,
-        ),
-      ),
       home: MainScreen(),
     );
   }

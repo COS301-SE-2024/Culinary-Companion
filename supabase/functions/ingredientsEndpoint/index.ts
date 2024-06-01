@@ -215,6 +215,12 @@ async function getAvailableIngredients(userId: string) {
 
 // Add recipe to the db from the form
 async function addRecipe(recipeData: RecipeData) {
+    const corsHeaders = {
+        "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type": "application/json"
+      };
   try {
       const { name, description, methods, cookTime, cuisine, spiceLevel, prepTime, course, servingAmount, ingredients } = recipeData;
 
@@ -235,16 +241,22 @@ async function addRecipe(recipeData: RecipeData) {
           .select('recipeid') // Select only the recipe ID
           .single();
 
-      if (recipeError) {
-          return new Response(JSON.stringify({ error: recipeError.message }), { status: 400 });
-      }
+          if (recipeError) {
+            return new Response(JSON.stringify({ error: recipeError.message }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
 
       const recipeId = insertedRecipeData?.recipeid; // Extract the recipe ID
 
       // Check if recipeId is null or undefined
       if (!recipeId) {
-          return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), { status: 400 });
-      }
+        return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), { 
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
 
       // Insert ingredients
       for (const ingredient of ingredients) {
@@ -254,16 +266,22 @@ async function addRecipe(recipeData: RecipeData) {
               .eq('name', ingredient.name)
               .single();
 
-          if (ingredientError) {
-              return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredient.name}` }), { status: 400 });
-          }
+              if (ingredientError) {
+                return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredient.name}` }), { 
+                    status: 400,
+                    headers: corsHeaders,
+                });
+                }
 
           const ingredientId = ingredientData?.ingredientid; // Extract the ingredient ID
 
           // Check if ingredientId is null or undefined
           if (!ingredientId) {
-              return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), { status: 400 });
-          }
+            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+            }
 
           // Insert into recipeingredients with the fetched recipeId
           const { error: recipeIngredientError } = await supabase
@@ -275,15 +293,24 @@ async function addRecipe(recipeData: RecipeData) {
                   measurmentunit: ingredient.unit,
               });
 
-          if (recipeIngredientError) {
-              return new Response(JSON.stringify({ error: recipeIngredientError.message }), { status: 400 });
-          }
+              if (recipeIngredientError) {
+                return new Response(JSON.stringify({ error: recipeIngredientError.message }), { 
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
       }
 
-      return new Response(JSON.stringify({ success: true, recipeId }), { status: 200 });
-  } catch (e) {
-      return new Response(JSON.stringify({ error: e.message }), { status: 500 });
-  }
+        return new Response(JSON.stringify({ success: true, recipeId }), { 
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), { 
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
 }
 
 
