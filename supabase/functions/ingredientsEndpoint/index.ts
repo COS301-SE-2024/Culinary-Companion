@@ -132,7 +132,7 @@ async function getShoppingList(userId: string, corsHeaders: HeadersInit) {
         // Fetch ingredients
         const { data: ingredients, error: ingredientsError } = await supabase
             .from('ingredient')
-            .select('ingredientid, name');
+            .select('ingredientid, name, category');
 
         if (ingredientsError) {
             throw new Error(ingredientsError.message);
@@ -147,6 +147,7 @@ async function getShoppingList(userId: string, corsHeaders: HeadersInit) {
                 quantity: item.quantity,
                 measurmentunit: item.measurmentunit,
                 ingredientName: ingredient ? ingredient.name : 'Unknown',
+                category: ingredient ? ingredient.category : 'Unknown',
             };
         });
 
@@ -183,7 +184,7 @@ async function getAvailableIngredients(userId: string, corsHeaders: HeadersInit)
         const ingredientIds = availableIngredients.map(item => item.ingredientid);
         const { data: ingredients, error: ingredientsError } = await supabase
             .from('ingredient')
-            .select('ingredientid, name')
+            .select('ingredientid, name, category')
             .in('ingredientid', ingredientIds);
 
         if (ingredientsError) {
@@ -198,6 +199,7 @@ async function getAvailableIngredients(userId: string, corsHeaders: HeadersInit)
                 quantity: item.quantity,
                 measurmentunit: item.measurmentunit,
                 name: ingredient ? ingredient.name : 'Unknown',
+                category: ingredient ? ingredient.category : 'Unknown',
             };
         });
 
