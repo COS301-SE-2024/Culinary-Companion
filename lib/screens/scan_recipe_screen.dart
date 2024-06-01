@@ -10,17 +10,19 @@ class ScanRecipeScreen extends StatefulWidget {
 }
 
 class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
-  final Map<String, List<String>> _shoppingList = {};
-  //   'Dairy': ['Milk', 'Cheese'],
-  //   'Meat': ['Chicken', 'Beef'],
-  //   'Fruit/Veg': ['Apples', 'Carrots'],
-  // };
 
-  final Map<String, List<String>> _pantryList = {
-    'Dairy': ['Milk', 'Cheese'],
-    'Meat': ['Chicken', 'Beef'],
-    'Fruit/Veg': ['Apples', 'Carrots'],
-  };
+  @override
+  void initState() {
+    super.initState();
+     _fetchIngredientNames();
+    _loadDontShowAgainPreference();
+     _fetchShoppingList();
+      _fetchPantryList();
+  }
+
+  final Map<String, List<String>> _shoppingList = {};
+
+  final Map<String, List<String>> _pantryList = {};
 
   final Map<String, bool> _checkboxStates = {};
 
@@ -98,17 +100,44 @@ class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
     print('Error fetching shopping list: $error');
   }
 }
+Future<void> _fetchPantryList() async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'getAvailableIngredients',
+        'userId': 'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
+      }), // Body of the request
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      // If the request is successful, parse the response JSON
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> pantryList = data['availableIngredients'];
+      setState(() {
+        _pantryList.clear();
+        for (var item in pantryList) {
+          final ingredientName = item['name'].toString();
+          final category = item['category'] ?? 'Other';
+          _pantryList.putIfAbsent(category, () => []);
+          _pantryList[category]?.add(ingredientName);
+        }
+      });
+    } else {
+      // Handle other status codes, such as 404 or 500
+      print('Failed to fetch pantry list: ${response.statusCode}');
+    }
+  } catch (error) {
+    // Handle network errors or other exceptions
+    print('Error fetching pantry list: $error');
+  }
+}
 
 
   bool _dontShowAgain = false;
 
-  @override
-  void initState() {
-    super.initState();
-     _fetchIngredientNames();
-    _loadDontShowAgainPreference();
-     _fetchShoppingList();
-  }
+
 
   Future<void> _loadDontShowAgainPreference() async {
     final prefs = await SharedPreferences.getInstance();
