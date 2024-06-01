@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'scan_recipe_screen.dart';
-import 'shopping_list_screen.dart';
+//import 'shopping_list_screen.dart';
 import 'saved_recipes_screen.dart';
 import 'profile_screen.dart';
 import 'add_recipe_screen.dart';
 import '../widgets/navbar.dart';
+
 void main() {
   runApp(CulinaryCompanionApp());
 }
@@ -18,7 +19,7 @@ class CulinaryCompanionApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: Color(0xFF0B3D36), // Dark green background
+        scaffoldBackgroundColor: Color(0xFF1A2D27), // Background color
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(),
           filled: true,
