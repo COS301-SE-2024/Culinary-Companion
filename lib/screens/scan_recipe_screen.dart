@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:http/http.dart' as http; // Add this line to import the http package
+import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
 
 class ScanRecipeScreen extends StatefulWidget {
   @override
@@ -37,102 +39,38 @@ class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
     'Other'
   ];
 
-  final List<String> _items = [
-    'Tomato',
-    'Salt',
-    'Pepper',
-    'Chicken',
-    'Milk',
-    'Onion',
-    'Garlic',
-    'Carrot',
-    'Potato',
-    'Olive Oil',
-    'Butter',
-    'Flour',
-    'Sugar',
-    'Honey',
-    'Apple',
-    'Banana',
-    'Orange',
-    'Lemon',
-    'Lime',
-    'Broccoli',
-    'Cauliflower',
-    'Spinach',
-    'Lettuce',
-    'Cucumber',
-    'Bell Pepper',
-    'Mushroom',
-    'Zucchini',
-    'Eggplant',
-    'Beef',
-    'Pork',
-    'Fish',
-    'Shrimp',
-    'Egg',
-    'Cheese',
-    'Yogurt',
-    'Tomato Sauce',
-    'Basil',
-    'Oregano',
-    'Thyme',
-    'Rosemary',
-    'Parsley',
-    'Cilantro',
-    'Mint',
-    'Dill',
-    'Cumin',
-    'Paprika',
-    'Curry Powder',
-    'Turmeric',
-    'Ginger',
-    'Chili Powder',
-    'Cinnamon',
-    'Nutmeg',
-    'Cloves',
-    'Vanilla',
-    'Almond',
-    'Walnut',
-    'Pasta',
-    'Rice',
-    'Ground Beef',
-    'Ground Turkey',
-    'Chicken Breast',
-    'Salmon',
-    'Tuna',
-    'Shrimp',
-    'Lamb',
-    'Bacon',
-    'Sausage',
-    'Ham',
-    'Ground Pork',
-    'Pepperoni',
-    'Linguine',
-    'Spaghetti',
-    'Lasagna Noodles',
-    'Ground Chicken',
-    'Tofu',
-    'Quinoa',
-    'Black Beans',
-    'Kidney Beans',
-    'Chickpeas',
-    'Lentils',
-    'Pinto Beans',
-    'Corn',
-    'Green Beans',
-    'Peas',
-    'Asparagus',
-    'Brussels Sprouts',
-    'Beef Broth',
-    'Chicken Broth'
-  ];
+  List<String> _items = [];
+
+  Future<void> _fetchIngredientNames() async {
+    try {
+      final response = await http.post(
+        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: '{"action": "getIngredientNames"}', // Body of the request
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // If the request is successful, parse the response JSON
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _items = data.map((item) => item['name'].toString()).toList();
+        });
+      } else {
+        // Handle other status codes, such as 404 or 500
+        print('Failed to fetch ingredient names: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle network errors or other exceptions
+      print('Error fetching ingredient names: $error');
+    }
+  }
 
   bool _dontShowAgain = false;
 
   @override
   void initState() {
     super.initState();
+     _fetchIngredientNames();
     _loadDontShowAgainPreference();
   }
 
