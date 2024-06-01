@@ -248,11 +248,27 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                             ],
                           ),
                           SizedBox(height: 24),
-                          TextField(
-                            controller: _servingAmountController,
-                            decoration: _buildInputDecoration('Serving Amount',
-                                icon: Icons.people),
+                          Row(
+                            children: [
+                              Text('Serving Amount:',
+                                  style: TextStyle(fontSize: 16)),
+                              SizedBox(width: 16),
+                              NumberSpinner(
+                                initialValue: 1,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _servingAmountController.text =
+                                        value.toString();
+                                  });
+                                },
+                              ),
+                            ],
                           ),
+                          // TextField(
+                          //   controller: _servingAmountController,
+                          //   decoration: _buildInputDecoration('Serving Amount',
+                          //       icon: Icons.people),
+                          // ),
                           SizedBox(height: 24),
                           Text('Ingredients:',
                               style: TextStyle(
@@ -378,6 +394,63 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
           ),
         ],
       ),
+    );
+  }
+}
+
+class NumberSpinner extends StatefulWidget {
+  final int initialValue;
+  final Function(int) onChanged;
+
+  NumberSpinner({required this.initialValue, required this.onChanged});
+
+  @override
+  _NumberSpinnerState createState() => _NumberSpinnerState();
+}
+
+class _NumberSpinnerState extends State<NumberSpinner> {
+  late int _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.initialValue;
+  }
+
+  void _increment() {
+    setState(() {
+      _value++;
+      widget.onChanged(_value);
+    });
+  }
+
+  void _decrement() {
+    setState(() {
+      if (_value > 1) {
+        _value--;
+        widget.onChanged(_value);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: Icon(Icons.remove),
+          onPressed: _decrement,
+        ),
+        Text(
+          _value.toString(),
+          style: TextStyle(fontSize: 18),
+        ),
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: _increment,
+        ),
+      ],
     );
   }
 }
