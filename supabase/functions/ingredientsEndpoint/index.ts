@@ -1,6 +1,20 @@
 /// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.43.4'
 
+// Define the structure of the recipeData object
+interface RecipeData {
+  name: string;
+  description: string;
+  methods: string;
+  cookTime: number;
+  cuisine: string;
+  spiceLevel: number;
+  prepTime: number;
+  course: string;
+  servingAmount: number;
+  ingredients: { name: string, quantity: number, unit: string }[];
+}
+
 // Create the Supabase Client
 const supURL = Deno.env.get("_SUPABASE_URL") as string;
 const supKey = Deno.env.get("_SUPABASE_ANON_KEY") as string;
@@ -22,7 +36,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId } = await req.json();
+        const { action, userId, recipeData } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -31,8 +45,10 @@ Deno.serve(async (req) => {
                 return getIngredientNames();
             case 'getShoppingList':
                 return getShoppingList(userId);
-            case 'getAvailableIngredients':
-                return getAvailableIngredients(userId);                
+            case 'getAvailableIngredients': // the pantry list
+                return getAvailableIngredients(userId); 
+            case 'addRecipe':
+              return addRecipe(recipeData);               
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -194,6 +210,79 @@ async function getAvailableIngredients(userId: string) {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
+  }
+}
+
+// Add recipe to the db from the form
+async function addRecipe(recipeData: RecipeData) {
+  try {
+      const { name, description, methods, cookTime, cuisine, spiceLevel, prepTime, course, servingAmount, ingredients } = recipeData;
+
+      // Insert the recipe
+      const { data: insertedRecipeData, error: recipeError } = await supabase
+          .from('recipe')
+          .insert({
+              name,
+              description,
+              steps: methods, // Save the methods directly in the recipe table
+              cooktime: cookTime,
+              cuisine,
+              spicelevel: spiceLevel,
+              preptime: prepTime,
+              course,
+              servings: servingAmount,
+          })
+          .select('recipeid') // Select only the recipe ID
+          .single();
+
+      if (recipeError) {
+          return new Response(JSON.stringify({ error: recipeError.message }), { status: 400 });
+      }
+
+      const recipeId = insertedRecipeData?.recipeid; // Extract the recipe ID
+
+      // Check if recipeId is null or undefined
+      if (!recipeId) {
+          return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), { status: 400 });
+      }
+
+      // Insert ingredients
+      for (const ingredient of ingredients) {
+          const { data: ingredientData, error: ingredientError } = await supabase
+              .from('ingredient')
+              .select('ingredientid')
+              .eq('name', ingredient.name)
+              .single();
+
+          if (ingredientError) {
+              return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredient.name}` }), { status: 400 });
+          }
+
+          const ingredientId = ingredientData?.ingredientid; // Extract the ingredient ID
+
+          // Check if ingredientId is null or undefined
+          if (!ingredientId) {
+              return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), { status: 400 });
+          }
+
+          // Insert into recipeingredients with the fetched recipeId
+          const { error: recipeIngredientError } = await supabase
+              .from('recipeingredients')
+              .insert({
+                  recipeid: recipeId,
+                  ingredientid: ingredientId,
+                  quantity: ingredient.quantity,
+                  measurmentunit: ingredient.unit,
+              });
+
+          if (recipeIngredientError) {
+              return new Response(JSON.stringify({ error: recipeIngredientError.message }), { status: 400 });
+          }
+      }
+
+      return new Response(JSON.stringify({ success: true, recipeId }), { status: 200 });
+  } catch (e) {
+      return new Response(JSON.stringify({ error: e.message }), { status: 500 });
   }
 }
 
