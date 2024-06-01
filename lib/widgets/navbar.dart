@@ -2,17 +2,24 @@ import 'package:flutter/material.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String currentRoute;
-  final Function(String)? onChange; // Make onChange optional
+  final Function(String)? onChange;
 
-  Navbar({required this.currentRoute, this.onChange});
+  const Navbar({required this.currentRoute, this.onChange});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(
+      title: const Text(
         'Culinary Companion',
-        style: TextStyle(color: Colors.orange),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
       ),
+      elevation: 4,
+      shadowColor: Colors.black.withOpacity(0.5),
+
       actions: [
         _buildNavItem(context, 'Home', '/'),
         _buildNavItem(context, 'Scan Recipe', '/scan-recipe'),
@@ -24,24 +31,42 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   Widget _buildNavItem(BuildContext context, String title, String route) {
-    bool isSelected = currentRoute == route;
-    return TextButton(
-      onPressed: () {
-        if (!isSelected && onChange != null) { // Check if onChange is not null
-          onChange!(route); // Call onChange if it's not null
-        }
-      },
-      child: Text(
-        title,
-        style: TextStyle(
-          color: isSelected ? Colors.orange : Colors.white,
-          fontSize: 16,
-          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+    final bool isSelected = currentRoute == route;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        decoration: BoxDecoration(
+          color: isSelected ? Color(0xFF0B3D36) : null,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              if (!isSelected && onChange != null) {
+                onChange!(route);
+              }
+            },
+            borderRadius: BorderRadius.circular(24),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : Color.fromARGB(255, 255, 255, 255),
+                  fontSize: 16,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 16);
 }
