@@ -5,7 +5,8 @@ class AddRecipeScreen extends StatefulWidget {
   _AddRecipeScreenState createState() => _AddRecipeScreenState();
 }
 
-class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProviderStateMixin {
+class _AddRecipeScreenState extends State<AddRecipeScreen>
+    with SingleTickerProviderStateMixin {
   final List<Map<String, String>> _ingredients = [];
   final List<String> _methods = [];
   late TabController _tabController;
@@ -14,13 +15,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _cookingTimeController = TextEditingController();
   final TextEditingController _prepTimeController = TextEditingController();
-  final TextEditingController _servingAmountController = TextEditingController();
+  final TextEditingController _servingAmountController =
+      TextEditingController();
 
   String _selectedCuisine = 'Mexican';
   String _selectedCourse = 'Main';
   int _spiceLevel = 1;
 
-  final List<String> _cuisines = ['Mexican', 'Italian', 'Chinese', 'Indian', 'American'];
+  final List<String> _cuisines = [
+    'Mexican',
+    'Italian',
+    'Chinese',
+    'Indian',
+    'American'
+  ];
   final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
 
   void _addIngredientField() {
@@ -29,9 +37,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
     });
   }
 
+  void _removeIngredientField(int index) {
+    setState(() {
+      _ingredients.removeAt(index);
+    });
+  }
+
   void _addMethodField() {
     setState(() {
       _methods.add('');
+    });
+  }
+
+  void _removeMethodField(int index) {
+    setState(() {
+      _methods.removeAt(index);
     });
   }
 
@@ -55,6 +75,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
     _tabController = TabController(length: 3, vsync: this);
   }
 
+  InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
+    return InputDecoration(
+      labelText: labelText,
+      prefixIcon: icon != null ? Icon(icon) : null,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFF0B3D36)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,8 +97,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
           controller: _tabController,
           tabs: [
             Tab(text: 'Scan Recipe'),
-            Tab(text: 'Form'),
-            Tab(text: 'Text Input'),
+            Tab(text: 'Paste Recipe'),
+            Tab(text: 'Add My Own Recipe'),
           ],
         ),
       ),
@@ -90,205 +124,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
               ],
             ),
           ),
-          // Form Screen
-          Padding(
-            padding: EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Recipe Details:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Name of Recipe',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _descriptionController,
-                    decoration: InputDecoration(
-                      labelText: 'Description of Recipe',
-                      border: OutlineInputBorder(),
-                    ),
-                    maxLines: 3,
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _cookingTimeController,
-                    decoration: InputDecoration(
-                      labelText: 'Cooking Time (min)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _prepTimeController,
-                    decoration: InputDecoration(
-                      labelText: 'Preparation Time (min)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: _selectedCuisine,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCuisine = value!;
-                      });
-                    },
-                    items: _cuisines.map((cuisine) {
-                      return DropdownMenuItem<String>(
-                        value: cuisine,
-                        child: Text(cuisine),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      labelText: 'Type of Cuisine',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: _selectedCourse,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCourse = value!;
-                      });
-                    },
-                    items: _courses.map((course) {
-                      return DropdownMenuItem<String>(
-                        value: course,
-                        child: Text(course),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      labelText: 'Type of Course',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Text('Spice Level:', style: TextStyle(fontSize: 16)),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Slider(
-                          value: _spiceLevel.toDouble(),
-                          min: 1,
-                          max: 3,
-                          divisions: 2,
-                          label: _spiceLevel.toString(),
-                          onChanged: (value) {
-                            setState(() {
-                              _spiceLevel = value.toInt();
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  TextField(
-                    controller: _servingAmountController,
-                    decoration: InputDecoration(
-                      labelText: 'Serving Amount',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Text('Ingredients:', style: TextStyle(fontSize: 16)),
-                  ..._ingredients.map((ingredient) {
-                    int index = _ingredients.indexOf(ingredient);
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              onChanged: (value) {
-                                setState(() {
-                                  _ingredients[index]['name'] = value;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Ingredient',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              onChanged: (value) {
-                                setState(() {
-                                  _ingredients[index]['quantity'] = value;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Quantity',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          Expanded(
-                            child: TextField(
-                              onChanged: (value) {
-                                setState(() {
-                                  _ingredients[index]['unit'] = value;
-                                });
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Unit',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  IconButton(
-                    icon: Icon(Icons.add_circle_outline),
-                    onPressed: _addIngredientField,
-                  ),
-                  SizedBox(height: 20),
-                  Text('Methods:', style: TextStyle(fontSize: 16)),
-                  ..._methods.map((method) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            int index = _methods.indexOf(method);
-                            _methods[index] = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Method',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  IconButton(
-                    icon: Icon(Icons.add_circle_outline),
-                    onPressed: _addMethodField,
-                  ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: _submitRecipe,
-                      child: Text('Add Recipe'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
           // Text Input Screen
           Center(
             child: Column(
@@ -306,6 +141,239 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
                   child: Text('Analyze Recipe'),
                 ),
               ],
+            ),
+          ),
+          // Form Screen
+          Padding(
+            padding: EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Recipe Details:',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 40),
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _nameController,
+                            decoration: _buildInputDecoration('Name of Recipe',
+                                icon: Icons.fastfood),
+                          ),
+                          SizedBox(height: 24),
+                          TextField(
+                            controller: _descriptionController,
+                            decoration: _buildInputDecoration(
+                                'Description of Recipe',
+                                icon: Icons.description),
+                            maxLines: 3,
+                          ),
+                          SizedBox(height: 24),
+                          TextField(
+                            controller: _cookingTimeController,
+                            decoration: _buildInputDecoration(
+                                'Cooking Time (min)',
+                                icon: Icons.timer),
+                          ),
+                          SizedBox(height: 24),
+                          TextField(
+                            controller: _prepTimeController,
+                            decoration: _buildInputDecoration(
+                                'Preparation Time (min)',
+                                icon: Icons.timer_off),
+                          ),
+                          SizedBox(height: 24),
+                          DropdownButtonFormField<String>(
+                            value: _selectedCuisine,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCuisine = value!;
+                              });
+                            },
+                            items: _cuisines.map((cuisine) {
+                              return DropdownMenuItem<String>(
+                                value: cuisine,
+                                child: Text(cuisine),
+                              );
+                            }).toList(),
+                            decoration: _buildInputDecoration('Type of Cuisine',
+                                icon: Icons.restaurant),
+                          ),
+                          SizedBox(height: 24),
+                          DropdownButtonFormField<String>(
+                            value: _selectedCourse,
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedCourse = value!;
+                              });
+                            },
+                            items: _courses.map((course) {
+                              return DropdownMenuItem<String>(
+                                value: course,
+                                child: Text(course),
+                              );
+                            }).toList(),
+                            decoration: _buildInputDecoration('Type of Course',
+                                icon: Icons.category),
+                          ),
+                          SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Text('Spice Level:',
+                                  style: TextStyle(fontSize: 16)),
+                              SizedBox(width: 16),
+                              Icon(Icons.local_fire_department,
+                                  color: Colors.red),
+                              Expanded(
+                                child: Slider(
+                                  value: _spiceLevel.toDouble(),
+                                  min: 1,
+                                  max: 3,
+                                  divisions: 2,
+                                  label: _spiceLevel.toString(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _spiceLevel = value.toInt();
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 24),
+                          TextField(
+                            controller: _servingAmountController,
+                            decoration: _buildInputDecoration('Serving Amount',
+                                icon: Icons.people),
+                          ),
+                          SizedBox(height: 24),
+                          Text('Ingredients:',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          ..._ingredients.map((ingredient) {
+                            int index = _ingredients.indexOf(ingredient);
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _ingredients[index]['name'] = value;
+                                        });
+                                      },
+                                      decoration:
+                                          _buildInputDecoration('Ingredient'),
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: TextField(
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _ingredients[index]['quantity'] =
+                                              value;
+                                        });
+                                      },
+                                      decoration:
+                                          _buildInputDecoration('Quantity'),
+                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Expanded(
+                                    child: TextField(
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _ingredients[index]['unit'] = value;
+                                        });
+                                      },
+                                      decoration: _buildInputDecoration('Unit'),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.remove_circle_outline,
+                                        color: Colors.red),
+                                    onPressed: () =>
+                                        _removeIngredientField(index),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          Align(
+                            alignment: Alignment.center,
+                            child: IconButton(
+                              icon: Icon(Icons.add_circle_outline),
+                              onPressed: _addIngredientField,
+                            ),
+                          ),
+                          SizedBox(height: 24),
+                          Text('Methods:',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          ..._methods.map((method) {
+                            int index = _methods.indexOf(method);
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: TextField(
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _methods[index] = value;
+                                        });
+                                      },
+                                      decoration:
+                                          _buildInputDecoration('Method'),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.remove_circle_outline,
+                                        color: Colors.red),
+                                    onPressed: () => _removeMethodField(index),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                          Align(
+                            alignment: Alignment.center,
+                            child: IconButton(
+                              icon: Icon(Icons.add_circle_outline),
+                              onPressed: _addMethodField,
+                            ),
+                          ),
+                          SizedBox(height: 24),
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: _submitRecipe,
+                              child: Text('Add Recipe'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Color(0xFF0B3D36),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 40, vertical: 20),
+                                textStyle: TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

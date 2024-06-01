@@ -316,8 +316,8 @@ class HomeScreen extends StatelessWidget {
   Widget _buildCategoryChip(String label) {
     return Chip(
       label: Text(label),
-      backgroundColor: Colors.blue.shade100,
-      labelStyle: TextStyle(color: Colors.blue.shade900, fontWeight: FontWeight.bold),
+      backgroundColor: Color(0xFF2A4940),
+      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
     );
   }
 
