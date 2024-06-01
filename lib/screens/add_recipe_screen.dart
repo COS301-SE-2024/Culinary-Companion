@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -35,18 +37,44 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
     });
   }
 
-  void _submitRecipe() {
-    // Collect all data and print or save it to a database
-    print('Name: ${_nameController.text}');
-    print('Description: ${_descriptionController.text}');
-    print('Cooking Time: ${_cookingTimeController.text}');
-    print('Preparation Time: ${_prepTimeController.text}');
-    print('Type of Cuisine: $_selectedCuisine');
-    print('Spice Level: $_spiceLevel');
-    print('Type of Course: $_selectedCourse');
-    print('Serving Amount: ${_servingAmountController.text}');
-    print('Ingredients: $_ingredients');
-    print('Methods: $_methods');
+  Future<void> _submitRecipe() async {
+    final recipeData = {
+      'name': _nameController.text,
+      'description': _descriptionController.text,
+      'methods': _methods.join('\n'),
+      'cookTime': int.parse(_cookingTimeController.text),
+      'cuisine': _selectedCuisine,
+      'spiceLevel': _spiceLevel,
+      'prepTime': int.parse(_prepTimeController.text),
+      'course': _selectedCourse,
+      'servingAmount': int.parse(_servingAmountController.text),
+      'ingredients': _ingredients.map((ingredient) {
+        return {
+          'name': ingredient['name'],
+          'quantity': int.parse(ingredient['quantity']!),
+          'unit': ingredient['unit'],
+        };
+      }).toList(),
+    };
+
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'action': 'addRecipe',
+        'recipeData': recipeData,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Recipe added successfully!');
+      // Handle success (e.g., show a success message, navigate back, etc.)
+    } else {
+      print('Failed to add recipe: ${response.body}');
+      // Handle error (e.g., show an error message)
+    }
   }
 
   @override
@@ -283,7 +311,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
                   Center(
                     child: ElevatedButton(
                       onPressed: _submitRecipe,
-                      child: Text('Add Recipe'),
+                      child: Text('Submit Recipe'),
                     ),
                   ),
                 ],
@@ -291,20 +319,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
             ),
           ),
           // Text Input Screen
-          Center(
+          Padding(
+            padding: EdgeInsets.all(16.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.text_fields, size: 100),
+                Text('Recipe Text Input:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 SizedBox(height: 16),
-                Text(
-                  'Paste Text',
-                  style: TextStyle(fontSize: 18),
-                ),
-                SizedBox(height: 8),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: Text('Analyze Recipe'),
+                Expanded(
+                  child: TextField(
+                    maxLines: null,
+                    expands: true,
+                    decoration: InputDecoration(
+                      hintText: 'Paste or type your recipe here...',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -313,4 +342,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _cookingTimeController.dispose();
+    _prepTimeController.dispose();
+    _servingAmountController.dispose();
+    super.dispose();
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: AddRecipeScreen(),
+  ));
 }
