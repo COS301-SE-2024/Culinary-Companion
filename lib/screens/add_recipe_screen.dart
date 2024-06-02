@@ -7,7 +7,8 @@ class AddRecipeScreen extends StatefulWidget {
   _AddRecipeScreenState createState() => _AddRecipeScreenState();
 }
 
-class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProviderStateMixin {
+class _AddRecipeScreenState extends State<AddRecipeScreen>
+    with SingleTickerProviderStateMixin {
   final List<Map<String, String>> _ingredients = [];
   final List<String> _methods = [];
   late TabController _tabController;
@@ -77,7 +78,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
     };
 
     final response = await http.post(
-      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -147,6 +149,51 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> with SingleTickerProv
                 OutlinedButton(
                   onPressed: () {},
                   child: const Text('Browse Files'),
+                ),
+                const SizedBox(height: 150),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add functionality to format the scanned recipe
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC945F),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                      ),
+                      child: const Text(
+                        'Format Recipe',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add functionality to analyze the scanned recipe
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A2D27),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                        side: const BorderSide(
+                            color: Color(0xFFDC945F), width: 2),
+                      ),
+                      child: const Text(
+                        'Analyze Recipe',
+                        style: TextStyle(
+                          color: Color(0xFFDC945F),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
