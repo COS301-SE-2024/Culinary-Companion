@@ -138,6 +138,29 @@ class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
     }
   }
 
+  Future<void> _addToShoppingList(String userId, String ingredientName) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'addToShoppingList',
+        'userId': userId,
+        'ingredientName': ingredientName,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Successfully added $ingredientName to shopping list');
+    } else {
+      print('Failed to add $ingredientName to shopping list: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error adding $ingredientName to shopping list: $error');
+  }
+}
+
+
   bool _dontShowAgain = false;
 
   Future<void> _loadDontShowAgainPreference() async {
@@ -152,18 +175,21 @@ class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
     prefs.setBool('dontShowAgain', value);
   }
 
-  void _addItem(String category, String item, bool type) {
-    if (type)
-      setState(() {
-        _shoppingList.putIfAbsent(category, () => []).add(item);
-        _checkboxStates[item] = false;
-      });
-    else
-      setState(() {
-        _pantryList.putIfAbsent(category, () => []).add(item);
-        _checkboxStates[item] = false;
-      });
+ void _addItem(String category, String item, bool type) {
+  if (type) {
+    setState(() {
+      _shoppingList.putIfAbsent(category, () => []).add(item);
+      _checkboxStates[item] = false;
+    });
+  } else {
+    setState(() {
+      _pantryList.putIfAbsent(category, () => []).add(item);
+      _checkboxStates[item] = false;
+    });
   }
+  _addToShoppingList('dcd8108f-acc2-4be8-aef6-69d5763f8b5b', item); // Add this line
+}
+
 
   void _toggleCheckbox(String category, String item, bool type) {
     setState(() {
