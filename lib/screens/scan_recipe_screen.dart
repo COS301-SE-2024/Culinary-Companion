@@ -58,12 +58,7 @@ Future<void> _initializeData() async {
     });
   }
 
-  Future<void> _loadUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId');
-    });
-  }
+
 
   Future<void> _fetchIngredientNames() async {
     try {
