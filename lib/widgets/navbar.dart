@@ -30,7 +30,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   _buildNavItem(context, 'Home', '/', currentRoute == '/'),
-                  _buildNavItem(context, 'Scan Recipe', '/scan-recipe',
+                  _buildNavItem(context, 'Add Recipe', '/scan-recipe',
                       currentRoute == '/scan-recipe'),
                   _buildNavItem(context, 'Shopping List', '/shopping-list',
                       currentRoute == '/shopping-list'),
