@@ -371,8 +371,6 @@ class AddRecipeScreen extends StatefulWidget {
 
 class _AddRecipeScreenState extends State<AddRecipeScreen>
     with SingleTickerProviderStateMixin {
-class _AddRecipeScreenState extends State<AddRecipeScreen>
-    with SingleTickerProviderStateMixin {
   final List<Map<String, String>> _ingredients = [];
   final List<String> _methods = [];
   late TabController _tabController;
