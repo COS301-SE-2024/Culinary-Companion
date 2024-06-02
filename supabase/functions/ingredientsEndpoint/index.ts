@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData } = await req.json();
+        const { action, userId, recipeData, ingredientName } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -48,7 +48,9 @@ Deno.serve(async (req) => {
             case 'getAvailableIngredients': // the pantry list
                 return getAvailableIngredients(userId, corsHeaders); 
             case 'addRecipe':
-              return addRecipe(recipeData, corsHeaders);               
+              return addRecipe(recipeData, corsHeaders);
+            case 'addToShoppingList':
+              return addToShoppingList(userId, ingredientName);               
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -303,6 +305,70 @@ async function addRecipe(recipeData: RecipeData, corsHeaders: HeadersInit) {
         });
     } catch (e) {
         return new Response(JSON.stringify({ error: e.message }), { 
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function addToShoppingList(userId: string, ingredientName: string) {
+    const corsHeaders = {
+        "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type": "application/json"
+    };
+    try {
+        if (!userId || !ingredientName) {
+            throw new Error('User ID and ingredient name are required');
+        }
+
+        // Get the ingredient ID from the ingredient name
+        const { data: ingredientData, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .single();
+
+        if (ingredientError) {
+            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const ingredientId = ingredientData?.ingredientid;
+
+        if (!ingredientId) {
+            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredientName}` }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Insert the ingredient into the shopping list
+        const { error: shoppingListError } = await supabase
+            .from('shoppinglist')
+            .insert({
+                userid: userId,
+                ingredientid: ingredientId,
+                quantity: 1, // Default quantity, adjust as needed
+                measurmentunit: 'unit' // Default measurement unit, adjust as needed
+            });
+
+        if (shoppingListError) {
+            return new Response(JSON.stringify({ error: shoppingListError.message }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), { 
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), { 
             status: 500,
             headers: corsHeaders,
         });
