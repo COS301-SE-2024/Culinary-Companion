@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -15,41 +16,47 @@ class _LoginScreenState extends State<LoginScreen> {
   final String edgeFunctionUrl = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/hello-world';
 
   void _handleLogin() {
-  if (_formKey.currentState!.validate()) {
-    // Perform login logic here
-    // If successful, navigate to the home screen
-    loginUser(_email, _password, 'signIn');
+    if (_formKey.currentState!.validate()) {
+      // Perform login logic here
+      // If successful, navigate to the home screen
+      loginUser(_email, _password, 'signIn');
+    }
   }
-}
 
-Future<void> loginUser(String email, String password, String action) async {
-  try {
-    final response = await http.post(
-      Uri.parse(edgeFunctionUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'action': action, 'email': email, 'password': password}),
-    );
+  Future<void> loginUser(String email, String password, String action) async {
+    try {
+      final response = await http.post(
+        Uri.parse(edgeFunctionUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'action': action, 'email': email, 'password': password}),
+      );
 
-    if (response.statusCode == 200) {
-      final responseBody = jsonDecode(response.body);
-      // Authentication successful, handle the user object as needed
-      print('Login successful: ${responseBody['user']}');
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-      final responseBody = jsonDecode(response.body);
-      // Authentication failed, handle the error
-      print('Login failed: ${responseBody['error']}');
+      if (response.statusCode == 200) {
+        final responseBody = jsonDecode(response.body);
+        // Authentication successful, handle the user object as needed
+        print('Login successful: ${responseBody['user']}');
+        String userId = responseBody['user']['id'];
+        
+        // Save the userId to SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userId);
+        
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        final responseBody = jsonDecode(response.body);
+        // Authentication failed, handle the error
+        print('Login failed: ${responseBody['error']}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Login failed: ${responseBody['error']}')),
+        );
+      }
+    } catch (error) {
+      print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: ${responseBody['error']}')),
+        SnackBar(content: Text('Login failed: $error')),
       );
     }
-  } catch (error) {
-    print('Error: $error');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Login failed: $error')),
-    );
   }
-}
 
   @override
   Widget build(BuildContext context) {
