@@ -130,7 +130,7 @@ async function getShoppingList(userId: string, corsHeaders: HeadersInit) {
         // Fetch shopping list items
         const { data: shoppingListItems, error: shoppingListError } = await supabase
             .from('shoppinglist')
-            .select('slid, ingredientid, quantity, measurmentunit')
+            .select('shoppingid, ingredientid, quantity, measurmentunit')
             .eq('userid', userId);
 
         if (shoppingListError) {
@@ -150,7 +150,7 @@ async function getShoppingList(userId: string, corsHeaders: HeadersInit) {
         const shoppingList = shoppingListItems.map(item => {
             const ingredient = ingredients.find(ingredient => ingredient.ingredientid === item.ingredientid);
             return {
-                slid: item.slid,
+                shoppingid: item.shoppingid,
                 ingredientid: item.ingredientid,
                 quantity: item.quantity,
                 measurmentunit: item.measurmentunit,
