@@ -5,6 +5,7 @@ import 'package:http/http.dart'
     as http; // Add this line to import the http package
 import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
 
+
 class ScanRecipeScreen extends StatefulWidget {
   @override
   _ScanRecipeScreenState createState() => _ScanRecipeScreenState();
@@ -49,6 +50,13 @@ Future<void> _initializeData() async {
   ];
 
   List<String> _items = [];
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId');
+    });
+  }
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
