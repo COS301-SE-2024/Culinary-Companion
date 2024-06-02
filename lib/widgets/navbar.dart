@@ -8,59 +8,75 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBar(
-      title: const Text(
-        'Culinary Companion',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.only(top: 30.0), // Adjust padding as needed
+      child: AppBar(
+        automaticallyImplyLeading: false, // Disable the back button
+        title: Padding(
+          padding: const EdgeInsets.only(
+              left: 16.0), // Adjust left padding as needed
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Culinary',
+                style: TextStyle(color: Color(0xFFD9D9D9)),
+              ),
+              Text(
+                'Companion',
+                style: TextStyle(color: Color(0xFFDC945F)),
+              ),
+            ],
+          ),
         ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        toolbarHeight: 80, // Set a custom height for the AppBar
+        actions: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildNavItem(context, 'Home', '/', currentRoute == '/'),
+              _buildNavItem(context, 'Scan Recipe', '/scan-recipe',
+                  currentRoute == '/scan-recipe'),
+              _buildNavItem(context, 'Shopping List', '/shopping-list',
+                  currentRoute == '/shopping-list'),
+              _buildNavItem(context, 'Saved Recipes', '/saved-recipes',
+                  currentRoute == '/saved-recipes'),
+              _buildNavItem(
+                  context, 'Profile', '/profile', currentRoute == '/profile'),
+            ],
+          ),
+        ],
       ),
-      elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.5),
-
-      actions: [
-        _buildNavItem(context, 'Home', '/'),
-        _buildNavItem(context, 'Scan Recipe', '/scan-recipe'),
-        _buildNavItem(context, 'Shopping List', '/shopping-list'),
-        _buildNavItem(context, 'Saved Recipes', '/saved-recipes'),
-        _buildNavItem(context, 'Profile', '/profile'),
-      ],
     );
   }
 
-  Widget _buildNavItem(BuildContext context, String title, String route) {
-    final bool isSelected = currentRoute == route;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        decoration: BoxDecoration(
-          color: isSelected ? Color(0xFF0B3D36) : null,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: () {
-              if (!isSelected && onChange != null) {
-                onChange!(route);
-              }
-            },
-            borderRadius: BorderRadius.circular(24),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: isSelected ? Colors.white : Color.fromARGB(255, 255, 255, 255),
-                  fontSize: 16,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                ),
-              ),
-            ),
+  Widget _buildNavItem(
+      BuildContext context, String title, String route, bool isSelected) {
+    return TextButton(
+      onPressed: () {
+        if (!isSelected && onChange != null) {
+          onChange!(route);
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.only(bottom: 2.0), // Add padding to the bottom side
+        decoration: isSelected
+            ? BoxDecoration(
+                border: Border(
+                    bottom: BorderSide(
+                        color: Color(0xFFDC945F),
+                        width: 2.0)), // Add a bottom border
+              )
+            : null,
+        child: Text(
+          title,
+          style: TextStyle(
+            color: isSelected ? Color(0xFFDC945F) : Color(0xFFD9D9D9),
+            fontSize: 16,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
       ),
@@ -68,5 +84,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 16);
+  Size get preferredSize =>
+      Size.fromHeight(80); // Update the preferredSize height
 }

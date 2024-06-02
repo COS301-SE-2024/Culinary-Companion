@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'scan_recipe_screen.dart';
-import 'shopping_list_screen.dart';
+//import 'shopping_list_screen.dart';
 import 'saved_recipes_screen.dart';
 import 'profile_screen.dart';
 import 'add_recipe_screen.dart';
 import '../widgets/navbar.dart';
+
 void main() {
   runApp(CulinaryCompanionApp());
 }

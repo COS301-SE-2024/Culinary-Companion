@@ -277,7 +277,8 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Categories', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            // Text('Categories',
+            //     style: TextStyle(fontSize: 24, color: Colors.white)),
             SizedBox(height: 16),
             Wrap(
               spacing: 8.0,

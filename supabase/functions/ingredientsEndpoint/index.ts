@@ -25,7 +25,7 @@ console.log("Hello from Ingredient Endpoint!")
 Deno.serve(async (req) => {
     const corsHeaders = {
         "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
-        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type",
     };
 
@@ -40,15 +40,15 @@ Deno.serve(async (req) => {
 
         switch (action) {
             case 'getAllIngredients':
-                return getAllIngredients();
+                return getAllIngredients(corsHeaders);
             case 'getIngredientNames':
-                return getIngredientNames();
+                return getIngredientNames(corsHeaders);
             case 'getShoppingList':
-                return getShoppingList(userId);
+                return getShoppingList(userId, corsHeaders);
             case 'getAvailableIngredients': // the pantry list
-                return getAvailableIngredients(userId); 
+                return getAvailableIngredients(userId, corsHeaders); 
             case 'addRecipe':
-              return addRecipe(recipeData);               
+              return addRecipe(recipeData, corsHeaders);               
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
 });
 
 // Get all the ingredients and their attributes
-async function getAllIngredients() {
+async function getAllIngredients(corsHeaders: HeadersInit) {
     try {
         const { data: ingredients, error } = await supabase
             .from('ingredient')
@@ -75,18 +75,18 @@ async function getAllIngredients() {
         }
 
         return new Response(JSON.stringify(ingredients), {
-            headers: { 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     }
 }
 
 // Get all the ingredient names and their ids
-async function getIngredientNames() {
+async function getIngredientNames(corsHeaders: HeadersInit) {
     try {
         const { data: ingredients, error } = await supabase
             .from('ingredient')
@@ -102,204 +102,200 @@ async function getIngredientNames() {
         }));
 
         return new Response(JSON.stringify(ingredientNames), {
-            headers: { 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     }
 }
 
 // Get the shopping list per user id
-async function getShoppingList(userId: string) {
-  try {
-      if (!userId) {
-          throw new Error('User ID is required');
-      }
+async function getShoppingList(userId: string, corsHeaders: HeadersInit) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
 
-      // Fetch shopping list items
-      const { data: shoppingListItems, error: shoppingListError } = await supabase
-          .from('shoppinglist')
-          .select('slid, ingredientid, quantity, measurmentunit')
-          .eq('userid', userId);
+        // Fetch shopping list items
+        const { data: shoppingListItems, error: shoppingListError } = await supabase
+            .from('shoppinglist')
+            .select('slid, ingredientid, quantity, measurmentunit')
+            .eq('userid', userId);
 
-      if (shoppingListError) {
-          throw new Error(shoppingListError.message);
-      }
+        if (shoppingListError) {
+            throw new Error(shoppingListError.message);
+        }
 
-      // Fetch ingredients
-      const { data: ingredients, error: ingredientsError } = await supabase
-          .from('ingredient')
-          .select('ingredientid, name');
+        // Fetch ingredients
+        const { data: ingredients, error: ingredientsError } = await supabase
+            .from('ingredient')
+            .select('ingredientid, name, category');
 
-      if (ingredientsError) {
-          throw new Error(ingredientsError.message);
-      }
+        if (ingredientsError) {
+            throw new Error(ingredientsError.message);
+        }
 
-      // Combine shopping list items with ingredient names
-      const shoppingList = shoppingListItems.map(item => {
-          const ingredient = ingredients.find(ingredient => ingredient.ingredientid === item.ingredientid);
-          return {
-              slid: item.slid,
-              ingredientid: item.ingredientid,
-              quantity: item.quantity,
-              measurmentunit: item.measurmentunit,
-              ingredientName: ingredient ? ingredient.name : 'Unknown',
-          };
-      });
+        // Combine shopping list items with ingredient names
+        const shoppingList = shoppingListItems.map(item => {
+            const ingredient = ingredients.find(ingredient => ingredient.ingredientid === item.ingredientid);
+            return {
+                slid: item.slid,
+                ingredientid: item.ingredientid,
+                quantity: item.quantity,
+                measurmentunit: item.measurmentunit,
+                ingredientName: ingredient ? ingredient.name : 'Unknown',
+                category: ingredient ? ingredient.category : 'Unknown',
+            };
+        });
 
-      return new Response(
-          JSON.stringify({ shoppingList }),
-          { status: 200, headers: { 'Content-Type': 'application/json' } }
-      );
-  } catch (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-      });
-  }
+        return new Response(
+            JSON.stringify({ shoppingList }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    }
 }
 
 // Get the pantry list per user id
-async function getAvailableIngredients(userId: string) {
-  try {
-    if (!userId) {
-      throw new Error('User ID is required');
+async function getAvailableIngredients(userId: string, corsHeaders: HeadersInit) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        // Fetch available ingredients
+        const { data: availableIngredients, error: availableIngredientsError } = await supabase
+            .from('availableingredients')
+            .select('ingredientid, quantity, measurmentunit')
+            .eq('userid', userId);
+
+        if (availableIngredientsError) {
+            throw new Error(availableIngredientsError.message);
+        }
+
+        // Fetch ingredient names
+        const ingredientIds = availableIngredients.map(item => item.ingredientid);
+        const { data: ingredients, error: ingredientsError } = await supabase
+            .from('ingredient')
+            .select('ingredientid, name, category')
+            .in('ingredientid', ingredientIds);
+
+        if (ingredientsError) {
+            throw new Error(ingredientsError.message);
+        }
+
+        // Combine available ingredients with names
+        const availableIngredientsWithNames = availableIngredients.map(item => {
+            const ingredient = ingredients.find(ingredient => ingredient.ingredientid === item.ingredientid);
+            return {
+                ingredientid: item.ingredientid,
+                quantity: item.quantity,
+                measurmentunit: item.measurmentunit,
+                name: ingredient ? ingredient.name : 'Unknown',
+                category: ingredient ? ingredient.category : 'Unknown',
+            };
+        });
+
+        return new Response(
+            JSON.stringify({ availableIngredients: availableIngredientsWithNames }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
     }
-
-    // Fetch available ingredients
-    const { data: availableIngredients, error: availableIngredientsError } = await supabase
-      .from('availableingredients')
-      .select('ingredientid, quantity, measurmentunit')
-      .eq('userid', userId);
-
-    if (availableIngredientsError) {
-      throw new Error(availableIngredientsError.message);
-    }
-
-    // Fetch ingredient names
-    const ingredientIds = availableIngredients.map(item => item.ingredientid);
-    const { data: ingredients, error: ingredientsError } = await supabase
-      .from('ingredient')
-      .select('ingredientid, name')
-      .in('ingredientid', ingredientIds);
-
-    if (ingredientsError) {
-      throw new Error(ingredientsError.message);
-    }
-
-    // Combine available ingredients with names
-    const availableIngredientsWithNames = availableIngredients.map(item => {
-      const ingredient = ingredients.find(ingredient => ingredient.ingredientid === item.ingredientid);
-      return {
-        ingredientid: item.ingredientid,
-        quantity: item.quantity,
-        measurmentunit: item.measurmentunit,
-        name: ingredient ? ingredient.name : 'Unknown',
-      };
-    });
-
-    return new Response(
-      JSON.stringify({ availableIngredients: availableIngredientsWithNames }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } }
-    );
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
 }
 
 // Add recipe to the db from the form
-async function addRecipe(recipeData: RecipeData) {
-    const corsHeaders = {
-        "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
-        "Access-Control-Allow-Methods": "POST",
-        "Access-Control-Allow-Headers": "Content-Type",
-        "Content-Type": "application/json"
-      };
-  try {
-      const { name, description, methods, cookTime, cuisine, spiceLevel, prepTime, course, servingAmount, ingredients } = recipeData;
+async function addRecipe(recipeData: RecipeData, corsHeaders: HeadersInit) {
+    try {
+        const { name, description, methods, cookTime, cuisine, spiceLevel, prepTime, course, servingAmount, ingredients } = recipeData;
 
-      // Insert the recipe
-      const { data: insertedRecipeData, error: recipeError } = await supabase
-          .from('recipe')
-          .insert({
-              name,
-              description,
-              steps: methods, // Save the methods directly in the recipe table
-              cooktime: cookTime,
-              cuisine,
-              spicelevel: spiceLevel,
-              preptime: prepTime,
-              course,
-              servings: servingAmount,
-          })
-          .select('recipeid') // Select only the recipe ID
-          .single();
+        // Insert the recipe
+        const { data: insertedRecipeData, error: recipeError } = await supabase
+            .from('recipe')
+            .insert({
+                name,
+                description,
+                steps: methods, // Save the methods directly in the recipe table
+                cooktime: cookTime,
+                cuisine,
+                spicelevel: spiceLevel,
+                preptime: prepTime,
+                course,
+                servings: servingAmount,
+            })
+            .select('recipeid') // Select only the recipe ID
+            .single();
 
-          if (recipeError) {
+        if (recipeError) {
             return new Response(JSON.stringify({ error: recipeError.message }), { 
                 status: 400,
                 headers: corsHeaders,
             });
         }
 
-      const recipeId = insertedRecipeData?.recipeid; // Extract the recipe ID
+        const recipeId = insertedRecipeData?.recipeid; // Extract the recipe ID
 
-      // Check if recipeId is null or undefined
-      if (!recipeId) {
-        return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), { 
-            status: 400,
-            headers: corsHeaders,
-        });
-    }
+        // Check if recipeId is null or undefined
+        if (!recipeId) {
+            return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
 
-      // Insert ingredients
-      for (const ingredient of ingredients) {
-          const { data: ingredientData, error: ingredientError } = await supabase
-              .from('ingredient')
-              .select('ingredientid')
-              .eq('name', ingredient.name)
-              .single();
+        // Insert ingredients
+        for (const ingredient of ingredients) {
+            const { data: ingredientData, error: ingredientError } = await supabase
+                .from('ingredient')
+                .select('ingredientid')
+                .eq('name', ingredient.name)
+                .single();
 
-              if (ingredientError) {
+            if (ingredientError) {
                 return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredient.name}` }), { 
                     status: 400,
                     headers: corsHeaders,
                 });
-                }
-
-          const ingredientId = ingredientData?.ingredientid; // Extract the ingredient ID
-
-          // Check if ingredientId is null or undefined
-          if (!ingredientId) {
-            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), { 
-                status: 400,
-                headers: corsHeaders,
-            });
             }
 
-          // Insert into recipeingredients with the fetched recipeId
-          const { error: recipeIngredientError } = await supabase
-              .from('recipeingredients')
-              .insert({
-                  recipeid: recipeId,
-                  ingredientid: ingredientId,
-                  quantity: ingredient.quantity,
-                  measurmentunit: ingredient.unit,
-              });
+            const ingredientId = ingredientData?.ingredientid; // Extract the ingredient ID
 
-              if (recipeIngredientError) {
+            // Check if ingredientId is null or undefined
+            if (!ingredientId) {
+                return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), { 
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            // Insert into recipeingredients with the fetched recipeId
+            const { error: recipeIngredientError } = await supabase
+                .from('recipeingredients')
+                .insert({
+                    recipeid: recipeId,
+                    ingredientid: ingredientId,
+                    quantity: ingredient.quantity,
+                    measurmentunit: ingredient.unit,
+                });
+
+            if (recipeIngredientError) {
                 return new Response(JSON.stringify({ error: recipeIngredientError.message }), { 
                     status: 400,
                     headers: corsHeaders,
                 });
             }
-      }
+        }
 
         return new Response(JSON.stringify({ success: true, recipeId }), { 
             status: 200,
@@ -312,8 +308,6 @@ async function addRecipe(recipeData: RecipeData) {
         });
     }
 }
-
-
 
 /* To invoke locally:
 

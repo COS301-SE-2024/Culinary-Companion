@@ -6,7 +6,7 @@ const supURL = Deno.env.get("_SUPABASE_URL") as string;
 const supKey = Deno.env.get("_SUPABASE_ANON_KEY") as string;
 const supabase = createClient(supURL, supKey);
 
-console.log("Hello from Functions!")
+console.log("Hello from Functions!");
 
 Deno.serve(async (req) => {
   const corsHeaders = {
