@@ -51,7 +51,7 @@ As a project committed to continuous improvement and user satisfaction, Culinary
 
 <p align="center">
 <a href="https://drive.google.com/drive/u/0/folders/1ZnmKO3qS6L-8hnpoZXd2Y9Ym1cz955pI">Google Drive (For Dev purposes)</a><br>
-<a href="https://drive.google.com/file/d/1GsZDtU9C4RUi6Jd0oMG12oSqAmweHPJ8/view?usp=sharing">System Requirements (SRS)</a><br>
+<a href="https://drive.google.com/file/d/1S89jOO6uwtdGO69uQlcny6oqonXwpjXO/view">System Requirements (SRS)</a><br>
 <a href ="https://docs.google.com/document/d/1jnSFyKLy5eKni1W7SQXsAEFjbcDD9z4gKG0Ik5CG4Ns/edit?usp=sharing">Github Strategy</a><br>
 <a href="https://www.figma.com/design/arOZQVX3lf29HQ8i4AX62q/Culinary-Companion-Wireframe?node-id=0-1&t=RlUZKlPywj5BnrZA-1">Figma designs</a><br>
 <a href="https://github.com/orgs/COS301-SE-2024/projects/58">GitHub Project Board</a><br>
