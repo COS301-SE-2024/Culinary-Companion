@@ -43,7 +43,7 @@ As a project committed to continuous improvement and user satisfaction, Culinary
 
 # Demo Video
 <p align="center">
-<a href="hhttps://drive.google.com/file/d/15_5Z1gA2fE5ary6gUPKAXGd8STM5MKtF/view?usp=sharing">Demo 1</a><br>
+<a href="[hhttps://drive.google.com/file/d/15_5Z1gA2fE5ary6gUPKAXGd8STM5MKtF/view?usp=sharing](https://drive.google.com/file/d/15_5Z1gA2fE5ary6gUPKAXGd8STM5MKtF/view?usp=drive_link)">Demo 1</a><br>
 <!-- <a href="">Demo 2</a><br> -->
 </p>
 
