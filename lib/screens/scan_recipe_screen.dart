@@ -4,6 +4,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart'
     as http; // Add this line to import the http package
 import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
+import '../widgets/userS.dart';
 
 class ScanRecipeScreen extends StatefulWidget {
   @override
@@ -11,15 +12,23 @@ class ScanRecipeScreen extends StatefulWidget {
 }
 
 class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
-  @override
-  void initState() {
-    super.initState();
-    _fetchIngredientNames();
-    _loadDontShowAgainPreference();
-    _fetchShoppingList();
-    _fetchPantryList();
-  }
+  String? _userId;
 
+  @override
+void initState() {
+  super.initState();
+  _initializeData();
+}
+
+Future<void> _initializeData() async {
+  await _loadUserId();
+  _fetchIngredientNames();
+  _loadDontShowAgainPreference();
+  _fetchShoppingList();
+  _fetchPantryList();
+}
+
+  
   final Map<String, List<String>> _shoppingList = {};
 
   final Map<String, List<String>> _pantryList = {};
@@ -42,6 +51,13 @@ class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
   ];
 
   List<String> _items = [];
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId');
+    });
+  }
 
   Future<void> _fetchIngredientNames() async {
     try {
@@ -75,7 +91,7 @@ class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: jsonEncode({
           'action': 'getShoppingList',
-          'userId': 'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
+          'userId': _userId, //'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
         }), // Body of the request
         headers: {'Content-Type': 'application/json'},
       );
@@ -110,7 +126,7 @@ class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: jsonEncode({
           'action': 'getAvailableIngredients',
-          'userId': 'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
+          'userId': _userId,//'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
         }), // Body of the request
         headers: {'Content-Type': 'application/json'},
       );
