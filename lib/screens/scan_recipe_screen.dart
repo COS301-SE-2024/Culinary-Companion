@@ -4,7 +4,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart'
     as http; // Add this line to import the http package
 import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
-import '../widgets/userS.dart';
+
 
 class ScanRecipeScreen extends StatefulWidget {
   @override
