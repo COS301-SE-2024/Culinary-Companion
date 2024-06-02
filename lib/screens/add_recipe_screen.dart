@@ -122,6 +122,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
         bottom: TabBar(
           controller: _tabController,
           tabs: [
