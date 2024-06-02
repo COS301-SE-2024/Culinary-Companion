@@ -30,8 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-
+  supabase_flutter: ^2.5.3
+  http: ^0.13.4
+  shared_preferences: ^2.0.13
+  flutter_typeahead: ^4.0.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
@@ -71,7 +73,13 @@ flutter:
     - assets/food5.webp
     - assets/food6.jpeg
     - assets/food7.jpeg
+    - assets/food8.jpg
+    - assets/food9.jpg
+    - assets/food10.jpg
+    - assets/food11.jpg
+    - assets/pfp.jpg
     - assets/profile.jpeg
+    - assets/trash-can.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

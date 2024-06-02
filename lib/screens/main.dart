@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'scan_recipe_screen.dart';
-import 'shopping_list_screen.dart';
+//import 'shopping_list_screen.dart';
 import 'saved_recipes_screen.dart';
 import 'profile_screen.dart';
 import 'add_recipe_screen.dart';
 import '../widgets/navbar.dart';
+
 void main() {
   runApp(CulinaryCompanionApp());
 }
@@ -14,17 +15,6 @@ class CulinaryCompanionApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Culinary Companion',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: Color(0xFF0B3D36), // Dark green background
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(),
-          filled: true,
-          fillColor: Colors.white12,
-        ),
-      ),
       home: MainScreen(),
     );
   }
