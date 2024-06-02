@@ -16,7 +16,6 @@
 
 # Table of contents
 
-- [Twitter clone - By MP-13](#twitter-clone---by-mp-13)
 - [Table of contents](#table-of-contents)
 - [Summary](#summary)
 - [Introduction](#introduction)
@@ -31,7 +30,7 @@
   - [I am an external developer and I want to try the app](#i-am-an-external-developer-and-i-want-to-try-the-app)
 - [Meet The Team](#meet-the-team)
 
-# Summary
+# TeckTonic - Culinary Companion
 Culinary Companion is a Progressive Web Application (PWA) designed to function as a virtual sous-chef. It uses large language models (LLMs) and food science to suggest ingredient substitutions and recipe modifications based on available ingredients or dietary constraints of a user.
 
 # Introduction
@@ -56,7 +55,7 @@ As a project committed to continuous improvement and user satisfaction, Culinary
 
 <p align="center">
 <a href="https://drive.google.com/drive/u/2/folders/12w9AqPrPh--GmyGXWzAQYP414YTrQfHA">Google Drive (For Dev purposes)</a><br>
-<a href="https://docs.google.com/document/d/13-FlGpf09eMM-dNkEyX95V4DfcYBMRBgIdHgMGPqi2o/edit?usp=sharing">System Requirements (SRS)</a><br>
+<a href="https://drive.google.com/file/d/1GsZDtU9C4RUi6Jd0oMG12oSqAmweHPJ8/view?usp=sharing">System Requirements (SRS)</a><br>
 <a href ="https://docs.google.com/document/d/1G1Gdibt_B2mFnmy8S8u-i7FS6X7fMDLiE49PROLf4pY/edit?usp=sharing">System Architecture Design</a><br>
 <a href="https://docs.google.com/document/d/15hG2OY6oi2Lvb1nx3eZkLjZcsis7eU1H7L7xb3rV1OU/edit?usp=sharing">Project Plan</a><br>
 <a href ="https://docs.google.com/document/d/11aLnvSpC1LST7BpA-j2aYu5DllywdCPte29lN52R7SM/edit?usp=sharing">Github Strategy</a><br>
