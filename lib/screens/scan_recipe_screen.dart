@@ -13,7 +13,6 @@ class ScanRecipeScreen extends StatefulWidget {
 
 class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
   String? _userId;
-
   @override
 void initState() {
   super.initState();
@@ -28,7 +27,7 @@ Future<void> _initializeData() async {
   _fetchPantryList();
 }
 
-  
+
   final Map<String, List<String>> _shoppingList = {};
 
   final Map<String, List<String>> _pantryList = {};
@@ -58,6 +57,8 @@ Future<void> _initializeData() async {
       _userId = prefs.getString('userId');
     });
   }
+
+
 
   Future<void> _fetchIngredientNames() async {
     try {
@@ -126,7 +127,7 @@ Future<void> _initializeData() async {
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: jsonEncode({
           'action': 'getAvailableIngredients',
-          'userId': _userId,//'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
+          'userId': _userId, //'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
         }), // Body of the request
         headers: {'Content-Type': 'application/json'},
       );
@@ -154,6 +155,109 @@ Future<void> _initializeData() async {
     }
   }
 
+  Future<void> _addToShoppingList(String? userId, String ingredientName) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'addToShoppingList',
+        'userId': userId,
+        'ingredientName': ingredientName,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Successfully added $ingredientName to shopping list');
+    } else {
+      print('Failed to add $ingredientName to shopping list: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error adding $ingredientName to shopping list: $error');
+  }
+}
+
+Future<void> _removeFromShoppingList(String category, String ingredientName) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'removeFromShoppingList',
+        'userId': _userId,
+        'ingredientName': ingredientName,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      // If the request is successful, update the shopping list
+      setState(() {
+        _shoppingList[category]?.remove(ingredientName);
+      });
+    } else {
+      // Handle other status codes
+      print('Failed to remove item from shopping list: ${response.statusCode}');
+    }
+  } catch (error) {
+    // Handle network errors or other exceptions
+    print('Error removing item from shopping list: $error');
+  }
+}
+
+
+Future<void> _addToPantryList(String? userId, String ingredientName) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'addToPantryList', // Change action to addToPantryList
+        'userId': userId,
+        'ingredientName': ingredientName,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Successfully added $ingredientName to pantry list');
+    } else {
+      print('Failed to add $ingredientName to pantry list: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error adding $ingredientName to pantry list: $error');
+  }
+}
+
+Future<void> _removeFromPantryList(String category, String ingredientName) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'removeFromPantryList',
+        'userId': _userId,
+        'ingredientName': ingredientName,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      // If the request is successful, update the pantry list
+      setState(() {
+        _pantryList[category]?.remove(ingredientName);
+        if (_pantryList[category]?.isEmpty ?? true) {
+          _pantryList.remove(category);
+        }
+      });
+    } else {
+      // Handle other status codes
+      print('Failed to remove item from pantry list: ${response.statusCode}');
+    }
+  } catch (error) {
+    // Handle network errors or other exceptions
+    print('Error removing item from pantry list: $error');
+  }
+}
+
+
   bool _dontShowAgain = false;
 
   Future<void> _loadDontShowAgainPreference() async {
@@ -168,18 +272,23 @@ Future<void> _initializeData() async {
     prefs.setBool('dontShowAgain', value);
   }
 
-  void _addItem(String category, String item, bool type) {
-    if (type)
-      setState(() {
-        _shoppingList.putIfAbsent(category, () => []).add(item);
-        _checkboxStates[item] = false;
-      });
-    else
-      setState(() {
-        _pantryList.putIfAbsent(category, () => []).add(item);
-        _checkboxStates[item] = false;
-      });
+ void _addItem(String category, String item, bool type) {
+  if (type) {
+    setState(() {
+      _shoppingList.putIfAbsent(category, () => []).add(item);
+      _checkboxStates[item] = false;
+    });
+    _addToShoppingList(_userId, item); // Existing line for shopping list
+  } else {
+    setState(() {
+      _pantryList.putIfAbsent(category, () => []).add(item);
+      _checkboxStates[item] = false;
+    });
+    _addToPantryList( _userId, item); // New line for pantry list
   }
+}
+
+
 
   void _toggleCheckbox(String category, String item, bool type) {
     setState(() {
@@ -605,6 +714,7 @@ Future<void> _initializeData() async {
               ),
               onPressed: () {
                 _confirmRemoveItem(context, category, title, listType);
+                //_removeFromShoppingList(category, ingredientName);
               },
             ),
             onTap: () {
@@ -676,11 +786,13 @@ Future<void> _initializeData() async {
   void _removeItem(String category, String title, bool listType) {
     setState(() {
       if (listType) {
+        _removeFromShoppingList(category, title);
         _shoppingList[category]?.remove(title);
         if (_shoppingList[category]?.isEmpty ?? true) {
           _shoppingList.remove(category);
         }
       } else {
+        _removeFromPantryList(category, title);
         _pantryList[category]?.remove(title);
         if (_pantryList[category]?.isEmpty ?? true) {
           _pantryList.remove(category);
