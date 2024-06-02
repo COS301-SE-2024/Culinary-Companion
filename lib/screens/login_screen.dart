@@ -40,7 +40,6 @@ class _LoginScreenState extends State<LoginScreen> {
         // Save the userId to SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('userId', userId);
-        print('Stored userId: $userId');
         
         Navigator.pushReplacementNamed(context, '/home');
       } else {
