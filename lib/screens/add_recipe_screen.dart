@@ -300,9 +300,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               Expanded(
                                 child: Slider(
                                   value: _spiceLevel.toDouble(),
-                                  min: 1,
+                                  min: 0,
                                   max: 3,
-                                  divisions: 2,
+                                  divisions: 3,
                                   label: _spiceLevel.toString(),
                                   onChanged: (value) {
                                     setState(() {
