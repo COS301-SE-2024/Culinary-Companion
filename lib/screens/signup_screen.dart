@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupScreen extends StatefulWidget {
   @override
@@ -32,6 +33,11 @@ class _SignupScreenState extends State<SignupScreen> {
           final responseBody = jsonDecode(response.body);
           // Authentication successful, handle the user object as needed
           print('Sign up successful: ${responseBody['user']}');
+          String userId = responseBody['user']['id'];
+        
+          // Save the userId to SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('userId', userId);
           Navigator.pushReplacementNamed(context, '/home');
         } else {
           final responseBody = jsonDecode(response.body);

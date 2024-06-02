@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData } = await req.json();
+        const { action, userId, recipeData, ingredientName } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -48,7 +48,15 @@ Deno.serve(async (req) => {
             case 'getAvailableIngredients': // the pantry list
                 return getAvailableIngredients(userId, corsHeaders); 
             case 'addRecipe':
-              return addRecipe(recipeData, corsHeaders);               
+              return addRecipe(recipeData, corsHeaders);
+            case 'addToShoppingList':
+              return addToShoppingList(userId, ingredientName);
+            case 'addToPantryList':
+              return addToPantryList(userId, ingredientName);
+            case 'removeFromShoppingList':
+              return removeFromShoppingList(userId, ingredientName);
+            case 'removeFromPantryList':
+              return removeFromPantryList(userId, ingredientName);               
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -122,7 +130,7 @@ async function getShoppingList(userId: string, corsHeaders: HeadersInit) {
         // Fetch shopping list items
         const { data: shoppingListItems, error: shoppingListError } = await supabase
             .from('shoppinglist')
-            .select('slid, ingredientid, quantity, measurmentunit')
+            .select('shoppingid, ingredientid, quantity, measurmentunit')
             .eq('userid', userId);
 
         if (shoppingListError) {
@@ -142,7 +150,7 @@ async function getShoppingList(userId: string, corsHeaders: HeadersInit) {
         const shoppingList = shoppingListItems.map(item => {
             const ingredient = ingredients.find(ingredient => ingredient.ingredientid === item.ingredientid);
             return {
-                slid: item.slid,
+                shoppingid: item.shoppingid,
                 ingredientid: item.ingredientid,
                 quantity: item.quantity,
                 measurmentunit: item.measurmentunit,
@@ -303,6 +311,251 @@ async function addRecipe(recipeData: RecipeData, corsHeaders: HeadersInit) {
         });
     } catch (e) {
         return new Response(JSON.stringify({ error: e.message }), { 
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function addToShoppingList(userId: string, ingredientName: string) {
+    const corsHeaders = {
+        "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type": "application/json"
+    };
+    try {
+        if (!userId || !ingredientName) {
+            throw new Error('User ID and ingredient name are required');
+        }
+
+        // Get the ingredient ID from the ingredient name
+        const { data: ingredientData, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .single();
+
+        if (ingredientError) {
+            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const ingredientId = ingredientData?.ingredientid;
+
+        if (!ingredientId) {
+            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredientName}` }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Insert the ingredient into the shopping list
+        const { error: shoppingListError } = await supabase
+            .from('shoppinglist')
+            .insert({
+                userid: userId,
+                ingredientid: ingredientId,
+                quantity: 1, // Default quantity, adjust as needed
+                measurmentunit: 'unit' // Default measurement unit, adjust as needed
+            });
+
+        if (shoppingListError) {
+            return new Response(JSON.stringify({ error: shoppingListError.message }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), { 
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), { 
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+// Add an ingredient to the pantry list
+async function addToPantryList(userId: string, ingredientName: string) {
+    const corsHeaders = {
+        "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type": "application/json"
+    };
+    try {
+        if (!userId || !ingredientName) {
+            throw new Error('User ID and ingredient name are required');
+        }
+
+        // Get the ingredient ID from the ingredient name
+        const { data: ingredientData, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .single();
+
+        if (ingredientError) {
+            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const ingredientId = ingredientData?.ingredientid;
+
+        if (!ingredientId) {
+            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredientName}` }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Insert the ingredient into the pantry list
+        const { error: pantryListError } = await supabase
+            .from('availableingredients')
+            .insert({
+                userid: userId,
+                ingredientid: ingredientId,
+                quantity: 1, // Default quantity, adjust as needed
+                measurmentunit: 'unit' // Default measurement unit, adjust as needed
+            });
+
+        if (pantryListError) {
+            return new Response(JSON.stringify({ error: pantryListError.message }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), { 
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), { 
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+// Function to remove an ingredient from the shopping list
+async function removeFromShoppingList(userId: string, ingredientName: string) {
+    const corsHeaders = {
+        "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type": "application/json"
+    };
+    try {
+        if (!userId || !ingredientName) {
+            return new Response(JSON.stringify({ error: 'User ID and Ingredient Name are required' }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Fetch ingredient ID by name
+        const { data: ingredient, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .single();
+
+        if (ingredientError || !ingredient) {
+            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const ingredientId = ingredient.ingredientid;
+
+        // Delete ingredient from shopping list
+        const { error: shoppingListError } = await supabase
+            .from('shoppinglist')
+            .delete()
+            .eq('userid', userId)
+            .eq('ingredientid', ingredientId);
+
+        if (shoppingListError) {
+            return new Response(JSON.stringify({ error: shoppingListError.message }), { 
+                status: 500,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), { 
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), { 
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+// Function to remove an ingredient from the pantry list
+async function removeFromPantryList(userId: string, ingredientName: string) {
+    const corsHeaders = {
+        "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
+        "Access-Control-Allow-Methods": "POST",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Content-Type": "application/json"
+    };
+    try {
+        if (!userId || !ingredientName) {
+            return new Response(JSON.stringify({ error: 'User ID and Ingredient Name are required' }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Fetch ingredient ID by name
+        const { data: ingredient, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .single();
+
+        if (ingredientError || !ingredient) {
+            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), { 
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const ingredientId = ingredient.ingredientid;
+
+        // Delete ingredient from pantry list
+        const { error: pantryListError } = await supabase
+            .from('availableingredients')
+            .delete()
+            .eq('userid', userId)
+            .eq('ingredientid', ingredientId);
+
+        if (pantryListError) {
+            return new Response(JSON.stringify({ error: pantryListError.message }), { 
+                status: 500,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), { 
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), { 
             status: 500,
             headers: corsHeaders,
         });

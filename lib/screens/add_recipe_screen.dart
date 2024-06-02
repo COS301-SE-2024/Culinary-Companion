@@ -371,6 +371,8 @@ class AddRecipeScreen extends StatefulWidget {
 
 class _AddRecipeScreenState extends State<AddRecipeScreen>
     with SingleTickerProviderStateMixin {
+class _AddRecipeScreenState extends State<AddRecipeScreen>
+    with SingleTickerProviderStateMixin {
   final List<Map<String, String>> _ingredients = [];
   final List<String> _methods = [];
   late TabController _tabController;
@@ -401,9 +403,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     });
   }
 
+  void _removeIngredientField(int index) {
+    setState(() {
+      _ingredients.removeAt(index);
+    });
+  }
+
   void _addMethodField() {
     setState(() {
       _methods.add('');
+    });
+  }
+
+  void _removeMethodField(int index) {
+    setState(() {
+      _methods.removeAt(index);
     });
   }
 
@@ -454,6 +468,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     _tabController = TabController(length: 3, vsync: this);
   }
 
+  InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
+    return InputDecoration(
+      labelText: labelText,
+      prefixIcon: icon != null ? Icon(icon) : null,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: const BorderSide(color: Color(0xFF0B3D36)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -464,9 +492,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: 'Scan Recipe'),
-            Tab(text: 'Form'),
-            Tab(text: 'Text Input'),
+            const Tab(text: 'Scan Recipe'),
+            const Tab(text: 'Paste Recipe'),
+            const Tab(text: 'Add My Own Recipe'),
           ],
         ),
       ),
@@ -478,23 +506,153 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.camera_alt, size: 100),
-                SizedBox(height: 16),
-                Text(
+                const Icon(Icons.camera_alt, size: 100),
+                const SizedBox(height: 16),
+                const Text(
                   'Drag & Drop Recipe Here',
                   style: TextStyle(fontSize: 18),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 OutlinedButton(
                   onPressed: () {},
-                  child: Text('Browse Files'),
+                  child: const Text('Browse Files'),
+                ),
+                const SizedBox(height: 150),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add functionality to format the scanned recipe
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC945F),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                      ),
+                      child: const Text(
+                        'Format Recipe',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add functionality to analyze the scanned recipe
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1A2D27),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                        side: const BorderSide(
+                            color: Color(0xFFDC945F), width: 2),
+                      ),
+                      child: const Text(
+                        'Analyze Recipe',
+                        style: TextStyle(
+                          color: Color(0xFFDC945F),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // Text Input Screen
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 20),
+                const Padding(
+                  padding: EdgeInsets.only(left: 32.0),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Paste Recipe',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 40),
+                const Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32.0),
+                    child: TextField(
+                      keyboardType: TextInputType.multiline,
+                      maxLines: null,
+                      expands: true,
+                      textAlign: TextAlign.left,
+                      decoration: InputDecoration(
+                        hintText: 'Paste your recipe here...',
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add functionality to format the pasted recipe
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFFDC945F), // Set the background color
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                      ),
+                      child: const Text(
+                        'Format Recipe',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Add functionality to analyze the pasted recipe
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFF1A2D27), // Set the background color
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                        side: const BorderSide(
+                            color: Color(0xFFDC945F), width: 2),
+                      ),
+                      child: const Text(
+                        'Analyze Recipe',
+                        style: TextStyle(
+                          color: Color(0xFFDC945F),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           // Form Screen
           Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -736,4 +894,61 @@ void main() {
   runApp(MaterialApp(
     home: AddRecipeScreen(),
   ));
+}
+
+class NumberSpinner extends StatefulWidget {
+  final int initialValue;
+  final Function(int) onChanged;
+
+  NumberSpinner({required this.initialValue, required this.onChanged});
+
+  @override
+  _NumberSpinnerState createState() => _NumberSpinnerState();
+}
+
+class _NumberSpinnerState extends State<NumberSpinner> {
+  late int _value;
+
+  @override
+  void initState() {
+    super.initState();
+    _value = widget.initialValue;
+  }
+
+  void _increment() {
+    setState(() {
+      _value++;
+      widget.onChanged(_value);
+    });
+  }
+
+  void _decrement() {
+    setState(() {
+      if (_value > 1) {
+        _value--;
+        widget.onChanged(_value);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.remove),
+          onPressed: _decrement,
+        ),
+        Text(
+          _value.toString(),
+          style: const TextStyle(fontSize: 18),
+        ),
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: _increment,
+        ),
+      ],
+    );
+  }
 }
