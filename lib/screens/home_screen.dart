@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'dart:async'; // Import the async library for Timer
 
 class HomeScreen extends StatelessWidget {
   final List<Map<String, dynamic>> recipes = [
     {
       'name': 'Spaghetti Carbonara',
-      'description': 'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
+      'description':
+          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
       'imagePath': 'assets/food7.jpeg',
       'steps': [
         'Boil pasta in salted water.',
@@ -16,7 +16,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Grilled Salmon',
-      'description': 'A simple and delicious recipe for perfectly grilled salmon fillets.',
+      'description':
+          'A simple and delicious recipe for perfectly grilled salmon fillets.',
       'imagePath': 'assets/food6.jpeg',
       'steps': [
         'Season the salmon.',
@@ -27,7 +28,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Chicken Soup',
-      'description': 'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+      'description':
+          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
       'imagePath': 'assets/food5.webp',
       'steps': [
         'Cook chicken until done.',
@@ -38,7 +40,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Margherita Pizza',
-      'description': 'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
+      'description':
+          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
       'imagePath': 'assets/food4.cms',
       'steps': [
         'Prepare the dough.',
@@ -49,7 +52,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Grilled Salmon',
-      'description': 'A simple and delicious recipe for perfectly grilled salmon fillets.',
+      'description':
+          'A simple and delicious recipe for perfectly grilled salmon fillets.',
       'imagePath': 'assets/food6.jpeg',
       'steps': [
         'Season the salmon.',
@@ -60,7 +64,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Chicken Soup',
-      'description': 'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+      'description':
+          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
       'imagePath': 'assets/food5.webp',
       'steps': [
         'Cook chicken until done.',
@@ -71,7 +76,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Margherita Pizza',
-      'description': 'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
+      'description':
+          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
       'imagePath': 'assets/food4.cms',
       'steps': [
         'Prepare the dough.',
@@ -80,9 +86,10 @@ class HomeScreen extends StatelessWidget {
         'Garnish with basil.'
       ],
     },
-        {
+    {
       'name': 'Spaghetti Carbonara',
-      'description': 'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
+      'description':
+          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
       'imagePath': 'assets/food7.jpeg',
       'steps': [
         'Boil pasta in salted water.',
@@ -93,7 +100,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Grilled Salmon',
-      'description': 'A simple and delicious recipe for perfectly grilled salmon fillets.',
+      'description':
+          'A simple and delicious recipe for perfectly grilled salmon fillets.',
       'imagePath': 'assets/food6.jpeg',
       'steps': [
         'Season the salmon.',
@@ -104,7 +112,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Chicken Soup',
-      'description': 'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+      'description':
+          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
       'imagePath': 'assets/food5.webp',
       'steps': [
         'Cook chicken until done.',
@@ -115,7 +124,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Margherita Pizza',
-      'description': 'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
+      'description':
+          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
       'imagePath': 'assets/food4.cms',
       'steps': [
         'Prepare the dough.',
@@ -126,7 +136,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Grilled Salmon',
-      'description': 'A simple and delicious recipe for perfectly grilled salmon fillets.',
+      'description':
+          'A simple and delicious recipe for perfectly grilled salmon fillets.',
       'imagePath': 'assets/food6.jpeg',
       'steps': [
         'Season the salmon.',
@@ -137,7 +148,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Chicken Soup',
-      'description': 'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+      'description':
+          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
       'imagePath': 'assets/food5.webp',
       'steps': [
         'Cook chicken until done.',
@@ -148,7 +160,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Margherita Pizza',
-      'description': 'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
+      'description':
+          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
       'imagePath': 'assets/food4.cms',
       'steps': [
         'Prepare the dough.',
@@ -157,9 +170,10 @@ class HomeScreen extends StatelessWidget {
         'Garnish with basil.'
       ],
     },
-        {
+    {
       'name': 'Spaghetti Carbonara',
-      'description': 'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
+      'description':
+          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
       'imagePath': 'assets/food7.jpeg',
       'steps': [
         'Boil pasta in salted water.',
@@ -170,7 +184,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Chicken Soup',
-      'description': 'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+      'description':
+          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
       'imagePath': 'assets/food5.webp',
       'steps': [
         'Cook chicken until done.',
@@ -181,7 +196,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Margherita Pizza',
-      'description': 'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
+      'description':
+          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
       'imagePath': 'assets/food4.cms',
       'steps': [
         'Prepare the dough.',
@@ -190,9 +206,10 @@ class HomeScreen extends StatelessWidget {
         'Garnish with basil.'
       ],
     },
-        {
+    {
       'name': 'Spaghetti Carbonara',
-      'description': 'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
+      'description':
+          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
       'imagePath': 'assets/food7.jpeg',
       'steps': [
         'Boil pasta in salted water.',
@@ -203,7 +220,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Grilled Salmon',
-      'description': 'A simple and delicious recipe for perfectly grilled salmon fillets.',
+      'description':
+          'A simple and delicious recipe for perfectly grilled salmon fillets.',
       'imagePath': 'assets/food6.jpeg',
       'steps': [
         'Season the salmon.',
@@ -214,7 +232,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Chicken Soup',
-      'description': 'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+      'description':
+          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
       'imagePath': 'assets/food5.webp',
       'steps': [
         'Cook chicken until done.',
@@ -223,9 +242,10 @@ class HomeScreen extends StatelessWidget {
         'Season and serve.'
       ],
     },
-        {
+    {
       'name': 'Spaghetti Carbonara',
-      'description': 'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
+      'description':
+          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
       'imagePath': 'assets/food7.jpeg',
       'steps': [
         'Boil pasta in salted water.',
@@ -236,7 +256,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Grilled Salmon',
-      'description': 'A simple and delicious recipe for perfectly grilled salmon fillets.',
+      'description':
+          'A simple and delicious recipe for perfectly grilled salmon fillets.',
       'imagePath': 'assets/food6.jpeg',
       'steps': [
         'Season the salmon.',
@@ -247,7 +268,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Chicken Soup',
-      'description': 'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+      'description':
+          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
       'imagePath': 'assets/food5.webp',
       'steps': [
         'Cook chicken until done.',
@@ -258,7 +280,8 @@ class HomeScreen extends StatelessWidget {
     },
     {
       'name': 'Margherita Pizza',
-      'description': 'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
+      'description':
+          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
       'imagePath': 'assets/food4.cms',
       'steps': [
         'Prepare the dough.',
@@ -277,7 +300,8 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Categories', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text('Categories',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             SizedBox(height: 16),
             Wrap(
               spacing: 8.0,
@@ -337,7 +361,11 @@ class RecipeCard extends StatefulWidget {
   final String imagePath;
   final List<String> steps;
 
-  RecipeCard({required this.name, required this.description, required this.imagePath, required this.steps});
+  RecipeCard(
+      {required this.name,
+      required this.description,
+      required this.imagePath,
+      required this.steps});
 
   @override
   _RecipeCardState createState() => _RecipeCardState();
@@ -360,9 +388,12 @@ class _RecipeCardState extends State<RecipeCard> {
       child: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              widget.imagePath,
-              fit: BoxFit.cover,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                widget.imagePath,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           if (_hovered)
