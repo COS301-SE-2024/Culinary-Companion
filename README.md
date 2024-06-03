@@ -62,7 +62,7 @@ As a project committed to continuous improvement and user satisfaction, Culinary
 
 <p align="center">
   <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=flutter,dart,typescript,python,supabase,netlify,gitlab,chatgpt&perline=6&theme=light" />
+    <img src="https://skillicons.dev/icons?i=flutter,dart,typescript,python,supabase,netlify,gitlab,docker,chatgpt&perline=6&theme=light" />
   </a>
 </p>
 
