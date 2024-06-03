@@ -4,6 +4,11 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupScreen extends StatefulWidget {
+  final http.Client httpClient;
+  final SharedPreferences sharedPreferences;
+
+  SignupScreen({required this.httpClient, required this.sharedPreferences});
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }
@@ -19,7 +24,7 @@ class _SignupScreenState extends State<SignupScreen> {
       final String edgeFunctionUrl = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/hello-world';
       
       try {
-        final response = await http.post(
+        final response = await widget.httpClient.post(
           Uri.parse(edgeFunctionUrl),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
@@ -31,17 +36,13 @@ class _SignupScreenState extends State<SignupScreen> {
 
         if (response.statusCode == 200) {
           final responseBody = jsonDecode(response.body);
-          // Authentication successful, handle the user object as needed
           print('Sign up successful: ${responseBody['user']}');
           String userId = responseBody['user']['id'];
         
-          // Save the userId to SharedPreferences
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('userId', userId);
+          await widget.sharedPreferences.setString('userId', userId);
           Navigator.pushReplacementNamed(context, '/home');
         } else {
           final responseBody = jsonDecode(response.body);
-          // Authentication failed, handle the error
           print('Sign up failed: ${responseBody['error']}');
           _showErrorDialog(responseBody['error']);
         }

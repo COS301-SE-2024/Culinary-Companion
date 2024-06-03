@@ -41,9 +41,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  http: ^0.13.3 # Version may vary, check for latest
-  shared_preferences: ^2.0.6 # Version may vary, check for latest
-  mockito: ^5.0.0 # If you're using mockito for mocking
+  http: ^0.13.3
+  shared_preferences: ^2.0.6
+  mockito: ^5.0.16
+  build_runner: ^2.0.0
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
