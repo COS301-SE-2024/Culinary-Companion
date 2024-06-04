@@ -36,7 +36,7 @@ class CulinaryCompanionApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: Color(0xFF1A2D27),
+        scaffoldBackgroundColor: Color(0xFF1D2C1F),
         inputDecorationTheme: InputDecorationTheme(
           border: OutlineInputBorder(),
           filled: true,
@@ -45,12 +45,13 @@ class CulinaryCompanionApp extends StatelessWidget {
       ),
       initialRoute: '/landing', // Set the initial route to the landing screen
       routes: {
-        '/landing': (context) => LandingScreen(), // Add the landing screen route
+        '/landing': (context) =>
+            LandingScreen(), // Add the landing screen route
         '/login': (context) => LoginScreen(), // Add the login screen route
         '/signup': (context) => SignupScreen(
-          httpClient: httpClient,
-          sharedPreferences: sharedPreferences,
-        ), // Add the signup screen route
+              httpClient: httpClient,
+              sharedPreferences: sharedPreferences,
+            ), // Add the signup screen route
         '/home': (context) => MainScreen(), // Rename the home route
       },
     );
