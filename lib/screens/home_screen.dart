@@ -6,335 +6,177 @@ class HomeScreen extends StatelessWidget {
       'name': 'Spaghetti Carbonara',
       'description':
           'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food7.jpeg',
-      'steps': [
-        'Boil pasta in salted water.',
-        'Cook pancetta in a pan.',
-        'Mix eggs and cheese.',
-        'Combine all with pepper.'
-      ],
+      'imagePath': 'food1.jpg',
+      'prepTime': 10,
+      'cookTime': 10,
+      'cuisine': 'Italian',
+      'spiceLevel': 1,
+      'course': 'Main',
+      'servings': 4,
+      'keyWords': ['pasta', 'beef', 'tomato']
     },
     {
       'name': 'Grilled Salmon',
       'description':
           'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food6.jpeg',
-      'steps': [
-        'Season the salmon.',
-        'Preheat the grill.',
-        'Grill salmon fillets.',
-        'Serve with lemon.'
-      ],
+      'imagePath': 'food2.jpg',
+      'prepTime': 10,
+      'cookTime': 10,
+      'cuisine': 'Italian',
+      'spiceLevel': 1,
+      'course': 'Main',
+      'servings': 4,
+      'keyWords': ['pasta', 'beef', 'tomato']
     },
     {
       'name': 'Chicken Soup',
       'description':
           'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food5.webp',
-      'steps': [
-        'Cook chicken until done.',
-        'Add vegetables and broth.',
-        'Simmer until vegetables are tender.',
-        'Season and serve.'
-      ],
-    },
-    {
-      'name': 'Margherita Pizza',
-      'description':
-          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
-      'imagePath': 'assets/food4.cms',
-      'steps': [
-        'Prepare the dough.',
-        'Add tomato sauce and toppings.',
-        'Bake in a hot oven.',
-        'Garnish with basil.'
-      ],
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food6.jpeg',
-      'steps': [
-        'Season the salmon.',
-        'Preheat the grill.',
-        'Grill salmon fillets.',
-        'Serve with lemon.'
-      ],
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food5.webp',
-      'steps': [
-        'Cook chicken until done.',
-        'Add vegetables and broth.',
-        'Simmer until vegetables are tender.',
-        'Season and serve.'
-      ],
-    },
-    {
-      'name': 'Margherita Pizza',
-      'description':
-          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
-      'imagePath': 'assets/food4.cms',
-      'steps': [
-        'Prepare the dough.',
-        'Add tomato sauce and toppings.',
-        'Bake in a hot oven.',
-        'Garnish with basil.'
-      ],
+      'imagePath': 'food3.jpg',
+      'prepTime': 10,
+      'cookTime': 10,
+      'cuisine': 'Italian',
+      'spiceLevel': 1,
+      'course': 'Main',
+      'servings': 4,
+      'keyWords': ['pasta', 'beef', 'tomato']
     },
     {
       'name': 'Spaghetti Carbonara',
       'description':
           'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food7.jpeg',
-      'steps': [
-        'Boil pasta in salted water.',
-        'Cook pancetta in a pan.',
-        'Mix eggs and cheese.',
-        'Combine all with pepper.'
-      ],
+      'imagePath': 'food1.jpg',
+      'prepTime': 10,
+      'cookTime': 10,
+      'cuisine': 'Italian',
+      'spiceLevel': 1,
+      'course': 'Main',
+      'servings': 4,
+      'keyWords': ['pasta', 'beef', 'tomato']
     },
     {
       'name': 'Grilled Salmon',
       'description':
           'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food6.jpeg',
-      'steps': [
-        'Season the salmon.',
-        'Preheat the grill.',
-        'Grill salmon fillets.',
-        'Serve with lemon.'
-      ],
+      'imagePath': 'food2.jpg',
+      'prepTime': 10,
+      'cookTime': 10,
+      'cuisine': 'Italian',
+      'spiceLevel': 1,
+      'course': 'Main',
+      'servings': 4,
+      'keyWords': ['pasta', 'beef', 'tomato']
     },
     {
       'name': 'Chicken Soup',
       'description':
           'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food5.webp',
-      'steps': [
-        'Cook chicken until done.',
-        'Add vegetables and broth.',
-        'Simmer until vegetables are tender.',
-        'Season and serve.'
-      ],
-    },
-    {
-      'name': 'Margherita Pizza',
-      'description':
-          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
-      'imagePath': 'assets/food4.cms',
-      'steps': [
-        'Prepare the dough.',
-        'Add tomato sauce and toppings.',
-        'Bake in a hot oven.',
-        'Garnish with basil.'
-      ],
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food6.jpeg',
-      'steps': [
-        'Season the salmon.',
-        'Preheat the grill.',
-        'Grill salmon fillets.',
-        'Serve with lemon.'
-      ],
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food5.webp',
-      'steps': [
-        'Cook chicken until done.',
-        'Add vegetables and broth.',
-        'Simmer until vegetables are tender.',
-        'Season and serve.'
-      ],
-    },
-    {
-      'name': 'Margherita Pizza',
-      'description':
-          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
-      'imagePath': 'assets/food4.cms',
-      'steps': [
-        'Prepare the dough.',
-        'Add tomato sauce and toppings.',
-        'Bake in a hot oven.',
-        'Garnish with basil.'
-      ],
+      'imagePath': 'food3.jpg',
+      'prepTime': 10,
+      'cookTime': 10,
+      'cuisine': 'Italian',
+      'spiceLevel': 1,
+      'course': 'Main',
+      'servings': 4,
+      'keyWords': ['pasta', 'beef', 'tomato']
     },
     {
       'name': 'Spaghetti Carbonara',
       'description':
           'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food7.jpeg',
-      'steps': [
-        'Boil pasta in salted water.',
-        'Cook pancetta in a pan.',
-        'Mix eggs and cheese.',
-        'Combine all with pepper.'
-      ],
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food5.webp',
-      'steps': [
-        'Cook chicken until done.',
-        'Add vegetables and broth.',
-        'Simmer until vegetables are tender.',
-        'Season and serve.'
-      ],
-    },
-    {
-      'name': 'Margherita Pizza',
-      'description':
-          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
-      'imagePath': 'assets/food4.cms',
-      'steps': [
-        'Prepare the dough.',
-        'Add tomato sauce and toppings.',
-        'Bake in a hot oven.',
-        'Garnish with basil.'
-      ],
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food7.jpeg',
-      'steps': [
-        'Boil pasta in salted water.',
-        'Cook pancetta in a pan.',
-        'Mix eggs and cheese.',
-        'Combine all with pepper.'
-      ],
+      'imagePath': 'food1.jpg',
+      'prepTime': 10,
+      'cookTime': 10,
+      'cuisine': 'Italian',
+      'spiceLevel': 1,
+      'course': 'Main',
+      'servings': 4,
+      'keyWords': ['pasta', 'beef', 'tomato']
     },
     {
       'name': 'Grilled Salmon',
       'description':
           'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food6.jpeg',
-      'steps': [
-        'Season the salmon.',
-        'Preheat the grill.',
-        'Grill salmon fillets.',
-        'Serve with lemon.'
-      ],
+      'imagePath': 'food2.jpg',
+      'prepTime': 10,
+      'cookTime': 10,
+      'cuisine': 'Italian',
+      'spiceLevel': 1,
+      'course': 'Main',
+      'servings': 4,
+      'keyWords': ['pasta', 'beef', 'tomato']
     },
     {
       'name': 'Chicken Soup',
       'description':
           'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food5.webp',
-      'steps': [
-        'Cook chicken until done.',
-        'Add vegetables and broth.',
-        'Simmer until vegetables are tender.',
-        'Season and serve.'
-      ],
+      'imagePath': 'food3.jpg',
+      'prepTime': 10,
+      'cookTime': 10,
+      'cuisine': 'Italian',
+      'spiceLevel': 1,
+      'course': 'Main',
+      'servings': 4,
+      'keyWords': ['pasta', 'beef', 'tomato']
     },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food7.jpeg',
-      'steps': [
-        'Boil pasta in salted water.',
-        'Cook pancetta in a pan.',
-        'Mix eggs and cheese.',
-        'Combine all with pepper.'
-      ],
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food6.jpeg',
-      'steps': [
-        'Season the salmon.',
-        'Preheat the grill.',
-        'Grill salmon fillets.',
-        'Serve with lemon.'
-      ],
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food5.webp',
-      'steps': [
-        'Cook chicken until done.',
-        'Add vegetables and broth.',
-        'Simmer until vegetables are tender.',
-        'Season and serve.'
-      ],
-    },
-    {
-      'name': 'Margherita Pizza',
-      'description':
-          'A traditional Italian pizza topped with fresh tomatoes, mozzarella cheese, and basil.',
-      'imagePath': 'assets/food4.cms',
-      'steps': [
-        'Prepare the dough.',
-        'Add tomato sauce and toppings.',
-        'Bake in a hot oven.',
-        'Garnish with basil.'
-      ],
-    }
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Categories',
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white)),
-            SizedBox(height: 16),
-            Wrap(
-              spacing: 8.0,
-              runSpacing: 4.0,
-              children: [
-                _buildCategoryChip('Breakfast'),
-                _buildCategoryChip('Lunch'),
-                _buildCategoryChip('Dinner'),
-                _buildCategoryChip('Pasta'),
-                _buildCategoryChip('Seafood'),
-                _buildCategoryChip('Pizza'),
-                _buildCategoryChip('Soups'),
-              ],
-            ),
-            SizedBox(height: 24),
-            Expanded(
-              child: GridView.builder(
-                itemCount: recipes.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 3 / 4,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 16),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Wrap(
+                  spacing: 8.0,
+                  runSpacing: 4.0,
+                  children: [
+                    _buildCategoryChip('Breakfast'),
+                    _buildCategoryChip('Lunch'),
+                    _buildCategoryChip('Dinner'),
+                    _buildCategoryChip('Pasta'),
+                    _buildCategoryChip('Seafood'),
+                    _buildCategoryChip('Pizza'),
+                    _buildCategoryChip('Soups'),
+                  ],
                 ),
-                itemBuilder: (context, index) {
-                  return _buildRecipeCard(recipes[index]);
+              ),
+              SizedBox(height: 24),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  double width = constraints.maxWidth;
+                  double itemWidth = 276;
+                  double itemHeight = 320;
+                  double aspectRatio = itemWidth / itemHeight;
+
+                  // Calculate relative spacing based on screen width
+                  double crossAxisSpacing = width * 0.01; // 5% of screen width
+                  double mainAxisSpacing = width * 0.02; // 6% of screen width
+
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: recipes.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // Set the number of columns to 3
+                      crossAxisSpacing: crossAxisSpacing,
+                      mainAxisSpacing: mainAxisSpacing,
+                      childAspectRatio: aspectRatio,
+                    ),
+                    itemBuilder: (context, index) {
+                      return _buildRecipeCard(recipes[index]);
+                    },
+                  );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -343,17 +185,30 @@ class HomeScreen extends StatelessWidget {
   Widget _buildCategoryChip(String label) {
     return Chip(
       label: Text(label),
-      backgroundColor: Color(0xFF2A4940),
+      backgroundColor: Color(0xFF2A4940).withOpacity(0.7),
       labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Colors.transparent, // Change to desired border color
+        ),
+      ),
     );
   }
 
   Widget _buildRecipeCard(Map<String, dynamic> recipe) {
     return RecipeCard(
-      name: recipe['name']!,
-      description: recipe['description']!,
-      imagePath: recipe['imagePath']!,
-      steps: List<String>.from(recipe['steps']!),
+      name: recipe['name'] ?? '',
+      description: recipe['description'] ?? '',
+      imagePath: recipe['imagePath'] ?? '',
+      steps: List<String>.from(recipe['steps'] ?? []),
+      prepTime: recipe['prepTime'] ?? 0,
+      cookTime: recipe['cookTime'] ?? 0,
+      cuisine: recipe['cuisine'] ?? '',
+      spiceLevel: recipe['spiceLevel'] ?? 0,
+      course: recipe['course'] ?? '',
+      servings: recipe['servings'] ?? 0,
+      keyWords: List<String>.from(recipe['keyWords'] ?? []),
     );
   }
 }
@@ -363,13 +218,27 @@ class RecipeCard extends StatefulWidget {
   final String description;
   final String imagePath;
   final List<String> steps;
+  final int prepTime;
+  final int cookTime;
+  final String cuisine;
+  final int spiceLevel;
+  final String course;
+  final int servings;
+  final List<String> keyWords;
 
-  RecipeCard(
-      {required this.name,
-      required this.description,
-      required this.imagePath,
-      required this.steps});
-
+  RecipeCard({
+    required this.name,
+    required this.description,
+    required this.imagePath,
+    required this.steps,
+    required this.prepTime,
+    required this.cookTime,
+    required this.cuisine,
+    required this.spiceLevel,
+    required this.course,
+    required this.servings,
+    required this.keyWords,
+  });
   @override
   _RecipeCardState createState() => _RecipeCardState();
 }
@@ -385,6 +254,10 @@ class _RecipeCardState extends State<RecipeCard> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double fontSizeTitle = screenWidth * 0.02;
+    double fontSizeDescription = screenWidth * 0.01;
+
     return MouseRegion(
       onEnter: (_) => _onHover(true),
       onExit: (_) => _onHover(false),
@@ -402,7 +275,10 @@ class _RecipeCardState extends State<RecipeCard> {
           if (_hovered)
             Positioned.fill(
               child: Container(
-                color: Colors.black.withOpacity(0.5),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 103, 128, 96).withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           if (_hovered)
@@ -417,7 +293,7 @@ class _RecipeCardState extends State<RecipeCard> {
                       widget.name,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 20,
+                        fontSize: fontSizeTitle,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -426,25 +302,117 @@ class _RecipeCardState extends State<RecipeCard> {
                       widget.description,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: fontSizeDescription,
                       ),
                     ),
                     SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Prep Time:',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: fontSizeDescription,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              '${widget.prepTime} mins',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: fontSizeDescription,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(width: 10), // Add spacing between elements
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Cook Time:',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: fontSizeDescription,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              '${widget.cookTime} mins',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: fontSizeDescription,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(width: 10), // Add spacing between elements
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Total Time:',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: fontSizeDescription,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              '${widget.prepTime + widget.cookTime} mins',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: fontSizeDescription,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                     Text(
-                      'Steps:',
+                      'Cuisine: ${widget.cuisine}',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: fontSizeDescription,
                       ),
                     ),
-                    ...widget.steps.map((step) => Text(
-                          '- $step',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        )),
+                    Text(
+                      'Spice Level: ${widget.spiceLevel}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: fontSizeDescription,
+                      ),
+                    ),
+                    Text(
+                      'Course: ${widget.course}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: fontSizeDescription,
+                      ),
+                    ),
+                    Text(
+                      'Servings: ${widget.servings}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: fontSizeDescription,
+                      ),
+                    ),
+                    Text(
+                      'Keywords: ${widget.keyWords}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: fontSizeDescription,
+                      ),
+                    ),
                   ],
                 ),
               ),
