@@ -84,6 +84,10 @@ flutter:
     - assets/pfp.jpg
     - assets/profile.jpeg
     - assets/trash-can.png
+    - assets/Darkmode.png
+    - assets/Lightmode.png
+    - assets/logo.png
+    - assets/google.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

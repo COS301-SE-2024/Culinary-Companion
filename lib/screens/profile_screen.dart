@@ -6,7 +6,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(
-          0xFF0A1F1B), // Adjust background color to match screenshot
+          0xFF20493C), // Adjust background color to match screenshot
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(40.0),
