@@ -29,7 +29,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
 Future<void> _initializeData() async {
   await _loadUserId();
-  await  _fetchUserDetails(); // Fetch user details on init
+   await _fetchUserDetails(); // Fetch user details on init
     _loadCuisines().then((cuisineItems) {
       setState(() {
         _cuisines = cuisineItems;
