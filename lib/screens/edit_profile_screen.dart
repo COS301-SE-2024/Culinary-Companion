@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -14,42 +15,44 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   File? _profileImage;
   String? _userId;
   List<DropdownMenuItem<String>>? _cuisines;
-  List<DropdownMenuItem<String>>? _dietaryConstraints;
+  List<MultiSelectItem<String>>? _dietaryConstraints;
   bool _isLoading = true;
   String? _errorMessage;
   Map<String, dynamic>? _userDetails;
-  String? _selectedCuisine; // 1. Added variable
+  String? _selectedCuisine;
+  String? _username;
+  List<String> _selectedDietaryConstraints = [];
+  String? _spiceLevel;
+  String? _profilePhoto;
 
   @override
-
   void initState() {
-  super.initState();
-  _initializeData();
-}
-
-Future<void> _initializeData() async {
-  await _loadUserId();
-   await _fetchUserDetails(); // Fetch user details on init
-    _loadCuisines().then((cuisineItems) {
-      setState(() {
-        _cuisines = cuisineItems;
-        print('Fetched cuisines');
-      });
-    }).catchError((error) {
-      print('Error loading cuisines: $error');
-    });
-
-    _loadDietaryConstraints().then((constraintsItems) {
-      setState(() {
-        _dietaryConstraints = constraintsItems;
-        print('Fetched dietary constraints');
-      });
-    }).catchError((error) {
-      print('Error loading dietary constraints: $error');
-    });
+    super.initState();
+    _initializeData();
   }
 
-  // Load user ID
+  Future<void> _initializeData() async {
+    try {
+      await _loadUserId();
+      await _fetchUserDetails(); // Fetch user details on init
+      final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
+      final List<MultiSelectItem<String>> constraintItems =
+          await _loadDietaryConstraints();
+
+      setState(() {
+        _cuisines = cuisineItems;
+        _dietaryConstraints = constraintItems;
+        _isLoading = false;
+      });
+    } catch (error) {
+      print('Error initializing data: $error');
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Error initializing data';
+      });
+    }
+  }
+
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -58,56 +61,65 @@ Future<void> _initializeData() async {
     });
   }
 
-  ///////////fetch the users profile details/////////
   Future<void> _fetchUserDetails() async {
-  if (_userId == null) return;
+    if (_userId == null) return;
 
-  final String url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
-  try {
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'action': 'getUserDetails',
-        'userId': _userId,
-      }),
-    );
+    final String url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'action': 'getUserDetails',
+          'userId': _userId,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      print('Response data: $data'); //response data
-      if (data.isNotEmpty) {
-        setState(() {
-          _userDetails = data[0]; //get the first item in the list
-          _isLoading = false;
-          _selectedCuisine =
-              _userDetails?['cuisine']?.toString() ?? 'Mexican';
-        });
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        print('Response data: $data'); //response data
+        if (data.isNotEmpty) {
+          setState(() {
+            _userDetails = data[0]; //get the first item in the list
+            _isLoading = false;
+            _selectedCuisine =
+                _userDetails?['cuisine']?.toString() ?? 'Mexican';
+            _username = _userDetails?['username']?.toString() ?? 'Jane Doe';
+            _spiceLevel =
+                _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
+            _selectedDietaryConstraints = List<String>.from(
+                _userDetails?['dietaryConstraints']
+                        ?.map((dc) => dc.toString()) ??
+                    []);
+            _profilePhoto =
+                _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+            _errorMessage = 'No user details found';
+          });
+        }
       } else {
+        // Handle error
+        print('Failed to load user details: ${response.statusCode}');
         setState(() {
           _isLoading = false;
-          _errorMessage = 'No user details found';
+          _errorMessage = 'Failed to load user details';
         });
       }
-    } else {
-      // Handle error
-      print('Failed to load user details: ${response.statusCode}');
+    } catch (error) {
+      //error handling
+      print('Error fetching user details: $error');
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Failed to load user details';
+        _errorMessage = 'Error fetching user details';
       });
     }
-  } catch (error) {
-    //error handlind
-    print('Error fetching user details: $error');
-    setState(() {
-      _isLoading = false;
-      _errorMessage = 'Error fetching user details';
-    });
   }
-}
 
   // Load list of cuisines
   Future<List<DropdownMenuItem<String>>> _loadCuisines() async {
@@ -139,7 +151,7 @@ Future<void> _initializeData() async {
   }
 
   // Load dietary restraints
-  Future<List<DropdownMenuItem<String>>> _loadDietaryConstraints() async {
+  Future<List<MultiSelectItem<String>>> _loadDietaryConstraints() async {
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
     try {
@@ -148,36 +160,73 @@ Future<void> _initializeData() async {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        final List<DropdownMenuItem<String>> constraintItems =
-            data.map<DropdownMenuItem<String>>((constraint) {
-          return DropdownMenuItem<String>(
-            value: constraint['name'].toString(),
-            child: Text(
-              constraint['name'].toString(),
-              style: TextStyle(color: Colors.white),
-            ),
+        final List<MultiSelectItem<String>> constraintItems =
+            data.map<MultiSelectItem<String>>((constraint) {
+          return MultiSelectItem<String>(
+            constraint['name'].toString(),
+            constraint['name'].toString(),
           );
         }).toList();
-
-        // If the response is empty, add a default item
-        if (constraintItems.isEmpty) {
-          constraintItems.add(
-            DropdownMenuItem<String>(
-              value: 'No dietary constraints',
-              child: Text(
-                'No dietary constraints',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          );
-        }
-
         return constraintItems;
       } else {
         throw Exception('Failed to load dietary constraints');
       }
     } catch (e) {
       throw Exception('Error fetching dietary constraints: $e');
+    }
+  }
+
+  Future<void> addUserDietaryConstraint(
+      String userId, String constraint) async {
+    final String url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'action': 'addUserDietaryConstraints',
+          'userId': userId,
+          'dietaryConstraint': constraint,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Dietary constraint added successfully');
+      } else {
+        throw Exception('Failed to add dietary constraint');
+      }
+    } catch (error) {
+      print('Error adding dietary constraint: $error');
+    }
+  }
+
+  Future<void> removeUserDietaryConstraint(
+      String userId, String constraint) async {
+    final String url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'action': 'removeUserDietaryConstraints',
+          'userId': userId,
+          'dietaryConstraint': constraint,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Dietary constraint removed successfully');
+      } else {
+        throw Exception('Failed to remove dietary constraint');
+      }
+    } catch (error) {
+      print('Error removing dietary constraint: $error');
     }
   }
 
@@ -217,10 +266,63 @@ Future<void> _initializeData() async {
     }
   }
 
-  @
-  override
+  Future<void> updateUserUsername(String userId, String username) async {
+    final String url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'action': 'updateUserUsername',
+          'userId': userId,
+          'username': username,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Username updated successfully');
+      } else {
+        throw Exception('Failed to update username');
+      }
+    } catch (error) {
+      print('Error updating username: $error');
+    }
+  }
+
+  Future<void> _saveProfileChanges() async {
+    try {
+      await updateUserUsername(_userId!, _username!);
+
+      // Update cuisine
+      await updateUserCuisine(_userId!, _selectedCuisine!);
+
+      // Remove unticked dietary constraints
+      for (String constraint in _userDetails?['dietaryConstraints'] ?? []) {
+        if (!_selectedDietaryConstraints.contains(constraint)) {
+          await removeUserDietaryConstraint(_userId!, constraint);
+        }
+      }
+
+      // Add new dietary constraints
+      for (String constraint in _selectedDietaryConstraints) {
+        if (!(_userDetails?['dietaryConstraints']?.contains(constraint) ??
+            false)) {
+          await addUserDietaryConstraint(_userId!, constraint);
+        }
+      }
+
+      print('Profile updated successfully');
+      // You can navigate to another screen or show a success message here
+    } catch (error) {
+      print('Error updating profile: $error');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    //final String? preferredCuisine = _userDetails?['cuisine']?.toString() ?? 'Mexican';//default
     print('User\'s preferred cuisine: $_selectedCuisine');
     return Scaffold(
       backgroundColor: const Color(0xFF20493C),
@@ -244,131 +346,121 @@ Future<void> _initializeData() async {
           child: Padding(
             padding: const EdgeInsets.all(40.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Center(
-                  child: Stack(
+                //_profileImage != null,
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _profileImage != null
+                      ? FileImage(_profileImage!)
+                      : _profilePhoto != null &&
+                              _profilePhoto!.startsWith('http')
+                          ? NetworkImage(_profilePhoto!)
+                          : AssetImage(_profilePhoto ??
+                              'assets/default_profile_photo.jpg'),
+                ),
+
+                ElevatedButton(
+                  onPressed: _pickImage,
+                  child: Text('Pick Image'),
+                ),
+                if (_isLoading)
+                  CircularProgressIndicator()
+                else if (_errorMessage != null)
+                  Text(
+                    _errorMessage!,
+                    style: TextStyle(color: Colors.red),
+                  )
+                else
+                  Column(
                     children: [
-                      CircleAvatar(
-                        radius: 50,
-                        backgroundImage: _profileImage != null
-                            ? FileImage(_profileImage!)
-                            : AssetImage('assets/profile.jpeg')
-                                as ImageProvider,
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: IconButton(
-                          icon: Icon(Icons.camera_alt, color: Colors.white),
-                          onPressed: _pickImage,
+                      TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Username',
+                          labelStyle: TextStyle(color: Colors.white),
+                          filled: true,
+                          fillColor: Colors.white24,
                         ),
+                        style: TextStyle(color: Colors.white),
+                        controller: TextEditingController(text: _username),
+                        onSubmitted: (newValue) {
+                          setState(() {
+                            _username = newValue;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      DropdownButtonFormField<String>(
+                        value: _selectedCuisine,
+                        items: _cuisines,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCuisine = value;
+                            //updateUserCuisine(_userId!, value!);
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Preferred Cuisine',
+                          labelStyle: TextStyle(color: Colors.white),
+                          filled: true,
+                          fillColor: Colors.white24,
+                        ),
+                        dropdownColor: Color(0xFF20493C),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      SizedBox(height: 20),
+                      MultiSelectDialogField<String>(
+                        items: _dietaryConstraints!,
+                        initialValue: _selectedDietaryConstraints,
+                        title: Text("Dietary Constraints"),
+                        selectedColor: Colors.blue,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.all(Radius.circular(40)),
+                          border: Border.all(
+                            color: Colors.blue,
+                            width: 2,
+                          ),
+                        ),
+                        buttonIcon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.blue,
+                        ),
+                        buttonText: Text(
+                          "Select Dietary Constraints",
+                          style: TextStyle(
+                            color: Colors.blue[800],
+                            fontSize: 16,
+                          ),
+                        ),
+                        onConfirm: (results) {
+                          setState(() {
+                            _selectedDietaryConstraints = results;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      TextField(
+                        onChanged: (value) {
+                          setState(() {
+                            _spiceLevel = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Spice Level',
+                          labelStyle: TextStyle(color: Colors.white),
+                          filled: true,
+                          fillColor: Colors.white24,
+                        ),
+                        style: TextStyle(color: Colors.white),
+                        controller: TextEditingController(text: _spiceLevel),
+                      ),
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _saveProfileChanges,
+                        child: Text('Save Changes'),
                       ),
                     ],
                   ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Name',
-                  style: TextStyle(color: Colors.white),
-                ),
-                TextFormField(
-                  initialValue: 'Jane Doe',
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Enter your name',
-                    hintStyle: TextStyle(color: Colors.white),
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Email',
-                  style: TextStyle(color: Colors.white),
-                ),
-                TextFormField(
-                  initialValue: 'jane.doe@gmail.com',
-                  style: TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Enter your email',
-                    hintStyle: TextStyle(color: Colors.white),
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Spice Level',
-                  style: TextStyle(color: Colors.white),
-                ),
-                DropdownButton<String>(
-                  value: 'Mild',
-                  dropdownColor: const Color(0xFF20493C),
-                  onChanged: (String? newValue) {
-                    // Handle dropdown value change
-                  },
-                  items: <String>['Mild', 'Medium', 'Hot', 'Extra Hot']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(
-                        value,
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Preferred Cuisine',
-                  style: TextStyle(color: Colors.white),
-                ),
-                DropdownButton<String>(
-                  value: _selectedCuisine,
-                  dropdownColor: const Color(0xFF20493C),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _selectedCuisine = newValue!;
-                    });
-                    updateUserCuisine(_userId!, newValue!); // Call the function to update cuisine
-                  },
-                  items: _cuisines?.map((DropdownMenuItem<String> item) {
-                    return item;
-                  }).toList(),
-                ),
-
-                SizedBox(height: 16),
-                Text(
-                  'Dietary Constraints',
-                  style: TextStyle(color: Colors.white),
-                ),
-                DropdownButton<String>(
-                  value: 'Vegan',
-                  dropdownColor: const Color(0xFF20493C),
-                  onChanged: (String? newValue) {
-                    // Handle dropdown value change
-                  },
-                  items: _dietaryConstraints?.map((DropdownMenuItem<String> item) {
-                    return item;
-                  }).toList(),
-                ),
-                SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle save action
-                      },
-                      child: Text('Save'),
-                    ),
-                    SizedBox(width: 16),
-                    OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(
-                            context); // Navigate back to previous screen
-                      },
-                      child: Text('Cancel'),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
