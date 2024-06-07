@@ -81,6 +81,20 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
           throw new Error(constraintsError.message);
       }
 
+      // Fetch cuisine name
+      const cuisineId = userProfiles[0].cuisineid; // Assuming there's only one cuisine for a user
+      const { data: cuisineData, error: cuisineError } = await supabase
+          .from('cuisine')
+          .select('name')
+          .eq('cuisineid', cuisineId)
+          .single();
+
+      if (cuisineError) {
+          throw new Error(cuisineError.message);
+      }
+
+      const cuisineName = cuisineData ? cuisineData.name : 'Unknown';
+
       // Fetch names of dietary constraints
       const dietaryConstraintsIds = dietaryConstraints.map(constraint => constraint.dietaryconstraintsid);
       const { data: constraintNames, error: constraintNamesError } = await supabase
@@ -99,7 +113,7 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
           return {
               upid: profile.upid,
               userid: profile.userid,
-              cuisineid: profile.cuisineid,
+              cuisine: cuisineName,
               spicelevel: profile.spicelevel,
               username: profile.username,
               profilephoto: profile.profilephoto,
