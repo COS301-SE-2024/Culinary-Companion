@@ -45,6 +45,7 @@ dev_dependencies:
   shared_preferences: ^2.0.6
   mockito: ^5.0.16
   build_runner: ^2.0.0
+  image_picker: ^0.8.4+4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
