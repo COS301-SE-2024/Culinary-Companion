@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, username, cuisine, spicelevel } = await req.json();
+        const { action, userId, username, cuisine, spicelevel, dietaryConstraint } = await req.json();
 
         switch (action) {
             case 'getUserDetails':
@@ -32,7 +32,11 @@ Deno.serve(async (req) => {
             case 'updateUserCuisine':
                 return updateUserCuisine(userId, cuisine, corsHeaders);
             case 'updateUserSpiceLevel':
-                return updateUserSpiceLevel(userId, spicelevel, corsHeaders);            
+                return updateUserSpiceLevel(userId, spicelevel, corsHeaders);       
+            case 'addUserDietaryConstraints':
+                return addUserDietaryConstraints(userId, dietaryConstraint, corsHeaders);
+            case 'removeUserDietaryConstraints':
+                return removeUserDietaryConstraints(userId, dietaryConstraint, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -49,7 +53,7 @@ Deno.serve(async (req) => {
 
 async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
   if (!userId) {
-    throw new Error('User ID is required');
+      throw new Error('User ID is required');
   }
 
   try {
@@ -67,27 +71,39 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
           throw new Error('User profile not found');
       }
 
-      // Fetch all cuisines
-      const { data: cuisines, error: cuisinesError } = await supabase
-          .from('cuisine')
-          .select('cuisineid, name');
+      // Fetch dietary constraints for the user
+      const { data: dietaryConstraints, error: constraintsError } = await supabase
+          .from('userDietaryConstraints')
+          .select('dietaryconstraintsid')
+          .eq('userid', userId);
 
-      if (cuisinesError) {
-          throw new Error(cuisinesError.message);
+      if (constraintsError) {
+          throw new Error(constraintsError.message);
       }
 
-      // Combine user profiles with cuisine names
+      // Fetch names of dietary constraints
+      const dietaryConstraintsIds = dietaryConstraints.map(constraint => constraint.dietaryconstraintsid);
+      const { data: constraintNames, error: constraintNamesError } = await supabase
+          .from('dietaryconstraints')
+          .select('dietaryconstraintsid, name')
+          .in('dietaryconstraintsid', dietaryConstraintsIds);
+
+      if (constraintNamesError) {
+          throw new Error(constraintNamesError.message);
+      }
+
+      // Combine user profiles with dietary constraints
       const userDetails = userProfiles.map(profile => {
-          const cuisine = cuisines.find(c => c.cuisineid === profile.cuisineid);
+          const userDietaryConstraints = constraintNames.filter(constraint => dietaryConstraintsIds.includes(constraint.dietaryconstraintsid));
+          const dietaryConstraintNames = userDietaryConstraints.map(constraint => constraint.name);
           return {
               upid: profile.upid,
               userid: profile.userid,
-              cuisineName: cuisine ? cuisine.name : 'Unknown',
-              // cuisineid: profile.cuisineid,
+              cuisineid: profile.cuisineid,
               spicelevel: profile.spicelevel,
               username: profile.username,
               profilephoto: profile.profilephoto,
-              
+              dietaryConstraints: dietaryConstraintNames,
           };
       });
 
@@ -100,7 +116,8 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
   }
-  }
+}
+
 
   async function updateUserUsername(userId: string, username: string, corsHeaders: HeadersInit) {
     if (!userId) {
@@ -218,6 +235,102 @@ async function updateUserSpiceLevel(userId : string, spicelevel : number , corsH
       });
   }
 }
+
+async function addUserDietaryConstraints(userId: string, dietaryConstraint: string, corsHeaders: HeadersInit) {
+  if (!userId) {
+      throw new Error('User ID is required');
+  }
+
+  if (!dietaryConstraint) {
+      throw new Error('Dietary constraint is required');
+  }
+
+  try {
+      // Fetch the dietary constraint ID
+      const { data: existingConstraint, error: constraintError } = await supabase
+          .from('dietaryconstraints')
+          .select('dietaryconstraintsid')
+          .eq('name', dietaryConstraint)
+          .single();
+
+      if (constraintError) {
+          throw constraintError;
+      }
+
+      if (!existingConstraint) {
+          throw new Error('Dietary constraint not found');
+      }
+
+      // Add the dietary constraint for the user
+      const { data, error } = await supabase
+          .from('userDietaryConstraints')
+          .insert({ userid: userId, dietaryconstraintsid: existingConstraint.dietaryconstraintsid })
+          .single();
+
+      if (error) {
+          throw error;
+      }
+
+      return new Response(JSON.stringify(data), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+  } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+  }
+}
+
+async function removeUserDietaryConstraints(userId: string, dietaryConstraint: string, corsHeaders: HeadersInit) {
+  if (!userId) {
+      throw new Error('User ID is required');
+  }
+
+  if (!dietaryConstraint) {
+      throw new Error('Dietary constraint is required');
+  }
+
+  try {
+      // Fetch the dietary constraint ID
+      const { data: existingConstraint, error: constraintError } = await supabase
+          .from('dietaryconstraints')
+          .select('dietaryconstraintsid')
+          .eq('name', dietaryConstraint)
+          .single();
+
+      if (constraintError) {
+          throw constraintError;
+      }
+
+      if (!existingConstraint) {
+          throw new Error('Dietary constraint not found');
+      }
+
+      // Remove the dietary constraint for the user
+      const { data, error } = await supabase
+          .from('userDietaryConstraints')
+          .delete()
+          .eq('userid', userId)
+          .eq('dietaryconstraintsid', existingConstraint.dietaryconstraintsid)
+          .single();
+
+      if (error) {
+          throw error;
+      }
+
+      return new Response(JSON.stringify(data), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+  } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+  }
+}
+
+
 
 
 /* To invoke locally:
