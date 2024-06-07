@@ -6,7 +6,7 @@ const supURL = Deno.env.get("_SUPABASE_URL") as string;
 const supKey = Deno.env.get("_SUPABASE_ANON_KEY") as string;
 const supabase = createClient(supURL, supKey);
 
-console.log("Hello from Ingredient Endpoint!")
+console.log("Hello from User Endpoint!")
 
 Deno.serve(async (req) => {
     const corsHeaders = {
@@ -22,11 +22,13 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action } = await req.json();
+        const { action, userId, username } = await req.json();
 
         switch (action) {
-            case 'getAllIngredients':
-                return getAllIngredients(corsHeaders);               
+            case 'getUserDetails':
+                return getUserDetails(userId, corsHeaders); 
+            case 'updateUserUsername':
+                return updateUserUsername(userId, username, corsHeaders);             
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -41,25 +43,90 @@ Deno.serve(async (req) => {
     }
 });
 
-async function getAllIngredients(corsHeaders: HeadersInit) {
-  try {
-      const { data: ingredients, error } = await supabase
-          .from('ingredient')
-          .select('*');
+async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
+  if (!userId) {
+    throw new Error('User ID is required');
+  }
 
-      if (error) {
-          throw new Error(error.message);
+  try {
+      // Fetch user profile details
+      const { data: userProfiles, error: userProfileError } = await supabase
+          .from('userProfile')
+          .select('upid, userid, cuisineid, spicelevel, username, profilephoto')
+          .eq('userid', userId);
+
+      if (userProfileError) {
+          throw new Error(userProfileError.message);
       }
 
-      return new Response(JSON.stringify(ingredients), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      if (!userProfiles || userProfiles.length === 0) {
+          throw new Error('User profile not found');
+      }
+
+      // Fetch all cuisines
+      const { data: cuisines, error: cuisinesError } = await supabase
+          .from('cuisine')
+          .select('cuisineid, name');
+
+      if (cuisinesError) {
+          throw new Error(cuisinesError.message);
+      }
+
+      // Combine user profiles with cuisine names
+      const userDetails = userProfiles.map(profile => {
+          const cuisine = cuisines.find(c => c.cuisineid === profile.cuisineid);
+          return {
+              upid: profile.upid,
+              userid: profile.userid,
+              cuisineName: cuisine ? cuisine.name : 'Unknown',
+              // cuisineid: profile.cuisineid,
+              spicelevel: profile.spicelevel,
+              username: profile.username,
+              profilephoto: profile.profilephoto,
+              
+          };
+      });
+
+      return new Response(JSON.stringify(userDetails), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
   } catch (error) {
       return new Response(JSON.stringify({ error: error.message }), {
           status: 500,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
   }
+  }
+
+  async function updateUserUsername(userId: string, username: string, corsHeaders: HeadersInit) {
+    if (!userId) {
+        throw new Error('User ID is required');
+    }
+
+    if (!username) {
+        throw new Error('Username is required');
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('userProfile')
+            .update({ username })
+            .eq('userid', userId)
+            .select();  // Ensure that the updated data is returned
+
+        if (error) {
+            throw error;
+        }
+
+        return new Response(JSON.stringify(data), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    }
 }
 
 /* To invoke locally:
