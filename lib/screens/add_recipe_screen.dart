@@ -126,10 +126,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
         backgroundColor: Colors.transparent,
         bottom: TabBar(
           controller: _tabController,
-          tabs: [
-            const Tab(text: 'Scan Recipe'),
-            const Tab(text: 'Paste Recipe'),
-            const Tab(text: 'Add My Own Recipe'),
+          tabs: const [
+            Tab(text: 'Scan Recipe'),
+            Tab(text: 'Paste Recipe'),
+            Tab(text: 'Add My Own Recipe'),
           ],
         ),
       ),
