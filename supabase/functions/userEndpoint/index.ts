@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, username, cuisine, spice } = await req.json();
+        const { action, userId, username, cuisine, spicelevel } = await req.json();
 
         switch (action) {
             case 'getUserDetails':
@@ -31,8 +31,8 @@ Deno.serve(async (req) => {
                 return updateUserUsername(userId, username, corsHeaders); 
             case 'updateUserCuisine':
                 return updateUserCuisine(userId, cuisine, corsHeaders);
-            // case 'updateUserSpiceLevel':
-            //     return updateUserSpiceLevel(userId, spice, corsHeaders);            
+            case 'updateUserSpiceLevel':
+                return updateUserSpiceLevel(userId, spicelevel, corsHeaders);            
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -181,6 +181,44 @@ async function updateUserCuisine(userId: string, cuisine: string, corsHeaders: H
       });
   }
 }
+
+async function updateUserSpiceLevel(userId : string, spicelevel : number , corsHeaders : HeadersInit) {
+  if (!userId) {
+      throw new Error('User ID is required');
+  }
+
+  if (!spicelevel) {
+      throw new Error('Spice level is required');
+  }
+
+  try {
+      console.log('Updating spice level:', userId, spicelevel);
+
+      const { data, error } = await supabase
+          .from('userProfile')
+          .update({ spicelevel })
+          .eq('userid', userId)
+          .select();  
+
+      if (error) {
+          throw error;
+      }
+
+      console.log('Update successful:', data);
+
+      return new Response(JSON.stringify(data), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+  } catch (error) {
+      console.error('Error updating spice level:', error);
+
+      return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+  }
+}
+
 
 /* To invoke locally:
 
