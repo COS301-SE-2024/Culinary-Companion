@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-// import 'edit_profile_screen.dart';
+import 'edit_profile_screen.dart';
 class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -25,12 +25,12 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) => ProfileEditScreen(),
-                        //   ),
-                        // );
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfileEditScreen(),
+                          ),
+                        );
                       },
                       icon: Icon(
                         Icons.settings,
