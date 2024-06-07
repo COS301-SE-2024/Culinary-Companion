@@ -22,13 +22,17 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, username } = await req.json();
+        const { action, userId, username, cuisine, spice } = await req.json();
 
         switch (action) {
             case 'getUserDetails':
                 return getUserDetails(userId, corsHeaders); 
             case 'updateUserUsername':
-                return updateUserUsername(userId, username, corsHeaders);             
+                return updateUserUsername(userId, username, corsHeaders); 
+            case 'updateUserCuisine':
+                return updateUserCuisine(userId, cuisine, corsHeaders);
+            // case 'updateUserSpiceLevel':
+            //     return updateUserSpiceLevel(userId, spice, corsHeaders);            
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -127,6 +131,55 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
     }
+}
+
+async function updateUserCuisine(userId: string, cuisine: string, corsHeaders: HeadersInit) {
+  if (!userId) {
+      throw new Error('User ID is required');
+  }
+
+  if (!cuisine) {
+      throw new Error('Cuisine is required');
+  }
+
+  try {
+      // Fetch cuisineid from cuisine name
+      const { data: cuisineData, error: cuisineError } = await supabase
+          .from('cuisine')
+          .select('cuisineid')
+          .eq('name', cuisine)
+          .single();
+
+      if (cuisineError) {
+          throw new Error(cuisineError.message);
+      }
+
+      if (!cuisineData) {
+          throw new Error('Cuisine not found');
+      }
+
+      const cuisineid = cuisineData.cuisineid;
+
+      // Update user's cuisineid in userProfile
+      const { data, error } = await supabase
+          .from('userProfile')
+          .update({ cuisineid })
+          .eq('userid', userId)
+          .select();  // Ensure that the updated data is returned
+
+      if (error) {
+          throw error;
+      }
+
+      return new Response(JSON.stringify(data), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+  } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+  }
 }
 
 /* To invoke locally:
