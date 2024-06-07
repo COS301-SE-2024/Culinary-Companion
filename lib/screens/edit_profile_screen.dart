@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../widgets/navbar.dart';
 import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -16,12 +15,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   String? _userId;
   List<DropdownMenuItem<String>>? _cuisines;
   List<DropdownMenuItem<String>>? _dietaryConstraints;
+  bool _isLoading = true;
+  String? _errorMessage;
+  Map<String, dynamic>? _userDetails;
+  String? _selectedCuisine; // 1. Added variable
 
   @override
-  void initState() {
-    super.initState();
-    _loadUserId();
 
+  void initState() {
+  super.initState();
+  _initializeData();
+}
+
+Future<void> _initializeData() async {
+  await _loadUserId();
+  await  _fetchUserDetails(); // Fetch user details on init
     _loadCuisines().then((cuisineItems) {
       setState(() {
         _cuisines = cuisineItems;
@@ -41,20 +49,70 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     });
   }
 
-  ///////////load the user id/////////////
+  // Load user ID
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = prefs.getString('userId');
-      print('hereeee Login successful: $_userId');
+      print('Login successful: $_userId');
     });
   }
 
-  //////////load list of cuisines//////////
+  ///////////fetch the users profile details/////////
+  Future<void> _fetchUserDetails() async {
+  if (_userId == null) return;
+
+  final String url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'action': 'getUserDetails',
+        'userId': _userId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      print('Response data: $data'); //response data
+      if (data.isNotEmpty) {
+        setState(() {
+          _userDetails = data[0]; //get the first item in the list
+          _isLoading = false;
+          _selectedCuisine =
+              _userDetails?['cuisine']?.toString() ?? 'Mexican';
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'No user details found';
+        });
+      }
+    } else {
+      // Handle error
+      print('Failed to load user details: ${response.statusCode}');
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Failed to load user details';
+      });
+    }
+  } catch (error) {
+    //error handlind
+    print('Error fetching user details: $error');
+    setState(() {
+      _isLoading = false;
+      _errorMessage = 'Error fetching user details';
+    });
+  }
+}
+
+  // Load list of cuisines
   Future<List<DropdownMenuItem<String>>> _loadCuisines() async {
     final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint'; // Replace with your Edge Function URL
-
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
     try {
       final response = await http.post(Uri.parse(url),
           body: json.encode({'action': 'getCuisines'}));
@@ -80,48 +138,74 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
-//////////////////load dietary restraints//////////
+  // Load dietary restraints
   Future<List<DropdownMenuItem<String>>> _loadDietaryConstraints() async {
-  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint'; // Replace with your Edge Function URL
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(Uri.parse(url),
+          body: json.encode({'action': 'getDietaryConstraints'}));
 
-  try {
-    final response = await http.post(Uri.parse(url), body: json.encode({'action': 'getDietaryConstraints'}));
-     print('Dietary Constraints API Response: ${response.body}');
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      final List<DropdownMenuItem<String>> constraintItems = data.map<DropdownMenuItem<String>>((constraint) {
-        return DropdownMenuItem<String>(
-          value: constraint['name'].toString(),
-          child: Text(
-            constraint['name'].toString(),
-            style: TextStyle(color: Colors.white),
-          ),
-        );
-      }).toList();
-
-      // If the response is empty, add a default item
-      if (constraintItems.isEmpty) {
-        constraintItems.add(
-          DropdownMenuItem<String>(
-            value: 'No dietary constraints',
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        final List<DropdownMenuItem<String>> constraintItems =
+            data.map<DropdownMenuItem<String>>((constraint) {
+          return DropdownMenuItem<String>(
+            value: constraint['name'].toString(),
             child: Text(
-              'No dietary constraints',
+              constraint['name'].toString(),
               style: TextStyle(color: Colors.white),
             ),
-          ),
-        );
+          );
+        }).toList();
+
+        // If the response is empty, add a default item
+        if (constraintItems.isEmpty) {
+          constraintItems.add(
+            DropdownMenuItem<String>(
+              value: 'No dietary constraints',
+              child: Text(
+                'No dietary constraints',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          );
+        }
+
+        return constraintItems;
+      } else {
+        throw Exception('Failed to load dietary constraints');
       }
-      
-      return constraintItems;
-    } else {
-      throw Exception('Failed to load dietary constraints');
+    } catch (e) {
+      throw Exception('Error fetching dietary constraints: $e');
     }
-  } catch (e) {
-    throw Exception('Error fetching dietary constraints: $e');
   }
-}
 
+  // Update user cuisine
+  Future<void> updateUserCuisine(String userId, String cuisine) async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        body: json.encode({
+          'action': 'updateUserCuisine',
+          'userId': userId,
+          'cuisine': cuisine,
+        }),
+      );
 
+      if (response.statusCode == 200) {
+        print('Cuisine updated successfully');
+      } else {
+        throw Exception('Failed to update cuisine');
+      }
+    } catch (e) {
+      print('Error updating cuisine: $e');
+    }
+  }
+
+  // Pick image from gallery
   Future<void> _pickImage() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -133,8 +217,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
-  @override
+  @
+  override
   Widget build(BuildContext context) {
+    //final String? preferredCuisine = _userDetails?['cuisine']?.toString() ?? 'Mexican';//default
+    print('User\'s preferred cuisine: $_selectedCuisine');
     return Scaffold(
       backgroundColor: const Color(0xFF20493C),
       appBar: AppBar(
@@ -234,15 +321,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   style: TextStyle(color: Colors.white),
                 ),
                 DropdownButton<String>(
-                  value: 'Mexican',
+                  value: _selectedCuisine,
                   dropdownColor: const Color(0xFF20493C),
                   onChanged: (String? newValue) {
-                    // Handle dropdown value change
+                    setState(() {
+                      _selectedCuisine = newValue!;
+                    });
+                    updateUserCuisine(_userId!, newValue!); // Call the function to update cuisine
                   },
                   items: _cuisines?.map((DropdownMenuItem<String> item) {
                     return item;
                   }).toList(),
                 ),
+
                 SizedBox(height: 16),
                 Text(
                   'Dietary Constraints',

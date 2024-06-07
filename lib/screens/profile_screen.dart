@@ -233,7 +233,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   );
 }
 
-
   Widget buildPreferences() {
   final String spiceLevel = _userDetails?['spicelevel']?.toString() ?? 'Mild';//default 
   final String preferredCuisine = _userDetails?['cuisine']?.toString() ?? 'Mexican';//default
