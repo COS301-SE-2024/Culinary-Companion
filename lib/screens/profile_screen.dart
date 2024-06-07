@@ -236,7 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget buildPreferences() {
   final String spiceLevel = _userDetails?['spicelevel']?.toString() ?? 'Mild';//default 
-  final String preferredCuisine = _userDetails?['cuisineName']?.toString() ?? 'Mexican';//default
+  final String preferredCuisine = _userDetails?['cuisine']?.toString() ?? 'Mexican';//default
   final List<String> dietaryConstraints = List<String>.from(_userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
 
   return Column(

@@ -37,6 +37,10 @@ Deno.serve(async (req) => {
                 return addUserDietaryConstraints(userId, dietaryConstraint, corsHeaders);
             case 'removeUserDietaryConstraints':
                 return removeUserDietaryConstraints(userId, dietaryConstraint, corsHeaders);
+            case 'getCuisines':
+                return getCuisines(corsHeaders);
+            case 'getDietaryConstraints':
+                    return getDietaryConstraints(corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -50,6 +54,55 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+// Get all the dietary constraints from the database
+async function getDietaryConstraints(corsHeaders: HeadersInit) {
+    try {
+        const { data: dietaryConstraints, error } = await supabase
+            .from('dietaryconstraints')
+            .select('dietaryconstraintsid, name');
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        const constraints = dietaryConstraints.map(constraint => ({
+            id: constraint.dietaryconstraintsid,
+            name: constraint.name
+        }));
+
+        return new Response(JSON.stringify(constraints), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+}
+
+async function getCuisines(corsHeaders: HeadersInit) {
+    try {
+        const { data: cuisine, error } = await supabase
+            .from('cuisine') // Assuming your table name is 'cuisines'
+            .select('cuisineid, name'); // Adjust fields as necessary
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        return new Response(JSON.stringify(cuisine), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+}
+
 
 async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
   if (!userId) {
