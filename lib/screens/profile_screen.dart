@@ -1,97 +1,133 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
+// import 'edit_profile_screen.dart';
 class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(
-          0xFF20493C), // Adjust background color to match screenshot
+      backgroundColor: const Color(0xFF20493C),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Account',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Account',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => ProfileEditScreen(),
+                        //   ),
+                        // );
+                      },
+                      icon: Icon(
+                        Icons.settings,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 100),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Profile Picture and User Info
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset(
-                          'assets/pfp.jpg',
-                          width: 200,
-                          height: 200,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Jane Doe',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const Text(
-                        'jane.doe@gmail.com',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      OutlinedButton(
-                        onPressed: () {
-                          // Handle sign out
-                        },
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Colors.white),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24),
+                SizedBox(height: 100),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.asset(
+                            'assets/pfp.jpg',
+                            width: 200,
+                            height: 200,
+                            fit: BoxFit.cover,
                           ),
                         ),
-                        child: const Text(
-                          'Sign Out',
-                          style: TextStyle(color: Colors.white),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Jane Doe',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(width: 32), // Add space between sections
-                  // Preferences and My Recipes
-                  Expanded(
-                    child: Column(
+                        const Text(
+                          'jane.doe@gmail.com',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        OutlinedButton(
+                          onPressed: () {
+                            // Handle sign out
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(color: Colors.white),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                          ),
+                          child: const Text(
+                            'Sign Out',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 32),
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Preferences
-                        const Row(
-                          children: [
-                            Text(
-                              'Preferences',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(Icons.edit, color: Colors.white, size: 18),
-                          ],
+                        // Text(
+                        //   'Preferences',
+                        //   style: TextStyle(
+                        //     color: Colors.white,
+                        //     fontSize: 18,
+                        //     fontWeight: FontWeight.bold,
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 8),
+                        // Wrap(
+                        //   spacing: 8.0,
+                        //   runSpacing: 4.0,
+                        //   children: [
+                        //     Chip(
+                        //       label: const Text('No butter'),
+                        //       backgroundColor: Colors.grey[700],
+                        //       labelStyle: const TextStyle(color: Colors.white),
+                        //     ),
+                        //     Chip(
+                        //       label: const Text('Paleo'),
+                        //       backgroundColor: Colors.grey[700],
+                        //       labelStyle: const TextStyle(color: Colors.white),
+                        //     ),
+                        //   ],
+                        // ),
+                        // const SizedBox(height: 24),
+                        // Spice Level
+                        Text(
+                          'Spice Level',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Wrap(
@@ -99,18 +135,67 @@ class ProfileScreen extends StatelessWidget {
                           runSpacing: 4.0,
                           children: [
                             Chip(
-                              label: const Text('No butter'),
-                              backgroundColor: Colors.grey[700],
-                              labelStyle: const TextStyle(color: Colors.white),
-                            ),
-                            Chip(
-                              label: const Text('Paleo'),
+                              label: const Text('Mild'),
                               backgroundColor: Colors.grey[700],
                               labelStyle: const TextStyle(color: Colors.white),
                             ),
                           ],
                         ),
                         const SizedBox(height: 24),
+                        // Preferred Cuisine
+                        Text(
+                          'Preferred Cuisine',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8.0,
+                          runSpacing: 4.0,
+                          children: [
+                            Chip(
+                              label: const Text('Mexican'),
+                              backgroundColor: Colors.grey[700],
+                              labelStyle: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        // Dietary Constraints
+                        Text(
+                          'Dietary Constraints',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8.0,
+                          runSpacing: 4.0,
+                          children: [
+                            Chip(
+                              label: const Text('Dairy'),
+                              backgroundColor: Colors.grey[700],
+                              labelStyle: const TextStyle(color: Colors.white),
+                            ),
+                            Chip(
+                              label: const Text('Vegan'),
+                              backgroundColor: Colors.grey[700],
+                              labelStyle: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 32),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         // My Recipes
                         const Text(
                           'My Recipes',
@@ -122,7 +207,8 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Container(
-                          height: 200, // Adjust height of the recipe section
+                          height: 200,
+                          width: 920, // Adjusted width
                           child: ListView(
                             scrollDirection: Axis.horizontal,
                             children: [
@@ -136,10 +222,10 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
