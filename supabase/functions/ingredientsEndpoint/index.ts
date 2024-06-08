@@ -57,8 +57,8 @@ Deno.serve(async (req) => {
               return removeFromShoppingList(userId, ingredientName);
             case 'removeFromPantryList':
               return removeFromPantryList(userId, ingredientName);  
-            // case 'getUserRecipes':
-            //     return getUserRecipes(userId, corsHeaders);             
+            case 'getUserRecipes':
+                return getUserRecipes(userId, corsHeaders);             
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -581,9 +581,62 @@ async function removeFromPantryList(userId: string, ingredientName: string) {
     }
 }
 
-// async function getUserRecipes(userId : string, corsHeaders : HeadersInit) {
-    
-// }
+async function getUserRecipes(userId: string, corsHeaders: HeadersInit) {
+    if (!userId) {
+        throw new Error('User ID is required');
+    }
+
+    try {
+        // Fetch user-uploaded recipes
+        const { data: userRecipes, error: userRecipesError } = await supabase
+            .from('userUploadedRecipes')
+            .select('recipeid')
+            .eq('userid', userId);
+
+        if (userRecipesError) {
+            console.error('Error fetching user recipes:', userRecipesError);
+            return new Response(JSON.stringify({ error: userRecipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        if (!userRecipes || userRecipes.length === 0) {
+            return new Response(JSON.stringify({ error: 'No recipes found for this user' }), {
+                status: 404,
+                headers: corsHeaders,
+            });
+        }
+
+        const recipeIds = userRecipes.map(userRecipe => userRecipe.recipeid);
+
+        // Fetch recipes based on recipe IDs
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .in('recipeid', recipeIds);
+
+        if (recipesError) {
+            console.error('Error fetching recipes:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getUserRecipes function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 /* To invoke locally:
 
