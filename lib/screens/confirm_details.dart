@@ -23,13 +23,22 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
     'Hot', 
     'Very Hot'];
   final List<String> _dietaryOptions = [
-    'Option 1',
-    'Option 2',
-    'Option 3'];
+    'Vegetarian', 
+    'Vegan', 
+    'Halal', 
+    'Kosher', 
+    'Gluten-free', 
+    'Lactose intolerant', 
+    'Diabetes', 
+    'Low-sodium', 
+    'Paleo', 
+    'Cholesterol-restricted diet'];
   final List<String> _cuisineOptions = [
-    'Option 1',
-    'Option 2',
-    'option 3'];
+    'Mexican',
+    'Italian',
+    'Chinese',
+    'Indian',
+    'American'];
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
