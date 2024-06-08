@@ -17,8 +17,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _cookingTimeController = TextEditingController();
   final TextEditingController _prepTimeController = TextEditingController();
-  final TextEditingController _servingAmountController =
-      TextEditingController();
+  final TextEditingController _servingAmountController = TextEditingController();
 
   String _selectedCuisine = 'Mexican';
   String _selectedCourse = 'Main';
