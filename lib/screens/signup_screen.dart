@@ -40,7 +40,7 @@ class _SignupScreenState extends State<SignupScreen> {
           String userId = responseBody['user']['id'];
         
           await widget.sharedPreferences.setString('userId', userId);
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushReplacementNamed(context, '/confirm');
         } else {
           final responseBody = jsonDecode(response.body);
           print('Sign up failed: ${responseBody['error']}');
