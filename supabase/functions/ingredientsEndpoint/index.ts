@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -58,7 +58,13 @@ Deno.serve(async (req) => {
             case 'removeFromPantryList':
               return removeFromPantryList(userId, ingredientName);  
             case 'getUserRecipes':
-                return getUserRecipes(userId, corsHeaders);             
+                return getUserRecipes(userId, corsHeaders); 
+            case 'getRecipesByCourse':
+                return getRecipesByCourse(course, corsHeaders);  
+            case 'getRecipesBySpiceLevel':
+                return getRecipesBySpiceLevel(spiceLevel, corsHeaders);      
+            case 'getRecipesByCuisine':
+                return getRecipesByCuisine(cuisine, corsHeaders); 
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -637,6 +643,101 @@ async function getUserRecipes(userId: string, corsHeaders: HeadersInit) {
     }
 }
 
+async function getRecipesByCourse(course: string, corsHeaders: HeadersInit) {
+    if (!course) {
+        throw new Error('Course is required');
+    }
+
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .eq('course', course);
+
+        if (recipesError) {
+            console.error('Error fetching recipes by course:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getRecipesByCourse function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getRecipesBySpiceLevel(spiceLevel: number, corsHeaders: HeadersInit) {
+    if (spiceLevel === undefined || spiceLevel === null) {
+        throw new Error('Spice level is required');
+    }
+
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .eq('spicelevel', spiceLevel);
+
+        if (recipesError) {
+            console.error('Error fetching recipes by spice level:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getRecipesBySpiceLevel function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getRecipesByCuisine(cuisine: string, corsHeaders: HeadersInit) {
+    if (!cuisine) {
+        throw new Error('Cuisine is required');
+    }
+
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .eq('cuisine', cuisine);
+
+        if (recipesError) {
+            console.error('Error fetching recipes by cuisine:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getRecipesByCuisine function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
 
 /* To invoke locally:
 
