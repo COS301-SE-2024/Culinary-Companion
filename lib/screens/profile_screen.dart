@@ -348,9 +348,9 @@ String getSpiceLevelText(String spiceLevel) {
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              recipeCard('assets/food1.jpeg'),
-              recipeCard('assets/food2.jpeg'),
-              recipeCard('assets/food3.jpeg'),
+              recipeCard('assets/food1.jpg'),
+              recipeCard('assets/food2.jpg'),
+              recipeCard('assets/food3.jpg'),
               recipeCard('assets/food8.jpg'),
               recipeCard('assets/food9.jpg'),
             ],
