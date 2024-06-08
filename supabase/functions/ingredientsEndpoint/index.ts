@@ -65,6 +65,8 @@ Deno.serve(async (req) => {
                 return getRecipesBySpiceLevel(spiceLevel, corsHeaders);      
             case 'getRecipesByCuisine':
                 return getRecipesByCuisine(cuisine, corsHeaders); 
+            case 'getAllRecipes':
+                return getAllRecipes(corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -732,6 +734,33 @@ async function getRecipesByCuisine(cuisine: string, corsHeaders: HeadersInit) {
         });
     } catch (e) {
         console.error('Error in getRecipesByCuisine function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getAllRecipes(corsHeaders: HeadersInit) {
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*');
+
+        if (recipesError) {
+            console.error('Error fetching all recipes:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getAllRecipes function:', e);
         return new Response(JSON.stringify({ error: e.message }), {
             status: 500,
             headers: corsHeaders,
