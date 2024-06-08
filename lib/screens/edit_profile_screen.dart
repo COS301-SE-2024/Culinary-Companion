@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
-import 'package:file_picker/file_picker.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -319,32 +318,17 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
+  // Pick image from gallery
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
-
-
-Future<void> _pickImage() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles(
-    type: FileType.image,
-    allowMultiple: false,
-  );
-
-  if (result != null && result.files.isNotEmpty) {
-    PlatformFile file = result.files.first;
-    if (file.path != null) {
+    if (image != null) {
       setState(() {
-        _profileImage = File(file.path!);
+        _profileImage = File(image.path);
       });
-    } else {
-      // Handle case where path is null
-      print('Selected file path is null');
     }
-  } else {
-    // Handle case where no file was picked
-    print('No file picked');
   }
-}
-
-
 
   Future<void> updateUserUsername(String userId, String username) async {
     final String url =
@@ -407,7 +391,7 @@ Future<void> _pickImage() async {
 @override
 Widget build(BuildContext context) {
   final String profilePhoto = _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
-  //print('User\'s preferred cuisine: $_selectedCuisine');
+  print('User\'s preferred cuisine: $_selectedCuisine');
   return Scaffold(
     backgroundColor: const Color(0xFF20493C),
     appBar: AppBar(
