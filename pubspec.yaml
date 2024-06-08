@@ -72,9 +72,9 @@ flutter:
   #   - images/a_dot_ham.jpeg
 
   assets:
-    - assets/food1.jpeg
-    - assets/food2.jpeg
-    - assets/food3.jpeg
+    - assets/food1.jpg
+    - assets/food2.jpg
+    - assets/food3.jpg
     - assets/food4.cms
     - assets/food5.webp
     - assets/food6.jpeg
@@ -90,6 +90,13 @@ flutter:
     - assets/Lightmode.png
     - assets/logo.png
     - assets/google.png
+    - assets/lemon_tart.jpg
+    - assets/sushi_rolls.jpg
+    - assets/spaghetti_carbonara.webp
+    - assets/chicken_curry.jpg
+    - assets/caesar_salad.webp
+    - assets/beef_tacos.jpg
+    - assets/pancakes.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
