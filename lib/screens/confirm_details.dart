@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -15,9 +16,20 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
   String _cuisine = 'Option 1';
   File? _profileImage;
 
-  final List<String> _spiceLevels = ['None', 'Mild', 'Medium', 'Hot', 'Very Hot'];
-  final List<String> _dietaryOptions = ['Option 1', 'Option 2', 'Option 3'];
-  final List<String> _cuisineOptions = ['Option 1', 'Option 2'];
+  final List<String> _spiceLevels = [
+    'None', 
+    'Mild', 
+    'Medium', 
+    'Hot', 
+    'Very Hot'];
+  final List<String> _dietaryOptions = [
+    'Option 1',
+    'Option 2',
+    'Option 3'];
+  final List<String> _cuisineOptions = [
+    'Option 1',
+    'Option 2',
+    'option 3'];
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -40,7 +52,15 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
 
   void _addDietaryRestriction(String restriction) {
     setState(() {
-      _dietaryRestrictions.add(restriction);
+      if (!_dietaryRestrictions.contains(restriction)) {
+        _dietaryRestrictions.add(restriction);
+      }
+    });
+  }
+
+  void _removeDietaryRestriction(String restriction) {
+    setState(() {
+      _dietaryRestrictions.remove(restriction);
     });
   }
 
@@ -69,14 +89,6 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                           'logo.png',
                           height: 80,
                         ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Culinary Companion',
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.white,
-                          ),
-                        ),
                         const SizedBox(height: 32),
                       ],
                     ),
@@ -86,7 +98,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         radius: 50,
                         backgroundImage: _profileImage != null
                             ? FileImage(_profileImage!)
-                            : AssetImage('assets/default_profile.png') as ImageProvider,
+                            : AssetImage('default_profile.jpeg') as ImageProvider,
                         child: _profileImage == null
                             ? Icon(Icons.add, size: 50, color: Colors.white)
                             : null,
@@ -104,8 +116,6 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                             fontSize: 20,
                             color: Colors.white,
                           ),
-                          hintText: 'username',
-                          hintStyle: const TextStyle(color: Color(0xFF778579)),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(
@@ -184,60 +194,76 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            width: 365,
-                            height: 70,
+                    Container(
+                      width: 365,
+                      height: 70,
+                      child: Row(
+                        children: [
+                          Expanded(
                             child: DropdownButtonFormField<String>(
-                              decoration: InputDecoration(
-                                floatingLabelBehavior: FloatingLabelBehavior.always,
-                                labelText: 'Dietary restrictions:',
-                                labelStyle: const TextStyle(
-                                  fontSize: 20,
-                                  color: Colors.white,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFA9B8AC),
-                                    width: 2.0,
+                                decoration: InputDecoration(
+                                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                                  labelText: 'Dietary restrictions:',
+                                  labelStyle: const TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white,
                                   ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFDC945F),
-                                    width: 2.0,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFFA9B8AC),
+                                      width: 2.0,
+                                    ),
                                   ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFFDC945F),
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 12.0,
+                                    horizontal: 12.0,
+                                  ),
+                                  filled: false,
+                                  fillColor: Colors.transparent,
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 12.0,
-                                  horizontal: 12.0,
-                                ),
-                                filled: false,
-                                fillColor: Colors.transparent,
+                                items: _dietaryOptions.map((String option) {
+                                  return DropdownMenuItem<String>(
+                                    value: option,
+                                    child: Text(option),
+                                  );
+                                }).toList(),
+                                onChanged: (newValue) {
+                                  _addDietaryRestriction(newValue!);
+                                },
                               ),
-                              items: _dietaryOptions.map((String option) {
-                                return DropdownMenuItem<String>(
-                                  value: option,
-                                  child: Text(option),
-                                );
-                              }).toList(),
-                              onChanged: (newValue) {
-                                _addDietaryRestriction(newValue!);
-                              },
                             ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.add, color: Colors.white),
-                          onPressed: () {
-                            // Add logic to add more dietary restrictions
-                          },
-                        ),
-                      ],
+                          ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(  
+                      width: 365,
+                      child: Column(  
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _dietaryRestrictions
+                        .map((restriction) => Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(  
+                              restriction,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.remove, color: Colors.red),
+                              onPressed: () => _removeDietaryRestriction(restriction),
+                            ),
+                          ],
+                        ))
+                        .toList(),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     Container(
