@@ -21,7 +21,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
     'Mild🌶️', 
     'Medium🌶️🌶️', 
     'Hot🌶️🌶️🌶️', 
-    'Very Hot🌶️🌶️🌶️🌶️'];
+    'Extra Hot🌶️🌶️🌶️🌶️'];
   final List<String> _dietaryOptions = [
     'Vegetarian', 
     'Vegan', 
