@@ -13,15 +13,15 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
   String _username = '';
   String _spiceLevel = 'None';
   List<String> _dietaryRestrictions = [];
-  String _cuisine = 'Option 1';
+  String _cuisine = 'Mexican';
   File? _profileImage;
 
   final List<String> _spiceLevels = [
     'None', 
-    'Mild', 
-    'Medium', 
-    'Hot', 
-    'Very Hot'];
+    'Mild🌶️', 
+    'Medium🌶️🌶️', 
+    'Hot🌶️🌶️🌶️', 
+    'Very Hot🌶️🌶️🌶️🌶️'];
   final List<String> _dietaryOptions = [
     'Vegetarian', 
     'Vegan', 
@@ -107,9 +107,9 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         radius: 50,
                         backgroundImage: _profileImage != null
                             ? FileImage(_profileImage!)
-                            : AssetImage('default_profile.jpeg') as ImageProvider,
+                            : const AssetImage('default_profile.jpeg') as ImageProvider,
                         child: _profileImage == null
-                            ? Icon(Icons.add, size: 50, color: Colors.white)
+                            ? const Icon(Icons.add, size: 50, color: Color(0xFFDC945F))
                             : null,
                       ),
                     ),
@@ -160,6 +160,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                       width: 365,
                       height: 70,
                       child: DropdownButtonFormField<String>(
+                        dropdownColor: const Color(0xFF1F4539),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Preferred spice level:',
@@ -202,7 +203,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 2),
                     Container(
                       width: 365,
                       height: 70,
@@ -210,46 +211,47 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         children: [
                           Expanded(
                             child: DropdownButtonFormField<String>(
-                                decoration: InputDecoration(
-                                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                                  labelText: 'Dietary restrictions:',
-                                  labelStyle: const TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFFA9B8AC),
-                                      width: 2.0,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFFDC945F),
-                                      width: 2.0,
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 12.0,
-                                    horizontal: 12.0,
-                                  ),
-                                  filled: false,
-                                  fillColor: Colors.transparent,
+                              dropdownColor: const Color(0xFF1F4539),
+                              decoration: InputDecoration(
+                                floatingLabelBehavior: FloatingLabelBehavior.always,
+                                labelText: 'Dietary restrictions:',
+                                labelStyle: const TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
                                 ),
-                                items: _dietaryOptions.map((String option) {
-                                  return DropdownMenuItem<String>(
-                                    value: option,
-                                    child: Text(option),
-                                  );
-                                }).toList(),
-                                onChanged: (newValue) {
-                                  _addDietaryRestriction(newValue!);
-                                },
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFA9B8AC),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFDC945F),
+                                    width: 2.0,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 12.0,
+                                  horizontal: 12.0,
+                                ),
+                                filled: false,
+                                fillColor: Colors.transparent,
                               ),
+                              items: _dietaryOptions.map((String option) {
+                                return DropdownMenuItem<String>(
+                                  value: option,
+                                  child: Text(option),
+                                );
+                              }).toList(),
+                              onChanged: (newValue) {
+                                _addDietaryRestriction(newValue!);
+                              },
                             ),
-                          ],
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -263,10 +265,12 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                           children: [
                             Text(  
                               restriction,
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(
+                                fontSize: 16, 
+                                color: Colors.white),
                             ),
                             IconButton(
-                              icon: Icon(Icons.remove, color: Colors.red),
+                              icon: const Icon(Icons.remove, color: Colors.red),
                               onPressed: () => _removeDietaryRestriction(restriction),
                             ),
                           ],
@@ -279,6 +283,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                       width: 365,
                       height: 70,
                       child: DropdownButtonFormField<String>(
+                        dropdownColor: const Color(0xFF1F4539),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Preferred cuisine:',
@@ -349,12 +354,12 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/login');
-                      },
-                      child: const Text('Already have an account? Login'),
-                    ),
+                    // TextButton(
+                    //   onPressed: () {
+                    //     Navigator.pushNamed(context, '/login');
+                    //   },
+                    //   child: const Text('Already have an account? Login'),
+                    // ),r
                   ],
                 ),
               ),
