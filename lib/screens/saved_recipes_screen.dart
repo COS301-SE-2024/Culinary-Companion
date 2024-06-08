@@ -505,6 +505,9 @@ class SavedRecipesScreen extends StatelessWidget {
                         course: recipes[index]['course'],
                         servings: recipes[index]['servings'],
                         keyWords: List<String>.from(recipes[index]['keyWords']),
+                        steps: List<String>.from(recipes[index]['steps']),
+                        appliances: List<String>.from(recipes[index]['appliances']),
+                        ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
                       );
                     },
                   );

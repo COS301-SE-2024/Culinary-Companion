@@ -15,244 +15,264 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> recipes = [
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    
-    // Additional recipes...
-  ];
+
+final List<Map<String, dynamic>> recipes = [
+  {
+    'name': 'Spaghetti Carbonara',
+    'description':
+        'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
+    'imagePath': 'assets/food1.jpg',
+    'prepTime': 10,
+    'cookTime': 10,
+    'cuisine': 'Italian',
+    'spiceLevel': 1,
+    'course': 'Main',
+    'servings': 4,
+    'keyWords': ['pasta', 'cheese', 'pepper'],
+    'steps': [
+      'Boil the pasta according to the package instructions.',
+      'In a bowl, whisk together eggs and cheese.',
+      'Cook pancetta in a pan until crispy.',
+      'Mix pasta, pancetta, and egg mixture together.',
+      'Season with pepper and serve.'
+    ],
+    'appliances': ['Stove', 'Pan', 'Bowl'],
+    'ingredients': [
+      {'ingredient': 'Spaghetti', 'quantity': 400, 'unit': 'g'},
+      {'ingredient': 'Eggs', 'quantity': 4, 'unit': ''},
+      {'ingredient': 'Cheese', 'quantity': 100, 'unit': 'g'},
+      {'ingredient': 'Pancetta', 'quantity': 150, 'unit': 'g'},
+      {'ingredient': 'Pepper', 'quantity': 1, 'unit': 'tsp'}
+    ],
+  },
+  {
+    'name': 'Grilled Salmon',
+    'description':
+        'A simple and delicious recipe for perfectly grilled salmon fillets.',
+    'imagePath': 'assets/food2.jpg',
+    'prepTime': 10,
+    'cookTime': 15,
+    'cuisine': 'American',
+    'spiceLevel': 1,
+    'course': 'Main',
+    'servings': 2,
+    'keyWords': ['salmon', 'grill', 'lemon'],
+    'steps': [
+      'Preheat the grill to medium-high heat.',
+      'Season salmon fillets with salt and pepper.',
+      'Grill salmon for 6-8 minutes per side.',
+      'Serve with lemon wedges.'
+    ],
+    'appliances': ['Grill', 'Tongs'],
+    'ingredients': [
+      {'ingredient': 'Salmon Fillets', 'quantity': 2, 'unit': ''},
+      {'ingredient': 'Salt', 'quantity': 1, 'unit': 'tsp'},
+      {'ingredient': 'Pepper', 'quantity': 1, 'unit': 'tsp'},
+      {'ingredient': 'Lemon', 'quantity': 1, 'unit': ''}
+    ],
+  },
+  {
+    'name': 'Chicken Soup',
+    'description':
+        'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+    'imagePath': 'assets/food3.jpg',
+    'prepTime': 15,
+    'cookTime': 30,
+    'cuisine': 'American',
+    'spiceLevel': 1,
+    'course': 'Main',
+    'servings': 4,
+    'keyWords': ['chicken', 'soup', 'vegetables'],
+    'steps': [
+      'Heat oil in a large pot over medium heat.',
+      'Add onions, carrots, and celery, and cook until softened.',
+      'Add chicken and cook until browned.',
+      'Pour in chicken broth and bring to a boil.',
+      'Reduce heat and simmer for 20 minutes.',
+      'Season with salt and pepper to taste.'
+    ],
+    'appliances': ['Pot', 'Knife', 'Cutting Board'],
+    'ingredients': [
+      {'ingredient': 'Chicken', 'quantity': 500, 'unit': 'g'},
+      {'ingredient': 'Onion', 'quantity': 1, 'unit': ''},
+      {'ingredient': 'Carrots', 'quantity': 2, 'unit': ''},
+      {'ingredient': 'Celery Stalks', 'quantity': 2, 'unit': ''},
+      {'ingredient': 'Chicken Broth', 'quantity': 1, 'unit': 'L'},
+      {'ingredient': 'Salt', 'quantity': 1, 'unit': 'tsp'},
+      {'ingredient': 'Pepper', 'quantity': 1, 'unit': 'tsp'}
+    ],
+  },
+  {
+    'name': 'Spaghetti Carbonara',
+    'description':
+        'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
+    'imagePath': 'assets/food1.jpg',
+    'prepTime': 10,
+    'cookTime': 10,
+    'cuisine': 'Italian',
+    'spiceLevel': 1,
+    'course': 'Main',
+    'servings': 4,
+    'keyWords': ['pasta', 'cheese', 'pepper'],
+    'steps': [
+      'Boil the pasta according to the package instructions.',
+      'In a bowl, whisk together eggs and cheese.',
+      'Cook pancetta in a pan until crispy.',
+      'Mix pasta, pancetta, and egg mixture together.',
+      'Season with pepper and serve.'
+    ],
+    'appliances': ['Stove', 'Pan', 'Bowl'],
+    'ingredients': [
+      {'ingredient': 'Spaghetti', 'quantity': 400, 'unit': 'g'},
+      {'ingredient': 'Eggs', 'quantity': 4, 'unit': ''},
+      {'ingredient': 'Cheese', 'quantity': 100, 'unit': 'g'},
+      {'ingredient': 'Pancetta', 'quantity': 150, 'unit': 'g'},
+      {'ingredient': 'Pepper', 'quantity': 1, 'unit': 'tsp'}
+    ],
+  },
+  {
+    'name': 'Grilled Salmon',
+    'description':
+        'A simple and delicious recipe for perfectly grilled salmon fillets.',
+    'imagePath': 'assets/food2.jpg',
+    'prepTime': 10,
+    'cookTime': 15,
+    'cuisine': 'American',
+    'spiceLevel': 1,
+    'course': 'Main',
+    'servings': 2,
+    'keyWords': ['salmon', 'grill', 'lemon'],
+    'steps': [
+      'Preheat the grill to medium-high heat.',
+      'Season salmon fillets with salt and pepper.',
+      'Grill salmon for 6-8 minutes per side.',
+      'Serve with lemon wedges.'
+    ],
+    'appliances': ['Grill', 'Tongs'],
+    'ingredients': [
+      {'ingredient': 'Salmon Fillets', 'quantity': 2, 'unit': ''},
+      {'ingredient': 'Salt', 'quantity': 1, 'unit': 'tsp'},
+      {'ingredient': 'Pepper', 'quantity': 1, 'unit': 'tsp'},
+      {'ingredient': 'Lemon', 'quantity': 1, 'unit': ''}
+    ],
+  },
+  {
+    'name': 'Chicken Soup',
+    'description':
+        'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+    'imagePath': 'assets/food3.jpg',
+    'prepTime': 15,
+    'cookTime': 30,
+    'cuisine': 'American',
+    'spiceLevel': 1,
+    'course': 'Main',
+    'servings': 4,
+    'keyWords': ['chicken', 'soup', 'vegetables'],
+    'steps': [
+      'Heat oil in a large pot over medium heat.',
+      'Add onions, carrots, and celery, and cook until softened.',
+      'Add chicken and cook until browned.',
+      'Pour in chicken broth and bring to a boil.',
+      'Reduce heat and simmer for 20 minutes.',
+      'Season with salt and pepper to taste.'
+    ],
+    'appliances': ['Pot', 'Knife', 'Cutting Board'],
+    'ingredients': [
+      {'ingredient': 'Chicken', 'quantity': 500, 'unit': 'g'},
+      {'ingredient': 'Onion', 'quantity': 1, 'unit': ''},
+      {'ingredient': 'Carrots', 'quantity': 2, 'unit': ''},
+      {'ingredient': 'Celery Stalks', 'quantity': 2, 'unit': ''},
+      {'ingredient': 'Chicken Broth', 'quantity': 1, 'unit': 'L'},
+      {'ingredient': 'Salt', 'quantity': 1, 'unit': 'tsp'},
+      {'ingredient': 'Pepper', 'quantity': 1, 'unit': 'tsp'}
+    ],
+  },
+  {
+    'name': 'Spaghetti Carbonara',
+    'description':
+        'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
+    'imagePath': 'assets/food1.jpg',
+    'prepTime': 10,
+    'cookTime': 10,
+    'cuisine': 'Italian',
+    'spiceLevel': 1,
+    'course': 'Main',
+    'servings': 4,
+    'keyWords': ['pasta', 'cheese', 'pepper'],
+    'steps': [
+      'Boil the pasta according to the package instructions.',
+      'In a bowl, whisk together eggs and cheese.',
+      'Cook pancetta in a pan until crispy.',
+      'Mix pasta, pancetta, and egg mixture together.',
+      'Season with pepper and serve.'
+    ],
+    'appliances': ['Stove', 'Pan', 'Bowl'],
+    'ingredients': [
+      {'ingredient': 'Spaghetti', 'quantity': 400, 'unit': 'g'},
+      {'ingredient': 'Eggs', 'quantity': 4, 'unit': ''},
+      {'ingredient': 'Cheese', 'quantity': 100, 'unit': 'g'},
+      {'ingredient': 'Pancetta', 'quantity': 150, 'unit': 'g'},
+      {'ingredient': 'Pepper', 'quantity': 1, 'unit': 'tsp'}
+    ],
+  },
+  {
+    'name': 'Grilled Salmon',
+    'description':
+        'A simple and delicious recipe for perfectly grilled salmon fillets.',
+    'imagePath': 'assets/food2.jpg',
+    'prepTime': 10,
+    'cookTime': 15,
+    'cuisine': 'American',
+    'spiceLevel': 1,
+    'course': 'Main',
+    'servings': 2,
+    'keyWords': ['salmon', 'grill', 'lemon'],
+    'steps': [
+      'Preheat the grill to medium-high heat.',
+      'Season salmon fillets with salt and pepper.',
+      'Grill salmon for 6-8 minutes per side.',
+      'Serve with lemon wedges.'
+    ],
+    'appliances': ['Grill', 'Tongs'],
+    'ingredients': [
+      {'ingredient': 'Salmon Fillets', 'quantity': 2, 'unit': ''},
+      {'ingredient': 'Salt', 'quantity': 1, 'unit': 'tsp'},
+      {'ingredient': 'Pepper', 'quantity': 1, 'unit': 'tsp'},
+      {'ingredient': 'Lemon', 'quantity': 1, 'unit': ''}
+    ],
+  },
+  {
+    'name': 'Chicken Soup',
+    'description':
+        'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
+    'imagePath': 'assets/food3.jpg',
+    'prepTime': 15,
+    'cookTime': 30,
+    'cuisine': 'American',
+    'spiceLevel': 1,
+    'course': 'Main',
+    'servings': 4,
+    'keyWords': ['chicken', 'soup', 'vegetables'],
+    'steps': [
+      'Heat oil in a large pot over medium heat.',
+      'Add onions, carrots, and celery, and cook until softened.',
+      'Add chicken and cook until browned.',
+      'Pour in chicken broth and bring to a boil.',
+      'Reduce heat and simmer for 20 minutes.',
+      'Season with salt and pepper to taste.'
+    ],
+    'appliances': ['Pot', 'Knife', 'Cutting Board'],
+    'ingredients': [
+      {'ingredient': 'Chicken', 'quantity': 500, 'unit': 'g'},
+      {'ingredient': 'Onion', 'quantity': 1, 'unit': ''},
+      {'ingredient': 'Carrots', 'quantity': 2, 'unit': ''},
+      {'ingredient': 'Celery Stalks', 'quantity': 2, 'unit': ''},
+      {'ingredient': 'Chicken Broth', 'quantity': 1, 'unit': 'L'},
+      {'ingredient': 'Salt', 'quantity': 1, 'unit': 'tsp'},
+      {'ingredient': 'Pepper', 'quantity': 1, 'unit': 'tsp'}
+    ],
+  },
+];
 
   @override
   Widget build(BuildContext context) {
@@ -301,7 +321,7 @@ class HomeScreen extends StatelessWidget {
                       crossAxisSpacing: crossAxisSpacing,
                       mainAxisSpacing: mainAxisSpacing,
                       childAspectRatio: aspectRatio,
-                    ),
+                                        ),
                     itemBuilder: (context, index) {
                       return RecipeCard(
                         name: recipes[index]['name'],
@@ -314,6 +334,9 @@ class HomeScreen extends StatelessWidget {
                         course: recipes[index]['course'],
                         servings: recipes[index]['servings'],
                         keyWords: List<String>.from(recipes[index]['keyWords']),
+                        steps: List<String>.from(recipes[index]['steps']),
+                        appliances: List<String>.from(recipes[index]['appliances']),
+                        ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
                       );
                     },
                   );
