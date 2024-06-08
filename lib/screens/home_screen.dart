@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../widgets/recipe_card.dart';
 
 void main() {
@@ -14,245 +16,43 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class HomeScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> recipes = [
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/food1.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Grilled Salmon',
-      'description':
-          'A simple and delicious recipe for perfectly grilled salmon fillets.',
-      'imagePath': 'assets/food2.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    {
-      'name': 'Chicken Soup',
-      'description':
-          'A hearty and comforting chicken soup made with vegetables and tender chicken pieces.',
-      'imagePath': 'assets/food3.jpg',
-      'prepTime': 10,
-      'cookTime': 10,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'beef', 'tomato']
-    },
-    
-    // Additional recipes...
-  ];
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<Map<String, dynamic>> recipes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAllRecipes();
+  }
+
+  Future<void> fetchAllRecipes() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final body = jsonEncode({'action': 'getAllRecipes'});
+
+    try {
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> fetchedRecipes = jsonDecode(response.body);
+        setState(() {
+          print(fetchedRecipes);
+          recipes = List<Map<String, dynamic>>.from(fetchedRecipes);
+        });
+      } else {
+        print('Failed to load recipes: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching recipes: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -263,23 +63,6 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 16),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Wrap(
-                  spacing: 8.0,
-                  runSpacing: 4.0,
-                  children: [
-                    _buildCategoryChip('Breakfast'),
-                    _buildCategoryChip('Lunch'),
-                    _buildCategoryChip('Dinner'),
-                    _buildCategoryChip('Pasta'),
-                    _buildCategoryChip('Seafood'),
-                    _buildCategoryChip('Pizza'),
-                    _buildCategoryChip('Soups'),
-                  ],
-                ),
-              ),
               SizedBox(height: 24),
               LayoutBuilder(
                 builder: (context, constraints) {
@@ -303,17 +86,21 @@ class HomeScreen extends StatelessWidget {
                       childAspectRatio: aspectRatio,
                     ),
                     itemBuilder: (context, index) {
+                      // Split keywords string into a list of keywords
+                      List<String> keywords =
+                          (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
+
                       return RecipeCard(
-                        name: recipes[index]['name'],
-                        description: recipes[index]['description'],
-                        imagePath: recipes[index]['imagePath'],
-                        prepTime: recipes[index]['prepTime'],
-                        cookTime: recipes[index]['cookTime'],
-                        cuisine: recipes[index]['cuisine'],
-                        spiceLevel: recipes[index]['spiceLevel'],
-                        course: recipes[index]['course'],
-                        servings: recipes[index]['servings'],
-                        keyWords: List<String>.from(recipes[index]['keyWords']),
+                        name: recipes[index]['name'] ?? '', // Use an empty string if name is null
+                        description: recipes[index]['description'] ?? '',
+                        imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
+                        prepTime: recipes[index]['preptime'] ?? 0, // Use 0 if prepTime is null
+                        cookTime: recipes[index]['cooktime'] ?? 0,
+                        cuisine: recipes[index]['cuisine'] ?? '',
+                        spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                        course: recipes[index]['course'] ?? '',
+                        servings: recipes[index]['servings'] ?? 0,
+                        keyWords: keywords,
                       );
                     },
                   );
@@ -321,20 +108,6 @@ class HomeScreen extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryChip(String label) {
-    return Chip(
-      label: Text(label),
-      backgroundColor: Color(0xFF2A4940).withOpacity(0.7),
-      labelStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: Colors.transparent, // Change to desired border color
         ),
       ),
     );
