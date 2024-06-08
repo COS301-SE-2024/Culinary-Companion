@@ -89,6 +89,13 @@ flutter:
     - assets/Lightmode.png
     - assets/logo.png
     - assets/google.png
+    - assets/lemon_tart.jpg
+    - assets/sushi_rolls.jpg
+    - assets/spaghetti_carbonara.webp
+    - assets/chicken_curry.jpg
+    - assets/caesar_salad.webp
+    - assets/beef_tacos.jpg
+    - assets/pancakes.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
