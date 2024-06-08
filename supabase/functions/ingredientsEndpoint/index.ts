@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -67,6 +67,12 @@ Deno.serve(async (req) => {
                 return getRecipesByCuisine(cuisine, corsHeaders); 
             case 'getAllRecipes':
                 return getAllRecipes(corsHeaders);
+            case 'getIngredientsByCategory':
+                return getIngredientsByCategory(category, corsHeaders);
+            case 'getCategoryOfIngredient':
+                return getCategoryOfIngredient(ingredientName, corsHeaders);
+            case 'getIngredientNameAndCategory':
+                return getIngredientNameAndCategory(corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -767,6 +773,91 @@ async function getAllRecipes(corsHeaders: HeadersInit) {
         });
     }
 }
+
+async function getIngredientsByCategory(category: string, corsHeaders: HeadersInit) {
+    try {
+        const { data: ingredients, error: ingredientsError } = await supabase
+            .from('ingredient')
+            .select('*')
+            .eq('category', category);
+
+        if (ingredientsError) {
+            console.error('Error fetching ingredients by category:', ingredientsError);
+            return new Response(JSON.stringify({ error: ingredientsError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(ingredients), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getIngredientsByCategory function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getCategoryOfIngredient(ingredient_name: string, corsHeaders: HeadersInit) {
+    try {
+        const { data: ingredient, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('category')
+            .eq('name', ingredient_name)
+            .single();
+
+        if (ingredientError) {
+            console.error('Error fetching ingredient category:', ingredientError);
+            return new Response(JSON.stringify({ error: ingredientError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(ingredient), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getCategoryOfIngredient function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getIngredientNameAndCategory(corsHeaders: HeadersInit) {
+    try {
+        const { data: ingredients, error: ingredientsError } = await supabase
+            .from('ingredient')
+            .select('name, category');
+
+        if (ingredientsError) {
+            console.error('Error fetching ingredients with categories:', ingredientsError);
+            return new Response(JSON.stringify({ error: ingredientsError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(ingredients), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getIngredientNameAndCategory function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 /* To invoke locally:
 
