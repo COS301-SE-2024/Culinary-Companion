@@ -58,8 +58,6 @@ Future<void> _initializeData() async {
     });
   }
 
-
-
   Future<void> _fetchIngredientNames() async {
     try {
       final response = await http.post(
