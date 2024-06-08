@@ -37,6 +37,10 @@ Deno.serve(async (req) => {
                 return addUserDietaryConstraints(userId, dietaryConstraint, corsHeaders);
             case 'removeUserDietaryConstraints':
                 return removeUserDietaryConstraints(userId, dietaryConstraint, corsHeaders);
+            case 'getCuisines':
+                return getCuisines(corsHeaders);
+            case 'getDietaryConstraints':
+                    return getDietaryConstraints(corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -50,6 +54,55 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+// Get all the dietary constraints from the database
+async function getDietaryConstraints(corsHeaders: HeadersInit) {
+    try {
+        const { data: dietaryConstraints, error } = await supabase
+            .from('dietaryconstraints')
+            .select('dietaryconstraintsid, name');
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        const constraints = dietaryConstraints.map(constraint => ({
+            id: constraint.dietaryconstraintsid,
+            name: constraint.name
+        }));
+
+        return new Response(JSON.stringify(constraints), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+}
+
+async function getCuisines(corsHeaders: HeadersInit) {
+    try {
+        const { data: cuisine, error } = await supabase
+            .from('cuisine') // Assuming your table name is 'cuisines'
+            .select('cuisineid, name'); // Adjust fields as necessary
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        return new Response(JSON.stringify(cuisine), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+}
+
 
 async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
   if (!userId) {
@@ -81,6 +134,20 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
           throw new Error(constraintsError.message);
       }
 
+      // Fetch cuisine name
+      const cuisineId = userProfiles[0].cuisineid; // Assuming there's only one cuisine for a user
+      const { data: cuisineData, error: cuisineError } = await supabase
+          .from('cuisine')
+          .select('name')
+          .eq('cuisineid', cuisineId)
+          .single();
+
+      if (cuisineError) {
+          throw new Error(cuisineError.message);
+      }
+
+      const cuisineName = cuisineData ? cuisineData.name : 'Unknown';
+
       // Fetch names of dietary constraints
       const dietaryConstraintsIds = dietaryConstraints.map(constraint => constraint.dietaryconstraintsid);
       const { data: constraintNames, error: constraintNamesError } = await supabase
@@ -99,7 +166,7 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
           return {
               upid: profile.upid,
               userid: profile.userid,
-              cuisineid: profile.cuisineid,
+              cuisine: cuisineName,
               spicelevel: profile.spicelevel,
               username: profile.username,
               profilephoto: profile.profilephoto,
