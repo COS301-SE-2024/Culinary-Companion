@@ -1,466 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+
 import '../widgets/recipe_card.dart';
 
-class SavedRecipesScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> recipes = [
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/spaghetti_carbonara.webp',
-      'prepTime': 15,
-      'cookTime': 20,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'Italian', 'dinner']
-    },
-    {
-      'name': 'Chicken Curry',
-      'description':
-          'A flavorful and spicy chicken curry made with a blend of spices and coconut milk.',
-      'imagePath': 'assets/chicken_curry.jpg',
-      'prepTime': 20,
-      'cookTime': 40,
-      'cuisine': 'Indian',
-      'spiceLevel': 5,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['chicken', 'spicy', 'Indian']
-    },
-    {
-      'name': 'Beef Tacos',
-      'description':
-          'Delicious beef tacos with fresh vegetables and homemade taco seasoning.',
-      'imagePath': 'assets/beef_tacos.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'Mexican',
-      'spiceLevel': 3,
-      'course': 'Main',
-      'servings': 6,
-      'keyWords': ['beef', 'Mexican', 'tacos']
-    },
-    {
-      'name': 'Caesar Salad',
-      'description':
-          'Crisp romaine lettuce with Caesar dressing, croutons, and Parmesan cheese.',
-      'imagePath': 'assets/caesar_salad.webp',
-      'prepTime': 10,
-      'cookTime': 0,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Salad',
-      'servings': 2,
-      'keyWords': ['salad', 'Caesar', 'appetizer']
-    },
-    {
-      'name': 'Sushi Rolls',
-      'description':
-          'Homemade sushi rolls with fresh fish, avocado, and sushi rice.',
-      'imagePath': 'assets/sushi_rolls.jpg',
-      'prepTime': 30,
-      'cookTime': 10,
-      'cuisine': 'Japanese',
-      'spiceLevel': 2,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['sushi', 'Japanese', 'seafood']
-    },
-    {
-      'name': 'Pancakes',
-      'description':
-          'Fluffy pancakes served with maple syrup and fresh berries.',
-      'imagePath': 'assets/pancakes.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Breakfast',
-      'servings': 4,
-      'keyWords': ['breakfast', 'pancakes', 'sweet']
-    },
-    {
-      'name': 'Lemon Tart',
-      'description':
-          'A tangy lemon tart with a buttery crust and smooth lemon filling.',
-      'imagePath': 'assets/lemon_tart.jpg',
-      'prepTime': 20,
-      'cookTime': 25,
-      'cuisine': 'French',
-      'spiceLevel': 1,
-      'course': 'Dessert',
-      'servings': 8,
-      'keyWords': ['dessert', 'lemon', 'French']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/spaghetti_carbonara.webp',
-      'prepTime': 15,
-      'cookTime': 20,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'Italian', 'dinner']
-    },
-    {
-      'name': 'Chicken Curry',
-      'description':
-          'A flavorful and spicy chicken curry made with a blend of spices and coconut milk.',
-      'imagePath': 'assets/chicken_curry.jpg',
-      'prepTime': 20,
-      'cookTime': 40,
-      'cuisine': 'Indian',
-      'spiceLevel': 5,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['chicken', 'spicy', 'Indian']
-    },
-    {
-      'name': 'Beef Tacos',
-      'description':
-          'Delicious beef tacos with fresh vegetables and homemade taco seasoning.',
-      'imagePath': 'assets/beef_tacos.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'Mexican',
-      'spiceLevel': 3,
-      'course': 'Main',
-      'servings': 6,
-      'keyWords': ['beef', 'Mexican', 'tacos']
-    },
-    {
-      'name': 'Caesar Salad',
-      'description':
-          'Crisp romaine lettuce with Caesar dressing, croutons, and Parmesan cheese.',
-      'imagePath': 'assets/caesar_salad.webp',
-      'prepTime': 10,
-      'cookTime': 0,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Salad',
-      'servings': 2,
-      'keyWords': ['salad', 'Caesar', 'appetizer']
-    },
-    {
-      'name': 'Sushi Rolls',
-      'description':
-          'Homemade sushi rolls with fresh fish, avocado, and sushi rice.',
-      'imagePath': 'assets/sushi_rolls.jpg',
-      'prepTime': 30,
-      'cookTime': 10,
-      'cuisine': 'Japanese',
-      'spiceLevel': 2,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['sushi', 'Japanese', 'seafood']
-    },
-    {
-      'name': 'Pancakes',
-      'description':
-          'Fluffy pancakes served with maple syrup and fresh berries.',
-      'imagePath': 'assets/pancakes.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Breakfast',
-      'servings': 4,
-      'keyWords': ['breakfast', 'pancakes', 'sweet']
-    },
-    {
-      'name': 'Lemon Tart',
-      'description':
-          'A tangy lemon tart with a buttery crust and smooth lemon filling.',
-      'imagePath': 'assets/lemon_tart.jpg',
-      'prepTime': 20,
-      'cookTime': 25,
-      'cuisine': 'French',
-      'spiceLevel': 1,
-      'course': 'Dessert',
-      'servings': 8,
-      'keyWords': ['dessert', 'lemon', 'French']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/spaghetti_carbonara.webp',
-      'prepTime': 15,
-      'cookTime': 20,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'Italian', 'dinner']
-    },
-    {
-      'name': 'Chicken Curry',
-      'description':
-          'A flavorful and spicy chicken curry made with a blend of spices and coconut milk.',
-      'imagePath': 'assets/chicken_curry.jpg',
-      'prepTime': 20,
-      'cookTime': 40,
-      'cuisine': 'Indian',
-      'spiceLevel': 5,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['chicken', 'spicy', 'Indian']
-    },
-    {
-      'name': 'Beef Tacos',
-      'description':
-          'Delicious beef tacos with fresh vegetables and homemade taco seasoning.',
-      'imagePath': 'assets/beef_tacos.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'Mexican',
-      'spiceLevel': 3,
-      'course': 'Main',
-      'servings': 6,
-      'keyWords': ['beef', 'Mexican', 'tacos']
-    },
-    {
-      'name': 'Caesar Salad',
-      'description':
-          'Crisp romaine lettuce with Caesar dressing, croutons, and Parmesan cheese.',
-      'imagePath': 'assets/caesar_salad.webp',
-      'prepTime': 10,
-      'cookTime': 0,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Salad',
-      'servings': 2,
-      'keyWords': ['salad', 'Caesar', 'appetizer']
-    },
-    {
-      'name': 'Sushi Rolls',
-      'description':
-          'Homemade sushi rolls with fresh fish, avocado, and sushi rice.',
-      'imagePath': 'assets/sushi_rolls.jpg',
-      'prepTime': 30,
-      'cookTime': 10,
-      'cuisine': 'Japanese',
-      'spiceLevel': 2,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['sushi', 'Japanese', 'seafood']
-    },
-    {
-      'name': 'Pancakes',
-      'description':
-          'Fluffy pancakes served with maple syrup and fresh berries.',
-      'imagePath': 'assets/pancakes.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Breakfast',
-      'servings': 4,
-      'keyWords': ['breakfast', 'pancakes', 'sweet']
-    },
-    {
-      'name': 'Lemon Tart',
-      'description':
-          'A tangy lemon tart with a buttery crust and smooth lemon filling.',
-      'imagePath': 'assets/lemon_tart.jpg',
-      'prepTime': 20,
-      'cookTime': 25,
-      'cuisine': 'French',
-      'spiceLevel': 1,
-      'course': 'Dessert',
-      'servings': 8,
-      'keyWords': ['dessert', 'lemon', 'French']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/spaghetti_carbonara.webp',
-      'prepTime': 15,
-      'cookTime': 20,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'Italian', 'dinner']
-    },
-    {
-      'name': 'Chicken Curry',
-      'description':
-          'A flavorful and spicy chicken curry made with a blend of spices and coconut milk.',
-      'imagePath': 'assets/chicken_curry.jpg',
-      'prepTime': 20,
-      'cookTime': 40,
-      'cuisine': 'Indian',
-      'spiceLevel': 5,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['chicken', 'spicy', 'Indian']
-    },
-    {
-      'name': 'Beef Tacos',
-      'description':
-          'Delicious beef tacos with fresh vegetables and homemade taco seasoning.',
-      'imagePath': 'assets/beef_tacos.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'Mexican',
-      'spiceLevel': 3,
-      'course': 'Main',
-      'servings': 6,
-      'keyWords': ['beef', 'Mexican', 'tacos']
-    },
-    {
-      'name': 'Caesar Salad',
-      'description':
-          'Crisp romaine lettuce with Caesar dressing, croutons, and Parmesan cheese.',
-      'imagePath': 'assets/caesar_salad.webp',
-      'prepTime': 10,
-      'cookTime': 0,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Salad',
-      'servings': 2,
-      'keyWords': ['salad', 'Caesar', 'appetizer']
-    },
-    {
-      'name': 'Sushi Rolls',
-      'description':
-          'Homemade sushi rolls with fresh fish, avocado, and sushi rice.',
-      'imagePath': 'assets/sushi_rolls.jpg',
-      'prepTime': 30,
-      'cookTime': 10,
-      'cuisine': 'Japanese',
-      'spiceLevel': 2,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['sushi', 'Japanese', 'seafood']
-    },
-    {
-      'name': 'Pancakes',
-      'description':
-          'Fluffy pancakes served with maple syrup and fresh berries.',
-      'imagePath': 'assets/pancakes.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Breakfast',
-      'servings': 4,
-      'keyWords': ['breakfast', 'pancakes', 'sweet']
-    },
-    {
-      'name': 'Lemon Tart',
-      'description':
-          'A tangy lemon tart with a buttery crust and smooth lemon filling.',
-      'imagePath': 'assets/lemon_tart.jpg',
-      'prepTime': 20,
-      'cookTime': 25,
-      'cuisine': 'French',
-      'spiceLevel': 1,
-      'course': 'Dessert',
-      'servings': 8,
-      'keyWords': ['dessert', 'lemon', 'French']
-    },
-    {
-      'name': 'Spaghetti Carbonara',
-      'description':
-          'A classic Italian pasta dish made with eggs, cheese, pancetta, and pepper.',
-      'imagePath': 'assets/spaghetti_carbonara.webp',
-      'prepTime': 15,
-      'cookTime': 20,
-      'cuisine': 'Italian',
-      'spiceLevel': 1,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['pasta', 'Italian', 'dinner']
-    },
-    {
-      'name': 'Chicken Curry',
-      'description':
-          'A flavorful and spicy chicken curry made with a blend of spices and coconut milk.',
-      'imagePath': 'assets/chicken_curry.jpg',
-      'prepTime': 20,
-      'cookTime': 40,
-      'cuisine': 'Indian',
-      'spiceLevel': 5,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['chicken', 'spicy', 'Indian']
-    },
-    {
-      'name': 'Beef Tacos',
-      'description':
-          'Delicious beef tacos with fresh vegetables and homemade taco seasoning.',
-      'imagePath': 'assets/beef_tacos.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'Mexican',
-      'spiceLevel': 3,
-      'course': 'Main',
-      'servings': 6,
-      'keyWords': ['beef', 'Mexican', 'tacos']
-    },
-    {
-      'name': 'Caesar Salad',
-      'description':
-          'Crisp romaine lettuce with Caesar dressing, croutons, and Parmesan cheese.',
-      'imagePath': 'assets/caesar_salad.webp',
-      'prepTime': 10,
-      'cookTime': 0,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Salad',
-      'servings': 2,
-      'keyWords': ['salad', 'Caesar', 'appetizer']
-    },
-    {
-      'name': 'Sushi Rolls',
-      'description':
-          'Homemade sushi rolls with fresh fish, avocado, and sushi rice.',
-      'imagePath': 'assets/sushi_rolls.jpg',
-      'prepTime': 30,
-      'cookTime': 10,
-      'cuisine': 'Japanese',
-      'spiceLevel': 2,
-      'course': 'Main',
-      'servings': 4,
-      'keyWords': ['sushi', 'Japanese', 'seafood']
-    },
-    {
-      'name': 'Pancakes',
-      'description':
-          'Fluffy pancakes served with maple syrup and fresh berries.',
-      'imagePath': 'assets/pancakes.jpg',
-      'prepTime': 10,
-      'cookTime': 15,
-      'cuisine': 'American',
-      'spiceLevel': 1,
-      'course': 'Breakfast',
-      'servings': 4,
-      'keyWords': ['breakfast', 'pancakes', 'sweet']
-    },
-    {
-      'name': 'Lemon Tart',
-      'description':
-          'A tangy lemon tart with a buttery crust and smooth lemon filling.',
-      'imagePath': 'assets/lemon_tart.jpg',
-      'prepTime': 20,
-      'cookTime': 25,
-      'cuisine': 'French',
-      'spiceLevel': 1,
-      'course': 'Dessert',
-      'servings': 8,
-      'keyWords': ['dessert', 'lemon', 'French']
-    },
+class SavedRecipesScreen extends StatefulWidget {
+  @override
+  _SavedRecipesScreenState createState() => _SavedRecipesScreenState();
+}
 
-    // Additional recipes...
-  ];
+class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
+  String? _userId;
+  List<Map<String, dynamic>> recipes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId(); // Load user ID first
+  }
+
+  ///////////load the user id/////////////
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId');
+      print('Login successful: $_userId');
+      if (_userId != null) {
+        print('here 1');
+        fetchRecipes(); // Call fetchRecipes only if userId is loaded successfully
+      }
+    });
+  }
+
+  Future<void> fetchRecipes() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final body = jsonEncode({'action': 'getUserRecipes', 'userId': _userId});
+
+    try {
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> fetchedRecipes = jsonDecode(response.body);
+        setState(() {
+          print(fetchedRecipes);
+          recipes = List<Map<String, dynamic>>.from(fetchedRecipes);
+        });
+      } else {
+        print('Failed to load recipes: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching recipes: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -494,17 +89,21 @@ class SavedRecipesScreen extends StatelessWidget {
                       childAspectRatio: aspectRatio,
                     ),
                     itemBuilder: (context, index) {
+                      // Split keywords string into a list of keywords
+                      List<String> keywords =
+                          (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
+
                       return RecipeCard(
-                        name: recipes[index]['name'],
-                        description: recipes[index]['description'],
-                        imagePath: recipes[index]['imagePath'],
-                        prepTime: recipes[index]['prepTime'],
-                        cookTime: recipes[index]['cookTime'],
-                        cuisine: recipes[index]['cuisine'],
-                        spiceLevel: recipes[index]['spiceLevel'],
-                        course: recipes[index]['course'],
-                        servings: recipes[index]['servings'],
-                        keyWords: List<String>.from(recipes[index]['keyWords']),
+                        name: recipes[index]['name'] ?? '', // Use an empty string if name is null
+                        description: recipes[index]['description'] ?? '',
+                        imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
+                        prepTime: recipes[index]['preptime'] ?? 0, // Use 0 if prepTime is null
+                        cookTime: recipes[index]['cooktime'] ?? 0,
+                        cuisine: recipes[index]['cuisine'] ?? '',
+                        spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                        course: recipes[index]['course'] ?? '',
+                        servings: recipes[index]['servings'] ?? 0,
+                        keyWords: keywords,
                       );
                     },
                   );

@@ -52,7 +52,7 @@ class _RecipeCardState extends State<RecipeCard> {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: Image.asset(
+              child: Image.network(
                 widget.imagePath,
                 fit: BoxFit.cover,
               ),
