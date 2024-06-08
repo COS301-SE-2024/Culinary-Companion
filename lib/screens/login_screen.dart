@@ -108,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     Container(
                       width: 365,
-                      height: 46,
+                      height: 70,
                       child: TextFormField(
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -158,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 16),
                     Container(
                       width: 365,
-                      height: 46,
+                      height: 70,
                       child: TextFormField(
                         obscureText: true,
                         decoration: InputDecoration(
@@ -226,12 +226,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         onPressed: _handleLogin,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                              0xFFDC945F), // Button background color
+                          backgroundColor: const Color(0xFFDC945F), // Button background color
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(8.0), // Border radius
+                            borderRadius: BorderRadius.circular(8.0), // Border radius
                           ),
                           side: const BorderSide(
                             color: Colors.transparent, // Border color
@@ -302,6 +300,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {
                         Navigator.pushNamed(context, '/signup');
