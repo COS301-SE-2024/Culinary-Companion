@@ -87,6 +87,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
+String getSpiceLevelText(String spiceLevel) {
+  switch (spiceLevel) {
+    case '0':
+      return 'None';
+    case '1':
+      return 'Mild';
+    case '2':
+      return 'Medium';
+    case '3':
+      return 'Hot';
+    case '4':
+      return 'Extra Hot';
+    default:
+      return 'Unknown';
+  }
+}
+
 
 
   @override
@@ -256,7 +273,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         runSpacing: 4.0,
         children: [
           Chip(
-            label: Text(spiceLevel),//spice level
+            label: Text(getSpiceLevelText(spiceLevel)),//spice level
             backgroundColor: Colors.grey[700],
             labelStyle: const TextStyle(color: Colors.white),
           ),
