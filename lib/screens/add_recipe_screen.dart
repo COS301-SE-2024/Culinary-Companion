@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -9,6 +10,57 @@ class AddRecipeScreen extends StatefulWidget {
 
 class _AddRecipeScreenState extends State<AddRecipeScreen>
     with SingleTickerProviderStateMixin {
+
+@override
+  void initState() {
+    super.initState();
+    _initializeData();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+  
+
+Future<void> _initializeData() async {
+  await _loadUserId();
+  await _loadCuisines();
+}
+
+  String? _userId;
+  List<String> _cuisines = [];
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId');
+    });
+  }
+
+  Future<void> _loadCuisines() async {
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({'action': 'getCuisines'}),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() { // Ensure the UI updates after cuisines are loaded
+        _cuisines = data.map<String>((cuisine) {
+          return cuisine['name'].toString();
+        }).toList();
+      });
+      print(_cuisines);
+    } else {
+      throw Exception('Failed to load cuisines');
+    }
+  } catch (e) {
+    throw Exception('Error fetching cuisines: $e');
+  }
+}
+
+  
   final List<Map<String, String>> _ingredients = [];
   final List<String> _methods = [];
   late TabController _tabController;
@@ -23,13 +75,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   String _selectedCourse = 'Main';
   int _spiceLevel = 1;
 
-  final List<String> _cuisines = [
-    'Mexican',
-    'Italian',
-    'Chinese',
-    'Indian',
-    'American'
-  ];
+
   final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
 
   void _addIngredientField() {
@@ -84,6 +130,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       },
       body: json.encode({
         'action': 'addRecipe',
+        'userId': _userId,
         'recipeData': recipeData,
       }),
     );
@@ -97,11 +144,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 3, vsync: this);
-  }
 
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
     return InputDecoration(
