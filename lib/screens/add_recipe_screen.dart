@@ -17,7 +17,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _cookingTimeController = TextEditingController();
   final TextEditingController _prepTimeController = TextEditingController();
-  final TextEditingController _servingAmountController = TextEditingController();
+  final TextEditingController _servingAmountController =
+      TextEditingController();
 
   String _selectedCuisine = 'Mexican';
   String _selectedCourse = 'Main';
@@ -117,6 +118,23 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     );
   }
 
+  String _getSpiceLevelLabel(int spiceLevel) {
+    switch (spiceLevel) {
+      case 0:
+        return 'None';
+      case 1:
+        return 'Mild🌶️';
+      case 2:
+        return 'Medium🌶️🌶️';
+      case 3:
+        return 'Hot🌶️🌶️🌶️';
+      case 4:
+        return 'Extra Hot🌶️🌶️🌶️🌶️';
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,7 +197,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                         // Add functionality to analyze the scanned recipe
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A2D27),
+                        backgroundColor: const Color(0xFF1F4539),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 20),
                         side: const BorderSide(
@@ -264,7 +282,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            const Color(0xFF1A2D27), // Set the background color
+                            const Color(0xFF1F4539), // Set the background color
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 20),
                         side: const BorderSide(
@@ -296,6 +314,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 40),
                   Card(
+                    color: Color(0xFF19372D),
                     elevation: 4,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),
@@ -332,6 +351,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           ),
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
+                            dropdownColor: const Color(0xFF1F4539),
                             value: _selectedCuisine,
                             onChanged: (value) {
                               setState(() {
@@ -349,6 +369,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           ),
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
+                            dropdownColor: const Color(0xFF1F4539),
                             value: _selectedCourse,
                             onChanged: (value) {
                               setState(() {
@@ -373,17 +394,26 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               const Icon(Icons.local_fire_department,
                                   color: Colors.red),
                               Expanded(
-                                child: Slider(
-                                  value: _spiceLevel.toDouble(),
-                                  min: 0,
-                                  max: 3,
-                                  divisions: 3,
-                                  label: _spiceLevel.toString(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _spiceLevel = value.toInt();
-                                    });
-                                  },
+                                child: SliderTheme(
+                                  data: SliderTheme.of(context).copyWith(
+                                    valueIndicatorTextStyle: TextStyle(
+                                        color: Colors
+                                            .black), // Change this to the desired color
+                                  ),
+                                  child: Slider(
+                                    value: _spiceLevel.toDouble(),
+                                    min: 0,
+                                    max: 4,
+                                    divisions: 4,
+                                    label: _getSpiceLevelLabel(_spiceLevel),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _spiceLevel = value.toInt();
+                                      });
+                                    },
+                                    activeColor: Color(
+                                        0xFFDC945F), // Change this to the desired color for the active part of the slider
+                                  ),
                                 ),
                               ),
                             ],
@@ -512,13 +542,17 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           Center(
                             child: ElevatedButton(
                               onPressed: _submitRecipe,
-                              child: const Text('Add Recipe'),
+                              child: const Text(
+                                'Add Recipe',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold),
+                              ),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0B3D36),
+                                backgroundColor: const Color(0xFFDC945F),
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 40, vertical: 20),
-                                textStyle: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ),
