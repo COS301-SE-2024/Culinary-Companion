@@ -13,6 +13,7 @@ class ShoppingPantryScreen extends StatefulWidget {
 
 class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   String? _userId;
+  
   @override
   void initState() {
     super.initState();
@@ -34,17 +35,17 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   final Map<String, bool> _checkboxStates = {};
 
   final List<String> _categories = [
-    'Dairy',
-    'Meat',
-    'Fish',
-    'Nuts',
-    'Spice/Herb',
-    'Starch',
-    'Vegetable',
-    'Vegeterian',
-    'Fruit',
-    'Legume',
-    'Staple',
+    'Dairy 🧀',
+    'Meat 🥩',
+    'Fish 🐟',
+    'Nuts 🥜',
+    'Spice/Herb 🌿',
+    'Starch 🌾',
+    'Vegetable 🥕',
+    'Vegeterian 🌱',
+    'Fruit 🍏',
+    'Legume 🫘',
+    'Staple 🍞',
     'Other'
   ];
 
@@ -470,8 +471,8 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                     CrossAxisAlignment.start, // Left-align children
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
+                  const Padding(
+                    padding: EdgeInsets.all(20.0),
                     child: Text(
                       'Shopping List',
                       style: TextStyle(
@@ -505,17 +506,17 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            Color(0xFFDC945F), // Button background color
+                            const Color(0xFFDC945F), // Button background color
                         foregroundColor: Colors.white, // Text color
                         fixedSize:
-                            Size(48.0, 48.0), // Ensure the button is square
+                            const Size(48.0, 48.0), // Ensure the button is square
                         shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(16), // Rounded corners
                         ),
-                        padding: EdgeInsets.all(0), // Remove default padding
+                        padding: const EdgeInsets.all(0), // Remove default padding
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           '+',
                           style: TextStyle(
@@ -547,8 +548,8 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                     CrossAxisAlignment.start, // Left-align children
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
+                  const Padding(
+                    padding: EdgeInsets.all(20.0),
                     child: Text(
                       'Pantry',
                       style: TextStyle(
@@ -582,17 +583,17 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            Color(0xFFDC945F), // Button background color
+                            const Color(0xFFDC945F), // Button background color
                         foregroundColor: Colors.white, // Text color
                         fixedSize:
-                            Size(48.0, 48.0), // Ensure the button is square
+                            const Size(48.0, 48.0), // Ensure the button is square
                         shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.circular(16), // Rounded corners
                         ),
-                        padding: EdgeInsets.all(0), // Remove default padding
+                        padding: const EdgeInsets.all(0), // Remove default padding
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           '+',
                           style: TextStyle(
@@ -617,7 +618,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
       padding: const EdgeInsets.all(8.0),
       child: Text(
         title,
-        style: TextStyle(
+        style: const TextStyle(
           fontSize: 20.0, // Font size for category headers
           fontWeight: FontWeight.bold, // Bold text for headers
         ),
@@ -634,13 +635,13 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
           borderRadius: BorderRadius.circular(4.0),
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
           child: ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
             leading: listType
                 ? // Conditionally include the checkbox
                 Container(
-                    decoration: BoxDecoration(),
+                    decoration: const BoxDecoration(),
                     child: Transform.scale(
                       scale: 1,
                       child: Checkbox(
@@ -687,21 +688,21 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
           // Apply custom theme to the AlertDialog
           data: ThemeData(
             // Set the background color to white
-            dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+            dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
           ),
           child: AlertDialog(
-            title: Text("Confirm Remove"),
+            title: const Text("Confirm Remove"),
             content: Text(
                 "Are you sure you want to remove '$title' from the ${listType ? 'Shopping List' : 'Pantry'}?"),
             actions: <Widget>[
               TextButton(
                 style: TextButton.styleFrom(
-                  side: BorderSide(
+                  side: const BorderSide(
                     color: Colors.orange,
                     width: 1.5, // Border thickness
                   ), // Outline color
                 ),
-                child: Text(
+                child: const Text(
                   'Cancel',
                   style: TextStyle(
                     color: Color(0xFFDC945F), // Set the color to orange
@@ -713,9 +714,9 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
               ),
               TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFFDC945F), // Background color
+                  backgroundColor: const Color(0xFFDC945F), // Background color
                 ),
-                child: Text(
+                child: const Text(
                   'Remove',
                   style: TextStyle(
                     color: Colors.white, // Set the color to white
@@ -764,7 +765,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
           // Apply custom theme to the AlertDialog
           data: ThemeData(
             // Set the background color to white
-            dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+            dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
           ),
           child: AlertDialog(
             title: Text('Add New Item To $type List'),
@@ -774,7 +775,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
                     controller: _foodTypeController, // Use the controller here
-                    decoration: InputDecoration(labelText: 'Select Food Type'),
+                    decoration: const InputDecoration(labelText: 'Select Food Type'),
                   ),
                   suggestionsCallback: (pattern) {
                     return _categories.where((category) =>
@@ -794,7 +795,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
                     controller: _textFieldController,
-                    decoration: InputDecoration(hintText: "Enter item name"),
+                    decoration: const InputDecoration(hintText: "Enter item name"),
                   ),
                   suggestionsCallback: (pattern) {
                     return _items.where((item) =>
@@ -816,12 +817,12 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
             actions: <Widget>[
               TextButton(
                 style: TextButton.styleFrom(
-                  side: BorderSide(
+                  side: const BorderSide(
                     color: Colors.orange,
                     width: 1.5, // Border thickness
                   ), // Outline color
                 ),
-                child: Text(
+                child: const Text(
                   'Cancel',
                   style: TextStyle(
                     color: Color(0xFFDC945F), // Set the color to orange
@@ -833,9 +834,9 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
               ),
               TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFFDC945F), // Background color
+                  backgroundColor: const Color(0xFFDC945F), // Background color
                 ),
-                child: Text(
+                child: const Text(
                   'Add',
                   style: TextStyle(
                     color: Colors.white, // Set the color to orange
