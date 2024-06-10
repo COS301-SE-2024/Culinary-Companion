@@ -7,9 +7,14 @@ import 'screens/login_screen.dart'; // Import the new login screen
 import 'screens/signup_screen.dart'; // Import the new signup screen
 import 'screens/confirm_details.dart'; //Import the confirm details, a.k.a Signup 2 page
 import 'screens/main.dart'; // Import the main screen
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
+  );
 
   // Initialize the shared preferences and http client
   final sharedPreferences = await SharedPreferences.getInstance();
