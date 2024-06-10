@@ -5,6 +5,7 @@ import 'screens/home_screen.dart';
 import 'screens/landing_screen.dart'; // Import the new landing screen
 import 'screens/login_screen.dart'; // Import the new login screen
 import 'screens/signup_screen.dart'; // Import the new signup screen
+import 'screens/confirm_details.dart'; //Import the confirm details, a.k.a Signup 2 page
 import 'screens/main.dart'; // Import the main screen
 
 void main() async {
@@ -53,6 +54,7 @@ class CulinaryCompanionApp extends StatelessWidget {
               sharedPreferences: sharedPreferences,
             ), // Add the signup screen route
         '/home': (context) => MainScreen(), // Rename the home route
+        '/confirm': (context) => ConfirmDetailsScreen(),
       },
     );
   }

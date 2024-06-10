@@ -88,6 +88,7 @@ flutter:
     - assets/trash-can.png
     - assets/Darkmode.png
     - assets/Lightmode.png
+    - assets/default_profile.jpeg
     - assets/logo.png
     - assets/google.png
     - assets/lemon_tart.jpg
