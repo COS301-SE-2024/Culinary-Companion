@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -73,6 +73,8 @@ Deno.serve(async (req) => {
                 return getCategoryOfIngredient(ingredientName, corsHeaders);
             case 'getIngredientNameAndCategory':
                 return getIngredientNameAndCategory(corsHeaders);
+            // case 'getRecipe':
+            //     return getRecipe(recipeid, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -857,6 +859,10 @@ async function getIngredientNameAndCategory(corsHeaders: HeadersInit) {
         });
     }
 }
+
+// async function getRecipe(recipeid, corsHeaders){
+
+// }
 
 
 /* To invoke locally:
