@@ -434,7 +434,7 @@ async function createUserProfile(userId: string, username: string, cuisineName: 
                 username: username,
                 cuisineid: cuisineId,
                 spicelevel: spicelevel,
-                profilephoto: imageURL,
+                //profilephoto: imageURL,
             })
             .select('*')
             .single();
