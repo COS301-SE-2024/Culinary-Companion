@@ -957,7 +957,7 @@ async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
 
         const applianceNames = applianceNamesData.map(appliance => appliance.name);
 
-        // Combine recipe data with appliance names
+        // Create a custom object with the desired structure
         const recipe = {
             recipeId: recipeData.recipeId,
             name: recipeData.name,
@@ -971,11 +971,11 @@ async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
             keywords: recipeData.keywords,
             servings: recipeData.servings,
             photo: recipeData.photo,
-
             appliances: applianceNames,
         };
 
-        return new Response(JSON.stringify({ recipe }), {
+        // Stringify the custom object and return the JSON response
+        return new Response(JSON.stringify(recipe, null, 2), {
             status: 200,
             headers: corsHeaders,
         });
