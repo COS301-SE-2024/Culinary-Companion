@@ -16,7 +16,7 @@ interface RecipeData {
 }
 
 // Create the Supabase Client
-const supURL = Deno.env.get("_SUPABASE_URL") as string;
+const supURL = Deno.env.get("_SUPABASE_URL") as string || 'http://localhost:54321';
 const supKey = Deno.env.get("_SUPABASE_ANON_KEY") as string;
 const supabase = createClient(supURL, supKey);
 
@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
             case 'getAvailableIngredients': // the pantry list
                 return getAvailableIngredients(userId, corsHeaders); 
             case 'addRecipe':
-              return addRecipe(recipeData, corsHeaders);
+              return addRecipe(userId, recipeData, corsHeaders);
             case 'addToShoppingList':
               return addToShoppingList(userId, ingredientName);
             case 'addToPantryList':
@@ -56,7 +56,25 @@ Deno.serve(async (req) => {
             case 'removeFromShoppingList':
               return removeFromShoppingList(userId, ingredientName);
             case 'removeFromPantryList':
-              return removeFromPantryList(userId, ingredientName);               
+              return removeFromPantryList(userId, ingredientName);  
+            case 'getUserRecipes':
+                return getUserRecipes(userId, corsHeaders); 
+            case 'getRecipesByCourse':
+                return getRecipesByCourse(course, corsHeaders);  
+            case 'getRecipesBySpiceLevel':
+                return getRecipesBySpiceLevel(spiceLevel, corsHeaders);      
+            case 'getRecipesByCuisine':
+                return getRecipesByCuisine(cuisine, corsHeaders); 
+            case 'getAllRecipes':
+                return getAllRecipes(corsHeaders);
+            case 'getIngredientsByCategory':
+                return getIngredientsByCategory(category, corsHeaders);
+            case 'getCategoryOfIngredient':
+                return getCategoryOfIngredient(ingredientName, corsHeaders);
+            case 'getIngredientNameAndCategory':
+                return getIngredientNameAndCategory(corsHeaders);
+            // case 'getRecipe':
+            //     return getRecipe(recipeid, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -224,7 +242,7 @@ async function getAvailableIngredients(userId: string, corsHeaders: HeadersInit)
 }
 
 // Add recipe to the db from the form
-async function addRecipe(recipeData: RecipeData, corsHeaders: HeadersInit) {
+async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: HeadersInit) {
     try {
         const { name, description, methods, cookTime, cuisine, spiceLevel, prepTime, course, servingAmount, ingredients } = recipeData;
 
@@ -234,7 +252,7 @@ async function addRecipe(recipeData: RecipeData, corsHeaders: HeadersInit) {
             .insert({
                 name,
                 description,
-                steps: methods, // Save the methods directly in the recipe table
+                steps: methods,
                 cooktime: cookTime,
                 cuisine,
                 spicelevel: spiceLevel,
@@ -242,27 +260,41 @@ async function addRecipe(recipeData: RecipeData, corsHeaders: HeadersInit) {
                 course,
                 servings: servingAmount,
             })
-            .select('recipeid') // Select only the recipe ID
+            .select('recipeid')
             .single();
 
         if (recipeError) {
-            return new Response(JSON.stringify({ error: recipeError.message }), { 
+            console.error('Error inserting recipe:', recipeError);
+            return new Response(JSON.stringify({ error: recipeError.message }), {
                 status: 400,
                 headers: corsHeaders,
             });
         }
 
-        const recipeId = insertedRecipeData?.recipeid; // Extract the recipe ID
+        const recipeId = insertedRecipeData?.recipeid;
 
-        // Check if recipeId is null or undefined
         if (!recipeId) {
-            return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), { 
+            console.error('Failed to retrieve recipe ID');
+            return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), {
                 status: 400,
                 headers: corsHeaders,
             });
         }
 
-        // Insert ingredients
+        const { error: userRecipeError } = await supabase
+            .from('userUploadedRecipes')
+            .insert({ userid: userId, recipeid: recipeId })
+            .select('*')
+            .single();
+
+        if (userRecipeError) {
+            console.error('Error inserting user recipe:', userRecipeError);
+            return new Response(JSON.stringify({ error: userRecipeError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
         for (const ingredient of ingredients) {
             const { data: ingredientData, error: ingredientError } = await supabase
                 .from('ingredient')
@@ -271,51 +303,54 @@ async function addRecipe(recipeData: RecipeData, corsHeaders: HeadersInit) {
                 .single();
 
             if (ingredientError) {
-                return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredient.name}` }), { 
+                console.error('Error fetching ingredient:', ingredientError);
+                return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredient.name}` }), {
                     status: 400,
                     headers: corsHeaders,
                 });
             }
 
-            const ingredientId = ingredientData?.ingredientid; // Extract the ingredient ID
+            const ingredientId = ingredientData?.ingredientid;
 
-            // Check if ingredientId is null or undefined
             if (!ingredientId) {
-                return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), { 
+                console.error(`Failed to retrieve ingredient ID for ${ingredient.name}`);
+                return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), {
                     status: 400,
                     headers: corsHeaders,
                 });
             }
 
-            // Insert into recipeingredients with the fetched recipeId
             const { error: recipeIngredientError } = await supabase
                 .from('recipeingredients')
                 .insert({
                     recipeid: recipeId,
                     ingredientid: ingredientId,
                     quantity: ingredient.quantity,
-                    measurmentunit: ingredient.unit,
+                    measurementunit: ingredient.unit,
                 });
 
             if (recipeIngredientError) {
-                return new Response(JSON.stringify({ error: recipeIngredientError.message }), { 
+                console.error('Error inserting recipe ingredient:', recipeIngredientError);
+                return new Response(JSON.stringify({ error: recipeIngredientError.message }), {
                     status: 400,
                     headers: corsHeaders,
                 });
             }
         }
 
-        return new Response(JSON.stringify({ success: true, recipeId }), { 
+        return new Response(JSON.stringify({ success: true, recipeId }), {
             status: 200,
             headers: corsHeaders,
         });
     } catch (e) {
-        return new Response(JSON.stringify({ error: e.message }), { 
+        console.error('Error in addRecipe function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
             status: 500,
             headers: corsHeaders,
         });
     }
 }
+
 
 async function addToShoppingList(userId: string, ingredientName: string) {
     const corsHeaders = {
@@ -561,6 +596,274 @@ async function removeFromPantryList(userId: string, ingredientName: string) {
         });
     }
 }
+
+async function getUserRecipes(userId: string, corsHeaders: HeadersInit) {
+    if (!userId) {
+        throw new Error('User ID is required');
+    }
+
+    try {
+        // Fetch user-uploaded recipes
+        const { data: userRecipes, error: userRecipesError } = await supabase
+            .from('userUploadedRecipes')
+            .select('recipeid')
+            .eq('userid', userId);
+
+        if (userRecipesError) {
+            console.error('Error fetching user recipes:', userRecipesError);
+            return new Response(JSON.stringify({ error: userRecipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        if (!userRecipes || userRecipes.length === 0) {
+            return new Response(JSON.stringify({ error: 'No recipes found for this user' }), {
+                status: 404,
+                headers: corsHeaders,
+            });
+        }
+
+        const recipeIds = userRecipes.map(userRecipe => userRecipe.recipeid);
+
+        // Fetch recipes based on recipe IDs
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .in('recipeid', recipeIds);
+
+        if (recipesError) {
+            console.error('Error fetching recipes:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getUserRecipes function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getRecipesByCourse(course: string, corsHeaders: HeadersInit) {
+    if (!course) {
+        throw new Error('Course is required');
+    }
+
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .eq('course', course);
+
+        if (recipesError) {
+            console.error('Error fetching recipes by course:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getRecipesByCourse function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getRecipesBySpiceLevel(spiceLevel: number, corsHeaders: HeadersInit) {
+    if (spiceLevel === undefined || spiceLevel === null) {
+        throw new Error('Spice level is required');
+    }
+
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .eq('spicelevel', spiceLevel);
+
+        if (recipesError) {
+            console.error('Error fetching recipes by spice level:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getRecipesBySpiceLevel function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getRecipesByCuisine(cuisine: string, corsHeaders: HeadersInit) {
+    if (!cuisine) {
+        throw new Error('Cuisine is required');
+    }
+
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .eq('cuisine', cuisine);
+
+        if (recipesError) {
+            console.error('Error fetching recipes by cuisine:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getRecipesByCuisine function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getAllRecipes(corsHeaders: HeadersInit) {
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*');
+
+        if (recipesError) {
+            console.error('Error fetching all recipes:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getAllRecipes function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getIngredientsByCategory(category: string, corsHeaders: HeadersInit) {
+    try {
+        const { data: ingredients, error: ingredientsError } = await supabase
+            .from('ingredient')
+            .select('*')
+            .eq('category', category);
+
+        if (ingredientsError) {
+            console.error('Error fetching ingredients by category:', ingredientsError);
+            return new Response(JSON.stringify({ error: ingredientsError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(ingredients), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getIngredientsByCategory function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getCategoryOfIngredient(ingredient_name: string, corsHeaders: HeadersInit) {
+    try {
+        const { data: ingredient, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('category')
+            .eq('name', ingredient_name)
+            .single();
+
+        if (ingredientError) {
+            console.error('Error fetching ingredient category:', ingredientError);
+            return new Response(JSON.stringify({ error: ingredientError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(ingredient), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getCategoryOfIngredient function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getIngredientNameAndCategory(corsHeaders: HeadersInit) {
+    try {
+        const { data: ingredients, error: ingredientsError } = await supabase
+            .from('ingredient')
+            .select('name, category');
+
+        if (ingredientsError) {
+            console.error('Error fetching ingredients with categories:', ingredientsError);
+            return new Response(JSON.stringify({ error: ingredientsError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(ingredients), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getIngredientNameAndCategory function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+// async function getRecipe(recipeid, corsHeaders){
+
+// }
+
 
 /* To invoke locally:
 

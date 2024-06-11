@@ -1,37 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/widgets/confirm_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart'
     as http; // Add this line to import the http package
 import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
 
-
-class ScanRecipeScreen extends StatefulWidget {
+class ShoppingPantryScreen extends StatefulWidget {
   @override
-  _ScanRecipeScreenState createState() => _ScanRecipeScreenState();
+  _ShoppingPantryScreenState createState() => _ShoppingPantryScreenState();
 }
 
-class _ScanRecipeScreenState extends State<ScanRecipeScreen> {
+class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   String? _userId;
+
   @override
-void initState() {
-  super.initState();
-  _initializeData();
-}
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
 
-Future<void> _initializeData() async {
-  await _loadUserId();
-  _fetchIngredientNames();
-  _loadDontShowAgainPreference();
-  _fetchShoppingList();
-  _fetchPantryList();
-}
-
+  Future<void> _initializeData() async {
+    await _loadUserId();
+    _fetchIngredientNames();
+    _loadDontShowAgainPreference();
+    _fetchShoppingList();
+    _fetchPantryList();
+  }
 
   final Map<String, List<String>> _shoppingList = {};
-
   final Map<String, List<String>> _pantryList = {};
-
   final Map<String, bool> _checkboxStates = {};
 
   final List<String> _categories = [
@@ -57,8 +55,6 @@ Future<void> _initializeData() async {
       _userId = prefs.getString('userId');
     });
   }
-
-
 
   Future<void> _fetchIngredientNames() async {
     try {
@@ -92,7 +88,8 @@ Future<void> _initializeData() async {
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: jsonEncode({
           'action': 'getShoppingList',
-          'userId': _userId, //'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
+          'userId':
+              _userId, //'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
         }), // Body of the request
         headers: {'Content-Type': 'application/json'},
       );
@@ -127,7 +124,8 @@ Future<void> _initializeData() async {
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: jsonEncode({
           'action': 'getAvailableIngredients',
-          'userId': _userId, //'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
+          'userId':
+              _userId, //'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
         }), // Body of the request
         headers: {'Content-Type': 'application/json'},
       );
@@ -156,107 +154,114 @@ Future<void> _initializeData() async {
   }
 
   Future<void> _addToShoppingList(String? userId, String ingredientName) async {
-  try {
-    final response = await http.post(
-      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: jsonEncode({
-        'action': 'addToShoppingList',
-        'userId': userId,
-        'ingredientName': ingredientName,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'addToShoppingList',
+          'userId': userId,
+          'ingredientName': ingredientName,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      print('Successfully added $ingredientName to shopping list');
-    } else {
-      print('Failed to add $ingredientName to shopping list: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        print('Successfully added $ingredientName to shopping list');
+      } else {
+        print(
+            'Failed to add $ingredientName to shopping list: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error adding $ingredientName to shopping list: $error');
     }
-  } catch (error) {
-    print('Error adding $ingredientName to shopping list: $error');
   }
-}
 
-Future<void> _removeFromShoppingList(String category, String ingredientName) async {
-  try {
-    final response = await http.post(
-      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: jsonEncode({
-        'action': 'removeFromShoppingList',
-        'userId': _userId,
-        'ingredientName': ingredientName,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
+  Future<void> _removeFromShoppingList(
+      String category, String ingredientName) async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'removeFromShoppingList',
+          'userId': _userId,
+          'ingredientName': ingredientName,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      // If the request is successful, update the shopping list
-      setState(() {
-        _shoppingList[category]?.remove(ingredientName);
-      });
-    } else {
-      // Handle other status codes
-      print('Failed to remove item from shopping list: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        // If the request is successful, update the shopping list
+        setState(() {
+          _shoppingList[category]?.remove(ingredientName);
+        });
+      } else {
+        // Handle other status codes
+        print(
+            'Failed to remove item from shopping list: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle network errors or other exceptions
+      print('Error removing item from shopping list: $error');
     }
-  } catch (error) {
-    // Handle network errors or other exceptions
-    print('Error removing item from shopping list: $error');
   }
-}
 
+  Future<void> _addToPantryList(String? userId, String ingredientName) async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'addToPantryList', // Change action to addToPantryList
+          'userId': userId,
+          'ingredientName': ingredientName,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-Future<void> _addToPantryList(String? userId, String ingredientName) async {
-  try {
-    final response = await http.post(
-      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: jsonEncode({
-        'action': 'addToPantryList', // Change action to addToPantryList
-        'userId': userId,
-        'ingredientName': ingredientName,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      print('Successfully added $ingredientName to pantry list');
-    } else {
-      print('Failed to add $ingredientName to pantry list: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        print('Successfully added $ingredientName to pantry list');
+      } else {
+        print(
+            'Failed to add $ingredientName to pantry list: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error adding $ingredientName to pantry list: $error');
     }
-  } catch (error) {
-    print('Error adding $ingredientName to pantry list: $error');
   }
-}
 
-Future<void> _removeFromPantryList(String category, String ingredientName) async {
-  try {
-    final response = await http.post(
-      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: jsonEncode({
-        'action': 'removeFromPantryList',
-        'userId': _userId,
-        'ingredientName': ingredientName,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
+  Future<void> _removeFromPantryList(
+      String category, String ingredientName) async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'removeFromPantryList',
+          'userId': _userId,
+          'ingredientName': ingredientName,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      // If the request is successful, update the pantry list
-      setState(() {
-        _pantryList[category]?.remove(ingredientName);
-        if (_pantryList[category]?.isEmpty ?? true) {
-          _pantryList.remove(category);
-        }
-      });
-    } else {
-      // Handle other status codes
-      print('Failed to remove item from pantry list: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        // If the request is successful, update the pantry list
+        setState(() {
+          _pantryList[category]?.remove(ingredientName);
+          if (_pantryList[category]?.isEmpty ?? true) {
+            _pantryList.remove(category);
+          }
+        });
+      } else {
+        // Handle other status codes
+        print('Failed to remove item from pantry list: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle network errors or other exceptions
+      print('Error removing item from pantry list: $error');
     }
-  } catch (error) {
-    // Handle network errors or other exceptions
-    print('Error removing item from pantry list: $error');
   }
-}
-
 
   bool _dontShowAgain = false;
 
@@ -272,23 +277,21 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
     prefs.setBool('dontShowAgain', value);
   }
 
- void _addItem(String category, String item, bool type) {
-  if (type) {
-    setState(() {
-      _shoppingList.putIfAbsent(category, () => []).add(item);
-      _checkboxStates[item] = false;
-    });
-    _addToShoppingList(_userId, item); // Existing line for shopping list
-  } else {
-    setState(() {
-      _pantryList.putIfAbsent(category, () => []).add(item);
-      _checkboxStates[item] = false;
-    });
-    _addToPantryList( _userId, item); // New line for pantry list
+  void _addItem(String category, String item, bool type) {
+    if (type) {
+      setState(() {
+        _shoppingList.putIfAbsent(category, () => []).add(item);
+        _checkboxStates[item] = false;
+      });
+      _addToShoppingList(_userId, item); // Existing line for shopping list
+    } else {
+      setState(() {
+        _pantryList.putIfAbsent(category, () => []).add(item);
+        _checkboxStates[item] = false;
+      });
+      _addToPantryList(_userId, item); // New line for pantry list
+    }
   }
-}
-
-
 
   void _toggleCheckbox(String category, String item, bool type) {
     setState(() {
@@ -395,49 +398,22 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        bool localDontShowAgain = false;
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: Text('Add $item to your Pantry'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Checkbox(
-                        value: localDontShowAgain,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            localDontShowAgain = value ?? false;
-                          });
-                        },
-                      ),
-                      Text("Don't show again"),
-                    ],
-                  ),
-                ],
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('No'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: Text('Yes'),
-                  onPressed: () {
-                    setState(() {
-                      _dontShowAgain = localDontShowAgain;
-                      _setDontShowAgainPreference(_dontShowAgain);
-                      _moveItem(category, item);
-                    });
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
+        return ConfirmationDialog(
+          title: 'Add $item to your Pantry',
+          content: '',
+          initialDontShowAgain: false,
+          onDontShowAgainChanged: (value) {
+            setState(() {
+              _dontShowAgain = value;
+            });
+          },
+          onCancel: () {
+            Navigator.of(context).pop();
+          },
+          onConfirm: () {
+            _setDontShowAgainPreference(_dontShowAgain);
+            _moveItem(category, item);
+            Navigator.of(context).pop();
           },
         );
       },
@@ -448,49 +424,22 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        bool localDontShowAgain = false;
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              title: Text('Add $item to your Shopping List'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Checkbox(
-                        value: localDontShowAgain,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            localDontShowAgain = value ?? false;
-                          });
-                        },
-                      ),
-                      Text("Don't show again"),
-                    ],
-                  ),
-                ],
-              ),
-              actions: <Widget>[
-                TextButton(
-                  child: Text('No'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: Text('Yes'),
-                  onPressed: () {
-                    setState(() {
-                      _dontShowAgain = localDontShowAgain;
-                      _setDontShowAgainPreference(_dontShowAgain);
-                      _movePantryItem(category, item);
-                    });
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            );
+        return ConfirmationDialog(
+          title: 'Add $item to your Shopping List',
+          content: '',
+          initialDontShowAgain: false,
+          onDontShowAgainChanged: (value) {
+            setState(() {
+              _dontShowAgain = value;
+            });
+          },
+          onCancel: () {
+            Navigator.of(context).pop();
+          },
+          onConfirm: () {
+            _setDontShowAgainPreference(_dontShowAgain);
+            _movePantryItem(category, item);
+            Navigator.of(context).pop();
           },
         );
       },
@@ -500,177 +449,216 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: <Widget>[
-          // Shopping List Column
-          // Pantry List Column
-          Expanded(
-            //Container(
-            //width: 600.0,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                //100.0, // left padding
-                0,
-                20.0, // top padding
-                0.0, // right padding
-                0.0, // bottom padding
-              ), // Adjust the top padding as needed
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Left-align children
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      'Shopping List',
-                      style: TextStyle(
-                        fontSize: 24.0, // Set the font size for h2 equivalent
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                      textAlign: TextAlign.left, // Ensure text is left-aligned
-                    ),
-                  ),
-                  // Pantry list items with categories and checkboxes
-                  Expanded(
-                    child: ListView(
-                      children: _shoppingList.entries.expand((entry) {
-                        return [
-                          if (entry.value.isNotEmpty) ...[
-                            _buildCategoryHeader(entry.key),
-                          ],
-                          ...entry.value.asMap().entries.map((item) =>
-                              _buildCheckableListItem(entry.key, item.value,
-                                  item.key % 2 == 1, true)),
-                          //Divider(thickness: 2),
-                        ];
-                      }).toList(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showAddItemDialog(context, 'Shopping');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Color(0xFFDC945F), // Button background color
-                        foregroundColor: Colors.white, // Text color
-                        fixedSize:
-                            Size(48.0, 48.0), // Ensure the button is square
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16), // Rounded corners
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40.0),
+        child: Row(
+          children: <Widget>[
+            // Shopping List Column
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  //100.0, // left padding
+                  0,
+                  20.0, // top padding
+                  0.0, // right padding
+                  0.0, // bottom padding
+                ), // Adjust the top padding as needed
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Left-align children
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        'Shopping List',
+                        style: TextStyle(
+                          fontSize: 24.0, // Set the font size for h2 equivalent
+                          fontWeight: FontWeight.bold, // Make the text bold
                         ),
-                        padding: EdgeInsets.all(0), // Remove default padding
+                        textAlign:
+                            TextAlign.left, // Ensure text is left-aligned
                       ),
-                      child: Center(
-                        child: Text(
-                          '+',
-                          style: TextStyle(
-                            fontSize: 35, // Increase the font size
+                    ),
+                    // Shopping list items with categories and checkboxes
+                    Expanded(
+                      child: ListView(
+                        children: _shoppingList.entries.expand((entry) {
+                          return [
+                            if (entry.value.isNotEmpty) ...[
+                              _buildCategoryHeader(entry.key),
+                            ],
+                            ...entry.value.asMap().entries.map((item) =>
+                                _buildCheckableListItem(entry.key, item.value,
+                                    item.key % 2 == 1, true)),
+                            //Divider(thickness: 2),
+                          ];
+                        }).toList(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showAddItemDialog(context, 'Shopping');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFDC945F), // Button background color
+                          foregroundColor: Colors.white, // Text color
+                          fixedSize: const Size(
+                              48.0, 48.0), // Ensure the button is square
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(16), // Rounded corners
+                          ),
+                          padding:
+                              const EdgeInsets.all(0), // Remove default padding
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '+',
+                            style: TextStyle(
+                              fontSize: 35, // Increase the font size
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Pantry List Column
-          Expanded(
-            //Container(
-            //width: 600.0,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                //100.0, // left padding
-                0,
-                20.0, // top padding
-                0.0, // right padding
-                0.0, // bottom padding
-              ), // Adjust the top padding as needed
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Left-align children
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Text(
-                      'Pantry',
-                      style: TextStyle(
-                        fontSize: 24.0, // Set the font size for h2 equivalent
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                      textAlign: TextAlign.left, // Ensure text is left-aligned
-                    ),
-                  ),
-                  // Pantry list items with categories and checkboxes
-                  Expanded(
-                    child: ListView(
-                      children: _pantryList.entries.expand((entry) {
-                        return [
-                          if (entry.value.isNotEmpty) ...[
-                            _buildCategoryHeader(entry.key),
-                          ],
-                          ...entry.value.asMap().entries.map((item) =>
-                              _buildCheckableListItem(entry.key, item.value,
-                                  item.key % 2 == 1, false)),
-                          //Divider(thickness: 2),
-                        ];
-                      }).toList(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showAddItemDialog(context, 'Pantry');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            Color(0xFFDC945F), // Button background color
-                        foregroundColor: Colors.white, // Text color
-                        fixedSize:
-                            Size(48.0, 48.0), // Ensure the button is square
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16), // Rounded corners
+            // Pantry List Column
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  //100.0, // left padding
+                  0,
+                  20.0, // top padding
+                  0.0, // right padding
+                  0.0, // bottom padding
+                ), // Adjust the top padding as needed
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Left-align children
+                  //mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        'Pantry',
+                        style: TextStyle(
+                          fontSize: 24.0, // Set the font size for h2 equivalent
+                          fontWeight: FontWeight.bold, // Make the text bold
                         ),
-                        padding: EdgeInsets.all(0), // Remove default padding
+                        textAlign:
+                            TextAlign.left, // Ensure text is left-aligned
                       ),
-                      child: Center(
-                        child: Text(
-                          '+',
-                          style: TextStyle(
-                            fontSize: 35, // Increase the font size
+                    ),
+                    // Pantry list items with categories and checkboxes
+                    Expanded(
+                      child: ListView(
+                        children: _pantryList.entries.expand((entry) {
+                          return [
+                            if (entry.value.isNotEmpty) ...[
+                              _buildCategoryHeader(entry.key),
+                            ],
+                            ...entry.value.asMap().entries.map((item) =>
+                                _buildCheckableListItem(entry.key, item.value,
+                                    item.key % 2 == 1, false)),
+                            //Divider(thickness: 2),
+                          ];
+                        }).toList(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showAddItemDialog(context, 'Pantry');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFDC945F), // Button background color
+                          foregroundColor: Colors.white, // Text color
+                          fixedSize: const Size(
+                              48.0, 48.0), // Ensure the button is square
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(16), // Rounded corners
+                          ),
+                          padding:
+                              const EdgeInsets.all(0), // Remove default padding
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '+',
+                            style: TextStyle(
+                              fontSize: 35, // Increase the font size
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // Helper method to build a category header
   Widget _buildCategoryHeader(String title) {
+    final Map<String, IconData> categoryIcons = {
+      'Dairy': Icons.icecream, 
+      'Meat': Icons.kebab_dining,
+      'Fish': Icons.set_meal_outlined,
+      'Nuts': Icons.sports_rugby_outlined,
+      'Spice/Herb': Icons.grass,
+      'Starch': Icons.bakery_dining,
+      'Vegetable': Icons.local_florist,
+      'Vegeterian': Icons.eco_outlined,
+      'Fruit': Icons.apple,
+      'Legume': Icons.grain,//scatter_plot
+      'Staple': Icons.breakfast_dining,
+      'Other': Icons.workspaces,
+    };
+
+    final Map<String, Color> categoryColors = {
+      'Dairy': const Color.fromARGB(255, 255, 190, 24),
+      'Meat': Color.fromARGB(255, 163, 26, 16),
+      'Fish': Colors.blue,
+      'Nuts': Color.fromARGB(255, 131, 106, 98),
+      'Spice/Herb': Colors.green,
+      'Starch': Colors.orange,
+      'Vegetable': Colors.green,
+      'Vegeterian': Colors.green,
+      'Fruit': Colors.red,
+      'Legume': Color.fromARGB(255, 131, 106, 98),
+      'Staple': const Color.fromARGB(255, 225, 195, 151),
+      'Other': Colors.grey,
+    };
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 20.0, // Font size for category headers
-          fontWeight: FontWeight.bold, // Bold text for headers
-        ),
+      child: Row(  
+        children: [
+          Icon(categoryIcons[title] ?? Icons.category, color: categoryColors[title] ?? Colors.black),
+          SizedBox(width: 8.0),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 20.0, // Font size for category headers
+              fontWeight: FontWeight.bold, // Bold text for headers
+              color: categoryColors[title] ?? Colors.black,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -684,13 +672,13 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
           borderRadius: BorderRadius.circular(4.0),
         ),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
           child: ListTile(
-            contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
             leading: listType
                 ? // Conditionally include the checkbox
                 Container(
-                    decoration: BoxDecoration(),
+                    decoration: const BoxDecoration(),
                     child: Transform.scale(
                       scale: 1,
                       child: Checkbox(
@@ -737,21 +725,21 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
           // Apply custom theme to the AlertDialog
           data: ThemeData(
             // Set the background color to white
-            dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+            dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
           ),
           child: AlertDialog(
-            title: Text("Confirm Remove"),
+            title: const Text("Confirm Remove"),
             content: Text(
                 "Are you sure you want to remove '$title' from the ${listType ? 'Shopping List' : 'Pantry'}?"),
             actions: <Widget>[
               TextButton(
                 style: TextButton.styleFrom(
-                  side: BorderSide(
+                  side: const BorderSide(
                     color: Colors.orange,
                     width: 1.5, // Border thickness
                   ), // Outline color
                 ),
-                child: Text(
+                child: const Text(
                   'Cancel',
                   style: TextStyle(
                     color: Color(0xFFDC945F), // Set the color to orange
@@ -763,9 +751,9 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
               ),
               TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFFDC945F), // Background color
+                  backgroundColor: const Color(0xFFDC945F), // Background color
                 ),
-                child: Text(
+                child: const Text(
                   'Remove',
                   style: TextStyle(
                     color: Colors.white, // Set the color to white
@@ -814,7 +802,7 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
           // Apply custom theme to the AlertDialog
           data: ThemeData(
             // Set the background color to white
-            dialogBackgroundColor: Color.fromARGB(255, 255, 255, 255),
+            dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
           ),
           child: AlertDialog(
             title: Text('Add New Item To $type List'),
@@ -824,7 +812,8 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
                     controller: _foodTypeController, // Use the controller here
-                    decoration: InputDecoration(labelText: 'Select Food Type'),
+                    decoration:
+                        const InputDecoration(labelText: 'Select Food Type'),
                   ),
                   suggestionsCallback: (pattern) {
                     return _categories.where((category) =>
@@ -844,7 +833,8 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
                     controller: _textFieldController,
-                    decoration: InputDecoration(hintText: "Enter item name"),
+                    decoration:
+                        const InputDecoration(hintText: "Enter item name"),
                   ),
                   suggestionsCallback: (pattern) {
                     return _items.where((item) =>
@@ -866,12 +856,12 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
             actions: <Widget>[
               TextButton(
                 style: TextButton.styleFrom(
-                  side: BorderSide(
+                  side: const BorderSide(
                     color: Colors.orange,
                     width: 1.5, // Border thickness
                   ), // Outline color
                 ),
-                child: Text(
+                child: const Text(
                   'Cancel',
                   style: TextStyle(
                     color: Color(0xFFDC945F), // Set the color to orange
@@ -883,9 +873,9 @@ Future<void> _removeFromPantryList(String category, String ingredientName) async
               ),
               TextButton(
                 style: TextButton.styleFrom(
-                  backgroundColor: Color(0xFFDC945F), // Background color
+                  backgroundColor: const Color(0xFFDC945F), // Background color
                 ),
-                child: Text(
+                child: const Text(
                   'Add',
                   style: TextStyle(
                     color: Colors.white, // Set the color to orange

@@ -20,7 +20,7 @@ Deno.serve(async (req) => {
       headers: corsHeaders,
     });
   }
-
+ 
   try {
     const { action, email, password } = await req.json();
 
