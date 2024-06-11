@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
+// ignore: depend_on_referenced_packages
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'main.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -14,7 +13,6 @@ class ProfileEditScreen extends StatefulWidget {
 }
 
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  File? _profileImage;
   String? _userId;
   List<DropdownMenuItem<String>>? _cuisines;
   List<MultiSelectItem<String>>? _dietaryConstraints;
@@ -25,7 +23,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   String? _username;
   List<String> _selectedDietaryConstraints = [];
   String? _spiceLevel;
-  String _profilePhoto = "";
   //SupabaseClient supabase = Supabase.instance.client;
 
   @override
@@ -41,8 +38,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Future<void> _pickImage() async {
     print('Starting image picking process...');
 
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image == null) {
       print('No image selected.');
       return;
@@ -50,7 +47,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
     print('Image picked: ${image.path}');
     print('User ID: $_userId');
-    final supabase = await Supabase.instance.client;
+    final supabase =  Supabase.instance.client;
     //final userId = _userId;//await supabase.auth.currentUser!.id;
     //final user = supabase.auth.currentUser;
 
@@ -78,7 +75,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       if (response.isNotEmpty) {
         print('Image uploaded successfully.');
 
-        imageUrl = await supabase.storage
+        imageUrl =  supabase.storage
             .from('profile_photos')
             .getPublicUrl(imagePath);
 
@@ -99,13 +96,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         });
         print('User profile photo updated successfully.');
       } else {
-        print('Error uploading image: ${response}');
+        print('Error uploading image: $response');
       }
     } catch (error) {
       print('Exception during image upload: $error');
     }
   }
-  bool _supabaseInitialized = false;
   Future<void> _initializeData() async {
     try {
     //  if (!_supabaseInitialized) {
@@ -504,6 +500,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
+                        // ignore: unnecessary_null_comparison
                         child: imageUrl != null // Profile photo
                             ? Image.network(
                                 imageUrl,
