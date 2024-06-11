@@ -13,7 +13,7 @@ class ShoppingPantryScreen extends StatefulWidget {
 
 class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   String? _userId;
-  
+
   @override
   void initState() {
     super.initState();
@@ -29,23 +29,21 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   }
 
   final Map<String, List<String>> _shoppingList = {};
-
   final Map<String, List<String>> _pantryList = {};
-
   final Map<String, bool> _checkboxStates = {};
 
   final List<String> _categories = [
-    'Dairy 🧀',
-    'Meat 🥩',
-    'Fish 🐟',
-    'Nuts 🥜',
-    'Spice/Herb 🌿',
-    'Starch 🌾',
-    'Vegetable 🥕',
-    'Vegeterian 🌱',
-    'Fruit 🍏',
-    'Legume 🫘',
-    'Staple 🍞',
+    'Dairy',
+    'Meat',
+    'Fish',
+    'Nuts',
+    'Spice/Herb',
+    'Starch',
+    'Vegetable',
+    'Vegeterian',
+    'Fruit',
+    'Legume',
+    'Staple',
     'Other'
   ];
 
@@ -427,9 +425,9 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
       context: context,
       builder: (BuildContext context) {
         return ConfirmationDialog(
-          title: 'Add $item to your Shopping List', 
-          content: '',  
-          initialDontShowAgain: false, 
+          title: 'Add $item to your Shopping List',
+          content: '',
+          initialDontShowAgain: false,
           onDontShowAgainChanged: (value) {
             setState(() {
               _dontShowAgain = value;
@@ -451,177 +449,216 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: <Widget>[
-          // Shopping List Column
-          // Pantry List Column
-          Expanded(
-            //Container(
-            //width: 600.0,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                //100.0, // left padding
-                0,
-                20.0, // top padding
-                0.0, // right padding
-                0.0, // bottom padding
-              ), // Adjust the top padding as needed
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Left-align children
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text(
-                      'Shopping List',
-                      style: TextStyle(
-                        fontSize: 24.0, // Set the font size for h2 equivalent
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                      textAlign: TextAlign.left, // Ensure text is left-aligned
-                    ),
-                  ),
-                  // Pantry list items with categories and checkboxes
-                  Expanded(
-                    child: ListView(
-                      children: _shoppingList.entries.expand((entry) {
-                        return [
-                          if (entry.value.isNotEmpty) ...[
-                            _buildCategoryHeader(entry.key),
-                          ],
-                          ...entry.value.asMap().entries.map((item) =>
-                              _buildCheckableListItem(entry.key, item.value,
-                                  item.key % 2 == 1, true)),
-                          //Divider(thickness: 2),
-                        ];
-                      }).toList(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showAddItemDialog(context, 'Shopping');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFDC945F), // Button background color
-                        foregroundColor: Colors.white, // Text color
-                        fixedSize:
-                            const Size(48.0, 48.0), // Ensure the button is square
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16), // Rounded corners
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40.0),
+        child: Row(
+          children: <Widget>[
+            // Shopping List Column
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  //100.0, // left padding
+                  0,
+                  20.0, // top padding
+                  0.0, // right padding
+                  0.0, // bottom padding
+                ), // Adjust the top padding as needed
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Left-align children
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        'Shopping List',
+                        style: TextStyle(
+                          fontSize: 24.0, // Set the font size for h2 equivalent
+                          fontWeight: FontWeight.bold, // Make the text bold
                         ),
-                        padding: const EdgeInsets.all(0), // Remove default padding
+                        textAlign:
+                            TextAlign.left, // Ensure text is left-aligned
                       ),
-                      child: const Center(
-                        child: Text(
-                          '+',
-                          style: TextStyle(
-                            fontSize: 35, // Increase the font size
+                    ),
+                    // Shopping list items with categories and checkboxes
+                    Expanded(
+                      child: ListView(
+                        children: _shoppingList.entries.expand((entry) {
+                          return [
+                            if (entry.value.isNotEmpty) ...[
+                              _buildCategoryHeader(entry.key),
+                            ],
+                            ...entry.value.asMap().entries.map((item) =>
+                                _buildCheckableListItem(entry.key, item.value,
+                                    item.key % 2 == 1, true)),
+                            //Divider(thickness: 2),
+                          ];
+                        }).toList(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showAddItemDialog(context, 'Shopping');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFDC945F), // Button background color
+                          foregroundColor: Colors.white, // Text color
+                          fixedSize: const Size(
+                              48.0, 48.0), // Ensure the button is square
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(16), // Rounded corners
+                          ),
+                          padding:
+                              const EdgeInsets.all(0), // Remove default padding
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '+',
+                            style: TextStyle(
+                              fontSize: 35, // Increase the font size
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Pantry List Column
-          Expanded(
-            //Container(
-            //width: 600.0,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                //100.0, // left padding
-                0,
-                20.0, // top padding
-                0.0, // right padding
-                0.0, // bottom padding
-              ), // Adjust the top padding as needed
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Left-align children
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text(
-                      'Pantry',
-                      style: TextStyle(
-                        fontSize: 24.0, // Set the font size for h2 equivalent
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                      textAlign: TextAlign.left, // Ensure text is left-aligned
-                    ),
-                  ),
-                  // Pantry list items with categories and checkboxes
-                  Expanded(
-                    child: ListView(
-                      children: _pantryList.entries.expand((entry) {
-                        return [
-                          if (entry.value.isNotEmpty) ...[
-                            _buildCategoryHeader(entry.key),
-                          ],
-                          ...entry.value.asMap().entries.map((item) =>
-                              _buildCheckableListItem(entry.key, item.value,
-                                  item.key % 2 == 1, false)),
-                          //Divider(thickness: 2),
-                        ];
-                      }).toList(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showAddItemDialog(context, 'Pantry');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFDC945F), // Button background color
-                        foregroundColor: Colors.white, // Text color
-                        fixedSize:
-                            const Size(48.0, 48.0), // Ensure the button is square
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16), // Rounded corners
+            // Pantry List Column
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  //100.0, // left padding
+                  0,
+                  20.0, // top padding
+                  0.0, // right padding
+                  0.0, // bottom padding
+                ), // Adjust the top padding as needed
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Left-align children
+                  //mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        'Pantry',
+                        style: TextStyle(
+                          fontSize: 24.0, // Set the font size for h2 equivalent
+                          fontWeight: FontWeight.bold, // Make the text bold
                         ),
-                        padding: const EdgeInsets.all(0), // Remove default padding
+                        textAlign:
+                            TextAlign.left, // Ensure text is left-aligned
                       ),
-                      child: const Center(
-                        child: Text(
-                          '+',
-                          style: TextStyle(
-                            fontSize: 35, // Increase the font size
+                    ),
+                    // Pantry list items with categories and checkboxes
+                    Expanded(
+                      child: ListView(
+                        children: _pantryList.entries.expand((entry) {
+                          return [
+                            if (entry.value.isNotEmpty) ...[
+                              _buildCategoryHeader(entry.key),
+                            ],
+                            ...entry.value.asMap().entries.map((item) =>
+                                _buildCheckableListItem(entry.key, item.value,
+                                    item.key % 2 == 1, false)),
+                            //Divider(thickness: 2),
+                          ];
+                        }).toList(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showAddItemDialog(context, 'Pantry');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFDC945F), // Button background color
+                          foregroundColor: Colors.white, // Text color
+                          fixedSize: const Size(
+                              48.0, 48.0), // Ensure the button is square
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(16), // Rounded corners
+                          ),
+                          padding:
+                              const EdgeInsets.all(0), // Remove default padding
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '+',
+                            style: TextStyle(
+                              fontSize: 35, // Increase the font size
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // Helper method to build a category header
   Widget _buildCategoryHeader(String title) {
+    final Map<String, IconData> categoryIcons = {
+      'Dairy': Icons.icecream, 
+      'Meat': Icons.kebab_dining,
+      'Fish': Icons.set_meal_outlined,
+      'Nuts': Icons.sports_rugby_outlined,
+      'Spice/Herb': Icons.grass,
+      'Starch': Icons.bakery_dining,
+      'Vegetable': Icons.local_florist,
+      'Vegeterian': Icons.eco_outlined,
+      'Fruit': Icons.apple,
+      'Legume': Icons.grain,//scatter_plot
+      'Staple': Icons.breakfast_dining,
+      'Other': Icons.workspaces,
+    };
+
+    final Map<String, Color> categoryColors = {
+      'Dairy': const Color.fromARGB(255, 255, 190, 24),
+      'Meat': Color.fromARGB(255, 163, 26, 16),
+      'Fish': Colors.blue,
+      'Nuts': Color.fromARGB(255, 131, 106, 98),
+      'Spice/Herb': Colors.green,
+      'Starch': Colors.orange,
+      'Vegetable': Colors.green,
+      'Vegeterian': Colors.green,
+      'Fruit': Colors.red,
+      'Legume': Color.fromARGB(255, 131, 106, 98),
+      'Staple': const Color.fromARGB(255, 225, 195, 151),
+      'Other': Colors.grey,
+    };
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 20.0, // Font size for category headers
-          fontWeight: FontWeight.bold, // Bold text for headers
-        ),
+      child: Row(  
+        children: [
+          Icon(categoryIcons[title] ?? Icons.category, color: categoryColors[title] ?? Colors.black),
+          SizedBox(width: 8.0),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 20.0, // Font size for category headers
+              fontWeight: FontWeight.bold, // Bold text for headers
+              color: categoryColors[title] ?? Colors.black,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -775,7 +812,8 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
                     controller: _foodTypeController, // Use the controller here
-                    decoration: const InputDecoration(labelText: 'Select Food Type'),
+                    decoration:
+                        const InputDecoration(labelText: 'Select Food Type'),
                   ),
                   suggestionsCallback: (pattern) {
                     return _categories.where((category) =>
@@ -795,7 +833,8 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
                     controller: _textFieldController,
-                    decoration: const InputDecoration(hintText: "Enter item name"),
+                    decoration:
+                        const InputDecoration(hintText: "Enter item name"),
                   ),
                   suggestionsCallback: (pattern) {
                     return _items.where((item) =>
