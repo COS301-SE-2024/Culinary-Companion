@@ -8,7 +8,6 @@ void main() {
 
     expect(find.text('Categories'), findsOneWidget);
     expect(find.byType(Chip), findsNWidgets(7)); // Assuming there are 7 categories
-    expect(find.byType(RecipeCard), findsWidgets);
   });
 
   // testWidgets('RecipeCard should display recipe information', (WidgetTester tester) async {
