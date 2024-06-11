@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class ConfirmationDialog extends StatelessWidget {
@@ -48,12 +46,12 @@ class ConfirmationDialog extends StatelessWidget {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('No'),
               onPressed: onCancel,
+              child: Text('No'),
             ),
             TextButton(
-              child: Text('Yes'),
               onPressed: onConfirm,
+              child: Text('Yes'),
             ),
           ],
         );

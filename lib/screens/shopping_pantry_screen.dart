@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/widgets/confirm_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart'
@@ -13,7 +12,7 @@ class ShoppingPantryScreen extends StatefulWidget {
 
 class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   String? _userId;
-  
+
   @override
   void initState() {
     super.initState();
@@ -29,23 +28,21 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   }
 
   final Map<String, List<String>> _shoppingList = {};
-
   final Map<String, List<String>> _pantryList = {};
-
   final Map<String, bool> _checkboxStates = {};
 
   final List<String> _categories = [
-    'Dairy 🧀',
-    'Meat 🥩',
-    'Fish 🐟',
-    'Nuts 🥜',
-    'Spice/Herb 🌿',
-    'Starch 🌾',
-    'Vegetable 🥕',
-    'Vegeterian 🌱',
-    'Fruit 🍏',
-    'Legume 🫘',
-    'Staple 🍞',
+    'Dairy',
+    'Meat',
+    'Fish',
+    'Nuts',
+    'Spice/Herb',
+    'Starch',
+    'Vegetable',
+    'Vegeterian',
+    'Fruit',
+    'Legume',
+    'Staple',
     'Other'
   ];
 
@@ -265,6 +262,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
     }
   }
 
+  // ignore: unused_field
   bool _dontShowAgain = false;
 
   Future<void> _loadDontShowAgainPreference() async {
@@ -274,10 +272,10 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
     });
   }
 
-  Future<void> _setDontShowAgainPreference(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('dontShowAgain', value);
-  }
+  // Future<void> _setDontShowAgainPreference(bool value) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   prefs.setBool('dontShowAgain', value);
+  // }
 
   void _addItem(String category, String item, bool type) {
     if (type) {
@@ -316,312 +314,351 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
     // }
   }
 
-  void _movePantryItem(String category, String item) {
-    setState(() {
-      final isChecked = !(_checkboxStates[item] ?? false);
-      _checkboxStates[item] = isChecked;
+  // void _movePantryItem(String category, String item) {
+  //   setState(() {
+  //     final isChecked = !(_checkboxStates[item] ?? false);
+  //     _checkboxStates[item] = isChecked;
 
-      if (isChecked) {
-        // Move item from shopping list to pantry list if it's not already in pantry list
-        if (!_shoppingList.values.any((list) => list.contains(item))) {
-          _pantryList[category]?.remove(item);
-          _shoppingList.putIfAbsent(category, () => []).add(item);
-        } else {
-          // Remove item from shopping list if it's already in pantry list
-          _pantryList[category]?.remove(item);
-        }
-      } else {
-        // Move item from pantry list back to shopping list if it's not already in shopping list
-        if (!_pantryList.values.any((list) => list.contains(item))) {
-          _shoppingList[category]?.remove(item);
-          _pantryList.putIfAbsent(category, () => []).add(item);
-        } else {
-          // Remove item from pantry list if it's already in shopping list
-          _shoppingList[category]?.remove(item);
-        }
-      }
+  //     if (isChecked) {
+  //       // Move item from shopping list to pantry list if it's not already in pantry list
+  //       if (!_shoppingList.values.any((list) => list.contains(item))) {
+  //         _pantryList[category]?.remove(item);
+  //         _shoppingList.putIfAbsent(category, () => []).add(item);
+  //       } else {
+  //         // Remove item from shopping list if it's already in pantry list
+  //         _pantryList[category]?.remove(item);
+  //       }
+  //     } else {
+  //       // Move item from pantry list back to shopping list if it's not already in shopping list
+  //       if (!_pantryList.values.any((list) => list.contains(item))) {
+  //         _shoppingList[category]?.remove(item);
+  //         _pantryList.putIfAbsent(category, () => []).add(item);
+  //       } else {
+  //         // Remove item from pantry list if it's already in shopping list
+  //         _shoppingList[category]?.remove(item);
+  //       }
+  //     }
 
-      // Remove category if empty
-      if (_shoppingList[category]?.isEmpty ?? true) {
-        _shoppingList.remove(category);
-      }
-      if (_pantryList[category]?.isEmpty ?? true) {
-        _pantryList.remove(category);
-      }
+  //     // Remove category if empty
+  //     if (_shoppingList[category]?.isEmpty ?? true) {
+  //       _shoppingList.remove(category);
+  //     }
+  //     if (_pantryList[category]?.isEmpty ?? true) {
+  //       _pantryList.remove(category);
+  //     }
 
-      // Ensure checkbox is not checked for items in the pantry list
-      if (_shoppingList.values.any((list) => list.contains(item))) {
-        _checkboxStates[item] = false;
-      }
-    });
-  }
+  //     // Ensure checkbox is not checked for items in the pantry list
+  //     if (_shoppingList.values.any((list) => list.contains(item))) {
+  //       _checkboxStates[item] = false;
+  //     }
+  //   });
+  // }
 
-  void _moveItem(String category, String item) {
-    setState(() {
-      final isChecked = !(_checkboxStates[item] ?? false);
-      _checkboxStates[item] = isChecked;
+  // void _moveItem(String category, String item) {
+  //   setState(() {
+  //     final isChecked = !(_checkboxStates[item] ?? false);
+  //     _checkboxStates[item] = isChecked;
 
-      if (isChecked) {
-        // Move item from shopping list to pantry list if it's not already in pantry list
-        if (!_pantryList.values.any((list) => list.contains(item))) {
-          _shoppingList[category]?.remove(item);
-          _pantryList.putIfAbsent(category, () => []).add(item);
-        } else {
-          // Remove item from shopping list if it's already in pantry list
-          _shoppingList[category]?.remove(item);
-        }
-      } else {
-        // Move item from pantry list back to shopping list if it's not already in shopping list
-        if (!_shoppingList.values.any((list) => list.contains(item))) {
-          _pantryList[category]?.remove(item);
-          _shoppingList.putIfAbsent(category, () => []).add(item);
-        } else {
-          // Remove item from pantry list if it's already in shopping list
-          _pantryList[category]?.remove(item);
-        }
-      }
+  //     if (isChecked) {
+  //       // Move item from shopping list to pantry list if it's not already in pantry list
+  //       if (!_pantryList.values.any((list) => list.contains(item))) {
+  //         _shoppingList[category]?.remove(item);
+  //         _pantryList.putIfAbsent(category, () => []).add(item);
+  //       } else {
+  //         // Remove item from shopping list if it's already in pantry list
+  //         _shoppingList[category]?.remove(item);
+  //       }
+  //     } else {
+  //       // Move item from pantry list back to shopping list if it's not already in shopping list
+  //       if (!_shoppingList.values.any((list) => list.contains(item))) {
+  //         _pantryList[category]?.remove(item);
+  //         _shoppingList.putIfAbsent(category, () => []).add(item);
+  //       } else {
+  //         // Remove item from pantry list if it's already in shopping list
+  //         _pantryList[category]?.remove(item);
+  //       }
+  //     }
 
-      // Remove category if empty
-      if (_shoppingList[category]?.isEmpty ?? true) {
-        _shoppingList.remove(category);
-      }
-      if (_pantryList[category]?.isEmpty ?? true) {
-        _pantryList.remove(category);
-      }
+  //     // Remove category if empty
+  //     if (_shoppingList[category]?.isEmpty ?? true) {
+  //       _shoppingList.remove(category);
+  //     }
+  //     if (_pantryList[category]?.isEmpty ?? true) {
+  //       _pantryList.remove(category);
+  //     }
 
-      // Ensure checkbox is not checked for items in the pantry list
-      if (_pantryList.values.any((list) => list.contains(item))) {
-        _checkboxStates[item] = false;
-      }
-    });
-  }
+  //     // Ensure checkbox is not checked for items in the pantry list
+  //     if (_pantryList.values.any((list) => list.contains(item))) {
+  //       _checkboxStates[item] = false;
+  //     }
+  //   });
+  // }
 
-  void _showConfirmationDialog(String category, String item) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ConfirmationDialog(
-          title: 'Add $item to your Pantry',
-          content: '',
-          initialDontShowAgain: false,
-          onDontShowAgainChanged: (value) {
-            setState(() {
-              _dontShowAgain = value;
-            });
-          },
-          onCancel: () {
-            Navigator.of(context).pop();
-          },
-          onConfirm: () {
-            _setDontShowAgainPreference(_dontShowAgain);
-            _moveItem(category, item);
-            Navigator.of(context).pop();
-          },
-        );
-      },
-    );
-  }
+  // void _showConfirmationDialog(String category, String item) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return ConfirmationDialog(
+  //         title: 'Add $item to your Pantry',
+  //         content: '',
+  //         initialDontShowAgain: false,
+  //         onDontShowAgainChanged: (value) {
+  //           setState(() {
+  //             _dontShowAgain = value;
+  //           });
+  //         },
+  //         onCancel: () {
+  //           Navigator.of(context).pop();
+  //         },
+  //         onConfirm: () {
+  //           _setDontShowAgainPreference(_dontShowAgain);
+  //           _moveItem(category, item);
+  //           Navigator.of(context).pop();
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
-  void _showPantryConfirmationDialog(String category, String item) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ConfirmationDialog(
-          title: 'Add $item to your Shopping List', 
-          content: '',  
-          initialDontShowAgain: false, 
-          onDontShowAgainChanged: (value) {
-            setState(() {
-              _dontShowAgain = value;
-            });
-          },
-          onCancel: () {
-            Navigator.of(context).pop();
-          },
-          onConfirm: () {
-            _setDontShowAgainPreference(_dontShowAgain);
-            _movePantryItem(category, item);
-            Navigator.of(context).pop();
-          },
-        );
-      },
-    );
-  }
+  // void _showPantryConfirmationDialog(String category, String item) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return ConfirmationDialog(
+  //         title: 'Add $item to your Shopping List',
+  //         content: '',
+  //         initialDontShowAgain: false,
+  //         onDontShowAgainChanged: (value) {
+  //           setState(() {
+  //             _dontShowAgain = value;
+  //           });
+  //         },
+  //         onCancel: () {
+  //           Navigator.of(context).pop();
+  //         },
+  //         onConfirm: () {
+  //           _setDontShowAgainPreference(_dontShowAgain);
+  //           _movePantryItem(category, item);
+  //           Navigator.of(context).pop();
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
-        children: <Widget>[
-          // Shopping List Column
-          // Pantry List Column
-          Expanded(
-            //Container(
-            //width: 600.0,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                //100.0, // left padding
-                0,
-                20.0, // top padding
-                0.0, // right padding
-                0.0, // bottom padding
-              ), // Adjust the top padding as needed
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Left-align children
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text(
-                      'Shopping List',
-                      style: TextStyle(
-                        fontSize: 24.0, // Set the font size for h2 equivalent
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                      textAlign: TextAlign.left, // Ensure text is left-aligned
-                    ),
-                  ),
-                  // Pantry list items with categories and checkboxes
-                  Expanded(
-                    child: ListView(
-                      children: _shoppingList.entries.expand((entry) {
-                        return [
-                          if (entry.value.isNotEmpty) ...[
-                            _buildCategoryHeader(entry.key),
-                          ],
-                          ...entry.value.asMap().entries.map((item) =>
-                              _buildCheckableListItem(entry.key, item.value,
-                                  item.key % 2 == 1, true)),
-                          //Divider(thickness: 2),
-                        ];
-                      }).toList(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showAddItemDialog(context, 'Shopping');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFDC945F), // Button background color
-                        foregroundColor: Colors.white, // Text color
-                        fixedSize:
-                            const Size(48.0, 48.0), // Ensure the button is square
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16), // Rounded corners
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 40.0),
+        child: Row(
+          children: <Widget>[
+            // Shopping List Column
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  //100.0, // left padding
+                  0,
+                  20.0, // top padding
+                  0.0, // right padding
+                  0.0, // bottom padding
+                ), // Adjust the top padding as needed
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Left-align children
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        'Shopping List',
+                        style: TextStyle(
+                          fontSize: 24.0, // Set the font size for h2 equivalent
+                          fontWeight: FontWeight.bold, // Make the text bold
                         ),
-                        padding: const EdgeInsets.all(0), // Remove default padding
+                        textAlign:
+                            TextAlign.left, // Ensure text is left-aligned
                       ),
-                      child: const Center(
-                        child: Text(
-                          '+',
-                          style: TextStyle(
-                            fontSize: 35, // Increase the font size
+                    ),
+                    // Shopping list items with categories and checkboxes
+                    Expanded(
+                      child: ListView(
+                        children: _shoppingList.entries.expand((entry) {
+                          return [
+                            if (entry.value.isNotEmpty) ...[
+                              _buildCategoryHeader(entry.key),
+                            ],
+                            ...entry.value.asMap().entries.map((item) =>
+                                _buildCheckableListItem(entry.key, item.value,
+                                    item.key % 2 == 1, true)),
+                            //Divider(thickness: 2),
+                          ];
+                        }).toList(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showAddItemDialog(context, 'Shopping');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFDC945F), // Button background color
+                          foregroundColor: Colors.white, // Text color
+                          fixedSize: const Size(
+                              48.0, 48.0), // Ensure the button is square
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(16), // Rounded corners
+                          ),
+                          padding:
+                              const EdgeInsets.all(0), // Remove default padding
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '+',
+                            style: TextStyle(
+                              fontSize: 35, // Increase the font size
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
 
-          // Pantry List Column
-          Expanded(
-            //Container(
-            //width: 600.0,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                //100.0, // left padding
-                0,
-                20.0, // top padding
-                0.0, // right padding
-                0.0, // bottom padding
-              ), // Adjust the top padding as needed
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Left-align children
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  const Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Text(
-                      'Pantry',
-                      style: TextStyle(
-                        fontSize: 24.0, // Set the font size for h2 equivalent
-                        fontWeight: FontWeight.bold, // Make the text bold
-                      ),
-                      textAlign: TextAlign.left, // Ensure text is left-aligned
-                    ),
-                  ),
-                  // Pantry list items with categories and checkboxes
-                  Expanded(
-                    child: ListView(
-                      children: _pantryList.entries.expand((entry) {
-                        return [
-                          if (entry.value.isNotEmpty) ...[
-                            _buildCategoryHeader(entry.key),
-                          ],
-                          ...entry.value.asMap().entries.map((item) =>
-                              _buildCheckableListItem(entry.key, item.value,
-                                  item.key % 2 == 1, false)),
-                          //Divider(thickness: 2),
-                        ];
-                      }).toList(),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _showAddItemDialog(context, 'Pantry');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFDC945F), // Button background color
-                        foregroundColor: Colors.white, // Text color
-                        fixedSize:
-                            const Size(48.0, 48.0), // Ensure the button is square
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16), // Rounded corners
+            // Pantry List Column
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  //100.0, // left padding
+                  0,
+                  20.0, // top padding
+                  0.0, // right padding
+                  0.0, // bottom padding
+                ), // Adjust the top padding as needed
+                child: Column(
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start, // Left-align children
+                  //mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.all(20.0),
+                      child: Text(
+                        'Pantry',
+                        style: TextStyle(
+                          fontSize: 24.0, // Set the font size for h2 equivalent
+                          fontWeight: FontWeight.bold, // Make the text bold
                         ),
-                        padding: const EdgeInsets.all(0), // Remove default padding
+                        textAlign:
+                            TextAlign.left, // Ensure text is left-aligned
                       ),
-                      child: const Center(
-                        child: Text(
-                          '+',
-                          style: TextStyle(
-                            fontSize: 35, // Increase the font size
+                    ),
+                    // Pantry list items with categories and checkboxes
+                    Expanded(
+                      child: ListView(
+                        children: _pantryList.entries.expand((entry) {
+                          return [
+                            if (entry.value.isNotEmpty) ...[
+                              _buildCategoryHeader(entry.key),
+                            ],
+                            ...entry.value.asMap().entries.map((item) =>
+                                _buildCheckableListItem(entry.key, item.value,
+                                    item.key % 2 == 1, false)),
+                            //Divider(thickness: 2),
+                          ];
+                        }).toList(),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _showAddItemDialog(context, 'Pantry');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFDC945F), // Button background color
+                          foregroundColor: Colors.white, // Text color
+                          fixedSize: const Size(
+                              48.0, 48.0), // Ensure the button is square
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(16), // Rounded corners
+                          ),
+                          padding:
+                              const EdgeInsets.all(0), // Remove default padding
+                        ),
+                        child: const Center(
+                          child: Text(
+                            '+',
+                            style: TextStyle(
+                              fontSize: 35, // Increase the font size
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // Helper method to build a category header
   Widget _buildCategoryHeader(String title) {
+    final Map<String, IconData> categoryIcons = {
+      'Dairy': Icons.icecream, 
+      'Meat': Icons.kebab_dining,
+      'Fish': Icons.set_meal_outlined,
+      'Nuts': Icons.sports_rugby_outlined,
+      'Spice/Herb': Icons.grass,
+      'Starch': Icons.bakery_dining,
+      'Vegetable': Icons.local_florist,
+      'Vegeterian': Icons.eco_outlined,
+      'Fruit': Icons.apple,
+      'Legume': Icons.grain,//scatter_plot
+      'Staple': Icons.breakfast_dining,
+      'Other': Icons.workspaces,
+    };
+
+    final Map<String, Color> categoryColors = {
+      'Dairy': const Color.fromARGB(255, 255, 190, 24),
+      'Meat': Color.fromARGB(255, 163, 26, 16),
+      'Fish': Colors.blue,
+      'Nuts': Color.fromARGB(255, 131, 106, 98),
+      'Spice/Herb': Colors.green,
+      'Starch': Colors.orange,
+      'Vegetable': Colors.green,
+      'Vegeterian': Colors.green,
+      'Fruit': Colors.red,
+      'Legume': Color.fromARGB(255, 131, 106, 98),
+      'Staple': const Color.fromARGB(255, 225, 195, 151),
+      'Other': Colors.grey,
+    };
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontSize: 20.0, // Font size for category headers
-          fontWeight: FontWeight.bold, // Bold text for headers
-        ),
+      child: Row(  
+        children: [
+          Icon(categoryIcons[title] ?? Icons.category, color: categoryColors[title] ?? Colors.black),
+          SizedBox(width: 8.0),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 20.0, // Font size for category headers
+              fontWeight: FontWeight.bold, // Bold text for headers
+              color: categoryColors[title] ?? Colors.black,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -754,8 +791,8 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   }
 
   void _showAddItemDialog(BuildContext context, String type) {
-    final TextEditingController _textFieldController = TextEditingController();
-    final TextEditingController _foodTypeController = TextEditingController();
+    final TextEditingController textFieldController = TextEditingController();
+    final TextEditingController foodTypeController = TextEditingController();
     // String? selectedCategory;
 
     showDialog(
@@ -774,8 +811,9 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
               children: <Widget>[
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
-                    controller: _foodTypeController, // Use the controller here
-                    decoration: const InputDecoration(labelText: 'Select Food Type'),
+                    controller: foodTypeController, // Use the controller here
+                    decoration:
+                        const InputDecoration(labelText: 'Select Food Type'),
                   ),
                   suggestionsCallback: (pattern) {
                     return _categories.where((category) =>
@@ -787,15 +825,16 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                     );
                   },
                   onSuggestionSelected: (suggestion) {
-                    _foodTypeController.text = suggestion;
+                    foodTypeController.text = suggestion;
                   },
                   validator: (value) =>
                       value == null ? 'Please select a category' : null,
                 ),
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
-                    controller: _textFieldController,
-                    decoration: const InputDecoration(hintText: "Enter item name"),
+                    controller: textFieldController,
+                    decoration:
+                        const InputDecoration(hintText: "Enter item name"),
                   ),
                   suggestionsCallback: (pattern) {
                     return _items.where((item) =>
@@ -807,7 +846,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                     );
                   },
                   onSuggestionSelected: (suggestion) {
-                    _textFieldController.text = suggestion;
+                    textFieldController.text = suggestion;
                   },
                   validator: (value) =>
                       value!.isEmpty ? 'Please enter an item name' : null,
@@ -843,18 +882,18 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                   ),
                 ),
                 onPressed: () {
-                  if (_foodTypeController.text.isNotEmpty &&
-                      _textFieldController.text.isNotEmpty) {
+                  if (foodTypeController.text.isNotEmpty &&
+                      textFieldController.text.isNotEmpty) {
                     if (type == 'Shopping') {
                       _addItem(
-                        _foodTypeController.text,
-                        _textFieldController.text,
+                        foodTypeController.text,
+                        textFieldController.text,
                         true,
                       );
                     } else {
                       _addItem(
-                        _foodTypeController.text,
-                        _textFieldController.text,
+                        foodTypeController.text,
+                        textFieldController.text,
                         false,
                       );
                     }

@@ -115,7 +115,7 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
       // Fetch user profile details
       const { data: userProfiles, error: userProfileError } = await supabase
           .from('userProfile')
-          .select('upid, userid, cuisineid, spicelevel, username, profilephoto')
+          .select('userid, cuisineid, spicelevel, username, profilephoto')
           .eq('userid', userId);
 
       if (userProfileError) {
@@ -166,7 +166,7 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
           const userDietaryConstraints = constraintNames.filter(constraint => dietaryConstraintsIds.includes(constraint.dietaryconstraintsid));
           const dietaryConstraintNames = userDietaryConstraints.map(constraint => constraint.name);
           return {
-              upid: profile.upid,
+              //upid: profile.upid,
               userid: profile.userid,
               cuisine: cuisineName,
               spicelevel: profile.spicelevel,
