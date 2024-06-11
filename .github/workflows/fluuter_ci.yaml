@@ -27,8 +27,6 @@ jobs:
     - name: Run linter
       run: flutter analyze
 
-    - name: Run tests
-      run: flutter test
 
     - name: Install lcov
       run: sudo apt-get install lcov
