@@ -11,13 +11,20 @@ on:
       - dev
 
 jobs:
-  build:
-
+  analyze:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: 'stable'
+
+    - name: Install dependencies
+      run: flutter pub get
 
     - name: Run linter
-      run: flutter analyze lib
-
+      run: flutter analyze
