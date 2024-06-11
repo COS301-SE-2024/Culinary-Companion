@@ -57,8 +57,10 @@ Deno.serve(async (req) => {
               return removeFromShoppingList(userId, ingredientName);
             case 'removeFromPantryList':
               return removeFromPantryList(userId, ingredientName);  
-            case 'getUserRecipes':
+            case 'getUserRecipes': // uploaded recipes
                 return getUserRecipes(userId, corsHeaders); 
+            case 'getUserFavourites':
+                return getUserFavourites(userId, corsHeaders);
             case 'getRecipesByCourse':
                 return getRecipesByCourse(course, corsHeaders);  
             case 'getRecipesBySpiceLevel':
@@ -652,6 +654,56 @@ async function getUserRecipes(userId: string, corsHeaders: HeadersInit) {
         });
     }
 }
+
+async function getUserFavourites(userId: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure userId is provided
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        // Fetch user's favorite recipes
+        const { data: userFavourites, error: userFavouritesError } = await supabase
+            .from('userFavorites')
+            .select('recipeid')
+            .eq('userid', userId);
+
+        if (userFavouritesError) {
+            throw new Error(`Error fetching user favourites: ${userFavouritesError.message}`);
+        }
+
+        if (!userFavourites || userFavourites.length === 0) {
+            return new Response(JSON.stringify({ error: 'No favourite recipes found for this user' }), {
+                status: 404,
+                headers: corsHeaders,
+            });
+        }
+
+        const recipeIds = userFavourites.map(favourite => favourite.recipeid);
+
+        // Fetch recipes based on recipe IDs
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .in('recipeid', recipeIds);
+
+        if (recipesError) {
+            throw new Error(`Error fetching recipes: ${recipesError.message}`);
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (error) {
+        console.error('Error in getUserFavourites function:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 async function getRecipesByCourse(course: string, corsHeaders: HeadersInit) {
     if (!course) {
