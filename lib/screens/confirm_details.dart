@@ -16,8 +16,8 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
   String? _userId;
   List<String>? _cuisineOptions;
   List<String>? _dietaryOptions;
-  bool _isLoading = true;
-  String? _errorMessage;
+  //bool _isLoading = true;
+  //String? _errorMessage;
 
   @override
   void initState() {
@@ -32,13 +32,13 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
     setState(() {
       _cuisineOptions = cuisineItems;
       _dietaryOptions = constraintItems;
-      _isLoading = false;
+     // _isLoading = false;
     });
   } catch (error) {
     print('Error initializing data: $error');
     setState(() {
-      _isLoading = false;
-      _errorMessage = 'Error initializing data';
+      //_isLoading = false;
+      //_errorMessage = 'Error initializing data';
     });
   }
 }
