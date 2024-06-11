@@ -51,7 +51,7 @@ Future<void> _initializeData() async {
           return cuisine['name'].toString();
         }).toList();
       });
-      print(_cuisines);
+      //print(_cuisines);
     } else {
       throw Exception('Failed to load cuisines');
     }
@@ -137,10 +137,10 @@ Future<void> _initializeData() async {
     );
 
     if (response.statusCode == 200) {
-      print('Recipe added successfully!');
+      //print('Recipe added successfully!');
       // Handle success (e.g., show a success message, navigate back, etc.)
     } else {
-      print('Failed to add recipe: ${response.body}');
+      //print('Failed to add recipe: ${response.body}');
       // Handle error (e.g., show an error message)
     }
   }
@@ -533,7 +533,7 @@ Future<void> _initializeData() async {
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }),
                           Align(
                             alignment: Alignment.center,
                             child: IconButton(
@@ -572,7 +572,7 @@ Future<void> _initializeData() async {
                                 ],
                               ),
                             );
-                          }).toList(),
+                          }),
                           Align(
                             alignment: Alignment.center,
                             child: IconButton(
@@ -584,17 +584,17 @@ Future<void> _initializeData() async {
                           Center(
                             child: ElevatedButton(
                               onPressed: _submitRecipe,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFDC945F),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 40, vertical: 20),
+                              ),
                               child: const Text(
                                 'Add Recipe',
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFDC945F),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 20),
                               ),
                             ),
                           ),

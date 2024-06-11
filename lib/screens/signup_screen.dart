@@ -17,6 +17,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final _formKey = GlobalKey<FormState>();
   String _email = '';
   String _password = '';
+  // ignore: unused_field
   String _confirmPassword = '';
 
   Future<void> _handleSignup() async {
@@ -36,18 +37,18 @@ class _SignupScreenState extends State<SignupScreen> {
 
         if (response.statusCode == 200) {
           final responseBody = jsonDecode(response.body);
-          print('Sign up successful: ${responseBody['user']}');
+          //print('Sign up successful: ${responseBody['user']}');
           String userId = responseBody['user']['id'];
         
           await widget.sharedPreferences.setString('userId', userId);
           Navigator.pushReplacementNamed(context, '/confirm');
         } else {
           final responseBody = jsonDecode(response.body);
-          print('Sign up failed: ${responseBody['error']}');
+          //print('Sign up failed: ${responseBody['error']}');
           _showErrorDialog(responseBody['error']);
         }
       } catch (error) {
-        print('Error: $error');
+        //print('Error: $error');
         _showErrorDialog(error.toString());
       }
     }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+// ignore: depend_on_referenced_packages
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -169,6 +169,7 @@ int getSpiceLevelNumber(String spiceLevel) {
   }
   
   final _formKey = GlobalKey<FormState>();
+  // ignore: unused_field
   String _username = '';
   String _spiceLevel = 'None';
   List<String> _dietaryRestrictions = [];

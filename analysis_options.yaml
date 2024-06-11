@@ -10,6 +10,18 @@
 include: package:flutter_lints/flutter.yaml
 
 linter:
+  rules:
+    prefer_const_constructors: false
+    prefer_const_constructors_in_immutables: false
+    library_private_types_in_public_api: false
+    avoid_relative_lib_imports: false
+    use_key_in_widget_constructors: false
+    sized_box_for_whitespace: false
+    prefer_const_declarations: false
+    use_build_context_synchronously: false
+    avoid_print: false
+    prefer_const_literals_to_create_immutables: false
+    prefer_final_fields: false
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`
   # included above or to enable additional rules. A list of all available lints
@@ -20,7 +32,6 @@ linter:
   # or a specific dart file by using the `// ignore: name_of_lint` and
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
-  rules:
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
     # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
 

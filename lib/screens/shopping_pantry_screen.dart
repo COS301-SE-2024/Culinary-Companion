@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/widgets/confirm_dialog.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart'
@@ -263,6 +262,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
     }
   }
 
+  // ignore: unused_field
   bool _dontShowAgain = false;
 
   Future<void> _loadDontShowAgainPreference() async {
@@ -272,10 +272,10 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
     });
   }
 
-  Future<void> _setDontShowAgainPreference(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('dontShowAgain', value);
-  }
+  // Future<void> _setDontShowAgainPreference(bool value) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   prefs.setBool('dontShowAgain', value);
+  // }
 
   void _addItem(String category, String item, bool type) {
     if (type) {
@@ -314,137 +314,137 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
     // }
   }
 
-  void _movePantryItem(String category, String item) {
-    setState(() {
-      final isChecked = !(_checkboxStates[item] ?? false);
-      _checkboxStates[item] = isChecked;
+  // void _movePantryItem(String category, String item) {
+  //   setState(() {
+  //     final isChecked = !(_checkboxStates[item] ?? false);
+  //     _checkboxStates[item] = isChecked;
 
-      if (isChecked) {
-        // Move item from shopping list to pantry list if it's not already in pantry list
-        if (!_shoppingList.values.any((list) => list.contains(item))) {
-          _pantryList[category]?.remove(item);
-          _shoppingList.putIfAbsent(category, () => []).add(item);
-        } else {
-          // Remove item from shopping list if it's already in pantry list
-          _pantryList[category]?.remove(item);
-        }
-      } else {
-        // Move item from pantry list back to shopping list if it's not already in shopping list
-        if (!_pantryList.values.any((list) => list.contains(item))) {
-          _shoppingList[category]?.remove(item);
-          _pantryList.putIfAbsent(category, () => []).add(item);
-        } else {
-          // Remove item from pantry list if it's already in shopping list
-          _shoppingList[category]?.remove(item);
-        }
-      }
+  //     if (isChecked) {
+  //       // Move item from shopping list to pantry list if it's not already in pantry list
+  //       if (!_shoppingList.values.any((list) => list.contains(item))) {
+  //         _pantryList[category]?.remove(item);
+  //         _shoppingList.putIfAbsent(category, () => []).add(item);
+  //       } else {
+  //         // Remove item from shopping list if it's already in pantry list
+  //         _pantryList[category]?.remove(item);
+  //       }
+  //     } else {
+  //       // Move item from pantry list back to shopping list if it's not already in shopping list
+  //       if (!_pantryList.values.any((list) => list.contains(item))) {
+  //         _shoppingList[category]?.remove(item);
+  //         _pantryList.putIfAbsent(category, () => []).add(item);
+  //       } else {
+  //         // Remove item from pantry list if it's already in shopping list
+  //         _shoppingList[category]?.remove(item);
+  //       }
+  //     }
 
-      // Remove category if empty
-      if (_shoppingList[category]?.isEmpty ?? true) {
-        _shoppingList.remove(category);
-      }
-      if (_pantryList[category]?.isEmpty ?? true) {
-        _pantryList.remove(category);
-      }
+  //     // Remove category if empty
+  //     if (_shoppingList[category]?.isEmpty ?? true) {
+  //       _shoppingList.remove(category);
+  //     }
+  //     if (_pantryList[category]?.isEmpty ?? true) {
+  //       _pantryList.remove(category);
+  //     }
 
-      // Ensure checkbox is not checked for items in the pantry list
-      if (_shoppingList.values.any((list) => list.contains(item))) {
-        _checkboxStates[item] = false;
-      }
-    });
-  }
+  //     // Ensure checkbox is not checked for items in the pantry list
+  //     if (_shoppingList.values.any((list) => list.contains(item))) {
+  //       _checkboxStates[item] = false;
+  //     }
+  //   });
+  // }
 
-  void _moveItem(String category, String item) {
-    setState(() {
-      final isChecked = !(_checkboxStates[item] ?? false);
-      _checkboxStates[item] = isChecked;
+  // void _moveItem(String category, String item) {
+  //   setState(() {
+  //     final isChecked = !(_checkboxStates[item] ?? false);
+  //     _checkboxStates[item] = isChecked;
 
-      if (isChecked) {
-        // Move item from shopping list to pantry list if it's not already in pantry list
-        if (!_pantryList.values.any((list) => list.contains(item))) {
-          _shoppingList[category]?.remove(item);
-          _pantryList.putIfAbsent(category, () => []).add(item);
-        } else {
-          // Remove item from shopping list if it's already in pantry list
-          _shoppingList[category]?.remove(item);
-        }
-      } else {
-        // Move item from pantry list back to shopping list if it's not already in shopping list
-        if (!_shoppingList.values.any((list) => list.contains(item))) {
-          _pantryList[category]?.remove(item);
-          _shoppingList.putIfAbsent(category, () => []).add(item);
-        } else {
-          // Remove item from pantry list if it's already in shopping list
-          _pantryList[category]?.remove(item);
-        }
-      }
+  //     if (isChecked) {
+  //       // Move item from shopping list to pantry list if it's not already in pantry list
+  //       if (!_pantryList.values.any((list) => list.contains(item))) {
+  //         _shoppingList[category]?.remove(item);
+  //         _pantryList.putIfAbsent(category, () => []).add(item);
+  //       } else {
+  //         // Remove item from shopping list if it's already in pantry list
+  //         _shoppingList[category]?.remove(item);
+  //       }
+  //     } else {
+  //       // Move item from pantry list back to shopping list if it's not already in shopping list
+  //       if (!_shoppingList.values.any((list) => list.contains(item))) {
+  //         _pantryList[category]?.remove(item);
+  //         _shoppingList.putIfAbsent(category, () => []).add(item);
+  //       } else {
+  //         // Remove item from pantry list if it's already in shopping list
+  //         _pantryList[category]?.remove(item);
+  //       }
+  //     }
 
-      // Remove category if empty
-      if (_shoppingList[category]?.isEmpty ?? true) {
-        _shoppingList.remove(category);
-      }
-      if (_pantryList[category]?.isEmpty ?? true) {
-        _pantryList.remove(category);
-      }
+  //     // Remove category if empty
+  //     if (_shoppingList[category]?.isEmpty ?? true) {
+  //       _shoppingList.remove(category);
+  //     }
+  //     if (_pantryList[category]?.isEmpty ?? true) {
+  //       _pantryList.remove(category);
+  //     }
 
-      // Ensure checkbox is not checked for items in the pantry list
-      if (_pantryList.values.any((list) => list.contains(item))) {
-        _checkboxStates[item] = false;
-      }
-    });
-  }
+  //     // Ensure checkbox is not checked for items in the pantry list
+  //     if (_pantryList.values.any((list) => list.contains(item))) {
+  //       _checkboxStates[item] = false;
+  //     }
+  //   });
+  // }
 
-  void _showConfirmationDialog(String category, String item) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ConfirmationDialog(
-          title: 'Add $item to your Pantry',
-          content: '',
-          initialDontShowAgain: false,
-          onDontShowAgainChanged: (value) {
-            setState(() {
-              _dontShowAgain = value;
-            });
-          },
-          onCancel: () {
-            Navigator.of(context).pop();
-          },
-          onConfirm: () {
-            _setDontShowAgainPreference(_dontShowAgain);
-            _moveItem(category, item);
-            Navigator.of(context).pop();
-          },
-        );
-      },
-    );
-  }
+  // void _showConfirmationDialog(String category, String item) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return ConfirmationDialog(
+  //         title: 'Add $item to your Pantry',
+  //         content: '',
+  //         initialDontShowAgain: false,
+  //         onDontShowAgainChanged: (value) {
+  //           setState(() {
+  //             _dontShowAgain = value;
+  //           });
+  //         },
+  //         onCancel: () {
+  //           Navigator.of(context).pop();
+  //         },
+  //         onConfirm: () {
+  //           _setDontShowAgainPreference(_dontShowAgain);
+  //           _moveItem(category, item);
+  //           Navigator.of(context).pop();
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
-  void _showPantryConfirmationDialog(String category, String item) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ConfirmationDialog(
-          title: 'Add $item to your Shopping List',
-          content: '',
-          initialDontShowAgain: false,
-          onDontShowAgainChanged: (value) {
-            setState(() {
-              _dontShowAgain = value;
-            });
-          },
-          onCancel: () {
-            Navigator.of(context).pop();
-          },
-          onConfirm: () {
-            _setDontShowAgainPreference(_dontShowAgain);
-            _movePantryItem(category, item);
-            Navigator.of(context).pop();
-          },
-        );
-      },
-    );
-  }
+  // void _showPantryConfirmationDialog(String category, String item) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return ConfirmationDialog(
+  //         title: 'Add $item to your Shopping List',
+  //         content: '',
+  //         initialDontShowAgain: false,
+  //         onDontShowAgainChanged: (value) {
+  //           setState(() {
+  //             _dontShowAgain = value;
+  //           });
+  //         },
+  //         onCancel: () {
+  //           Navigator.of(context).pop();
+  //         },
+  //         onConfirm: () {
+  //           _setDontShowAgainPreference(_dontShowAgain);
+  //           _movePantryItem(category, item);
+  //           Navigator.of(context).pop();
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -791,8 +791,8 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   }
 
   void _showAddItemDialog(BuildContext context, String type) {
-    final TextEditingController _textFieldController = TextEditingController();
-    final TextEditingController _foodTypeController = TextEditingController();
+    final TextEditingController textFieldController = TextEditingController();
+    final TextEditingController foodTypeController = TextEditingController();
     // String? selectedCategory;
 
     showDialog(
@@ -811,7 +811,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
               children: <Widget>[
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
-                    controller: _foodTypeController, // Use the controller here
+                    controller: foodTypeController, // Use the controller here
                     decoration:
                         const InputDecoration(labelText: 'Select Food Type'),
                   ),
@@ -825,14 +825,14 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                     );
                   },
                   onSuggestionSelected: (suggestion) {
-                    _foodTypeController.text = suggestion;
+                    foodTypeController.text = suggestion;
                   },
                   validator: (value) =>
                       value == null ? 'Please select a category' : null,
                 ),
                 TypeAheadFormField<String>(
                   textFieldConfiguration: TextFieldConfiguration(
-                    controller: _textFieldController,
+                    controller: textFieldController,
                     decoration:
                         const InputDecoration(hintText: "Enter item name"),
                   ),
@@ -846,7 +846,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                     );
                   },
                   onSuggestionSelected: (suggestion) {
-                    _textFieldController.text = suggestion;
+                    textFieldController.text = suggestion;
                   },
                   validator: (value) =>
                       value!.isEmpty ? 'Please enter an item name' : null,
@@ -882,18 +882,18 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
                   ),
                 ),
                 onPressed: () {
-                  if (_foodTypeController.text.isNotEmpty &&
-                      _textFieldController.text.isNotEmpty) {
+                  if (foodTypeController.text.isNotEmpty &&
+                      textFieldController.text.isNotEmpty) {
                     if (type == 'Shopping') {
                       _addItem(
-                        _foodTypeController.text,
-                        _textFieldController.text,
+                        foodTypeController.text,
+                        textFieldController.text,
                         true,
                       );
                     } else {
                       _addItem(
-                        _foodTypeController.text,
-                        _textFieldController.text,
+                        foodTypeController.text,
+                        textFieldController.text,
                         false,
                       );
                     }
