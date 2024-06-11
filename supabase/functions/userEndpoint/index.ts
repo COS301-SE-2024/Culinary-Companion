@@ -22,11 +22,13 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, username, cuisine, spicelevel, dietaryConstraint } = await req.json();
+        const { action, userId, username, cuisine, spicelevel, imageURL, dietaryConstraint } = await req.json();
 
         switch (action) {
             case 'getUserDetails':
                 return getUserDetails(userId, corsHeaders); 
+            case 'createUserProfile':
+                return createUserProfile(userId, username, cuisine, spicelevel, imageURL, corsHeaders);
             case 'updateUserUsername':
                 return updateUserUsername(userId, username, corsHeaders); 
             case 'updateUserCuisine':
@@ -397,6 +399,66 @@ async function removeUserDietaryConstraints(userId: string, dietaryConstraint: s
   }
 }
 
+async function createUserProfile(userId: string, username: string, cuisineName: string, spicelevel: number, imageURL: string, corsHeaders: HeadersInit) {
+    try {
+        // Fetch the cuisine ID based on the provided cuisine name
+        const { data: cuisineData, error: cuisineError } = await supabase
+            .from('cuisine')
+            .select('cuisineid')
+            .eq('name', cuisineName)
+            .single();
+
+        if (cuisineError) {
+            console.error('Error fetching cuisine ID:', cuisineError);
+            return new Response(JSON.stringify({ error: cuisineError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const cuisineId = cuisineData?.cuisineid;
+
+        if (!cuisineId) {
+            console.error('Cuisine not found');
+            return new Response(JSON.stringify({ error: 'Cuisine not found' }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Insert the new user profile with the retrieved cuisine ID
+        const { data: insertedUserProfile, error: userProfileError } = await supabase
+            .from('userProfile')
+            .insert({
+                userid: userId,
+                username: username,
+                cuisineid: cuisineId,
+                spicelevel: spicelevel,
+                profilephoto: imageURL,
+            })
+            .select('*')
+            .single();
+
+        if (userProfileError) {
+            console.error('Error inserting user profile:', userProfileError);
+            return new Response(JSON.stringify({ error: userProfileError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(insertedUserProfile), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in createUserProfile function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
 
 
 
