@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'main.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -24,7 +25,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   String? _username;
   List<String> _selectedDietaryConstraints = [];
   String? _spiceLevel;
-  String _profilePhoto="";
+  String _profilePhoto = "";
   //SupabaseClient supabase = Supabase.instance.client;
 
   @override
@@ -33,78 +34,89 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _initializeData();
   }
 
-  String imageUrl="";
+  String imageUrl = "";
   //final void Function(String imageUrl) onUpload;
   // Pick image from gallery
 
+  Future<void> _pickImage() async {
+    print('Starting image picking process...');
 
-Future<void> _pickImage() async {
-  print('Starting image picking process...');
-  
-  final ImagePicker _picker = ImagePicker();
-  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-  if (image == null) {
-    print('No image selected.');
-    return;
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image == null) {
+      print('No image selected.');
+      return;
+    }
+
+    print('Image picked: ${image.path}');
+    print('User ID: $_userId');
+    final supabase = await Supabase.instance.client;
+    //final userId = _userId;//await supabase.auth.currentUser!.id;
+    //final user = supabase.auth.currentUser;
+
+    final imageEx = image.path.split('.').last.toLowerCase();
+    final imagePath = '/$_userId/profile_photos';
+    print('Image extension: $imageEx');
+    print('Image path: $imagePath');
+
+    final imageBytes = await image.readAsBytes();
+    //print('image bytes:$imageBytes');
+
+    print('Uploading image to Supabase storage...');
+    try {
+      final response =
+          await supabase.storage.from('profile_photos').uploadBinary(
+                '/$_userId/profile_photos',
+                imageBytes,
+                fileOptions: FileOptions(
+                  upsert: true,
+                  contentType: 'image/*',
+                ),
+              );
+      //print("here");
+
+      if (response.isNotEmpty) {
+        print('Image uploaded successfully.');
+
+        imageUrl = await supabase.storage
+            .from('profile_photos')
+            .getPublicUrl(imagePath);
+
+        print('Image URL: $imageUrl');
+
+        imageUrl = Uri.parse(imageUrl).replace(queryParameters: {
+          't': DateTime.now().microsecondsSinceEpoch.toString()
+        }).toString();
+
+        print('Updated image URL: $imageUrl');
+
+        await supabase
+            .from('userProfile')
+            .update({'profilephoto': imageUrl}).eq('userid', _userId!);
+
+        setState(() {
+          imageUrl = imageUrl;
+        });
+        print('User profile photo updated successfully.');
+      } else {
+        print('Error uploading image: ${response}');
+      }
+    } catch (error) {
+      print('Exception during image upload: $error');
+    }
   }
-
-  print('Image picked: ${image.path}');
-  print('User ID: $_userId');
-  final supabase = await Supabase.instance.client;
-  //final userId = _userId;//await supabase.auth.currentUser!.id;
-  
-  
-  final imageEx = image.path.split('.').last.toLowerCase();
-  final imagePath = '/$_userId/profile_photos';
-  print('Image extension: $imageEx');
-  print('Image path: $imagePath');
-  
-  final imageBytes = await image.readAsBytes();
-  
-  print('Uploading image to Supabase storage...');
-  final response = await supabase.storage.from('profile_photos').uploadBinary(
-    '/$_userId/profile_photos/${DateTime.now().microsecondsSinceEpoch}.$imageEx',
-    imageBytes,
-    fileOptions: FileOptions(
-      upsert: true,
-      contentType: 'image/$imageEx',
-    ),
-  );
-  print(response);
-
-  if (response.isNotEmpty) {
-    print('Image uploaded successfully.');
-    
-    imageUrl=await supabase.storage.from('profile_photos').getPublicUrl(imagePath);
-    
-    print('Image URL: $imageUrl');
-    
-    imageUrl = Uri.parse(imageUrl)
-        .replace(queryParameters: {'t': DateTime.now().microsecondsSinceEpoch.toString()})
-        .toString();
-    
-    print('Updated image URL: $imageUrl');
-    
-    await supabase
-        .from('userProfile')
-        .update({'profilephoto': imageUrl})
-        .eq('userid', _userId!);
-    
-    print('User profile photo updated successfully.');
-  } else {
-    print('Error uploading image: ${response}');
-  }
-}
-
-
-
+  bool _supabaseInitialized = false;
   Future<void> _initializeData() async {
     try {
-      WidgetsFlutterBinding.ensureInitialized();
-        await Supabase.initialize(
-          url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
-          anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
-        );
+    //  if (!_supabaseInitialized) {
+    //   WidgetsFlutterBinding.ensureInitialized();
+    //   await Supabase.initialize(
+    //     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
+    //     anonKey:
+    //         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
+    //   );
+    //      _supabaseInitialized = true;
+    //   }
       await _loadUserId();
       await _fetchUserDetails(); // Fetch user details on init
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
@@ -157,7 +169,7 @@ Future<void> _pickImage() async {
         if (data.isNotEmpty) {
           setState(() {
             _userDetails = data[0]; //get the first item in the list
-            
+
             _selectedCuisine =
                 _userDetails?['cuisine']?.toString() ?? 'Mexican';
             _username = _userDetails?['username']?.toString() ?? 'Jane Doe';
@@ -169,7 +181,8 @@ Future<void> _pickImage() async {
                 _userDetails?['dietaryConstraints']
                         ?.map((dc) => dc.toString()) ??
                     []);
-            imageUrl=_userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
+            imageUrl =
+                    _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
 
             //_profilePhoto =_userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
             //_isLoading = false;
@@ -391,7 +404,6 @@ Future<void> _pickImage() async {
     }
   }
 
-
   Future<void> updateUserUsername(String userId, String username) async {
     final String url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
@@ -444,171 +456,174 @@ Future<void> _pickImage() async {
       }
 
       print('Profile updated successfully');
+      Navigator.pop(context);
       // You can navigate to another screen or show a success message here
     } catch (error) {
       print('Error updating profile: $error');
     }
   }
 
-@override
-Widget build(BuildContext context) {
-  final String profilePhoto = _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
-  print('User\'s preferred cuisine: $_selectedCuisine');
-  return Scaffold(
-    backgroundColor: const Color(0xFF20493C),
-    appBar: AppBar(
+  @override
+  Widget build(BuildContext context) {
+    final String profilePhoto =
+        _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
+    print('User\'s preferred cuisine: $_selectedCuisine');
+    return Scaffold(
       backgroundColor: const Color(0xFF20493C),
-      elevation: 0,
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: () {
-          Navigator.pop(context);
-        },
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF20493C),
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          'Edit Profile',
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
       ),
-      title: Text(
-        'Edit Profile',
-        style: TextStyle(color: Colors.white),
-      ),
-      centerTitle: true,
-    ),
-    body: SingleChildScrollView(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(40.0),
-          child: Column(
-            children: [
-              if (_isLoading) // Display loading indicator if still loading
-                CircularProgressIndicator()
-              else if (_errorMessage != null) // Display error message if error occurred
-                Text(
-                  _errorMessage!,
-                  style: TextStyle(color: Colors.red),
-                )
-              else // Display image and other UI elements if no error and not loading
-                Column(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: imageUrl != null // Profile photo
-                          ? Image.network(
-                              imageUrl,
-                              width: 150,
-                              height: 150,
-                              fit: BoxFit.cover,
-                            )
-                          : Image.asset(
-                              profilePhoto,
-                              width: 150,
-                              height: 150,
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _pickImage,
-                      child: Text('Pick Image'),
-                    ),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Username',
-                        labelStyle: TextStyle(color: Colors.white),
-                        filled: true,
-                        fillColor: Colors.white24,
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(40.0),
+            child: Column(
+              children: [
+                if (_isLoading) // Display loading indicator if still loading
+                  CircularProgressIndicator()
+                else if (_errorMessage !=
+                    null) // Display error message if error occurred
+                  Text(
+                    _errorMessage!,
+                    style: TextStyle(color: Colors.red),
+                  )
+                else // Display image and other UI elements if no error and not loading
+                  Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: imageUrl != null // Profile photo
+                            ? Image.network(
+                                imageUrl,
+                                width: 150,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                profilePhoto,
+                                width: 150,
+                                height: 150,
+                                fit: BoxFit.cover,
+                              ),
                       ),
-                      style: TextStyle(color: Colors.white),
-                      controller: TextEditingController(text: _username),
-                      onSubmitted: (newValue) {
-                        setState(() {
-                          _username = newValue;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 20),
-                    DropdownButtonFormField<String>(
-                      value: _selectedCuisine,
-                      items: _cuisines,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCuisine = value;
-                          //updateUserCuisine(_userId!, value!);
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Preferred Cuisine',
-                        labelStyle: TextStyle(color: Colors.white),
-                        filled: true,
-                        fillColor: Colors.white24,
+                      ElevatedButton(
+                        onPressed: _pickImage,
+                        child: Text('Pick Image'),
                       ),
-                      dropdownColor: Color(0xFF20493C),
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    SizedBox(height: 20),
-                    MultiSelectDialogField<String>(
-                      items: _dietaryConstraints!,
-                      initialValue: _selectedDietaryConstraints,
-                      title: Text("Dietary Constraints"),
-                      selectedColor: Colors.blue,
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
-                        borderRadius: BorderRadius.all(Radius.circular(40)),
-                        border: Border.all(
+                      TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Username',
+                          labelStyle: TextStyle(color: Colors.white),
+                          filled: true,
+                          fillColor: Colors.white24,
+                        ),
+                        style: TextStyle(color: Colors.white),
+                        controller: TextEditingController(text: _username),
+                        onSubmitted: (newValue) {
+                          setState(() {
+                            _username = newValue;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 20),
+                      DropdownButtonFormField<String>(
+                        value: _selectedCuisine,
+                        items: _cuisines,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCuisine = value;
+                            //updateUserCuisine(_userId!, value!);
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Preferred Cuisine',
+                          labelStyle: TextStyle(color: Colors.white),
+                          filled: true,
+                          fillColor: Colors.white24,
+                        ),
+                        dropdownColor: Color(0xFF20493C),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      SizedBox(height: 20),
+                      MultiSelectDialogField<String>(
+                        items: _dietaryConstraints!,
+                        initialValue: _selectedDietaryConstraints,
+                        title: Text("Dietary Constraints"),
+                        selectedColor: Colors.blue,
+                        decoration: BoxDecoration(
+                          color: Colors.blue.withOpacity(0.1),
+                          borderRadius: BorderRadius.all(Radius.circular(40)),
+                          border: Border.all(
+                            color: Colors.blue,
+                            width: 2,
+                          ),
+                        ),
+                        buttonIcon: Icon(
+                          Icons.arrow_drop_down,
                           color: Colors.blue,
-                          width: 2,
                         ),
-                      ),
-                      buttonIcon: Icon(
-                        Icons.arrow_drop_down,
-                        color: Colors.blue,
-                      ),
-                      buttonText: Text(
-                        "Select Dietary Constraints",
-                        style: TextStyle(
-                          color: Colors.blue[800],
-                          fontSize: 16,
+                        buttonText: Text(
+                          "Select Dietary Constraints",
+                          style: TextStyle(
+                            color: Colors.blue[800],
+                            fontSize: 16,
+                          ),
                         ),
+                        onConfirm: (results) {
+                          setState(() {
+                            _selectedDietaryConstraints = results;
+                          });
+                        },
                       ),
-                      onConfirm: (results) {
-                        setState(() {
-                          _selectedDietaryConstraints = results;
-                        });
-                      },
-                    ),
-                    DropdownButtonFormField<String>(
-                      value: _spiceLevel ?? 'Mild',
-                      items: [
-                        DropdownMenuItem(value: 'None', child: Text('None')),
-                        DropdownMenuItem(value: 'Mild', child: Text('Mild')),
-                        DropdownMenuItem(
-                            value: 'Medium', child: Text('Medium')),
-                        DropdownMenuItem(value: 'Hot', child: Text('Hot')),
-                        DropdownMenuItem(
-                            value: 'Extra Hot', child: Text('Extra Hot')),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _spiceLevel = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        labelText: 'Spice Level',
-                        labelStyle: TextStyle(color: Colors.white),
-                        filled: true,
-                        fillColor: Colors.white24,
+                      DropdownButtonFormField<String>(
+                        value: _spiceLevel ?? 'Mild',
+                        items: [
+                          DropdownMenuItem(value: 'None', child: Text('None')),
+                          DropdownMenuItem(value: 'Mild', child: Text('Mild')),
+                          DropdownMenuItem(
+                              value: 'Medium', child: Text('Medium')),
+                          DropdownMenuItem(value: 'Hot', child: Text('Hot')),
+                          DropdownMenuItem(
+                              value: 'Extra Hot', child: Text('Extra Hot')),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _spiceLevel = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: 'Spice Level',
+                          labelStyle: TextStyle(color: Colors.white),
+                          filled: true,
+                          fillColor: Colors.white24,
+                        ),
+                        dropdownColor: Color(0xFF20493C),
+                        style: TextStyle(color: Colors.white),
                       ),
-                      dropdownColor: Color(0xFF20493C),
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _saveProfileChanges,
-                      child: Text('Save Changes'),
-                    ),
-                  ],
-                ),
-            ],
+                      SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _saveProfileChanges,
+                        child: Text('Save Changes'),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

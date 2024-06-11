@@ -164,6 +164,7 @@ async function getUserDetails(userId: string, corsHeaders: HeadersInit) {
           const userDietaryConstraints = constraintNames.filter(constraint => dietaryConstraintsIds.includes(constraint.dietaryconstraintsid));
           const dietaryConstraintNames = userDietaryConstraints.map(constraint => constraint.name);
           return {
+              //upid: profile.upid,
               userid: profile.userid,
               cuisine: cuisineName,
               spicelevel: profile.spicelevel,

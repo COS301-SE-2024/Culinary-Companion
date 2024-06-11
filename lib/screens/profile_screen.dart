@@ -30,6 +30,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
     if (_userId != null) {
       await _fetchUserDetails();
+      //print('hereeee 2');
     } else {
       setState(() {
         _isLoading = false;
@@ -54,7 +55,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'userId': _userId,
       }),
     );
-
+    
+    //print(response.statusCode);
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       print('Response data: $data'); //response data
@@ -63,6 +65,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _userDetails = data[0]; //get the first item in the list
           _isLoading = false;
         });
+       
       } else {
         setState(() {
           _isLoading = false;
