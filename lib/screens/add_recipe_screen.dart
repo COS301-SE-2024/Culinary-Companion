@@ -609,75 +609,43 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           const Text('Appliances:',
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                          // Wrap(
-                          //   spacing: 8.0,
-                          //   runSpacing: 4.0,
-                          //   children: [
-                          //     for (var appliance in _selectedAppliances)
-                          //       Row(
-                          //         mainAxisSize: MainAxisSize.min,
-                          //         children: [
-                          //           const Icon(Icons.soup_kitchen, size: 16),
-                          //           const SizedBox(width: 4),
-                          //           Text(appliance),
-                          //           IconButton(
-                          //             icon: const Icon(Icons.delete, size: 16),
-                          //             onPressed: () => _removeAppliance(appliance),
-                          //           ),
-                          //         ],
-                          //       ),
-                          //       if (_showAppliancesDropdown)
-                          //         DropdownButton<String>(
-                          //           items: _appliances
-                          //               .where((appliance) =>
-                          //                   !_selectedAppliances.contains(appliance))
-                          //               .map((appliance) {
-                          //             return DropdownMenuItem(
-                          //               value: appliance,
-                          //               child: Text(appliance),
-                          //             );
-                          //           }).toList(),
-                          //           onChanged: (value) {
-                          //             if (value != null) {
-                          //               _addAppliance(value);
-                          //             }
-                          //           },
-                          //           hint: const Text('Select Appliance'),
-                          //         ),
-                          //       IconButton(
-                          //         icon: const Icon(Icons.add),
-                          //         onPressed: () {
-                          //           setState(() {
-                          //             _showAppliancesDropdown = !_showAppliancesDropdown;
-                          //           });
-                          //         },
-                          //       ),
-                          //     ],
-                          //   ),
+                                  fontSize: 18, fontWeight: FontWeight.bold)
+                          ),
 
                           ListView.builder(
                             shrinkWrap: true,
                             itemCount: _selectedAppliances.length,
                             itemBuilder: (context, index) {
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    _selectedAppliances[index],
-                                    style: const TextStyle(fontSize: 16),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                        Icons.remove_circle_outline,
-                                        color: Colors.red),
-                                    onPressed: () {
-                                      _removeAppliance(
-                                          _selectedAppliances[index]);
-                                    },
-                                  ),
-                                ],
+                              return Padding(
+                                padding: const EdgeInsets.only(left: 8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(  
+                                          Icons.restaurant,
+                                          size: 16.0,
+                                          color: Color(0xFFDC945F),
+                                        ),
+                                        const SizedBox(width: 8.0), //space between icon and text
+                                        Text(
+                                          _selectedAppliances[index],
+                                          style: const TextStyle(fontSize: 16),
+                                        ),
+                                      ],
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(
+                                          Icons.remove_circle_outline,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        _removeAppliance(
+                                            _selectedAppliances[index]);
+                                      },
+                                    ),
+                                  ],
+                                ),
                               );
                             },
                           ),
