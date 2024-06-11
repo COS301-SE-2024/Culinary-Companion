@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class ConfirmDetailsScreen extends StatefulWidget {
   @override
@@ -9,6 +12,162 @@ class ConfirmDetailsScreen extends StatefulWidget {
 }
 
 class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
+
+  String? _userId;
+  List<String>? _cuisineOptions;
+  List<String>? _dietaryOptions;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+   Future<void> _initializeData() async {
+  try {
+    await _loadUserId();
+    final List<String> cuisineItems = await _loadCuisines();
+    final List<String> constraintItems = await _loadDietaryConstraints();
+    setState(() {
+      _cuisineOptions = cuisineItems;
+      _dietaryOptions = constraintItems;
+      _isLoading = false;
+    });
+  } catch (error) {
+    print('Error initializing data: $error');
+    setState(() {
+      _isLoading = false;
+      _errorMessage = 'Error initializing data';
+    });
+  }
+}
+
+Future<List<String>> _loadCuisines() async {
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+  try {
+    final response = await http.post(Uri.parse(url),
+        body: json.encode({'action': 'getCuisines'}));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      final List<String> cuisineItems =
+          data.map<String>((cuisine) => cuisine['name'].toString()).toList();
+      return cuisineItems;
+    } else {
+      throw Exception('Failed to load cuisines');
+    }
+  } catch (e) {
+    throw Exception('Error fetching cuisines: $e');
+  }
+}
+
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId');
+      print('Login successful: $_userId');
+    });
+  }
+  Future<List<String>> _loadDietaryConstraints() async {
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+  try {
+    final response = await http.post(Uri.parse(url),
+        body: json.encode({'action': 'getDietaryConstraints'}));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      final List<String> constraintItems =
+          data.map<String>((constraint) => constraint['name'].toString()).toList();
+      return constraintItems;
+    } else {
+      throw Exception('Failed to load dietary constraints');
+    }
+  } catch (e) {
+    throw Exception('Error fetching dietary constraints: $e');
+  }
+}
+
+Future<void> _createUserProfile(String userId, String username, String cuisineName, int spiceLevel, String imageURL) async {
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint'; // Replace with your actual backend endpoint
+  // print('spice:  $spiceLevel');
+  // print('userid:  $_userId');
+  // print('name:  $username');
+  // print('c:  $cuisineName');
+  // print('image:  $imageURL');
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'action': 'createUserProfile',
+        'userId': userId,
+        'username': username,
+        'cuisine': cuisineName,
+        'spicelevel': spiceLevel,
+        //'imageUrl': imageURL,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('User profile created successfully');
+    } else {
+      throw Exception('Failed to create user profile');
+    }
+  } catch (error) {
+    print('Error creating user profile: $error');
+  }
+}
+
+
+Future<void> _addUserDietaryConstraints(String userId, String dietaryConstraint) async {
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint'; // Replace with your actual backend endpoint
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'action': 'addUserDietaryConstraints',
+        'userId': userId,
+        'dietaryConstraint': dietaryConstraint,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Dietary constraint added successfully');
+    } else {
+      throw Exception('Failed to add dietary constraint');
+    }
+  } catch (error) {
+    print('Error adding dietary constraint: $error');
+  }
+}
+
+int getSpiceLevelNumber(String spiceLevel) {
+    switch (spiceLevel) {
+      case 'None':
+        return 1;
+      case 'Mild🌶️':
+        return 2;
+      case 'Medium🌶️🌶️':
+        return 3;
+      case 'Hot🌶️🌶️🌶️':
+        return 4;
+      case 'Extra Hot🌶️🌶️🌶️🌶️':
+        return 5;
+      default:
+        throw Exception('Invalid spice level');
+    }
+  }
+  
   final _formKey = GlobalKey<FormState>();
   String _username = '';
   String _spiceLevel = 'None';
@@ -22,23 +181,6 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
     'Medium🌶️🌶️', 
     'Hot🌶️🌶️🌶️', 
     'Extra Hot🌶️🌶️🌶️🌶️'];
-  final List<String> _dietaryOptions = [
-    'Vegetarian', 
-    'Vegan', 
-    'Halal', 
-    'Kosher', 
-    'Gluten-free', 
-    'Lactose intolerant', 
-    'Diabetes', 
-    'Low-sodium', 
-    'Paleo', 
-    'Cholesterol-restricted diet'];
-  final List<String> _cuisineOptions = [
-    'Mexican',
-    'Italian',
-    'Chinese',
-    'Indian',
-    'American'];
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -54,6 +196,12 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
 
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {
+      int spiceLevel = getSpiceLevelNumber(_spiceLevel);
+      
+      _createUserProfile(_userId!, _username, _cuisine, spiceLevel, _profileImage != null ? _profileImage!.path : ''); // Call to create user profile
+      for (String restriction in _dietaryRestrictions) {
+      _addUserDietaryConstraints(_userId!, restriction); // Call to add dietary constraints
+    }
       // Navigate to home page or handle signup
       Navigator.pushReplacementNamed(context, '/home');
     }
@@ -240,7 +388,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                                 filled: false,
                                 fillColor: Colors.transparent,
                               ),
-                              items: _dietaryOptions.map((String option) {
+                              items: _dietaryOptions?.map((String option) {
                                 return DropdownMenuItem<String>(
                                   value: option,
                                   child: Text(option),
@@ -313,7 +461,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                           fillColor: Colors.transparent,
                         ),
                         value: _cuisine,
-                        items: _cuisineOptions.map((String cuisine) {
+                        items: _cuisineOptions?.map((String cuisine) {
                           return DropdownMenuItem<String>(
                             value: cuisine,
                             child: Text(cuisine),
