@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
             case 'getCuisines':
                 return getCuisines(corsHeaders);
             case 'getDietaryConstraints':
-                    return getDietaryConstraints(corsHeaders);
+                return getDietaryConstraints(corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,

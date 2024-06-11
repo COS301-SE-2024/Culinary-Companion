@@ -73,8 +73,8 @@ Deno.serve(async (req) => {
                 return getCategoryOfIngredient(ingredientName, corsHeaders);
             case 'getIngredientNameAndCategory':
                 return getIngredientNameAndCategory(corsHeaders);
-            // case 'getRecipe':
-            //     return getRecipe(recipeid, corsHeaders);
+            case 'getRecipe':
+                return getRecipe(recipeid, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -860,9 +860,80 @@ async function getIngredientNameAndCategory(corsHeaders: HeadersInit) {
     }
 }
 
-// async function getRecipe(recipeid, corsHeaders){
+async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure recipeId is provided
+        if (!recipeId) {
+            throw new Error('Recipe ID is required');
+        }
 
-// }
+        // Fetch recipe details
+        const { data: recipeData, error: recipeError } = await supabase
+            .from('recipe')
+            .select('*')
+            .eq('recipeid', recipeId)
+            .single();
+
+        if (recipeError) {
+            throw new Error(`Error fetching recipe: ${recipeError.message}`);
+        }
+
+        if (!recipeData) {
+            throw new Error(`Recipe not found for ID: ${recipeId}`);
+        }
+
+        // Fetch recipe appliances
+        const { data: appliancesData, error: appliancesError } = await supabase
+            .from('recipeAppliances')
+            .select('applianceid')
+            .eq('recipeid', recipeId);
+
+        if (appliancesError) {
+            throw new Error(`Error fetching recipe appliances: ${appliancesError.message}`);
+        }
+
+        // Fetch appliance names based on appliance ids
+        const applianceIds = appliancesData.map(appliance => appliance.applianceid);
+        const { data: applianceNamesData, error: applianceNamesError } = await supabase
+            .from('appliances')
+            .select('name')
+            .in('applianceid', applianceIds);
+
+        if (applianceNamesError) {
+            throw new Error(`Error fetching appliance names: ${applianceNamesError.message}`);
+        }
+
+        const applianceNames = applianceNamesData.map(appliance => appliance.name);
+
+        // Combine recipe data with appliance names
+        const recipe = {
+            recipeId: recipeData.recipeId,
+            name: recipeData.name,
+            description: recipeData.description,
+            steps: recipeData.steps,
+            cooktime: recipeData.cooktime,
+            cuisine: recipeData.cuisine,
+            spicelevel: recipeData.spiceLevel,
+            preptime: recipeData.preptime,
+            course: recipeData.course,
+            keywords: recipeData.keywords,
+            servings: recipeData.servings,
+            photo: recipeData.photo,
+
+            appliances: applianceNames,
+        };
+
+        return new Response(JSON.stringify({ recipe }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
 
 
 /* To invoke locally:
