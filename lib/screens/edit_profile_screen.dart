@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -23,7 +24,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   String? _username;
   List<String> _selectedDietaryConstraints = [];
   String? _spiceLevel;
-  String? _profilePhoto;
+  String _profilePhoto="";
+  //SupabaseClient supabase = Supabase.instance.client;
 
   @override
   void initState() {
@@ -31,8 +33,78 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _initializeData();
   }
 
+  String imageUrl="";
+  //final void Function(String imageUrl) onUpload;
+  // Pick image from gallery
+
+
+Future<void> _pickImage() async {
+  print('Starting image picking process...');
+  
+  final ImagePicker _picker = ImagePicker();
+  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+  if (image == null) {
+    print('No image selected.');
+    return;
+  }
+
+  print('Image picked: ${image.path}');
+  print('User ID: $_userId');
+  final supabase = await Supabase.instance.client;
+  //final userId = _userId;//await supabase.auth.currentUser!.id;
+  
+  
+  final imageEx = image.path.split('.').last.toLowerCase();
+  final imagePath = '/$_userId/profile_photos';
+  print('Image extension: $imageEx');
+  print('Image path: $imagePath');
+  
+  final imageBytes = await image.readAsBytes();
+  
+  print('Uploading image to Supabase storage...');
+  final response = await supabase.storage.from('profile_photos').uploadBinary(
+    '/$_userId/profile_photos/${DateTime.now().microsecondsSinceEpoch}.$imageEx',
+    imageBytes,
+    fileOptions: FileOptions(
+      upsert: true,
+      contentType: 'image/$imageEx',
+    ),
+  );
+  print(response);
+
+  if (response.isNotEmpty) {
+    print('Image uploaded successfully.');
+    
+    imageUrl=await supabase.storage.from('profile_photos').getPublicUrl(imagePath);
+    
+    print('Image URL: $imageUrl');
+    
+    imageUrl = Uri.parse(imageUrl)
+        .replace(queryParameters: {'t': DateTime.now().microsecondsSinceEpoch.toString()})
+        .toString();
+    
+    print('Updated image URL: $imageUrl');
+    
+    await supabase
+        .from('userProfile')
+        .update({'profilephoto': imageUrl})
+        .eq('userid', _userId!);
+    
+    print('User profile photo updated successfully.');
+  } else {
+    print('Error uploading image: ${response}');
+  }
+}
+
+
+
   Future<void> _initializeData() async {
     try {
+      WidgetsFlutterBinding.ensureInitialized();
+        await Supabase.initialize(
+          url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
+          anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
+        );
       await _loadUserId();
       await _fetchUserDetails(); // Fetch user details on init
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
@@ -97,6 +169,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 _userDetails?['dietaryConstraints']
                         ?.map((dc) => dc.toString()) ??
                     []);
+            imageUrl=_userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
 
             //_profilePhoto =_userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
             //_isLoading = false;
@@ -318,17 +391,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
-  // Pick image from gallery
-  Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      setState(() {
-        _profileImage = File(image.path);
-      });
-    }
-  }
 
   Future<void> updateUserUsername(String userId, String username) async {
     final String url =
@@ -427,9 +489,9 @@ Widget build(BuildContext context) {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: profilePhoto.startsWith('http') // Profile photo
+                      child: imageUrl != null // Profile photo
                           ? Image.network(
-                              profilePhoto,
+                              imageUrl,
                               width: 150,
                               height: 150,
                               fit: BoxFit.cover,
