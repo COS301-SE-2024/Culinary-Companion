@@ -10,22 +10,28 @@ class AddRecipeScreen extends StatefulWidget {
 
 class _AddRecipeScreenState extends State<AddRecipeScreen>
     with SingleTickerProviderStateMixin {
-
-@override
+  @override
   void initState() {
     super.initState();
     _initializeData();
     _tabController = TabController(length: 3, vsync: this);
   }
-  
 
-Future<void> _initializeData() async {
-  await _loadUserId();
-  await _loadCuisines();
-}
+  Future<void> _initializeData() async {
+    await _loadUserId();
+    await _loadCuisines();
+  }
 
   String? _userId;
   List<String> _cuisines = [];
+  List<String> _appliances = [
+    'Oven',
+    'Microwave',
+    'Blender',
+    'Toaster',
+    'Grill'
+  ]; //Change to get the appliances from the database
+
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -34,35 +40,37 @@ Future<void> _initializeData() async {
   }
 
   Future<void> _loadCuisines() async {
-  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
-  try {
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'action': 'getCuisines'}),
-    );
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'action': 'getCuisines'}),
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() { // Ensure the UI updates after cuisines are loaded
-        _cuisines = data.map<String>((cuisine) {
-          return cuisine['name'].toString();
-        }).toList();
-      });
-      //print(_cuisines);
-    } else {
-      throw Exception('Failed to load cuisines');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          // Ensure the UI updates after cuisines are loaded
+          _cuisines = data.map<String>((cuisine) {
+            return cuisine['name'].toString();
+          }).toList();
+        });
+        //print(_cuisines);
+      } else {
+        throw Exception('Failed to load cuisines');
+      }
+    } catch (e) {
+      throw Exception('Error fetching cuisines: $e');
     }
-  } catch (e) {
-    throw Exception('Error fetching cuisines: $e');
   }
-}
 
-  
   final List<Map<String, String>> _ingredients = [];
   final List<String> _methods = [];
+  final List<String> _selectedAppliances = [];
   late TabController _tabController;
 
   final TextEditingController _nameController = TextEditingController();
@@ -75,9 +83,14 @@ Future<void> _initializeData() async {
   String _selectedCuisine = 'Mexican';
   String _selectedCourse = 'Main';
   int _spiceLevel = 1;
+  bool _showAppliancesDropdown = false;
 
-
-  final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
+  final List<String> _courses = [
+    'Main',
+    'Breakfast',
+    'Appetizer',
+    'Dessert'
+  ]; //Change these so it is fetched from database
 
   void _addIngredientField() {
     setState(() {
@@ -103,6 +116,19 @@ Future<void> _initializeData() async {
     });
   }
 
+  void _addAppliance(String appliance) {
+    setState(() {
+      _selectedAppliances.add(appliance);
+      _showAppliancesDropdown = false;
+    });
+  }
+
+  void _removeAppliance(String appliance) {
+    setState(() {
+      _selectedAppliances.remove(appliance);
+    });
+  }
+
   Future<void> _submitRecipe() async {
     final recipeData = {
       'name': _nameController.text,
@@ -121,6 +147,7 @@ Future<void> _initializeData() async {
           'unit': ingredient['unit'],
         };
       }).toList(),
+      'appliances': _selectedAppliances,
     };
 
     final response = await http.post(
@@ -144,7 +171,6 @@ Future<void> _initializeData() async {
       // Handle error (e.g., show an error message)
     }
   }
-
 
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
     return InputDecoration(
@@ -546,7 +572,7 @@ Future<void> _initializeData() async {
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                           ..._methods.map((method) {
-                            int index = _methods.indexOf(method);
+                            int index2 = _methods.indexOf(method);
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 8.0),
@@ -556,7 +582,7 @@ Future<void> _initializeData() async {
                                     child: TextField(
                                       onChanged: (value) {
                                         setState(() {
-                                          _methods[index] = value;
+                                          _methods[index2] = value;
                                         });
                                       },
                                       decoration:
@@ -567,7 +593,7 @@ Future<void> _initializeData() async {
                                     icon: const Icon(
                                         Icons.remove_circle_outline,
                                         color: Colors.red),
-                                    onPressed: () => _removeMethodField(index),
+                                    onPressed: () => _removeMethodField(index2),
                                   ),
                                 ],
                               ),
@@ -580,6 +606,113 @@ Future<void> _initializeData() async {
                               onPressed: _addMethodField,
                             ),
                           ),
+                          const SizedBox(height: 24),
+                          const Text('Appliances:',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          // Wrap(
+                          //   spacing: 8.0,
+                          //   runSpacing: 4.0,
+                          //   children: [
+                          //     for (var appliance in _selectedAppliances)
+                          //       Row(
+                          //         mainAxisSize: MainAxisSize.min,
+                          //         children: [
+                          //           const Icon(Icons.soup_kitchen, size: 16),
+                          //           const SizedBox(width: 4),
+                          //           Text(appliance),
+                          //           IconButton(
+                          //             icon: const Icon(Icons.delete, size: 16),
+                          //             onPressed: () => _removeAppliance(appliance),
+                          //           ),
+                          //         ],
+                          //       ),
+                          //       if (_showAppliancesDropdown)
+                          //         DropdownButton<String>(
+                          //           items: _appliances
+                          //               .where((appliance) =>
+                          //                   !_selectedAppliances.contains(appliance))
+                          //               .map((appliance) {
+                          //             return DropdownMenuItem(
+                          //               value: appliance,
+                          //               child: Text(appliance),
+                          //             );
+                          //           }).toList(),
+                          //           onChanged: (value) {
+                          //             if (value != null) {
+                          //               _addAppliance(value);
+                          //             }
+                          //           },
+                          //           hint: const Text('Select Appliance'),
+                          //         ),
+                          //       IconButton(
+                          //         icon: const Icon(Icons.add),
+                          //         onPressed: () {
+                          //           setState(() {
+                          //             _showAppliancesDropdown = !_showAppliancesDropdown;
+                          //           });
+                          //         },
+                          //       ),
+                          //     ],
+                          //   ),
+
+                          ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _selectedAppliances.length,
+                            itemBuilder: (context, index) {
+                              return Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    _selectedAppliances[index],
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(
+                                        Icons.remove_circle_outline,
+                                        color: Colors.red),
+                                    onPressed: () {
+                                      _removeAppliance(
+                                          _selectedAppliances[index]);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 6),
+                          if (_showAppliancesDropdown)
+                            DropdownButtonFormField<String>(
+                              dropdownColor: const Color(0xFF1F4539),
+                              items: _appliances.map((appliance) {
+                                return DropdownMenuItem<String>(
+                                  value: appliance,
+                                  child: Text(appliance),
+                                );
+                              }).toList(),
+                              onChanged: (value) {
+                                if (value != null &&
+                                    !_selectedAppliances.contains(value)) {
+                                  _addAppliance(value);
+                                }
+                              },
+                              decoration:
+                                  _buildInputDecoration('Select Appliance'),
+                            ),
+                          Align(
+                            alignment: Alignment.center,
+                            child: IconButton(
+                              icon: const Icon(Icons.add_circle_outline),
+                              onPressed: () {
+                                setState(() {
+                                  _showAppliancesDropdown =
+                                      !_showAppliancesDropdown;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 16),
                           const SizedBox(height: 24),
                           Center(
                             child: ElevatedButton(
