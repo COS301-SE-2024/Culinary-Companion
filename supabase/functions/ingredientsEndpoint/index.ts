@@ -57,8 +57,10 @@ Deno.serve(async (req) => {
               return removeFromShoppingList(userId, ingredientName);
             case 'removeFromPantryList':
               return removeFromPantryList(userId, ingredientName);  
-            case 'getUserRecipes':
+            case 'getUserRecipes': // uploaded recipes
                 return getUserRecipes(userId, corsHeaders); 
+            case 'getUserFavourites':
+                return getUserFavourites(userId, corsHeaders);
             case 'getRecipesByCourse':
                 return getRecipesByCourse(course, corsHeaders);  
             case 'getRecipesBySpiceLevel':
@@ -73,8 +75,8 @@ Deno.serve(async (req) => {
                 return getCategoryOfIngredient(ingredientName, corsHeaders);
             case 'getIngredientNameAndCategory':
                 return getIngredientNameAndCategory(corsHeaders);
-            // case 'getRecipe':
-            //     return getRecipe(recipeid, corsHeaders);
+            case 'getRecipe':
+                return getRecipe(recipeid, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -653,6 +655,56 @@ async function getUserRecipes(userId: string, corsHeaders: HeadersInit) {
     }
 }
 
+async function getUserFavourites(userId: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure userId is provided
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        // Fetch user's favorite recipes
+        const { data: userFavourites, error: userFavouritesError } = await supabase
+            .from('userFavorites')
+            .select('recipeid')
+            .eq('userid', userId);
+
+        if (userFavouritesError) {
+            throw new Error(`Error fetching user favourites: ${userFavouritesError.message}`);
+        }
+
+        if (!userFavourites || userFavourites.length === 0) {
+            return new Response(JSON.stringify({ error: 'No favourite recipes found for this user' }), {
+                status: 404,
+                headers: corsHeaders,
+            });
+        }
+
+        const recipeIds = userFavourites.map(favourite => favourite.recipeid);
+
+        // Fetch recipes based on recipe IDs
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('*')
+            .in('recipeid', recipeIds);
+
+        if (recipesError) {
+            throw new Error(`Error fetching recipes: ${recipesError.message}`);
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (error) {
+        console.error('Error in getUserFavourites function:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+
 async function getRecipesByCourse(course: string, corsHeaders: HeadersInit) {
     if (!course) {
         throw new Error('Course is required');
@@ -860,9 +912,80 @@ async function getIngredientNameAndCategory(corsHeaders: HeadersInit) {
     }
 }
 
-// async function getRecipe(recipeid, corsHeaders){
+async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure recipeId is provided
+        if (!recipeId) {
+            throw new Error('Recipe ID is required');
+        }
 
-// }
+        // Fetch recipe details
+        const { data: recipeData, error: recipeError } = await supabase
+            .from('recipe')
+            .select('*')
+            .eq('recipeid', recipeId)
+            .single();
+
+        if (recipeError) {
+            throw new Error(`Error fetching recipe: ${recipeError.message}`);
+        }
+
+        if (!recipeData) {
+            throw new Error(`Recipe not found for ID: ${recipeId}`);
+        }
+
+        // Fetch recipe appliances
+        const { data: appliancesData, error: appliancesError } = await supabase
+            .from('recipeAppliances')
+            .select('applianceid')
+            .eq('recipeid', recipeId);
+
+        if (appliancesError) {
+            throw new Error(`Error fetching recipe appliances: ${appliancesError.message}`);
+        }
+
+        // Fetch appliance names based on appliance ids
+        const applianceIds = appliancesData.map(appliance => appliance.applianceid);
+        const { data: applianceNamesData, error: applianceNamesError } = await supabase
+            .from('appliances')
+            .select('name')
+            .in('applianceid', applianceIds);
+
+        if (applianceNamesError) {
+            throw new Error(`Error fetching appliance names: ${applianceNamesError.message}`);
+        }
+
+        const applianceNames = applianceNamesData.map(appliance => appliance.name);
+
+        // Create a custom object with the desired structure
+        const recipe = {
+            recipeId: recipeData.recipeId,
+            name: recipeData.name,
+            description: recipeData.description,
+            steps: recipeData.steps,
+            cooktime: recipeData.cooktime,
+            cuisine: recipeData.cuisine,
+            spicelevel: recipeData.spiceLevel,
+            preptime: recipeData.preptime,
+            course: recipeData.course,
+            keywords: recipeData.keywords,
+            servings: recipeData.servings,
+            photo: recipeData.photo,
+            appliances: applianceNames,
+        };
+
+        // Stringify the custom object and return the JSON response
+        return new Response(JSON.stringify(recipe, null, 2), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
 
 
 /* To invoke locally:
