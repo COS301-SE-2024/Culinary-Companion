@@ -47,7 +47,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
     print('Image picked: ${image.path}');
     print('User ID: $_userId');
-    final supabase =  Supabase.instance.client;
+    final supabase = Supabase.instance.client;
     //final userId = _userId;//await supabase.auth.currentUser!.id;
     //final user = supabase.auth.currentUser;
 
@@ -75,9 +75,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       if (response.isNotEmpty) {
         print('Image uploaded successfully.');
 
-        imageUrl =  supabase.storage
-            .from('profile_photos')
-            .getPublicUrl(imagePath);
+        imageUrl =
+            supabase.storage.from('profile_photos').getPublicUrl(imagePath);
 
         print('Image URL: $imageUrl');
 
@@ -102,17 +101,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       print('Exception during image upload: $error');
     }
   }
+
   Future<void> _initializeData() async {
     try {
-    //  if (!_supabaseInitialized) {
-    //   WidgetsFlutterBinding.ensureInitialized();
-    //   await Supabase.initialize(
-    //     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
-    //     anonKey:
-    //         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
-    //   );
-    //      _supabaseInitialized = true;
-    //   }
+      //  if (!_supabaseInitialized) {
+      //   WidgetsFlutterBinding.ensureInitialized();
+      //   await Supabase.initialize(
+      //     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
+      //     anonKey:
+      //         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
+      //   );
+      //      _supabaseInitialized = true;
+      //   }
       await _loadUserId();
       await _fetchUserDetails(); // Fetch user details on init
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
@@ -178,7 +178,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         ?.map((dc) => dc.toString()) ??
                     []);
             imageUrl =
-                    _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
+                _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
 
             //_profilePhoto =_userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
             //_isLoading = false;
@@ -260,6 +260,140 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     } catch (e) {
       throw Exception('Error fetching dietary constraints: $e');
     }
+  }
+
+  // For profile photo
+  Widget _buildProfilePhoto() {
+    return GestureDetector(
+      onTap: _pickImage,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CircleAvatar(
+            radius: 60,
+            backgroundImage: imageUrl != null && imageUrl!.isNotEmpty
+                ? NetworkImage(imageUrl)
+                : AssetImage('assets/pfp.jpg') as ImageProvider,
+          ),
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFFDC945F),
+              ),
+              padding: EdgeInsets.all(8),
+              child: Icon(
+                Icons.edit,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // For username
+  Widget _buildUsername() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Username:',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          TextField(
+            decoration: InputDecoration(
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              // filled: true,
+              // fillColor: Colors.white24,
+            ),
+            style: TextStyle(color: Colors.white, fontSize: 16),
+            controller: TextEditingController(text: _username),
+            onSubmitted: (newValue) {
+              setState(() {
+                _username = newValue;
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // For cuisine drop down
+  Widget _buildCuisineDropdown() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Preferred Cuisine:',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          DropdownButtonFormField<String>(
+            dropdownColor: Color(0xFF20493C),
+            value: _selectedCuisine,
+            items: _cuisines,
+            onChanged: (value) {
+              setState(() {
+                _selectedCuisine = value;
+                //updateUserCuisine(_userId!, value!);
+              });
+            },
+            decoration: InputDecoration(
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              // filled: true,
+              // fillColor: Colors.white24,
+            ),
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // For spice level radio buttons
+  Widget _buildSpiceLevelRadio() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Preferred Spice Level:',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          Row(
+            children:
+                ['None', 'Mild', 'Medium', 'Hot', 'Very Hot'].map((level) {
+              return Expanded(
+                child: RadioListTile<String>(
+                  title: Text(level),
+                  value: level,
+                  groupValue: _spiceLevel,
+                  onChanged: (value) {
+                    setState(() {
+                      _spiceLevel = value;
+                    });
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> addUserDietaryConstraint(
@@ -453,10 +587,96 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       print('Profile updated successfully');
       Navigator.pop(context);
+
       // You can navigate to another screen or show a success message here
     } catch (error) {
       print('Error updating profile: $error');
     }
+  }
+
+  // Future<void> _saveProfile() async {
+  //   final String url =
+  //       'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+  //   final String spiceLevelValue = getSpiceLevelText(_spiceLevel!);
+
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse(url),
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: jsonEncode({
+  //         'action': 'updateUserProfile',
+  //         'userId': _userId,
+  //         'username': _username,
+  //         'cuisine': _selectedCuisine,
+  //         'spiceLevel': spiceLevelValue,
+  //         'dietaryConstraints': _selectedDietaryConstraints,
+  //         'profilephoto': imageUrl,
+  //       }),
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       // Handle successful save
+  //       print('Profile updated successfully');
+  //       Navigator.pop(context); // Go back to the previous screen
+  //     } else {
+  //       // Handle error
+  //       print('Failed to update profile: ${response.statusCode}');
+  //     }
+  //   } catch (error) {
+  //     // Error handling
+  //     print('Error updating profile: $error');
+  //   }
+  // }
+
+  // For dietary constraints multi-select
+  Widget _buildDietaryConstraintsMultiSelect() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Dietary Constraints',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          MultiSelectDialogField<String>(
+            backgroundColor: Color(0xFF20493C),
+            items: _dietaryConstraints!,
+            initialValue: _selectedDietaryConstraints,
+            onConfirm: (values) {
+              setState(() {
+                _selectedDietaryConstraints = values;
+              });
+            },
+            chipDisplay: MultiSelectChipDisplay(
+              // chipColor: Color(0xFF20493C),
+              chipColor: Colors.white24,
+              textStyle: TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            buttonText: Text(
+              'Select Dietary Constraints',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            buttonIcon: Icon(
+              Icons.arrow_drop_down,
+              color: Colors.white,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              border: Border.all(
+                color: Colors.white, // Change this color to the desired border color
+                width: 2, // Change the width as needed
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -464,161 +684,53 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final String profilePhoto =
         _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
     print('User\'s preferred cuisine: $_selectedCuisine');
+
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Edit Profile'),
+          backgroundColor: Color(0xFF20493C),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
-      backgroundColor: const Color(0xFF20493C),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF20493C),
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text(
-          'Edit Profile',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
+        title: Text('Edit Profile'),
+        backgroundColor: Color(0xFF20493C),
       ),
       body: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: Column(
-              children: [
-                if (_isLoading) // Display loading indicator if still loading
-                  CircularProgressIndicator()
-                else if (_errorMessage !=
-                    null) // Display error message if error occurred
-                  Text(
-                    _errorMessage!,
-                    style: TextStyle(color: Colors.red),
-                  )
-                else // Display image and other UI elements if no error and not loading
-                  Column(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        // ignore: unnecessary_null_comparison
-                        child: imageUrl != null // Profile photo
-                            ? Image.network(
-                                imageUrl,
-                                width: 150,
-                                height: 150,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(
-                                profilePhoto,
-                                width: 150,
-                                height: 150,
-                                fit: BoxFit.cover,
-                              ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _pickImage,
-                        child: Text('Pick Image'),
-                      ),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: 'Username',
-                          labelStyle: TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: Colors.white24,
-                        ),
-                        style: TextStyle(color: Colors.white),
-                        controller: TextEditingController(text: _username),
-                        onSubmitted: (newValue) {
-                          setState(() {
-                            _username = newValue;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 20),
-                      DropdownButtonFormField<String>(
-                        value: _selectedCuisine,
-                        items: _cuisines,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedCuisine = value;
-                            //updateUserCuisine(_userId!, value!);
-                          });
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Preferred Cuisine',
-                          labelStyle: TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: Colors.white24,
-                        ),
-                        dropdownColor: Color(0xFF20493C),
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(height: 20),
-                      MultiSelectDialogField<String>(
-                        items: _dietaryConstraints!,
-                        initialValue: _selectedDietaryConstraints,
-                        title: Text("Dietary Constraints"),
-                        selectedColor: Colors.blue,
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.1),
-                          borderRadius: BorderRadius.all(Radius.circular(40)),
-                          border: Border.all(
-                            color: Colors.blue,
-                            width: 2,
-                          ),
-                        ),
-                        buttonIcon: Icon(
-                          Icons.arrow_drop_down,
-                          color: Colors.blue,
-                        ),
-                        buttonText: Text(
-                          "Select Dietary Constraints",
-                          style: TextStyle(
-                            color: Colors.blue[800],
-                            fontSize: 16,
-                          ),
-                        ),
-                        onConfirm: (results) {
-                          setState(() {
-                            _selectedDietaryConstraints = results;
-                          });
-                        },
-                      ),
-                      DropdownButtonFormField<String>(
-                        value: _spiceLevel ?? 'Mild',
-                        items: [
-                          DropdownMenuItem(value: 'None', child: Text('None')),
-                          DropdownMenuItem(value: 'Mild', child: Text('Mild')),
-                          DropdownMenuItem(
-                              value: 'Medium', child: Text('Medium')),
-                          DropdownMenuItem(value: 'Hot', child: Text('Hot')),
-                          DropdownMenuItem(
-                              value: 'Extra Hot', child: Text('Extra Hot')),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            _spiceLevel = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          labelText: 'Spice Level',
-                          labelStyle: TextStyle(color: Colors.white),
-                          filled: true,
-                          fillColor: Colors.white24,
-                        ),
-                        dropdownColor: Color(0xFF20493C),
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _saveProfileChanges,
-                        child: Text('Save Changes'),
-                      ),
-                    ],
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildProfilePhoto(),
+            const SizedBox(height: 20),
+            _buildUsername(),
+            const SizedBox(height: 20),
+            _buildCuisineDropdown(),
+            const SizedBox(height: 20),
+            _buildSpiceLevelRadio(),
+            const SizedBox(height: 20),
+            _buildDietaryConstraintsMultiSelect(),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                onPressed: _saveProfileChanges,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFDC945F),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
                   ),
-              ],
+                ),
+                child: Text('Save Profile'),
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
