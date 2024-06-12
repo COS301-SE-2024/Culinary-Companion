@@ -37,7 +37,7 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
-    final body = jsonEncode({'action': 'getUserRecipes', 'userId': _userId});
+    final body = jsonEncode({'action': 'getUserFavourites', 'userId': _userId});
 
     try {
       final response =
