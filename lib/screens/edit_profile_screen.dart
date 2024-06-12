@@ -271,7 +271,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         children: [
           CircleAvatar(
             radius: 60,
-            backgroundImage: imageUrl != null && imageUrl!.isNotEmpty
+            backgroundImage: imageUrl.isNotEmpty
                 ? NetworkImage(imageUrl)
                 : AssetImage('assets/pfp.jpg') as ImageProvider,
           ),
@@ -311,8 +311,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             decoration: InputDecoration(
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              // filled: true,
-              // fillColor: Colors.white24,
             ),
             style: TextStyle(color: Colors.white, fontSize: 16),
             controller: TextEditingController(text: _username),
@@ -352,8 +350,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             decoration: InputDecoration(
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              // filled: true,
-              // fillColor: Colors.white24,
             ),
             style: TextStyle(color: Colors.white, fontSize: 16),
           ),
@@ -594,42 +590,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
   }
 
-  // Future<void> _saveProfile() async {
-  //   final String url =
-  //       'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
-  //   final String spiceLevelValue = getSpiceLevelText(_spiceLevel!);
-
-  //   try {
-  //     final response = await http.post(
-  //       Uri.parse(url),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: jsonEncode({
-  //         'action': 'updateUserProfile',
-  //         'userId': _userId,
-  //         'username': _username,
-  //         'cuisine': _selectedCuisine,
-  //         'spiceLevel': spiceLevelValue,
-  //         'dietaryConstraints': _selectedDietaryConstraints,
-  //         'profilephoto': imageUrl,
-  //       }),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       // Handle successful save
-  //       print('Profile updated successfully');
-  //       Navigator.pop(context); // Go back to the previous screen
-  //     } else {
-  //       // Handle error
-  //       print('Failed to update profile: ${response.statusCode}');
-  //     }
-  //   } catch (error) {
-  //     // Error handling
-  //     print('Error updating profile: $error');
-  //   }
-  // }
-
   // For dietary constraints multi-select
   Widget _buildDietaryConstraintsMultiSelect() {
     return Padding(
@@ -643,7 +603,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           SizedBox(height: 10),
           MultiSelectDialogField<String>(
-            backgroundColor: Color(0xFF20493C),
+            checkColor: Colors.white,
+            selectedColor: Color(0xFF20493C),
+            backgroundColor: Color(0xFFDC945F),
             items: _dietaryConstraints!,
             initialValue: _selectedDietaryConstraints,
             onConfirm: (values) {
@@ -652,9 +614,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               });
             },
             chipDisplay: MultiSelectChipDisplay(
-              // chipColor: Color(0xFF20493C),
-              chipColor: Colors.white24,
-              textStyle: TextStyle(color: Colors.white, fontSize: 16),
+              chipColor: Color(0xFFDC945F),
+              textStyle: TextStyle(color: Color(0xFF20493C), fontSize: 16),
             ),
             buttonText: Text(
               'Select Dietary Constraints',
@@ -669,8 +630,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(8)),
               border: Border.all(
-                color: Colors.white, // Change this color to the desired border color
-                width: 2, // Change the width as needed
+                color: Colors
+                    .white, // Change this color to the desired border color
+                width: 1, // Change the width as needed
               ),
             ),
           ),
