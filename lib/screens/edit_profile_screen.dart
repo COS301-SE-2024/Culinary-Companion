@@ -17,7 +17,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   List<DropdownMenuItem<String>>? _cuisines;
   List<MultiSelectItem<String>>? _dietaryConstraints;
   bool _isLoading = true;
-  String? _errorMessage;
+  // String? _errorMessage;
   Map<String, dynamic>? _userDetails;
   String? _selectedCuisine;
   String? _username;
@@ -128,7 +128,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       print('Error initializing data: $error');
       setState(() {
         //_isLoading = false;
-        _errorMessage = 'Error initializing data';
+        //_errorMessage = 'Error initializing data';
       });
     }
     _isLoading = false;
@@ -186,7 +186,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         } else {
           setState(() {
             _isLoading = false;
-            _errorMessage = 'No user details found';
+            //_errorMessage = 'No user details found';
           });
         }
       } else {
@@ -194,7 +194,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         print('Failed to load user details: ${response.statusCode}');
         setState(() {
           _isLoading = false;
-          _errorMessage = 'Failed to load user details';
+         // _errorMessage = 'Failed to load user details';
         });
       }
     } catch (error) {
@@ -202,7 +202,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       print('Error fetching user details: $error');
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Error fetching user details';
+        //_errorMessage = 'Error fetching user details';
       });
     }
   }
@@ -643,9 +643,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final String profilePhoto =
-        _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
-    print('User\'s preferred cuisine: $_selectedCuisine');
+    // final String profilePhoto =
+    //     _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
+    // print('User\'s preferred cuisine: $_selectedCuisine');
 
     if (_isLoading) {
       return Scaffold(
