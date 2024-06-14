@@ -146,7 +146,7 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                               [];
                       List<String> steps = [];
                       if (recipes[index]['steps'] != null) {
-                        steps = (recipes[index]['steps'] as String).split('. ');
+                        steps = (recipes[index]['steps'] as String).split(',');
                       }
 
                       return RecipeCard(
