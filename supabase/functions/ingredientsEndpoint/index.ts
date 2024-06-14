@@ -912,6 +912,81 @@ async function getIngredientNameAndCategory(corsHeaders: HeadersInit) {
     }
 }
 
+// async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
+//     try {
+//         // Ensure recipeId is provided
+//         if (!recipeId) {
+//             throw new Error('Recipe ID is required');
+//         }
+
+//         // Fetch recipe details
+//         const { data: recipeData, error: recipeError } = await supabase
+//             .from('recipe')
+//             .select('*')
+//             .eq('recipeid', recipeId)
+//             .single();
+
+//         if (recipeError) {
+//             throw new Error(`Error fetching recipe: ${recipeError.message}`);
+//         }
+
+//         if (!recipeData) {
+//             throw new Error(`Recipe not found for ID: ${recipeId}`);
+//         }
+
+//         // Fetch recipe appliances
+//         const { data: appliancesData, error: appliancesError } = await supabase
+//             .from('recipeAppliances')
+//             .select('applianceid')
+//             .eq('recipeid', recipeId);
+
+//         if (appliancesError) {
+//             throw new Error(`Error fetching recipe appliances: ${appliancesError.message}`);
+//         }
+
+//         // Fetch appliance names based on appliance ids
+//         const applianceIds = appliancesData.map(appliance => appliance.applianceid);
+//         const { data: applianceNamesData, error: applianceNamesError } = await supabase
+//             .from('appliances')
+//             .select('name')
+//             .in('applianceid', applianceIds);
+
+//         if (applianceNamesError) {
+//             throw new Error(`Error fetching appliance names: ${applianceNamesError.message}`);
+//         }
+
+//         const applianceNames = applianceNamesData.map(appliance => appliance.name);
+
+//         // Create a custom object with the desired structure
+//         const recipe = {
+//             recipeId: recipeData.recipeId,
+//             name: recipeData.name,
+//             description: recipeData.description,
+//             steps: recipeData.steps,
+//             cooktime: recipeData.cooktime,
+//             cuisine: recipeData.cuisine,
+//             spicelevel: recipeData.spiceLevel,
+//             preptime: recipeData.preptime,
+//             course: recipeData.course,
+//             keywords: recipeData.keywords,
+//             servings: recipeData.servings,
+//             photo: recipeData.photo,
+//             appliances: applianceNames,
+//         };
+
+//         // Stringify the custom object and return the JSON response
+//         return new Response(JSON.stringify(recipe, null, 2), {
+//             status: 200,
+//             headers: corsHeaders,
+//         });
+//     } catch (error) {
+//         return new Response(JSON.stringify({ error: error.message }), {
+//             status: 500,
+//             headers: corsHeaders,
+//         });
+//     }
+// }
+
 async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
     try {
         // Ensure recipeId is provided
@@ -957,21 +1032,53 @@ async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
 
         const applianceNames = applianceNamesData.map(appliance => appliance.name);
 
+        // Fetch recipe ingredients
+        const { data: ingredientsData, error: ingredientsError } = await supabase
+            .from('recipeingredients')
+            .select('ingredientid, quantity, measurementunit')
+            .eq('recipeid', recipeId);
+
+        if (ingredientsError) {
+            throw new Error(`Error fetching recipe ingredients: ${ingredientsError.message}`);
+        }
+
+        // Fetch ingredient names based on ingredient ids
+        const ingredientIds = ingredientsData.map(ingredient => ingredient.ingredientid);
+        const { data: ingredientNamesData, error: ingredientNamesError } = await supabase
+            .from('ingredient')
+            .select('ingredientid, name')
+            .in('ingredientid', ingredientIds);
+
+        if (ingredientNamesError) {
+            throw new Error(`Error fetching ingredient names: ${ingredientNamesError.message}`);
+        }
+
+        const ingredients = ingredientsData.map(ingredient => {
+            const ingredientName = ingredientNamesData.find(nameData => nameData.ingredientid === ingredient.ingredientid)?.name;
+            return {
+                ingredientid: ingredient.ingredientid,
+                name: ingredientName,
+                quantity: ingredient.quantity,
+                measurementunit: ingredient.measurementunit,
+            };
+        });
+
         // Create a custom object with the desired structure
         const recipe = {
-            recipeId: recipeData.recipeId,
+            recipeId: recipeData.recipeid,
             name: recipeData.name,
             description: recipeData.description,
             steps: recipeData.steps,
             cooktime: recipeData.cooktime,
             cuisine: recipeData.cuisine,
-            spicelevel: recipeData.spiceLevel,
+            spicelevel: recipeData.spicelevel,
             preptime: recipeData.preptime,
             course: recipeData.course,
             keywords: recipeData.keywords,
             servings: recipeData.servings,
             photo: recipeData.photo,
             appliances: applianceNames,
+            ingredients: ingredients,
         };
 
         // Stringify the custom object and return the JSON response
