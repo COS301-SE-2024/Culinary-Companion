@@ -546,7 +546,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                         entry.value;
                                     return CheckableItem(
                                       title:
-                                          '${ingredient['quantity']} ${ingredient['unit']} ${ingredient['ingredient']}',
+                                          '${ingredient['quantity']} ${ingredient['measurementunit']} ${ingredient['name']}',
                                       isChecked:
                                           _ingredientChecked[idx] ?? false,
                                       onChanged: (bool? value) {
@@ -935,7 +935,7 @@ class _RecipeCardState extends State<RecipeCard> {
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: Image.asset(
+                child: Image.network(
                   widget.imagePath,
                   fit: BoxFit.cover,
                 ),
