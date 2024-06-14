@@ -83,6 +83,8 @@ Deno.serve(async (req) => {
                 return getAllAppliances(corsHeaders);
             case 'addUserAppliance':
                 return addUserAppliance(userId, applianceName, corsHeaders);
+            case 'getUserAppliances':
+                return getUserAppliances(userId, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -1157,6 +1159,73 @@ async function addUserAppliance(userId: string, applianceName: string, corsHeade
         });
     } catch (error) {
         console.error('Error in addUserAppliance function:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getUserAppliances(userId: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure userId is provided
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        // Fetch user appliances for the specified user
+        const { data: userAppliancesData, error: userAppliancesError } = await supabase
+            .from('userAppliances')
+            .select('applianceid')
+            .eq('userid', userId);
+
+        if (userAppliancesError) {
+            console.error('Error fetching user appliances:', userAppliancesError);
+            return new Response(JSON.stringify({ error: userAppliancesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        if (!userAppliancesData || userAppliancesData.length === 0) {
+            return new Response(JSON.stringify({ error: 'No appliances found for this user' }), {
+                status: 404,
+                headers: corsHeaders,
+            });
+        }
+
+        // Extract appliance ids
+        const applianceIds = userAppliancesData.map(userAppliance => userAppliance.applianceid);
+
+        // Fetch appliance names based on appliance ids
+        const { data: appliancesData, error: appliancesError } = await supabase
+            .from('appliances')
+            .select('applianceid, name')
+            .in('applianceid', applianceIds);
+
+        if (appliancesError) {
+            console.error('Error fetching appliances:', appliancesError);
+            return new Response(JSON.stringify({ error: appliancesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Combine user appliances with appliance names
+        const userAppliances = userAppliancesData.map(userAppliance => {
+            const appliance = appliancesData.find(appliance => appliance.applianceid === userAppliance.applianceid);
+            return {
+                applianceid: userAppliance.applianceid,
+                applianceName: appliance ? appliance.name : 'Unknown'
+            };
+        });
+
+        return new Response(JSON.stringify(userAppliances, null, 2), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        console.error('Error in getUserAppliances function:', error);
         return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
             headers: corsHeaders,
