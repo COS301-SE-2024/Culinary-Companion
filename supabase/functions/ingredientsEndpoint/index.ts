@@ -77,6 +77,8 @@ Deno.serve(async (req) => {
                 return getIngredientNameAndCategory(corsHeaders);
             case 'getRecipe':
                 return getRecipe(recipeid, corsHeaders);
+            case 'getAllAppliances':
+                return getAllAppliances(corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -957,25 +959,80 @@ async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
 
         const applianceNames = applianceNamesData.map(appliance => appliance.name);
 
+        // Fetch recipe ingredients
+        const { data: ingredientsData, error: ingredientsError } = await supabase
+            .from('recipeingredients')
+            .select('ingredientid, quantity, measurementunit')
+            .eq('recipeid', recipeId);
+
+        if (ingredientsError) {
+            throw new Error(`Error fetching recipe ingredients: ${ingredientsError.message}`);
+        }
+
+        // Fetch ingredient names based on ingredient ids
+        const ingredientIds = ingredientsData.map(ingredient => ingredient.ingredientid);
+        const { data: ingredientNamesData, error: ingredientNamesError } = await supabase
+            .from('ingredient')
+            .select('ingredientid, name')
+            .in('ingredientid', ingredientIds);
+
+        if (ingredientNamesError) {
+            throw new Error(`Error fetching ingredient names: ${ingredientNamesError.message}`);
+        }
+
+        const ingredients = ingredientsData.map(ingredient => {
+            const ingredientName = ingredientNamesData.find(nameData => nameData.ingredientid === ingredient.ingredientid)?.name;
+            return {
+                ingredientid: ingredient.ingredientid,
+                name: ingredientName,
+                quantity: ingredient.quantity,
+                measurementunit: ingredient.measurementunit,
+            };
+        });
+
         // Create a custom object with the desired structure
         const recipe = {
-            recipeId: recipeData.recipeId,
+            recipeId: recipeData.recipeid,
             name: recipeData.name,
             description: recipeData.description,
             steps: recipeData.steps,
             cooktime: recipeData.cooktime,
             cuisine: recipeData.cuisine,
-            spicelevel: recipeData.spiceLevel,
+            spicelevel: recipeData.spicelevel,
             preptime: recipeData.preptime,
             course: recipeData.course,
             keywords: recipeData.keywords,
             servings: recipeData.servings,
             photo: recipeData.photo,
             appliances: applianceNames,
+            ingredients: ingredients,
         };
 
         // Stringify the custom object and return the JSON response
         return new Response(JSON.stringify(recipe, null, 2), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function getAllAppliances(corsHeaders: HeadersInit) {
+    try {
+        // Fetch all appliances
+        const { data: appliancesData, error: appliancesError } = await supabase
+            .from('appliances')
+            .select('applianceid, name');
+
+        if (appliancesError) {
+            throw new Error(`Error fetching appliances: ${appliancesError.message}`);
+        }
+
+        return new Response(JSON.stringify(appliancesData, null, 2), {
             status: 200,
             headers: corsHeaders,
         });
