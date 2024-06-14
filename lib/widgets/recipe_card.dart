@@ -556,7 +556,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                         });
                                       },
                                     );
-                                  }).toList(),
+                                  }),
                                   SizedBox(
                                       height: MediaQuery.of(context)
                                               .size
@@ -572,7 +572,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                           0.01), // Adjust height to 1% of screen height
                                   ...widget.appliances
                                       .map((appliance) => Text(appliance))
-                                      .toList(),
+                                      ,
                                   SizedBox(
                                       height: MediaQuery.of(context)
                                               .size
