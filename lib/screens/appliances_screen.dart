@@ -113,14 +113,14 @@ class _AppliancesPageState extends State<AppliancesPage> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          Container(  
-            decoration: BoxDecoration(
-              image: DecorationImage(  
-                image: AssetImage('background.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+        //   Container(  
+        //     decoration: BoxDecoration(
+        //       image: DecorationImage(  
+        //         image: AssetImage('background.png'),
+        //         fit: BoxFit.cover,
+        //       ),
+        //     ),
+        //   ),
         //Foreground content
         Padding(  
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
