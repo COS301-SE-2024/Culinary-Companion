@@ -104,6 +104,9 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                         course: recipes[index]['course'] ?? '',
                         servings: recipes[index]['servings'] ?? 0,
                         keyWords: keywords,
+                        steps: List<String>.from(recipes[index]['steps']),
+                        appliances: List<String>.from(recipes[index]['appliances']),
+                        ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
                       );
                     },
                   );

@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisSpacing: crossAxisSpacing,
                       mainAxisSpacing: mainAxisSpacing,
                       childAspectRatio: aspectRatio,
-                    ),
+                                        ),
                     itemBuilder: (context, index) {
                       // Split keywords string into a list of keywords
                       List<String> keywords =
@@ -101,6 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         course: recipes[index]['course'] ?? '',
                         servings: recipes[index]['servings'] ?? 0,
                         keyWords: keywords,
+                        steps: List<String>.from(recipes[index]['steps']),
+                        appliances: List<String>.from(recipes[index]['appliances']),
+                        ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
                       );
                     },
                   );
