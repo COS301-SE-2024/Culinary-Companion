@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -81,6 +81,8 @@ Deno.serve(async (req) => {
                 return getRecipe(recipeid, corsHeaders);
             case 'getAllAppliances':
                 return getAllAppliances(corsHeaders);
+            case 'addUserAppliance':
+                return addUserAppliance(userId, applianceName, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -1102,6 +1104,65 @@ async function getAllAppliances(corsHeaders: HeadersInit) {
     }
 }
 
+async function addUserAppliance(userId: string, applianceName: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure userId and applianceName are provided
+        if (!userId || !applianceName) {
+            throw new Error('User ID and Appliance Name are required');
+        }
+
+        // Fetch the appliance ID based on the appliance name
+        const { data: applianceData, error: applianceError } = await supabase
+            .from('appliances')
+            .select('applianceid')
+            .eq('name', applianceName)
+            .single();
+
+        if (applianceError) {
+            console.error('Error fetching appliance:', applianceError);
+            return new Response(JSON.stringify({ error: applianceError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const applianceId = applianceData?.applianceid;
+
+        if (!applianceId) {
+            console.error(`Failed to retrieve appliance ID for ${applianceName}`);
+            return new Response(JSON.stringify({ error: `Failed to retrieve appliance ID for ${applianceName}` }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Insert into userAppliances table
+        const { error: userApplianceError } = await supabase
+            .from('userAppliances')
+            .insert({ userid: userId, applianceid: applianceId })
+            .select('*')
+            .single();
+
+        if (userApplianceError) {
+            console.error('Error inserting user appliance:', userApplianceError);
+            return new Response(JSON.stringify({ error: userApplianceError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        console.error('Error in addUserAppliance function:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
 
 /* To invoke locally:
 
