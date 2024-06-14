@@ -199,6 +199,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                       currentRoute == '/shopping-list'),
                   _buildNavItem(context, 'Pantry', '/pantry-list',
                       currentRoute == '/pantry-list'),
+                  _buildNavItem(context, 'Appliances', '/appliances',
+                      currentRoute == '/appliances'),
                   _buildNavItem(context, 'Saved Recipes', '/saved-recipes',
                       currentRoute == '/saved-recipes'),
                   _buildNavItem(context, 'Profile', '/profile',

@@ -3,6 +3,7 @@ import 'home_screen.dart';
 //import 'shopping_pantry_screen.dart';
 import 'shopping_list_screen.dart';
 import 'pantry_screen.dart';
+import 'appliances_screen.dart';
 import 'saved_recipes_screen.dart';
 import 'profile_screen.dart';
 import 'add_recipe_screen.dart';
@@ -61,6 +62,8 @@ class _MainScreenState extends State<MainScreen> {
         return ShoppingListScreen();
       case '/pantry-list':
         return PantryScreen();
+      case '/appliances':
+        return AppliancesPage();
       case '/saved-recipes':
         return SavedRecipesScreen();
       case '/profile':

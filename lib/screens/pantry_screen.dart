@@ -523,7 +523,7 @@ class _PantryScreenState extends State<PantryScreen> {
               TextButton(
                 style: TextButton.styleFrom(
                   side: const BorderSide(
-                    color: Colors.orange,
+                    color: Color(0xFFDC945F),
                     width: 1.5, // Border thickness
                   ), // Outline color
                 ),
