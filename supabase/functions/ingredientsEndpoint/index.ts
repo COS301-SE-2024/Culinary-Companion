@@ -3,17 +3,19 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.43.4'
 
 // Define the structure of the recipeData object
 interface RecipeData {
-  name: string;
-  description: string;
-  methods: string;
-  cookTime: number;
-  cuisine: string;
-  spiceLevel: number;
-  prepTime: number;
-  course: string;
-  servingAmount: number;
-  ingredients: { name: string, quantity: number, unit: string }[];
-}
+    name: string;
+    description: string;
+    methods: string;
+    cookTime: number;
+    cuisine: string;
+    spiceLevel: number;
+    prepTime: number;
+    course: string;
+    servingAmount: number;
+    ingredients: { name: string, quantity: number, unit: string }[];
+    appliances: { name: string }[];
+  }
+  
 
 // Create the Supabase Client
 const supURL = Deno.env.get("_SUPABASE_URL") as string || 'http://localhost:54321';
@@ -248,7 +250,19 @@ async function getAvailableIngredients(userId: string, corsHeaders: HeadersInit)
 // Add recipe to the db from the form
 async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: HeadersInit) {
     try {
-        const { name, description, methods, cookTime, cuisine, spiceLevel, prepTime, course, servingAmount, ingredients } = recipeData;
+        const { 
+            name, 
+            description, 
+            methods, 
+            cookTime, 
+            cuisine, 
+            spiceLevel, 
+            prepTime, 
+            course, 
+            servingAmount, 
+            ingredients, 
+            appliances 
+        } = recipeData;
 
         // Insert the recipe
         const { data: insertedRecipeData, error: recipeError } = await supabase
@@ -299,6 +313,7 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
             });
         }
 
+        // Insert ingredients
         for (const ingredient of ingredients) {
             const { data: ingredientData, error: ingredientError } = await supabase
                 .from('ingredient')
@@ -342,6 +357,48 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
             }
         }
 
+        // Insert appliances
+        for (const appliance of appliances) {
+            const { data: applianceData, error: applianceError } = await supabase
+                .from('appliances')
+                .select('applianceid')
+                .eq('name', appliance.name)
+                .single();
+
+            if (applianceError) {
+                console.error('Error fetching appliance:', applianceError);
+                return new Response(JSON.stringify({ error: `Appliance not found: ${appliance.name}` }), {
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            const applianceId = applianceData?.applianceid;
+
+            if (!applianceId) {
+                console.error(`Failed to retrieve appliance ID for ${appliance.name}`);
+                return new Response(JSON.stringify({ error: `Failed to retrieve appliance ID for ${appliance.name}` }), {
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            const { error: recipeApplianceError } = await supabase
+                .from('recipeAppliances')
+                .insert({
+                    recipeid: recipeId,
+                    applianceid: applianceId,
+                });
+
+            if (recipeApplianceError) {
+                console.error('Error inserting recipe appliance:', recipeApplianceError);
+                return new Response(JSON.stringify({ error: recipeApplianceError.message }), {
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+        }
+
         return new Response(JSON.stringify({ success: true, recipeId }), {
             status: 200,
             headers: corsHeaders,
@@ -354,6 +411,7 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
         });
     }
 }
+
 
 
 async function addToShoppingList(userId: string, ingredientName: string) {
