@@ -25,7 +25,7 @@ class LandingScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'logo.png',
+                  'assets/logo.png',
                   height: 100,
                 ),
                 SizedBox(height: 32),//spacing between logo and buttons

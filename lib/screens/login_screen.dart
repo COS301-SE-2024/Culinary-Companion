@@ -18,8 +18,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleLogin() {
     if (_formKey.currentState!.validate()) {
-      // Perform login logic here
-      // If successful, navigate to the home screen
       loginUser(_email, _password, 'signIn');
     }
   }
