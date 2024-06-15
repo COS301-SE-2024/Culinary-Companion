@@ -102,7 +102,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     Column(  
                       children: [
                         Image.asset(
-                          'logo.png',
+                          'assets/logo.png',
                           height: 80,
                         ),
                         const SizedBox(height: 16),

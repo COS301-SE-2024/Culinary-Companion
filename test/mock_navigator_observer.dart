@@ -10,6 +10,7 @@ import 'package:mockito/mockito.dart';
 ])
 import 'mock_navigator_observer.mocks.dart';
 
+
 // Remove this class
 // class MockNavigatorObserver extends MockNavigatorObserverMixin implements NavigatorObserver {}
 
