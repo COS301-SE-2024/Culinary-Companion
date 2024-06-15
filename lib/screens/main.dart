@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import 'shopping_pantry_screen.dart';
-//import 'shopping_list_screen.dart';
+//import 'shopping_pantry_screen.dart';
+import 'shopping_list_screen.dart';
+import 'pantry_screen.dart';
+import 'appliances_screen.dart';
 import 'saved_recipes_screen.dart';
 import 'profile_screen.dart';
 import 'add_recipe_screen.dart';
 import '../widgets/navbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
   );
   runApp(CulinaryCompanionApp());
 }
@@ -55,7 +58,12 @@ class _MainScreenState extends State<MainScreen> {
       case '/scan-recipe':
         return AddRecipeScreen();
       case '/shopping-list':
-        return ShoppingPantryScreen();
+        //return ShoppingPantryScreen();
+        return ShoppingListScreen();
+      case '/pantry-list':
+        return PantryScreen();
+      case '/appliances':
+        return AppliancesPage();
       case '/saved-recipes':
         return SavedRecipesScreen();
       case '/profile':
