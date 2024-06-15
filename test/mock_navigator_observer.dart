@@ -8,7 +8,6 @@ import 'package:mockito/mockito.dart';
     onMissingStub: OnMissingStub.returnDefault,
   )
 ])
-import 'mock_navigator_observer.mocks.dart';
 
 
 // Remove this class
