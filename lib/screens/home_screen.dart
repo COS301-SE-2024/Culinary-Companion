@@ -42,15 +42,41 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
-        setState(() {
-          print(fetchedRecipes);
-          recipes = List<Map<String, dynamic>>.from(fetchedRecipes);
-        });
+
+        // Fetch detailed recipes for each recipe ID
+        for (var recipe in fetchedRecipes) {
+          final String recipeId = recipe['recipeid'];
+          await fetchRecipeDetails(recipeId);
+        }
       } else {
         print('Failed to load recipes: ${response.statusCode}');
       }
     } catch (error) {
       print('Error fetching recipes: $error');
+    }
+  }
+
+  Future<void> fetchRecipeDetails(String recipeId) async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final body = jsonEncode({'action': 'getRecipe', 'recipeid': recipeId});
+
+    try {
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
+
+        setState(() {
+          recipes.add(fetchedRecipe);
+        });
+      } else {
+        print('Failed to load recipe details: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching recipe details: $error');
     }
   }
 
@@ -71,36 +97,46 @@ class _HomeScreenState extends State<HomeScreen> {
                   double itemHeight = 320;
                   double aspectRatio = itemWidth / itemHeight;
 
-                  // Calculate relative spacing based on screen width
-                  double crossAxisSpacing = width * 0.01; // 5% of screen width
-                  double mainAxisSpacing = width * 0.02; // 6% of screen width
+                  double crossAxisSpacing = width * 0.01;
+                  double mainAxisSpacing = width * 0.02;
 
                   return GridView.builder(
                     shrinkWrap: true,
                     physics: NeverScrollableScrollPhysics(),
                     itemCount: recipes.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4, // Set the number of columns to 3
+                      crossAxisCount: 4,
                       crossAxisSpacing: crossAxisSpacing,
                       mainAxisSpacing: mainAxisSpacing,
                       childAspectRatio: aspectRatio,
                     ),
                     itemBuilder: (context, index) {
-                      // Split keywords string into a list of keywords
                       List<String> keywords =
-                          (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
+                          (recipes[index]['keywords'] as String?)
+                                  ?.split(', ') ??
+                              [];
+                      List<String> steps = [];
+                      if (recipes[index]['steps'] != null) {
+                        steps = (recipes[index]['steps'] as String).split(',');
+                      }
 
                       return RecipeCard(
-                        name: recipes[index]['name'] ?? '', // Use an empty string if name is null
+                        name: recipes[index]['name'] ?? '',
                         description: recipes[index]['description'] ?? '',
-                        imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
-                        prepTime: recipes[index]['preptime'] ?? 0, // Use 0 if prepTime is null
+                        imagePath: recipes[index]['photo'] ??
+                            'assets/pfp.jpg',
+                        prepTime: recipes[index]['preptime'] ?? 0,
                         cookTime: recipes[index]['cooktime'] ?? 0,
                         cuisine: recipes[index]['cuisine'] ?? '',
                         spiceLevel: recipes[index]['spicelevel'] ?? 0,
                         course: recipes[index]['course'] ?? '',
                         servings: recipes[index]['servings'] ?? 0,
                         keyWords: keywords,
+                        steps: steps,
+                        appliances: List<String>.from(
+                            recipes[index]['appliances']),
+                        ingredients: List<Map<String, dynamic>>.from(
+                            recipes[index]['ingredients']),
                       );
                     },
                   );

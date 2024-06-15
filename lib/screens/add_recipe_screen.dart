@@ -20,17 +20,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   Future<void> _initializeData() async {
     await _loadUserId();
     await _loadCuisines();
+    await _loadAppliances();
   }
 
   String? _userId;
   List<String> _cuisines = [];
-  List<String> _appliances = [
-    'Oven',
-    'Microwave',
-    'Blender',
-    'Toaster',
-    'Grill'
-  ]; //Change to get the appliances from the database
+  List<String> _appliances=[];//Change to get the appliances from the database
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -65,6 +60,35 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       }
     } catch (e) {
       throw Exception('Error fetching cuisines: $e');
+    }
+  }
+
+  Future<void> _loadAppliances() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'action': 'getAllAppliances'}),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          // Ensure the UI updates after cuisines are loaded
+          _appliances = data.map<String>((cuisine) {
+            return cuisine['name'].toString();
+          }).toList();
+        });
+        //print(_cuisines);
+      } else {
+        throw Exception('Failed to load appliances');
+      }
+    } catch (e) {
+      throw Exception('Error fetching appliances: $e');
     }
   }
 
@@ -130,6 +154,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   }
 
   Future<void> _submitRecipe() async {
+
+    List<Map<String, String>> appliancesData = _selectedAppliances.map((appliance) {
+    return {'name': appliance};
+  }).toList();
     final recipeData = {
       'name': _nameController.text,
       'description': _descriptionController.text,
@@ -147,7 +175,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
           'unit': ingredient['unit'],
         };
       }).toList(),
-      'appliances': _selectedAppliances,
+      'appliances': appliancesData
     };
 
     final response = await http.post(
