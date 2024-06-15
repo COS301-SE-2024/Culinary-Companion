@@ -89,6 +89,7 @@ flutter:
     - assets/default_profile.jpeg
     - assets/logo.png
     - assets/google.png
+    - assets/background.png
     - assets/lemon_tart.jpg
     - assets/sushi_rolls.jpg
     - assets/spaghetti_carbonara.webp

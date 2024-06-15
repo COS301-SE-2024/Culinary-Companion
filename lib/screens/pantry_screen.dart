@@ -5,12 +5,12 @@ import 'package:http/http.dart'
     as http; // Add this line to import the http package
 import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
 
-class ShoppingListScreen extends StatefulWidget {
+class PantryScreen extends StatefulWidget {
   @override
-  _ShoppingListScreenState createState() => _ShoppingListScreenState();
+  _PantryScreenState createState() => _PantryScreenState();
 }
 
-class _ShoppingListScreenState extends State<ShoppingListScreen> {
+class _PantryScreenState extends State<PantryScreen> {
   String? _userId;
 
   @override
@@ -23,10 +23,10 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     await _loadUserId();
     _fetchIngredientNames();
     _loadDontShowAgainPreference();
-    _fetchShoppingList();
+    _fetchPantryList();
   }
 
-  final Map<String, List<String>> _shoppingList = {};
+  final Map<String, List<String>> _pantryList = {};
   final Map<String, bool> _checkboxStates = {};
 
   final List<String> _categories = [
@@ -78,13 +78,13 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     }
   }
 
-  Future<void> _fetchShoppingList() async {
+  Future<void> _fetchPantryList() async {
     try {
       final response = await http.post(
         Uri.parse(
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: jsonEncode({
-          'action': 'getShoppingList',
+          'action': 'getAvailableIngredients',
           'userId':
               _userId, //'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
         }), // Body of the request
@@ -94,33 +94,33 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       if (response.statusCode == 200) {
         // If the request is successful, parse the response JSON
         final Map<String, dynamic> data = jsonDecode(response.body);
-        final List<dynamic> shoppingList = data['shoppingList'];
+        final List<dynamic> pantryList = data['availableIngredients'];
         setState(() {
-          _shoppingList.clear();
-          for (var item in shoppingList) {
-            final ingredientName = item['ingredientName'].toString();
+          _pantryList.clear();
+          for (var item in pantryList) {
+            final ingredientName = item['name'].toString();
             final category = item['category'] ?? 'Other';
-            _shoppingList.putIfAbsent(category, () => []);
-            _shoppingList[category]?.add(ingredientName);
+            _pantryList.putIfAbsent(category, () => []);
+            _pantryList[category]?.add(ingredientName);
           }
         });
       } else {
         // Handle other status codes, such as 404 or 500
-        print('Failed to fetch shopping list: ${response.statusCode}');
+        print('Failed to fetch pantry list: ${response.statusCode}');
       }
     } catch (error) {
       // Handle network errors or other exceptions
-      print('Error fetching shopping list: $error');
+      print('Error fetching pantry list: $error');
     }
   }
 
-  Future<void> _addToShoppingList(String? userId, String ingredientName) async {
+    Future<void> _addToPantryList(String? userId, String ingredientName) async {
     try {
       final response = await http.post(
         Uri.parse(
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: jsonEncode({
-          'action': 'addToShoppingList',
+          'action': 'addToPantryList', // Change action to addToPantryList
           'userId': userId,
           'ingredientName': ingredientName,
         }),
@@ -128,24 +128,24 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('Successfully added $ingredientName to shopping list');
+        print('Successfully added $ingredientName to pantry list');
       } else {
         print(
-            'Failed to add $ingredientName to shopping list: ${response.statusCode}');
+            'Failed to add $ingredientName to pantry list: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error adding $ingredientName to shopping list: $error');
+      print('Error adding $ingredientName to pantry list: $error');
     }
   }
 
-  Future<void> _removeFromShoppingList(
+  Future<void> _removeFromPantryList(
       String category, String ingredientName) async {
     try {
       final response = await http.post(
         Uri.parse(
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: jsonEncode({
-          'action': 'removeFromShoppingList',
+          'action': 'removeFromPantryList',
           'userId': _userId,
           'ingredientName': ingredientName,
         }),
@@ -153,18 +153,20 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       );
 
       if (response.statusCode == 200) {
-        // If the request is successful, update the shopping list
+        // If the request is successful, update the pantry list
         setState(() {
-          _shoppingList[category]?.remove(ingredientName);
+          _pantryList[category]?.remove(ingredientName);
+          if (_pantryList[category]?.isEmpty ?? true) {
+            _pantryList.remove(category);
+          }
         });
       } else {
         // Handle other status codes
-        print(
-            'Failed to remove item from shopping list: ${response.statusCode}');
+        print('Failed to remove item from pantry list: ${response.statusCode}');
       }
     } catch (error) {
       // Handle network errors or other exceptions
-      print('Error removing item from shopping list: $error');
+      print('Error removing item from pantry list: $error');
     }
   }
 
@@ -180,15 +182,13 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   void _addItem(String category, String item, bool type) {
     if (type) {
-      setState(() {
-        _shoppingList.putIfAbsent(category, () => []).add(item);
-        _checkboxStates[item] = false;
-      });
-      _addToShoppingList(_userId, item); // Existing line for shopping list
+      //do nothing
     } else {
       setState(() {
+        _pantryList.putIfAbsent(category, () => []).add(item);
         _checkboxStates[item] = false;
       });
+      _addToPantryList(_userId, item); // New line for pantry list
     }
   }
 
@@ -205,25 +205,23 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: Row(
-          children: <Widget>[
-            // Shopping List Column
+           children: <Widget>[
+            // Pantry List Column
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
-                  0,//left padding
+                  0, // left padding
                   20.0, // top padding
                   0.0, // right padding
                   0.0, // bottom padding
                 ), // Adjust the top padding as needed
                 child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start, // Left-align children
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
+                  crossAxisAlignment: CrossAxisAlignment.start, // Left-align children
+                    children: <Widget>[
                     const Padding(
                       padding: EdgeInsets.all(20.0),
                       child: Text(
-                        'Shopping List',
+                        'Pantry',
                         style: TextStyle(
                           fontSize: 24.0, // Set the font size for h2 equivalent
                           fontWeight: FontWeight.bold, // Make the text bold
@@ -232,17 +230,16 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                             TextAlign.left, // Ensure text is left-aligned
                       ),
                     ),
-                    // Shopping list items with categories and checkboxes
                     Expanded(
                       child: ListView(
-                        children: _shoppingList.entries.expand((entry) {
+                        children: _pantryList.entries.expand((entry) {
                           return [
                             if (entry.value.isNotEmpty) ...[
                               _buildCategoryHeader(entry.key),
                             ],
                             ...entry.value.asMap().entries.map((item) =>
                                 _buildCheckableListItem(entry.key, item.value,
-                                    item.key % 2 == 1, true)),
+                                    item.key % 2 == 1, false)),
                           ];
                         }).toList(),
                       ),
@@ -251,7 +248,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                       padding: const EdgeInsets.all(8.0),
                       child: ElevatedButton(
                         onPressed: () {
-                          _showAddItemDialog(context, 'Shopping');
+                          _showAddItemDialog(context, 'Pantry');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
@@ -265,13 +262,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                           ),
                           padding:
                               const EdgeInsets.all(0), // Remove default padding
-                        ),
-                        child: const Center(
-                          child: Text(
+                        ),  
+                          child: const Text(
                             '+',
                             style: TextStyle(
-                              fontSize: 35, // Increase the font size
-                            ),
+                              fontSize: 35,
+                            
                           ),
                         ),
                       ),
@@ -404,7 +400,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           child: AlertDialog(
             title: const Text("Confirm Remove"),
             content: Text(
-                "Are you sure you want to remove '$title' from the Shopping List?"),
+                "Are you sure you want to remove '$title' from the Pantry?"),
             actions: <Widget>[
               TextButton(
                 style: TextButton.styleFrom(
@@ -448,12 +444,14 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   void _removeItem(String category, String title, bool listType) {
     setState(() {
       if (listType) {
-        _removeFromShoppingList(category, title);
-        _shoppingList[category]?.remove(title);
-        if (_shoppingList[category]?.isEmpty ?? true) {
-          _shoppingList.remove(category);
+        //do nothing
+      } else {
+        _removeFromPantryList(category, title);
+        _pantryList[category]?.remove(title);
+        if (_pantryList[category]?.isEmpty ?? true) {
+          _pantryList.remove(category);
         }
-      } 
+      }
       _checkboxStates.remove(title);
     });
   }
@@ -525,7 +523,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               TextButton(
                 style: TextButton.styleFrom(
                   side: const BorderSide(
-                    color: Colors.orange,
+                    color: Color(0xFFDC945F),
                     width: 1.5, // Border thickness
                   ), // Outline color
                 ),
