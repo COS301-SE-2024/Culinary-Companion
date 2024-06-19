@@ -216,15 +216,15 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
 
   String _getSpiceLevelLabel(int spiceLevel) {
     switch (spiceLevel) {
-      case 0:
-        return 'None';
       case 1:
-        return 'Mild🌶️';
+        return 'None';
       case 2:
-        return 'Medium🌶️🌶️';
+        return 'Mild🌶️';
       case 3:
-        return 'Hot🌶️🌶️🌶️';
+        return 'Medium🌶️🌶️';
       case 4:
+        return 'Hot🌶️🌶️🌶️';
+      case 5:
         return 'Extra Hot🌶️🌶️🌶️🌶️';
       default:
         return '';
@@ -498,8 +498,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                   ),
                                   child: Slider(
                                     value: _spiceLevel.toDouble(),
-                                    min: 0,
-                                    max: 4,
+                                    min: 1,
+                                    max: 5,
                                     divisions: 4,
                                     label: _getSpiceLevelLabel(_spiceLevel),
                                     onChanged: (value) {
