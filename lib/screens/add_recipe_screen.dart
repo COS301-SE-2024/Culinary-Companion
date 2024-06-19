@@ -676,7 +676,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                           size: 16.0,
                                           color: Color(0xFFDC945F),
                                         ),
-                                        const SizedBox(width: 8.0), //space between icon and text
                                         const SizedBox(
                                             width:
                                                 8.0), //space between icon and text
