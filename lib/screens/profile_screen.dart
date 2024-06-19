@@ -403,19 +403,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       LayoutBuilder(
         builder: (context, constraints) {
           double width = constraints.maxWidth;
-          double itemWidth = 276;
-          double itemHeight = 320;
+          double itemWidth = width / 5-16;
+          double itemHeight = itemWidth * 1.2;
           double aspectRatio = itemWidth / itemHeight;
 
-          double crossAxisSpacing = width * 0.01;
-          double mainAxisSpacing = width * 0.02;
+          double crossAxisSpacing = 8.0;
+          double mainAxisSpacing = 8.0;
 
           return GridView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
             itemCount: recipes.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
+              crossAxisCount: 5,
               crossAxisSpacing: crossAxisSpacing,
               mainAxisSpacing: mainAxisSpacing,
               childAspectRatio: aspectRatio,
