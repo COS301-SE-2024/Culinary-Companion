@@ -25,7 +25,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
 
   String? _userId;
   List<String> _cuisines = [];
-  List<String> _appliances=[];//Change to get the appliances from the database
+  List<String> _appliances =
+      []; //Change to get the appliances from the database
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -116,9 +117,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     'Dessert'
   ]; //Change these so it is fetched from database
 
+  // Define the list of available ingredients
+  final List<String> _availableIngredients = [
+    'Tomato',
+    'Apple',
+    'Garlic',
+    'Salt',
+    'Pepper',
+    // Change these so it is fetched from the database
+  ];
+
   void _addIngredientField() {
     setState(() {
-      _ingredients.add({'name': '', 'quantity': '', 'unit': ''});
+      _ingredients
+          .add({'name': _availableIngredients[0], 'quantity': '', 'unit': ''});
     });
   }
 
@@ -154,10 +166,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   }
 
   Future<void> _submitRecipe() async {
-
-    List<Map<String, String>> appliancesData = _selectedAppliances.map((appliance) {
-    return {'name': appliance};
-  }).toList();
+    List<Map<String, String>> appliancesData =
+        _selectedAppliances.map((appliance) {
+      return {'name': appliance};
+    }).toList();
     final recipeData = {
       'name': _nameController.text,
       'description': _descriptionController.text,
@@ -543,12 +555,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               child: Row(
                                 children: [
                                   Expanded(
-                                    child: TextField(
+                                    child: DropdownButtonFormField<String>(
+                                      dropdownColor: const Color(0xFF1F4539),
+                                      value: _ingredients[index]['name'],
                                       onChanged: (value) {
                                         setState(() {
-                                          _ingredients[index]['name'] = value;
+                                          _ingredients[index]['name'] = value!;
                                         });
                                       },
+                                      items: _availableIngredients
+                                          .map((ingredient) {
+                                        return DropdownMenuItem<String>(
+                                          value: ingredient,
+                                          child: Text(ingredient),
+                                        );
+                                      }).toList(),
                                       decoration:
                                           _buildInputDecoration('Ingredient'),
                                     ),
@@ -637,9 +658,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           const Text('Appliances:',
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)
-                          ),
-
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
                           ListView.builder(
                             shrinkWrap: true,
                             itemCount: _selectedAppliances.length,
@@ -647,16 +666,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               return Padding(
                                 padding: const EdgeInsets.only(left: 8.0),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(  
+                                        Icon(
                                           Icons.restaurant,
                                           size: 16.0,
                                           color: Color(0xFFDC945F),
                                         ),
                                         const SizedBox(width: 8.0), //space between icon and text
+                                        const SizedBox(
+                                            width:
+                                                8.0), //space between icon and text
                                         Text(
                                           _selectedAppliances[index],
                                           style: const TextStyle(fontSize: 16),
