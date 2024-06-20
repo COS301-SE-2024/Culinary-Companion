@@ -32,7 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
     if (_userId != null) {
       await _fetchUserDetails();
-      await fetchRecipes();//Fetch user recipes after fetching user details
+      await fetchRecipes(); //Fetch user recipes after fetching user details
       //print('hereeee 2');
     } else {
       setState(() {
@@ -44,62 +44,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 ///////////fetch the users profile details/////////
   Future<void> _fetchUserDetails() async {
-    if (_userId == null) return;
+  if (_userId == null) return;
 
-    final String url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'action': 'getUserDetails',
-          'userId': _userId,
-        }),
-      );
+  setState(() {
+    _isLoading = true;  // Show loading indicator
+  });
 
-      //print(response.statusCode);
-      if (response.statusCode == 200) {
-        List<dynamic> data = jsonDecode(response.body);
-        print('Response data: $data'); //response data
-        if (data.isNotEmpty) {
-          setState(() {
-            _userDetails = data[0]; //get the first item in the list
-            _isLoading = false;
-          });
-        } else {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'No user details found';
-          });
-        }
-      } else {
-        // Handle error
-        print('Failed to load user details: ${response.statusCode}');
+  final String url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'action': 'getUserDetails', 'userId': _userId}),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      if (data.isNotEmpty) {
         setState(() {
-          _isLoading = false;
-          _errorMessage = 'Failed to load user details';
+          _userDetails = data[0];  // Get the first item in the list
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'No user details found';
         });
       }
-    } catch (error) {
-      //error handlind
-      print('Error fetching user details: $error');
+    } else {
       setState(() {
-        _isLoading = false;
-        _errorMessage = 'Error fetching user details';
+        _errorMessage = 'Failed to load user details';
       });
     }
+  } catch (error) {
+    setState(() {
+      _errorMessage = 'Error fetching user details';
+    });
+  } finally {
+    setState(() {
+      _isLoading = false;  // Stop loading indicator
+    });
   }
+}
+
 
   Future<void> fetchRecipes() async {
-    final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
     final body = jsonEncode({'action': 'getUserRecipes', 'userId': _userId});
 
     try {
-      final response = await http.post(Uri.parse(url), headers: headers, body: body);
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
@@ -117,12 +112,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> fetchRecipeDetails(String recipeId) async {
-    final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
     final body = jsonEncode({'action': 'getRecipe', 'recipeid': recipeId});
 
     try {
-      final response = await http.post(Uri.parse(url), headers: headers, body: body);
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
@@ -224,13 +221,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         IconButton(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ProfileEditScreen(),
               ),
             );
+
+            if (result == true) {
+              // Reload user details if the profile was updated
+              await _fetchUserDetails();
+            
+            }
           },
           icon: Icon(
             Icons.settings,
@@ -388,69 +391,69 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildMyRecipes() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'My Recipes',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'My Recipes',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
-      const SizedBox(height: 16),
-      LayoutBuilder(
-        builder: (context, constraints) {
-          double width = constraints.maxWidth;
-          double itemWidth = width / 5-16;
-          double itemHeight = itemWidth * 1.2;
-          double aspectRatio = itemWidth / itemHeight;
+        const SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            double width = constraints.maxWidth;
+            double itemWidth = width / 5 - 16;
+            double itemHeight = itemWidth * 1.2;
+            double aspectRatio = itemWidth / itemHeight;
 
-          double crossAxisSpacing = 8.0;
-          double mainAxisSpacing = 8.0;
+            double crossAxisSpacing = 8.0;
+            double mainAxisSpacing = 8.0;
 
-          return GridView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: recipes.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-              crossAxisSpacing: crossAxisSpacing,
-              mainAxisSpacing: mainAxisSpacing,
-              childAspectRatio: aspectRatio,
-            ),
-            itemBuilder: (context, index) {
-              List<String> keywords =
-                  (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
-              List<String> steps = [];
-              if (recipes[index]['steps'] != null) {
-                steps = (recipes[index]['steps'] as String).split(',');
-              }
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: recipes.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: mainAxisSpacing,
+                childAspectRatio: aspectRatio,
+              ),
+              itemBuilder: (context, index) {
+                List<String> keywords =
+                    (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
+                List<String> steps = [];
+                if (recipes[index]['steps'] != null) {
+                  steps = (recipes[index]['steps'] as String).split(',');
+                }
 
-              return RecipeCard(
-                name: recipes[index]['name'] ?? '',
-                description: recipes[index]['description'] ?? '',
-                imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
-                prepTime: recipes[index]['preptime'] ?? 0,
-                cookTime: recipes[index]['cooktime'] ?? 0,
-                cuisine: recipes[index]['cuisine'] ?? '',
-                spiceLevel: recipes[index]['spicelevel'] ?? 0,
-                course: recipes[index]['course'] ?? '',
-                servings: recipes[index]['servings'] ?? 0,
-                keyWords: keywords,
-                steps: steps,
-                appliances: List<String>.from(recipes[index]['appliances']),
-                ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
-              );
-            },
-          );
-        },
-      ),
-    ],
-  );
-}
-
+                return RecipeCard(
+                  name: recipes[index]['name'] ?? '',
+                  description: recipes[index]['description'] ?? '',
+                  imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
+                  prepTime: recipes[index]['preptime'] ?? 0,
+                  cookTime: recipes[index]['cooktime'] ?? 0,
+                  cuisine: recipes[index]['cuisine'] ?? '',
+                  spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                  course: recipes[index]['course'] ?? '',
+                  servings: recipes[index]['servings'] ?? 0,
+                  keyWords: keywords,
+                  steps: steps,
+                  appliances: List<String>.from(recipes[index]['appliances']),
+                  ingredients: List<Map<String, dynamic>>.from(
+                      recipes[index]['ingredients']),
+                );
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
 
   // Widget recipeCard(String imagePath) {
   //   return Container(

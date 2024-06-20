@@ -104,15 +104,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _initializeData() async {
     try {
-      //  if (!_supabaseInitialized) {
-      //   WidgetsFlutterBinding.ensureInitialized();
-      //   await Supabase.initialize(
-      //     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
-      //     anonKey:
-      //         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
-      //   );
-      //      _supabaseInitialized = true;
-      //   }
+     
       await _loadUserId();
       await _fetchUserDetails(); // Fetch user details on init
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
@@ -582,7 +574,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       }
 
       print('Profile updated successfully');
-      Navigator.pop(context);
+      Navigator.pop(context,true);
 
       // You can navigate to another screen or show a success message here
     } catch (error) {
