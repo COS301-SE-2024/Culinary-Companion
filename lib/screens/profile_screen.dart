@@ -96,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> fetchRecipes() async {
     final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
-    final body = jsonEncode({'action': 'getUserFavourites', 'userId': _userId});
+    final body = jsonEncode({'action': 'getUserRecipes', 'userId': _userId});
 
     try {
       final response = await http.post(Uri.parse(url), headers: headers, body: body);
