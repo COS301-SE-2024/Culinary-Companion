@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
         },
       ),
     );
-    Overlay.of(context)?.insert(_helpMenuOverlay!);
+    Overlay.of(context).insert(_helpMenuOverlay!);
   }
 
   @override
@@ -96,9 +96,13 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Color(0xFF20493C),
         actions: [
-          IconButton(
-            icon: Icon(Icons.help),
-            onPressed: _showHelpMenu,
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: IconButton(
+              icon: Icon(Icons.help),
+              onPressed: _showHelpMenu,
+              iconSize: 35,
+            ),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HelpMenu extends StatelessWidget {
   final VoidCallback onClose;
@@ -10,47 +11,143 @@ class HelpMenu extends StatelessWidget {
     return GestureDetector(
       onTap: onClose,
       child: Container(
-        color: Colors.black54, // Semi-transparent background
+        color: Color.fromARGB(121, 0, 0, 0), // Semi-transparent background
         child: Center(
           child: Material(
             borderRadius: BorderRadius.circular(10),
+            color: Color(0xFF20493C),
             child: Container(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
               width: MediaQuery.of(context).size.width * 0.8,
               height: MediaQuery.of(context).size.height * 0.8,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Help Menu',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  Center(
+                    child: Column(
+                      children: [
+                        Image.asset('helper_chef.png', height: 80),
+                        SizedBox(height: 10),
+                        Text(
+                          'How may I help you?',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 16),
+                      ],
+                    ),
                   ),
-                  SizedBox(height: 16),
-                  Text(
-                    '1. How to use the app',
-                    style: TextStyle(fontSize: 18),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Contact Us',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Contact us by clicking on the link below if you encounter any issues or have any queries that could not be answered through the FAQs.', //will have link to something?
+                          ),
+                          SizedBox(height: 8),
+                          InkWell(
+                            onTap: () async {
+                              final Uri emailUri = Uri(
+                                scheme: 'mailto',
+                                path: 'tecktonic.capstone@gmail.com',
+                                query:
+                                    'subject=Help Request&body=I need help with...',
+                              );
+                              if (await canLaunch(emailUri.toString())) {
+                                await launch(emailUri.toString());
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Could not launch email app'),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Text(
+                              'tecktonic.capstone@gmail.com',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(height: 20),
+                          Text(
+                            'How it works',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '2.1. Navigating the website', //will have link to something?
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '2.2. Recipe Scanning and Formatting', //will have link to something?
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '2.3. Adding and removing ingredients to my shopping list', //will have link to something?
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '2.4. Adding and removing ingredients to my pantry', //will have link to something?
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '2.5. Adding and removing appliances', //will have link to something?
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '2.6. Saving recipes', //will have link to something?
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            '2.7. Updating my preferences', //will have link to something?
+                          ),
+
+                          SizedBox(height: 20),
+                          Text(
+                            'Frequently Asked Questions',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Q: How do I add a new recipe?\nA: Navigate to the "Add Recipe" section and fill in the required details.',
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Q: How can I edit my dietary preferences?\nA: Go to the "Profile" section and update your dietary preferences.',
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Q: How do I scan a recipe from a book?\nA: Use the "Scan Recipe" feature in the app to take a picture of the recipe, and the app will convert it to the standard format.',
+                          ),
+                          // Add more FAQ entries as needed
+                        ],
+                      ),
+                    ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    'To use the app, you can browse recipes, view details, and add new recipes.',
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    '2. Frequently Asked Questions',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    'Here you can find answers to the most common questions.',
-                  ),
-                  // Add more help content as needed
-                  Spacer(),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
-                      onPressed: onClose,
-                      child: Text('Close'),
-                    ),
+                        onPressed: onClose,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFFDC945F),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                        ),
+                        child: Text('Close',
+                            style: TextStyle(color: Colors.white))),
                   ),
                 ],
               ),
