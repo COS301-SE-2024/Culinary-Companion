@@ -10,7 +10,6 @@ class RecipeCard extends StatefulWidget {
   final int spiceLevel;
   final String course;
   final int servings;
-  final List<String> keyWords;
   final List<String> steps;
   final List<String> appliances;
   final List<Map<String, dynamic>> ingredients;
@@ -25,7 +24,6 @@ class RecipeCard extends StatefulWidget {
     required this.spiceLevel,
     required this.course,
     required this.servings,
-    required this.keyWords,
     required this.steps,
     required this.appliances,
     required this.ingredients,
@@ -155,7 +153,6 @@ class _RecipeCardState extends State<RecipeCard> {
                               Text('Spice Level: ${widget.spiceLevel}'),
                               Text('Course: ${widget.course}'),
                               Text('Servings: ${widget.servings}'),
-                              Text('Keywords: ${widget.keyWords.join(', ')}'),
                               SizedBox(height: MediaQuery.of(context).size.height * 0.02), // Adjust height to 2% of screen height
                               Text('Ingredients:', style: TextStyle(fontWeight: FontWeight.bold)),
                               SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Adjust height to 1% of screen height
@@ -380,15 +377,6 @@ class _RecipeCardState extends State<RecipeCard> {
                           color: Colors.white,
                           fontSize: fontSizeDescription,
                         ),
-                      ),
-                      Text(
-                        'Keywords: ${widget.keyWords.join(', ')}',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: fontSizeDescription,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

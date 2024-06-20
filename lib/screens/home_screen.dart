@@ -131,7 +131,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         spiceLevel: recipes[index]['spicelevel'] ?? 0,
                         course: recipes[index]['course'] ?? '',
                         servings: recipes[index]['servings'] ?? 0,
-                        keyWords: keywords,
                         steps: steps,
                         appliances: List<String>.from(
                             recipes[index]['appliances']),
