@@ -21,11 +21,13 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     await _loadUserId();
     await _loadCuisines();
     await _loadAppliances();
+    await _fetchIngredientNames();
   }
 
   String? _userId;
   List<String> _cuisines = [];
-  List<String> _appliances=[];//Change to get the appliances from the database
+  List<String> _appliances =
+      []; //Change to get the appliances from the database
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -60,6 +62,31 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       }
     } catch (e) {
       throw Exception('Error fetching cuisines: $e');
+    }
+  }
+
+  Future<void> _fetchIngredientNames() async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: '{"action": "getIngredientNames"}', // Body of the request
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // If the request is successful, parse the response JSON
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _availableIngredients = data.map((item) => item['name'].toString()).toList();
+        });
+      } else {
+        // Handle other status codes, such as 404 or 500
+        print('Failed to fetch ingredient names: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle network errors or other exceptions
+      print('Error fetching ingredient names: $error');
     }
   }
 
@@ -116,9 +143,13 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     'Dessert'
   ]; //Change these so it is fetched from database
 
+  // Define the list of available ingredients
+  List<String> _availableIngredients = [];
+
   void _addIngredientField() {
     setState(() {
-      _ingredients.add({'name': '', 'quantity': '', 'unit': ''});
+      _ingredients
+          .add({'name': _availableIngredients[0], 'quantity': '', 'unit': ''});
     });
   }
 
@@ -154,10 +185,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   }
 
   Future<void> _submitRecipe() async {
-
-    List<Map<String, String>> appliancesData = _selectedAppliances.map((appliance) {
-    return {'name': appliance};
-  }).toList();
+    List<Map<String, String>> appliancesData =
+        _selectedAppliances.map((appliance) {
+      return {'name': appliance};
+    }).toList();
     final recipeData = {
       'name': _nameController.text,
       'description': _descriptionController.text,
@@ -192,13 +223,39 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     );
 
     if (response.statusCode == 200) {
-      //print('Recipe added successfully!');
-      // Handle success (e.g., show a success message, navigate back, etc.)
+      // Successfully added recipe
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Recipe added successfully!'),
+          duration: Duration(seconds: 3), // Adjust the duration here
+        ),
+      );
+
+      // Clear all form inputs
+      _nameController.clear();
+      _descriptionController.clear();
+      _cookingTimeController.clear();
+      _prepTimeController.clear();
+      _servingAmountController.clear();
+      _methods.clear();
+      _ingredients.clear();
+      _selectedAppliances.clear();
+      _selectedCuisine = _cuisines.first;
+      _selectedCourse = _courses.first;
+      _spiceLevel = 1;
+
+      setState(() {});
     } else {
-      //print('Failed to add recipe: ${response.body}');
-      // Handle error (e.g., show an error message)
+      // Failed to add recipe
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add recipe: ${response.body}'),
+          duration: Duration(seconds: 3), // Adjust the duration here
+        ),
+      );
     }
-  }
+    }
+
 
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
     return InputDecoration(
@@ -216,15 +273,15 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
 
   String _getSpiceLevelLabel(int spiceLevel) {
     switch (spiceLevel) {
-      case 0:
-        return 'None';
       case 1:
-        return 'Mild🌶️';
+        return 'None';
       case 2:
-        return 'Medium🌶️🌶️';
+        return 'Mild🌶️';
       case 3:
-        return 'Hot🌶️🌶️🌶️';
+        return 'Medium🌶️🌶️';
       case 4:
+        return 'Hot🌶️🌶️🌶️';
+      case 5:
         return 'Extra Hot🌶️🌶️🌶️🌶️';
       default:
         return '';
@@ -498,8 +555,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                   ),
                                   child: Slider(
                                     value: _spiceLevel.toDouble(),
-                                    min: 0,
-                                    max: 4,
+                                    min: 1,
+                                    max: 5,
                                     divisions: 4,
                                     label: _getSpiceLevelLabel(_spiceLevel),
                                     onChanged: (value) {
@@ -543,12 +600,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               child: Row(
                                 children: [
                                   Expanded(
-                                    child: TextField(
+                                    child: DropdownButtonFormField<String>(
+                                      dropdownColor: const Color(0xFF1F4539),
+                                      value: _ingredients[index]['name'],
                                       onChanged: (value) {
                                         setState(() {
-                                          _ingredients[index]['name'] = value;
+                                          _ingredients[index]['name'] = value!;
                                         });
                                       },
+                                      items: _availableIngredients
+                                          .map((ingredient) {
+                                        return DropdownMenuItem<String>(
+                                          value: ingredient,
+                                          child: Text(ingredient),
+                                        );
+                                      }).toList(),
                                       decoration:
                                           _buildInputDecoration('Ingredient'),
                                     ),
@@ -637,9 +703,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           const Text('Appliances:',
                               style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)
-                          ),
-
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
                           ListView.builder(
                             shrinkWrap: true,
                             itemCount: _selectedAppliances.length,
@@ -647,16 +711,19 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               return Padding(
                                 padding: const EdgeInsets.only(left: 8.0),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(  
+                                        Icon(
                                           Icons.restaurant,
                                           size: 16.0,
                                           color: Color(0xFFDC945F),
                                         ),
-                                        const SizedBox(width: 8.0), //space between icon and text
+                                        const SizedBox(
+                                            width:
+                                                8.0), //space between icon and text
                                         Text(
                                           _selectedAppliances[index],
                                           style: const TextStyle(fontSize: 16),

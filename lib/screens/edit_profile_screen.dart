@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:lottie/lottie.dart'; // Step 1: Import Lottie package
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -104,15 +105,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _initializeData() async {
     try {
-      //  if (!_supabaseInitialized) {
-      //   WidgetsFlutterBinding.ensureInitialized();
-      //   await Supabase.initialize(
-      //     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
-      //     anonKey:
-      //         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
-      //   );
-      //      _supabaseInitialized = true;
-      //   }
+     
       await _loadUserId();
       await _fetchUserDetails(); // Fetch user details on init
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
@@ -582,7 +575,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       }
 
       print('Profile updated successfully');
-      Navigator.pop(context);
+      Navigator.pop(context,true);
 
       // You can navigate to another screen or show a success message here
     } catch (error) {
@@ -648,16 +641,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     // print('User\'s preferred cuisine: $_selectedCuisine');
 
     if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Edit Profile'),
-          backgroundColor: Color(0xFF20493C),
-        ),
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Edit Profile'),
+      backgroundColor: Color(0xFF20493C),
+    ),
+    body: Center(
+      child: Lottie.asset(
+        'assets/loading.json'
+      ),
+    ),
+  );
+}
 
     return Scaffold(
       appBar: AppBar(

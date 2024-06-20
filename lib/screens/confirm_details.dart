@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
-import 'package:image_picker/image_picker.dart';
+//import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -183,17 +183,17 @@ int getSpiceLevelNumber(String spiceLevel) {
     'Hot🌶️🌶️🌶️', 
     'Extra Hot🌶️🌶️🌶️🌶️'];
 
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+  // Future<void> _pickImage() async {
+  //   final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        _profileImage = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
-  }
+  //   setState(() {
+  //     if (pickedFile != null) {
+  //       _profileImage = File(pickedFile.path);
+  //     } else {
+  //       print('No image selected.');
+  //     }
+  //   });
+  // }
 
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {
@@ -250,18 +250,18 @@ int getSpiceLevelNumber(String spiceLevel) {
                         const SizedBox(height: 32),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundImage: _profileImage != null
-                            ? FileImage(_profileImage!)
-                            : const AssetImage('default_profile.jpeg') as ImageProvider,
-                        child: _profileImage == null
-                            ? const Icon(Icons.add, size: 50, color: Color(0xFFDC945F))
-                            : null,
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   onTap: _pickImage,
+                    //   child: CircleAvatar(
+                    //     radius: 50,
+                    //     backgroundImage: _profileImage != null
+                    //         ? FileImage(_profileImage!)
+                    //         : const AssetImage('default_profile.jpeg') as ImageProvider,
+                    //     child: _profileImage == null
+                    //         ? const Icon(Icons.add, size: 50, color: Color(0xFFDC945F))
+                    //         : null,
+                    //   ),
+                    // ),
                     const SizedBox(height: 16),
                     Container(
                       width: 365,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lottie/lottie.dart';
 import 'dart:convert';
 
 import '../widgets/recipe_card.dart';
@@ -13,6 +14,7 @@ class SavedRecipesScreen extends StatefulWidget {
 class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
   String? _userId;
   List<Map<String, dynamic>> recipes = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -20,7 +22,6 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
     _loadUserId(); // Load user ID first
   }
 
-  ///////////load the user id/////////////
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -34,19 +35,16 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
   }
 
   Future<void> fetchRecipes() async {
-    final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
     final body = jsonEncode({'action': 'getUserFavourites', 'userId': _userId});
 
     try {
-      final response =
-          await http.post(Uri.parse(url), headers: headers, body: body);
+      final response = await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
-        // Fetch detailed recipes for each recipe ID
         for (var recipe in fetchedRecipes) {
           final String recipeId = recipe['recipeid'];
           await fetchRecipeDetails(recipeId);
@@ -57,43 +55,19 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
     } catch (error) {
       print('Error fetching recipes: $error');
     }
-  }
 
-   Future<void> fetchAllRecipes() async {
-    final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    final body = jsonEncode({'action': 'getAllRecipes'});
-
-    try {
-      final response =
-          await http.post(Uri.parse(url), headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        final List<dynamic> fetchedRecipes = jsonDecode(response.body);
-
-        // Fetch detailed recipes for each recipe ID
-        for (var recipe in fetchedRecipes) {
-          final String recipeId = recipe['recipeid'];
-          await fetchRecipeDetails(recipeId);
-        }
-      } else {
-        print('Failed to load recipes: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching recipes: $error');
-    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> fetchRecipeDetails(String recipeId) async {
-    final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
     final body = jsonEncode({'action': 'getRecipe', 'recipeid': recipeId});
 
     try {
-      final response =
-          await http.post(Uri.parse(url), headers: headers, body: body);
+      final response = await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
@@ -112,22 +86,26 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: 24),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  double width = constraints.maxWidth;
-                  double itemWidth = 276;
-                  double itemHeight = 320;
-                  double aspectRatio = itemWidth / itemHeight;
+      body: _isLoading
+          ? Center(
+              child: Lottie.asset('assets/loading.json'),
+            )
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 24),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        double width = constraints.maxWidth;
+                        double itemWidth = 276;
+                        double itemHeight = 320;
+                        double aspectRatio = itemWidth / itemHeight;
 
-                  double crossAxisSpacing = width * 0.01;
-                  double mainAxisSpacing = width * 0.02;
+                        double crossAxisSpacing = width * 0.01;
+                        double mainAxisSpacing = width * 0.02;
 
                   return GridView.builder(
                     shrinkWrap: true,
@@ -140,10 +118,10 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                       childAspectRatio: aspectRatio,
                     ),
                     itemBuilder: (context, index) {
-                      List<String> keywords =
-                          (recipes[index]['keywords'] as String?)
-                                  ?.split(', ') ??
-                              [];
+                      // List<String> keywords =
+                      //     (recipes[index]['keywords'] as String?)
+                      //             ?.split(', ') ??
+                      //         [];
                       List<String> steps = [];
                       if (recipes[index]['steps'] != null) {
                         steps = (recipes[index]['steps'] as String).split(',');
@@ -160,7 +138,6 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                         spiceLevel: recipes[index]['spicelevel'] ?? 0,
                         course: recipes[index]['course'] ?? '',
                         servings: recipes[index]['servings'] ?? 0,
-                        keyWords: keywords,
                         steps: steps,
                         appliances: List<String>.from(
                             recipes[index]['appliances']),

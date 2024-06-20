@@ -83,6 +83,8 @@ Deno.serve(async (req) => {
                 return getAllAppliances(corsHeaders);
             case 'addUserAppliance':
                 return addUserAppliance(userId, applianceName, corsHeaders);
+            case 'removeUserAppliance':
+                return removeUserAppliance(userId, applianceName, corsHeaders);
             case 'getUserAppliances':
                 return getUserAppliances(userId, corsHeaders);
             default:
@@ -1165,6 +1167,67 @@ async function addUserAppliance(userId: string, applianceName: string, corsHeade
         });
     }
 }
+
+async function removeUserAppliance(userId: string, applianceName: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure userId and applianceName are provided
+        if (!userId || !applianceName) {
+            throw new Error('User ID and Appliance Name are required');
+        }
+
+        // Fetch the appliance ID based on the appliance name
+        const { data: applianceData, error: applianceError } = await supabase
+            .from('appliances')
+            .select('applianceid')
+            .eq('name', applianceName)
+            .single();
+
+        if (applianceError) {
+            console.error('Error fetching appliance:', applianceError);
+            return new Response(JSON.stringify({ error: applianceError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const applianceId = applianceData?.applianceid;
+
+        if (!applianceId) {
+            console.error(`Failed to retrieve appliance ID for ${applianceName}`);
+            return new Response(JSON.stringify({ error: `Failed to retrieve appliance ID for ${applianceName}` }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Delete from userAppliances table
+        const { error: userApplianceError } = await supabase
+            .from('userAppliances')
+            .delete()
+            .eq('userid', userId)
+            .eq('applianceid', applianceId);
+
+        if (userApplianceError) {
+            console.error('Error deleting user appliance:', userApplianceError);
+            return new Response(JSON.stringify({ error: userApplianceError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        console.error('Error in removeUserAppliance function:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 async function getUserAppliances(userId: string, corsHeaders: HeadersInit) {
     try {
