@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:lottie/lottie.dart'; // Step 1: Import Lottie package
 
 class ProfileEditScreen extends StatefulWidget {
   @override
@@ -640,16 +641,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     // print('User\'s preferred cuisine: $_selectedCuisine');
 
     if (_isLoading) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Edit Profile'),
-          backgroundColor: Color(0xFF20493C),
-        ),
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('Edit Profile'),
+      backgroundColor: Color(0xFF20493C),
+    ),
+    body: Center(
+      child: Lottie.asset(
+        'assets/loading.json', // Replace with your actual path to loading.json
+        width: 100,
+        height: 100,
+        fit: BoxFit.cover,
+      ),
+    ),
+  );
+}
 
     return Scaffold(
       appBar: AppBar(
