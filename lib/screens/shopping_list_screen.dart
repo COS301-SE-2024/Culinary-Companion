@@ -232,6 +232,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                             TextAlign.left, // Ensure text is left-aligned
                       ),
                     ),
+                    SizedBox(height: 16.0),
                     // Shopping list items with categories and checkboxes
                     Expanded(
                       child: ListView(
@@ -343,7 +344,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4.0),
+          color: shaded ? Color(0xFF344E46) : Color(0xFF1D2C1F),
+          borderRadius: BorderRadius.circular(16.0),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
@@ -366,17 +368,17 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                 : null,
             title: Padding(
               padding: const EdgeInsets.only(left: 16.0),
-              child: Text(title),
+              child: Text(
+                title,
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
             trailing: IconButton(
-              icon: SizedBox(
-                width: 22, // Set the desired width
-                height: 22, // Set the desired height
-                child: Image.asset('trash-can.png'),
-              ),
+              icon: Icon(Icons.delete_outline, color: Colors.white),
               onPressed: () {
                 _confirmRemoveItem(context, category, title, listType);
-                //_removeFromShoppingList(category, ingredientName);
               },
             ),
             onTap: () {
