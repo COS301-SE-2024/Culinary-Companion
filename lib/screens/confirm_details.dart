@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
-import 'package:image_picker/image_picker.dart';
+//import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -183,17 +183,17 @@ int getSpiceLevelNumber(String spiceLevel) {
     'Hot🌶️🌶️🌶️', 
     'Extra Hot🌶️🌶️🌶️🌶️'];
 
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+  // Future<void> _pickImage() async {
+  //   final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
 
-    setState(() {
-      if (pickedFile != null) {
-        _profileImage = File(pickedFile.path);
-      } else {
-        print('No image selected.');
-      }
-    });
-  }
+  //   setState(() {
+  //     if (pickedFile != null) {
+  //       _profileImage = File(pickedFile.path);
+  //     } else {
+  //       print('No image selected.');
+  //     }
+  //   });
+  // }
 
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {

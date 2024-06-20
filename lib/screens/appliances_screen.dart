@@ -10,6 +10,8 @@ class AppliancesPage extends StatefulWidget {
 }
 
 class _AppliancesPageState extends State<AppliancesPage> {
+   
+   @override
   void initState() {
     super.initState();
     _initializeData();
