@@ -4,6 +4,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart'
     as http; // Add this line to import the http package
 import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
+import '../widgets/help_menu.dart';
 
 class ShoppingListScreen extends StatefulWidget {
   @override
@@ -12,6 +13,7 @@ class ShoppingListScreen extends StatefulWidget {
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
   String? _userId;
+  OverlayEntry? _helpMenuOverlay;
 
   @override
   void initState() {
@@ -199,86 +201,103 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     });
   }
 
+  void _showHelpMenu() {
+    _helpMenuOverlay = OverlayEntry(
+      builder: (context) => HelpMenu(
+        onClose: () {
+          _helpMenuOverlay?.remove();
+          _helpMenuOverlay = null;
+        },
+      ),
+    );
+    Overlay.of(context).insert(_helpMenuOverlay!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Color(0xFF20493C),
+        title: Padding(
+          padding: EdgeInsets.only(top: 30, left: 38.0),
+          child: Text(
+            'Shopping List',
+            style: TextStyle(
+              fontSize: 24.0, // Set the font size for h2 equivalent
+              fontWeight: FontWeight.bold, // Make the text bold
+            ),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: IconButton(
+              icon: Icon(Icons.help),
+              onPressed: _showHelpMenu,
+              iconSize: 35,
+            ),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: Row(
           children: <Widget>[
             // Shopping List Column
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  0,//left padding
-                  20.0, // top padding
-                  0.0, // right padding
-                  0.0, // bottom padding
-                ), // Adjust the top padding as needed
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start, // Left-align children
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    const Padding(
-                      padding: EdgeInsets.all(20.0),
-                      child: Text(
-                        'Shopping List',
-                        style: TextStyle(
-                          fontSize: 24.0, // Set the font size for h2 equivalent
-                          fontWeight: FontWeight.bold, // Make the text bold
-                        ),
-                        textAlign:
-                            TextAlign.left, // Ensure text is left-aligned
-                      ),
+              // Adjust the top padding as needed
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // Left-align children
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  SizedBox(height: 30.0),
+                  // Shopping list items with categories and checkboxes
+                  Expanded(
+                    child: ListView(
+                      children: _shoppingList.entries.expand((entry) {
+                        return [
+                          if (entry.value.isNotEmpty) ...[
+                            _buildCategoryHeader(entry.key),
+                          ],
+                          ...entry.value.asMap().entries.map((item) =>
+                              _buildCheckableListItem(entry.key, item.value,
+                                  item.key % 2 == 1, true)),
+                        ];
+                      }).toList(),
                     ),
-                    SizedBox(height: 16.0),
-                    // Shopping list items with categories and checkboxes
-                    Expanded(
-                      child: ListView(
-                        children: _shoppingList.entries.expand((entry) {
-                          return [
-                            if (entry.value.isNotEmpty) ...[
-                              _buildCategoryHeader(entry.key),
-                            ],
-                            ...entry.value.asMap().entries.map((item) =>
-                                _buildCheckableListItem(entry.key, item.value,
-                                    item.key % 2 == 1, true)),
-                          ];
-                        }).toList(),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ElevatedButton(
-                        onPressed: () {
-                          _showAddItemDialog(context, 'Shopping');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                              0xFFDC945F), // Button background color
-                          foregroundColor: Colors.white, // Text color
-                          fixedSize: const Size(
-                              48.0, 48.0), // Ensure the button is square
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(16), // Rounded corners
-                          ),
-                          padding:
-                              const EdgeInsets.all(0), // Remove default padding
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _showAddItemDialog(context, 'Shopping');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFFDC945F), // Button background color
+                        foregroundColor: Colors.white, // Text color
+                        fixedSize: const Size(
+                            48.0, 48.0), // Ensure the button is square
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(16), // Rounded corners
                         ),
-                        child: const Center(
-                          child: Text(
-                            '+',
-                            style: TextStyle(
-                              fontSize: 35, // Increase the font size
-                            ),
+                        padding:
+                            const EdgeInsets.all(0), // Remove default padding
+                      ),
+                      child: const Center(
+                        child: Text(
+                          '+',
+                          style: TextStyle(
+                            fontSize: 35, // Increase the font size
                           ),
                         ),
                       ),
-                    )
-                  ],
-                ),
+                    ),
+                  )
+                ],
               ),
             ),
           ],
@@ -290,7 +309,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   // Helper method to build a category header
   Widget _buildCategoryHeader(String title) {
     final Map<String, IconData> categoryIcons = {
-      'Dairy': Icons.icecream, 
+      'Dairy': Icons.icecream,
       'Meat': Icons.kebab_dining,
       'Fish': Icons.set_meal_outlined,
       'Nuts': Icons.sports_rugby_outlined,
@@ -299,7 +318,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       'Vegetable': Icons.local_florist,
       'Vegeterian': Icons.eco_outlined,
       'Fruit': Icons.apple,
-      'Legume': Icons.grain,//scatter_plot
+      'Legume': Icons.grain, //scatter_plot
       'Staple': Icons.breakfast_dining,
       'Other': Icons.workspaces,
     };
@@ -321,9 +340,10 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Row(  
+      child: Row(
         children: [
-          Icon(categoryIcons[title] ?? Icons.category, color: categoryColors[title] ?? Colors.black),
+          Icon(categoryIcons[title] ?? Icons.category,
+              color: categoryColors[title] ?? Colors.black),
           SizedBox(width: 8.0),
           Text(
             title,
@@ -455,7 +475,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         if (_shoppingList[category]?.isEmpty ?? true) {
           _shoppingList.remove(category);
         }
-      } 
+      }
       _checkboxStates.remove(title);
     });
   }

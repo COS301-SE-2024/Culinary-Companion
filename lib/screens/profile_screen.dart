@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widgets/recipe_card.dart';
 import 'package:lottie/lottie.dart';
+import '../widgets/help_menu.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -17,6 +18,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isLoading = true;
   String? _errorMessage;
   List<Map<String, dynamic>> recipes = []; //List to store user's recipes
+  OverlayEntry? _helpMenuOverlay;
 
   @override
   void initState() {
@@ -153,9 +155,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
- @override
+  void _showHelpMenu() {
+    _helpMenuOverlay = OverlayEntry(
+      builder: (context) => HelpMenu(
+        onClose: () {
+          _helpMenuOverlay?.remove();
+          _helpMenuOverlay = null;
+        },
+      ),
+    );
+    Overlay.of(context).insert(_helpMenuOverlay!);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Color(0xFF20493C),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: IconButton(
+              icon: Icon(Icons.help),
+              onPressed: _showHelpMenu,
+              iconSize: 35,
+            ),
+          ),
+        ],
+      ),
       backgroundColor: const Color(0xFF20493C),
       body: SafeArea(
         child: SingleChildScrollView(
