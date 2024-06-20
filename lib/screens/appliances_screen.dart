@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AppliancesPage extends StatefulWidget {
   @override
@@ -7,32 +10,163 @@ class AppliancesPage extends StatefulWidget {
 }
 
 class _AppliancesPageState extends State<AppliancesPage> {
-  List<String> appliances = [
-    'Oven',
-    'Stove',
-    'Blender',
-    'Airfryer'
-  ]; //change code to get appliances from the database
-  final List<String> allAppliances = [
-    'Oven',
-    'Stove',
-    'Blender',
-    'Airfryer',
-    'Microwave',
-    'Toaster'
-  ];
+   
+   @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
 
-  void _addAppliance(String appliance) {
+  Future<void> _initializeData() async {
+    await _loadUserId();
+    await _loadAppliances();
+    await _loadUserAppliances();
+  }
+
+  String? _userId;
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userId = prefs.getString('userId');
+    });
+  }
+
+  List<String> appliances=[]; //change code to get appliances from the database
+
+  List<String> allAppliances=[];
+
+  Future<void> _loadAppliances() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'action': 'getAllAppliances'}),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          allAppliances = data.map<String>((cuisine) {
+            return cuisine['name'].toString();
+          }).toList();
+        });
+      } else {
+        throw Exception('Failed to load appliances');
+      }
+    } catch (e) {
+      throw Exception('Error fetching appliances: $e');
+    }
+  }
+
+  Future<void> _loadUserAppliances() async {
+    var response = await http.post(
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'), // Replace with your API endpoint
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'action': 'getUserAppliances',
+        'userId': _userId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> appliancesJson = jsonDecode(response.body);
+
+      setState(() {
+      appliances = appliancesJson
+          .map((appliance) => appliance['applianceName'].toString())
+          .toList();
+    });
+
+      // Print the appliances to verify
+      print(appliances);
+    } else {
+      print('Failed to fetch appliances');
+    }
+  }
+
+  void _addAppliance(String appliance) async {
+  final success = await _addUserApplianceToDatabase(appliance);
+  if (success) {
     setState(() {
       appliances.add(appliance);
     });
   }
+}
 
-  void _removeAppliance(String appliance) {
+Future<bool> _addUserApplianceToDatabase(String applianceName) async {
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'; // Replace with your actual API endpoint
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'action': 'addUserAppliance',
+        'userId': _userId,
+        'applianceName': applianceName,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Failed to add appliance');
+      return false;
+    }
+  } catch (e) {
+    print('Error adding appliance: $e');
+    return false;
+  }
+}
+
+
+  Future<bool> _removeUserApplianceFromDatabase(String applianceName) async {
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'; // Replace with your actual API endpoint
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'action': 'removeUserAppliance',
+        'userId': _userId,
+        'applianceName': applianceName,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Failed to remove appliance');
+      return false;
+    }
+  } catch (e) {
+    print('Error removing appliance: $e');
+    return false;
+  }
+}
+
+void _removeAppliance(String appliance) async {
+  final success = await _removeUserApplianceFromDatabase(appliance);
+  if (success) {
     setState(() {
       appliances.remove(appliance);
     });
   }
+}
+
 
   void _showAddApplianceDialog() {
     final TextEditingController typeAheadController = TextEditingController();
@@ -113,100 +247,105 @@ class _AppliancesPageState extends State<AppliancesPage> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-        //   Container(  
-        //     decoration: BoxDecoration(
-        //       image: DecorationImage(  
-        //         image: AssetImage('background.png'),
-        //         fit: BoxFit.cover,
-        //       ),
-        //     ),
-        //   ),
-        //Foreground content
-        Padding(  
-          padding: const EdgeInsets.symmetric(horizontal: 40.0),
-          child: Row(
-            children: <Widget>[
-              // Pantry List Column
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    0, // left padding
-                    20.0, // top padding
-                    0.0, // right padding
-                    0.0, // bottom padding
-                  ), // Adjust the top padding as needed
-                  child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start, // Left-align children
-                    children: <Widget>[
-                      const Padding(
-                        padding: EdgeInsets.all(20.0),
-                        child: Text(
-                          'Appliances',
-                          style: TextStyle(
-                            fontSize: 24.0, // Set the font size for h2 equivalent
-                            fontWeight: FontWeight.bold, // Make the text bold
+          //   Container(
+          //     decoration: BoxDecoration(
+          //       image: DecorationImage(
+          //         image: AssetImage('background.png'),
+          //         fit: BoxFit.cover,
+          //       ),
+          //     ),
+          //   ),
+          //Foreground content
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: Row(
+              children: <Widget>[
+                // Pantry List Column
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      0, // left padding
+                      20.0, // top padding
+                      0.0, // right padding
+                      0.0, // bottom padding
+                    ), // Adjust the top padding as needed
+                    child: Column(
+                      crossAxisAlignment:
+                          CrossAxisAlignment.start, // Left-align children
+                      children: <Widget>[
+                        const Padding(
+                          padding: EdgeInsets.all(20.0),
+                          child: Text(
+                            'Appliances',
+                            style: TextStyle(
+                              fontSize:
+                                  24.0, // Set the font size for h2 equivalent
+                              fontWeight: FontWeight.bold, // Make the text bold
+                            ),
+                            textAlign:
+                                TextAlign.left, // Ensure text is left-aligned
                           ),
-                          textAlign:
-                              TextAlign.left, // Ensure text is left-aligned
                         ),
-                      ),
-                      SizedBox(height: 16.0),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: appliances.length,
-                          itemBuilder: (context, index) {
-                            final appliance = appliances[index];
-                            return Card(
-                              color: index.isEven ? Color(0xFF1D2C1F) : Color(0xFF344E46),
-                              margin: EdgeInsets.symmetric(vertical: 8.0),
-                              child: ListTile(
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 8.0,
-                                ),
-                                leading: Icon(Icons.kitchen, color: Colors.white),
-                                title: Text(
-                                  appliance,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
+                        SizedBox(height: 16.0),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: appliances.length,
+                            itemBuilder: (context, index) {
+                              final appliance = appliances[index];
+                              return Card(
+                                color: index.isEven
+                                    ? Color(0xFF1D2C1F)
+                                    : Color(0xFF344E46),
+                                margin: EdgeInsets.symmetric(vertical: 8.0),
+                                child: ListTile(
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 16.0,
+                                    vertical: 8.0,
+                                  ),
+                                  leading:
+                                      Icon(Icons.kitchen, color: Colors.white),
+                                  title: Text(
+                                    appliance,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 18.0,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.delete_outline,
+                                        color: Colors.white),
+                                    onPressed: () {
+                                      _removeAppliance(appliance);
+                                    },
                                   ),
                                 ),
-                                trailing: IconButton(
-                                  icon: Icon(Icons.delete_outline, color: Colors.white),
-                                  onPressed: () {
-                                    _removeAppliance(appliance);
-                                  },
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: ElevatedButton(
-                          onPressed: _showAddApplianceDialog,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                                0xFFDC945F), // Button background color
-                            foregroundColor: Colors.white, // Text color
-                            fixedSize: const Size(
-                                48.0, 48.0), // Ensure the button is square
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(16), // Rounded corners
-                            ),
-                            padding:
-                                const EdgeInsets.all(0), // Remove default padding
+                              );
+                            },
                           ),
-                          child: const Text(
-                            '+',
-                            style: TextStyle(
-                              fontSize: 35,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            onPressed: _showAddApplianceDialog,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(
+                                  0xFFDC945F), // Button background color
+                              foregroundColor: Colors.white, // Text color
+                              fixedSize: const Size(
+                                  48.0, 48.0), // Ensure the button is square
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    16), // Rounded corners
+                              ),
+                              padding: const EdgeInsets.all(
+                                  0), // Remove default padding
                             ),
+                            child: const Text(
+                              '+',
+                              style: TextStyle(
+                                fontSize: 35,
+                              ),
                             ),
                           ),
                         ),

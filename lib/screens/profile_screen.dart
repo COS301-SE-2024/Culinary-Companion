@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widgets/recipe_card.dart';
+import 'package:lottie/lottie.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -32,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
     if (_userId != null) {
       await _fetchUserDetails();
-      await fetchRecipes();//Fetch user recipes after fetching user details
+      await fetchRecipes(); //Fetch user recipes after fetching user details
       //print('hereeee 2');
     } else {
       setState(() {
@@ -44,62 +45,57 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 ///////////fetch the users profile details/////////
   Future<void> _fetchUserDetails() async {
-    if (_userId == null) return;
+  if (_userId == null) return;
 
-    final String url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'action': 'getUserDetails',
-          'userId': _userId,
-        }),
-      );
+  setState(() {
+    _isLoading = true;  // Show loading indicator
+  });
 
-      //print(response.statusCode);
-      if (response.statusCode == 200) {
-        List<dynamic> data = jsonDecode(response.body);
-        print('Response data: $data'); //response data
-        if (data.isNotEmpty) {
-          setState(() {
-            _userDetails = data[0]; //get the first item in the list
-            _isLoading = false;
-          });
-        } else {
-          setState(() {
-            _isLoading = false;
-            _errorMessage = 'No user details found';
-          });
-        }
-      } else {
-        // Handle error
-        print('Failed to load user details: ${response.statusCode}');
+  final String url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'action': 'getUserDetails', 'userId': _userId}),
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      if (data.isNotEmpty) {
         setState(() {
-          _isLoading = false;
-          _errorMessage = 'Failed to load user details';
+          _userDetails = data[0];  // Get the first item in the list
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'No user details found';
         });
       }
-    } catch (error) {
-      //error handlind
-      print('Error fetching user details: $error');
+    } else {
       setState(() {
-        _isLoading = false;
-        _errorMessage = 'Error fetching user details';
+        _errorMessage = 'Failed to load user details';
       });
     }
+  } catch (error) {
+    setState(() {
+      _errorMessage = 'Error fetching user details';
+    });
+  } finally {
+    setState(() {
+      _isLoading = false;  // Stop loading indicator
+    });
   }
+}
+
 
   Future<void> fetchRecipes() async {
-    final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
-    final body = jsonEncode({'action': 'getUserFavourites', 'userId': _userId});
+    final body = jsonEncode({'action': 'getUserRecipes', 'userId': _userId});
 
     try {
-      final response = await http.post(Uri.parse(url), headers: headers, body: body);
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
@@ -117,12 +113,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> fetchRecipeDetails(String recipeId) async {
-    final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
     final body = jsonEncode({'action': 'getRecipe', 'recipeid': recipeId});
 
     try {
-      final response = await http.post(Uri.parse(url), headers: headers, body: body);
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
@@ -155,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF20493C),
@@ -164,11 +162,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? Center(
+                    // Step 3: Replace CircularProgressIndicator with Lottie widget
+                    child: Lottie.asset(
+                      'assets/loading.json'
+                    ),
+                  )
                 : _errorMessage != null
                     ? Center(
-                        child: Text(_errorMessage!,
-                            style: TextStyle(color: Colors.white)))
+                        child: Text(
+                          _errorMessage!,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )
                     : LayoutBuilder(
                         builder: (context, constraints) {
                           if (constraints.maxWidth < 600) {
@@ -224,13 +230,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         IconButton(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            final result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => ProfileEditScreen(),
               ),
             );
+
+            if (result == true) {
+              // Reload user details if the profile was updated
+              await _fetchUserDetails();
+            
+            }
           },
           icon: Icon(
             Icons.settings,
@@ -244,7 +256,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget buildProfileInfo() {
     final String username =
         _userDetails?['username']?.toString() ?? 'Jane Doe'; //default values
-    final String email = 'jane.doe@gmail.com'; //default
+    //final String email = 'jane.doe@gmail.com'; //default
     final String profilePhoto =
         _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
 
@@ -278,13 +290,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        Text(
-          email, //user email
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-          ),
-        ),
+        // Text(
+        //   email, //user email
+        //   style: const TextStyle(
+        //     color: Colors.grey,
+        //     fontSize: 16,
+        //   ),
+        // ),
         const SizedBox(height: 8),
         OutlinedButton(
           onPressed: () {
@@ -388,27 +400,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildMyRecipes() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'My Recipes',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'My Recipes',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
-      const SizedBox(height: 16),
-      LayoutBuilder(
-        builder: (context, constraints) {
-          double width = constraints.maxWidth;
-          double itemWidth = width / 5-16;
-          double itemHeight = itemWidth * 1.2;
-          double aspectRatio = itemWidth / itemHeight;
+        const SizedBox(height: 16),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            double width = constraints.maxWidth;
+            double itemWidth = width / 5 - 16;
+            double itemHeight = itemWidth * 1.2;
+            double aspectRatio = itemWidth / itemHeight;
 
-          double crossAxisSpacing = 8.0;
-          double mainAxisSpacing = 8.0;
+            double crossAxisSpacing = 8.0;
+            double mainAxisSpacing = 8.0;
 
           return GridView.builder(
             shrinkWrap: true,
