@@ -60,7 +60,9 @@ class HelpMenu extends StatelessWidget {
                                 query:
                                     'subject=Help Request&body=I need help with...',
                               );
+                              // ignore: deprecated_member_use
                               if (await canLaunch(emailUri.toString())) {
+                                // ignore: deprecated_member_use
                                 await launch(emailUri.toString());
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
