@@ -21,6 +21,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     await _loadUserId();
     await _loadCuisines();
     await _loadAppliances();
+    await _fetchIngredientNames();
   }
 
   String? _userId;
@@ -61,6 +62,31 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       }
     } catch (e) {
       throw Exception('Error fetching cuisines: $e');
+    }
+  }
+
+  Future<void> _fetchIngredientNames() async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: '{"action": "getIngredientNames"}', // Body of the request
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        // If the request is successful, parse the response JSON
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _availableIngredients = data.map((item) => item['name'].toString()).toList();
+        });
+      } else {
+        // Handle other status codes, such as 404 or 500
+        print('Failed to fetch ingredient names: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Handle network errors or other exceptions
+      print('Error fetching ingredient names: $error');
     }
   }
 
@@ -118,14 +144,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   ]; //Change these so it is fetched from database
 
   // Define the list of available ingredients
-  final List<String> _availableIngredients = [
-    'Tomato',
-    'Apple',
-    'Garlic',
-    'Salt',
-    'Pepper',
-    // Change these so it is fetched from the database
-  ];
+  List<String> _availableIngredients = [];
 
   void _addIngredientField() {
     setState(() {
