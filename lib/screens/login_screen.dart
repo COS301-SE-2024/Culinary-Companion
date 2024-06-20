@@ -204,19 +204,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         onChanged: (value) => _password = value,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Align(
-                      alignment: Alignment.center,
-                      child: TextButton(
-                        onPressed: () {
-                          //Handle forgot password
-                        },
-                        child: Text(
-                          'Forgot password?',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
+                    // SizedBox(height: 4),
+                    // Align(
+                    //   alignment: Alignment.center,
+                    //   child: TextButton(
+                    //     onPressed: () {
+                    //       //Handle forgot password
+                    //     },
+                    //     child: Text(
+                    //       'Forgot password?',
+                    //       style: TextStyle(color: Colors.white),
+                    //     ),
+                    //   ),
+                    // ),
                     const SizedBox(height: 24),
                     Container(
                       width: 365,
