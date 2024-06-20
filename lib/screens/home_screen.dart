@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:lottie/lottie.dart';
 import '../widgets/recipe_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -30,10 +30,13 @@ class _HomeScreenState extends State<HomeScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
-        for (var recipe in fetchedRecipes) {
+        // Fetch details concurrently
+        final detailFetches = fetchedRecipes.map((recipe) {
           final String recipeId = recipe['recipeid'];
-          await fetchRecipeDetails(recipeId);
-        }
+          return fetchRecipeDetails(recipeId);
+        }).toList();
+
+        await Future.wait(detailFetches);
       } else {
         print('Failed to load recipes: ${response.statusCode}');
       }
@@ -72,9 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _isLoading
-          ? Center(
-              child: Lottie.asset('assets/loading.json'),
-            )
+          ? Center(child: Lottie.asset('assets/loading.json'))
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -134,8 +135,4 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(home: HomeScreen()));
 }
