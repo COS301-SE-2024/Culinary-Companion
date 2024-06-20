@@ -204,19 +204,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         onChanged: (value) => _password = value,
                       ),
                     ),
-                    SizedBox(height: 4),
-                    Align(
-                      alignment: Alignment.center,
-                      child: TextButton(
-                        onPressed: () {
-                          //Handle forgot password
-                        },
-                        child: Text(
-                          'Forgot password?',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
+                    // SizedBox(height: 4),
+                    // Align(
+                    //   alignment: Alignment.center,
+                    //   child: TextButton(
+                    //     onPressed: () {
+                    //       //Handle forgot password
+                    //     },
+                    //     child: Text(
+                    //       'Forgot password?',
+                    //       style: TextStyle(color: Colors.white),
+                    //     ),
+                    //   ),
+                    // ),
                     const SizedBox(height: 24),
                     Container(
                       width: 365,
@@ -245,59 +245,59 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 16),
                     //Line with "or" text
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 160,
-                          height: 1,
-                          color: Colors.white,
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10),
-                          child: Text(
-                            'or',
-                            style: TextStyle(color: Colors.white, fontSize: 18),
-                          ),
-                        ),
-                        Container(
-                          width: 160,
-                          height: 1,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Container(
-                      width: 365,
-                      height: 46,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          // Handle Google login
-                        },
-                        icon: Image.asset(
-                          'google.png',
-                          height: 24,
-                        ),
-                        label: const Text(
-                          'Log in with Google',
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          side: const BorderSide(
-                            color: Colors.transparent,
-                            width: 2.0,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Row(
+                    //   mainAxisAlignment: MainAxisAlignment.center,
+                    //   children: [
+                    //     Container(
+                    //       width: 160,
+                    //       height: 1,
+                    //       color: Colors.white,
+                    //     ),
+                    //     const Padding(
+                    //       padding: EdgeInsets.symmetric(horizontal: 10),
+                    //       child: Text(
+                    //         'or',
+                    //         style: TextStyle(color: Colors.white, fontSize: 18),
+                    //       ),
+                    //     ),
+                    //     Container(
+                    //       width: 160,
+                    //       height: 1,
+                    //       color: Colors.white,
+                    //     ),
+                    //   ],
+                    // ),
+                    // const SizedBox(height: 16),
+                    // Container(
+                    //   width: 365,
+                    //   height: 46,
+                    //   child: ElevatedButton.icon(
+                    //     onPressed: () {
+                    //       // Handle Google login
+                    //     },
+                    //     icon: Image.asset(
+                    //       'google.png',
+                    //       height: 24,
+                    //     ),
+                    //     label: const Text(
+                    //       'Log in with Google',
+                    //       style: TextStyle(
+                    //         color: Colors.black,
+                    //         fontSize: 16,
+                    //       ),
+                    //     ),
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: Colors.white,
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius: BorderRadius.circular(8.0),
+                    //       ),
+                    //       side: const BorderSide(
+                    //         color: Colors.transparent,
+                    //         width: 2.0,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     const SizedBox(height: 16),
                     TextButton(
                       onPressed: () {

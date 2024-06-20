@@ -422,47 +422,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
             double crossAxisSpacing = 8.0;
             double mainAxisSpacing = 8.0;
 
-            return GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: recipes.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                crossAxisSpacing: crossAxisSpacing,
-                mainAxisSpacing: mainAxisSpacing,
-                childAspectRatio: aspectRatio,
-              ),
-              itemBuilder: (context, index) {
-                List<String> keywords =
-                    (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
-                List<String> steps = [];
-                if (recipes[index]['steps'] != null) {
-                  steps = (recipes[index]['steps'] as String).split(',');
-                }
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: recipes.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 5,
+              crossAxisSpacing: crossAxisSpacing,
+              mainAxisSpacing: mainAxisSpacing,
+              childAspectRatio: aspectRatio,
+            ),
+            itemBuilder: (context, index) {
+              // List<String> keywords =
+              //     (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
+              List<String> steps = [];
+              if (recipes[index]['steps'] != null) {
+                steps = (recipes[index]['steps'] as String).split(',');
+              }
 
-                return RecipeCard(
-                  name: recipes[index]['name'] ?? '',
-                  description: recipes[index]['description'] ?? '',
-                  imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
-                  prepTime: recipes[index]['preptime'] ?? 0,
-                  cookTime: recipes[index]['cooktime'] ?? 0,
-                  cuisine: recipes[index]['cuisine'] ?? '',
-                  spiceLevel: recipes[index]['spicelevel'] ?? 0,
-                  course: recipes[index]['course'] ?? '',
-                  servings: recipes[index]['servings'] ?? 0,
-                  keyWords: keywords,
-                  steps: steps,
-                  appliances: List<String>.from(recipes[index]['appliances']),
-                  ingredients: List<Map<String, dynamic>>.from(
-                      recipes[index]['ingredients']),
-                );
-              },
-            );
-          },
-        ),
-      ],
-    );
-  }
+              return RecipeCard(
+                name: recipes[index]['name'] ?? '',
+                description: recipes[index]['description'] ?? '',
+                imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
+                prepTime: recipes[index]['preptime'] ?? 0,
+                cookTime: recipes[index]['cooktime'] ?? 0,
+                cuisine: recipes[index]['cuisine'] ?? '',
+                spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                course: recipes[index]['course'] ?? '',
+                servings: recipes[index]['servings'] ?? 0,
+                steps: steps,
+                appliances: List<String>.from(recipes[index]['appliances']),
+                ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
+              );
+            },
+          );
+        },
+      ),
+    ],
+  );
+}
+
 
   // Widget recipeCard(String imagePath) {
   //   return Container(
