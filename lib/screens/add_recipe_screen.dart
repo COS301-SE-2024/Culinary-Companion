@@ -204,13 +204,39 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     );
 
     if (response.statusCode == 200) {
-      //print('Recipe added successfully!');
-      // Handle success (e.g., show a success message, navigate back, etc.)
+      // Successfully added recipe
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Recipe added successfully!'),
+          duration: Duration(seconds: 3), // Adjust the duration here
+        ),
+      );
+
+      // Clear all form inputs
+      _nameController.clear();
+      _descriptionController.clear();
+      _cookingTimeController.clear();
+      _prepTimeController.clear();
+      _servingAmountController.clear();
+      _methods.clear();
+      _ingredients.clear();
+      _selectedAppliances.clear();
+      _selectedCuisine = _cuisines.first;
+      _selectedCourse = _courses.first;
+      _spiceLevel = 1;
+
+      setState(() {});
     } else {
-      //print('Failed to add recipe: ${response.body}');
-      // Handle error (e.g., show an error message)
+      // Failed to add recipe
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to add recipe: ${response.body}'),
+          duration: Duration(seconds: 3), // Adjust the duration here
+        ),
+      );
     }
-  }
+    }
+
 
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
     return InputDecoration(
