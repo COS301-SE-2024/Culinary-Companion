@@ -111,10 +111,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       childAspectRatio: aspectRatio,
                     ),
                     itemBuilder: (context, index) {
-                      List<String> keywords =
-                          (recipes[index]['keywords'] as String?)
-                                  ?.split(', ') ??
-                              [];
+                      // List<String> keywords =
+                      //     (recipes[index]['keywords'] as String?)
+                      //             ?.split(', ') ??
+                      //         [];
                       List<String> steps = [];
                       if (recipes[index]['steps'] != null) {
                         steps = (recipes[index]['steps'] as String).split(',');
