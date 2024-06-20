@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widgets/recipe_card.dart';
+import 'package:lottie/lottie.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -152,7 +153,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF20493C),
@@ -161,11 +162,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: _isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? Center(
+                    // Step 3: Replace CircularProgressIndicator with Lottie widget
+                    child: Lottie.asset(
+                      'assets/loading.json', // Path to your Lottie JSON file
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                  )
                 : _errorMessage != null
                     ? Center(
-                        child: Text(_errorMessage!,
-                            style: TextStyle(color: Colors.white)))
+                        child: Text(
+                          _errorMessage!,
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      )
                     : LayoutBuilder(
                         builder: (context, constraints) {
                           if (constraints.maxWidth < 600) {
