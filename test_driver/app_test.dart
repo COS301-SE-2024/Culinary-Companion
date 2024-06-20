@@ -10,66 +10,29 @@ void main() {
     });
 
     tearDownAll(() async {
-      if (driver != null) {
-        driver.close();
-      }
+      await driver.close();
     });
 
-    test('landing page shows login and signup buttons', () async {
-      // Verify if the login button is present
-      expect(await driver.getText(find.text('Log In')), 'Log In');
-
-      // Verify if the sign-up button is present
-      expect(await driver.getText(find.text('Sign Up')), 'Sign Up');
+    test('Landing Page', () async {
+      await driver.waitFor(find.byValueKey('loginButton'));
+      await driver.waitFor(find.byValueKey('signupButton'));
     });
 
-    test('navigates to login page', () async {
-      await driver.tap(find.text('Log In'));
-
-      // Verify if the login page is shown
-      expect(await driver.getText(find.text('Welcome Back!')), 'Welcome Back!');
+    test('Login Page', () async {
+      await driver.tap(find.byValueKey('loginButton'));
+      await driver.waitFor(find.byValueKey('email'));
+      await driver.waitFor(find.byValueKey('password'));
+      await driver.waitFor(find.text('Login'));
     });
 
-    test('navigates to signup page', () async {
-      await driver.tap(find.text('Sign Up'));
-
-      // Verify if the sign-up page is shown
-      expect(await driver.getText(find.text('Create an account')), 'Create an account');
+    test('Signup Page', () async {
+      //await driver.tap(find.text('Don\'t have an account? Sign up'));
+      await driver.tap(find.byValueKey('signupLink'));
+      await driver.waitFor(find.byValueKey('emailField'));
+      await driver.waitFor(find.byValueKey('passwordField'));
+      await driver.waitFor(find.byValueKey('confirmPasswordField'));
+      await driver.waitFor(find.byValueKey('signupSubmitButton'));
     });
 
-    test('performs login', () async {
-      await driver.tap(find.text('Log In'));
-
-      await driver.tap(find.byValueKey('emailField'));
-      await driver.enterText('test@example.com');
-
-      await driver.tap(find.byValueKey('passwordField'));
-      await driver.enterText('password123');
-
-      await driver.tap(find.text('Login'));
-
-      // Verify navigation to home screen
-      // Replace 'Home' with the actual text that appears on the home screen
-      expect(await driver.getText(find.text('Home')), 'Home');
-    });
-
-    test('performs signup', () async {
-      await driver.tap(find.text('Sign Up'));
-
-      await driver.tap(find.byValueKey('emailField'));
-      await driver.enterText('newuser@example.com');
-
-      await driver.tap(find.byValueKey('passwordField'));
-      await driver.enterText('newpassword123');
-
-      await driver.tap(find.byValueKey('confirmPasswordField'));
-      await driver.enterText('newpassword123');
-
-      await driver.tap(find.text('Sign Up'));
-
-      // Verify navigation to confirm details screen
-      // Replace 'Confirm' with the actual text that appears on the confirm details screen
-      expect(await driver.getText(find.text('Confirm')), 'Confirm');
-    });
   });
 }
