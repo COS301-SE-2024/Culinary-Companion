@@ -250,18 +250,18 @@ int getSpiceLevelNumber(String spiceLevel) {
                         const SizedBox(height: 32),
                       ],
                     ),
-                    GestureDetector(
-                      onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundImage: _profileImage != null
-                            ? FileImage(_profileImage!)
-                            : const AssetImage('default_profile.jpeg') as ImageProvider,
-                        child: _profileImage == null
-                            ? const Icon(Icons.add, size: 50, color: Color(0xFFDC945F))
-                            : null,
-                      ),
-                    ),
+                    // GestureDetector(
+                    //   onTap: _pickImage,
+                    //   child: CircleAvatar(
+                    //     radius: 50,
+                    //     backgroundImage: _profileImage != null
+                    //         ? FileImage(_profileImage!)
+                    //         : const AssetImage('default_profile.jpeg') as ImageProvider,
+                    //     child: _profileImage == null
+                    //         ? const Icon(Icons.add, size: 50, color: Color(0xFFDC945F))
+                    //         : null,
+                    //   ),
+                    // ),
                     const SizedBox(height: 16),
                     Container(
                       width: 365,
