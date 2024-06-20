@@ -648,10 +648,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     ),
     body: Center(
       child: Lottie.asset(
-        'assets/loading.json', // Replace with your actual path to loading.json
-        width: 100,
-        height: 100,
-        fit: BoxFit.cover,
+        'assets/loading.json'
       ),
     ),
   );

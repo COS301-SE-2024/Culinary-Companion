@@ -165,10 +165,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ? Center(
                     // Step 3: Replace CircularProgressIndicator with Lottie widget
                     child: Lottie.asset(
-                      'assets/loading.json', // Path to your Lottie JSON file
-                      width: 100,
-                      height: 100,
-                      fit: BoxFit.cover,
+                      'assets/loading.json'
                     ),
                   )
                 : _errorMessage != null
