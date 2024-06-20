@@ -244,7 +244,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget buildProfileInfo() {
     final String username =
         _userDetails?['username']?.toString() ?? 'Jane Doe'; //default values
-    final String email = 'jane.doe@gmail.com'; //default
+    //final String email = 'jane.doe@gmail.com'; //default
     final String profilePhoto =
         _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
 
@@ -278,13 +278,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        Text(
-          email, //user email
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 16,
-          ),
-        ),
+        // Text(
+        //   email, //user email
+        //   style: const TextStyle(
+        //     color: Colors.grey,
+        //     fontSize: 16,
+        //   ),
+        // ),
         const SizedBox(height: 8),
         OutlinedButton(
           onPressed: () {
