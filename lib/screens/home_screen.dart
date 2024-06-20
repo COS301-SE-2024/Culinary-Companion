@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
 import '../widgets/recipe_card.dart';
+import '../widgets/help_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,6 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> recipes = [];
   bool _isLoading = true;
+  OverlayEntry? _helpMenuOverlay;
 
   @override
   void initState() {
@@ -20,12 +22,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchAllRecipes() async {
-    final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
     final body = jsonEncode({'action': 'getAllRecipes'});
 
     try {
-      final response = await http.post(Uri.parse(url), headers: headers, body: body);
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
@@ -50,12 +54,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchRecipeDetails(String recipeId) async {
-    final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
     final body = jsonEncode({'action': 'getRecipe', 'recipeid': recipeId});
 
     try {
-      final response = await http.post(Uri.parse(url), headers: headers, body: body);
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
@@ -71,9 +77,31 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _showHelpMenu() {
+    _helpMenuOverlay = OverlayEntry(
+      builder: (context) => HelpMenu(
+        onClose: () {
+          _helpMenuOverlay?.remove();
+          _helpMenuOverlay = null;
+        },
+      ),
+    );
+    Overlay.of(context)?.insert(_helpMenuOverlay!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Color(0xFF20493C),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.help),
+            onPressed: _showHelpMenu,
+          ),
+        ],
+      ),
       body: _isLoading
           ? Center(child: Lottie.asset('assets/loading.json'))
           : SingleChildScrollView(
@@ -93,51 +121,53 @@ class _HomeScreenState extends State<HomeScreen> {
                         double crossAxisSpacing = width * 0.01;
                         double mainAxisSpacing = width * 0.02;
 
-                  return GridView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: recipes.length,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: crossAxisSpacing,
-                      mainAxisSpacing: mainAxisSpacing,
-                      childAspectRatio: aspectRatio,
-                    ),
-                    itemBuilder: (context, index) {
-                      // List<String> keywords =
-                      //     (recipes[index]['keywords'] as String?)
-                      //             ?.split(', ') ??
-                      //         [];
-                      List<String> steps = [];
-                      if (recipes[index]['steps'] != null) {
-                        steps = (recipes[index]['steps'] as String).split(',');
-                      }
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: recipes.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: crossAxisSpacing,
+                            mainAxisSpacing: mainAxisSpacing,
+                            childAspectRatio: aspectRatio,
+                          ),
+                          itemBuilder: (context, index) {
+                            // List<String> keywords =
+                            //     (recipes[index]['keywords'] as String?)
+                            //             ?.split(', ') ??
+                            //         [];
+                            List<String> steps = [];
+                            if (recipes[index]['steps'] != null) {
+                              steps = (recipes[index]['steps'] as String)
+                                  .split(',');
+                            }
 
-                      return RecipeCard(
-                        name: recipes[index]['name'] ?? '',
-                        description: recipes[index]['description'] ?? '',
-                        imagePath: recipes[index]['photo'] ??
-                            'assets/pfp.jpg',
-                        prepTime: recipes[index]['preptime'] ?? 0,
-                        cookTime: recipes[index]['cooktime'] ?? 0,
-                        cuisine: recipes[index]['cuisine'] ?? '',
-                        spiceLevel: recipes[index]['spicelevel'] ?? 0,
-                        course: recipes[index]['course'] ?? '',
-                        servings: recipes[index]['servings'] ?? 0,
-                        steps: steps,
-                        appliances: List<String>.from(
-                            recipes[index]['appliances']),
-                        ingredients: List<Map<String, dynamic>>.from(
-                            recipes[index]['ingredients']),
-                      );
-                    },
-                  );
-                },
+                            return RecipeCard(
+                              name: recipes[index]['name'] ?? '',
+                              description: recipes[index]['description'] ?? '',
+                              imagePath:
+                                  recipes[index]['photo'] ?? 'assets/pfp.jpg',
+                              prepTime: recipes[index]['preptime'] ?? 0,
+                              cookTime: recipes[index]['cooktime'] ?? 0,
+                              cuisine: recipes[index]['cuisine'] ?? '',
+                              spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                              course: recipes[index]['course'] ?? '',
+                              servings: recipes[index]['servings'] ?? 0,
+                              steps: steps,
+                              appliances: List<String>.from(
+                                  recipes[index]['appliances']),
+                              ingredients: List<Map<String, dynamic>>.from(
+                                  recipes[index]['ingredients']),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
