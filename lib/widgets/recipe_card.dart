@@ -476,7 +476,7 @@ class _RecipeCardState extends State<RecipeCard> {
   void _showRecipeDetails() {
     final theme = Theme.of(context);
 
-    final ClickColor = theme.brightness == Brightness.light
+    final clickColor = theme.brightness == Brightness.light
         ? Colors.white
         : Color.fromARGB(255, 25, 58, 48);
 
@@ -490,7 +490,7 @@ class _RecipeCardState extends State<RecipeCard> {
                 screenWidth > 1359; // Adjust the threshold as needed
 
             return Dialog(
-              backgroundColor: ClickColor, // Change background color to green
+              backgroundColor: clickColor, // Change background color to green
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(screenWidth * 0.01),
               ),

@@ -170,7 +170,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final textColor = theme.brightness == Brightness.light;
+    //final textColor = theme.brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

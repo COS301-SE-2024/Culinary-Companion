@@ -306,7 +306,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bool isLightTheme = theme.brightness == Brightness.light;
+    //final bool isLightTheme = theme.brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,

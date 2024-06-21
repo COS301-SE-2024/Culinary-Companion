@@ -35,6 +35,7 @@ class CulinaryCompanionApp extends StatelessWidget {
     required this.httpClient,
   });
 
+@override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Culinary Companion',
