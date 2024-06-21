@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:lottie/lottie.dart';
 import 'dart:convert';
+import '../widgets/help_saved.dart';
 
 import '../widgets/recipe_card.dart';
 
@@ -15,6 +16,7 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
   String? _userId;
   List<Map<String, dynamic>> recipes = [];
   bool _isLoading = true;
+  OverlayEntry? _helpMenuOverlay;
 
   @override
   void initState() {
@@ -83,9 +85,35 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
     }
   }
 
+  void _showHelpMenu() {
+    _helpMenuOverlay = OverlayEntry(
+      builder: (context) => HelpMenu(
+        onClose: () {
+          _helpMenuOverlay?.remove();
+          _helpMenuOverlay = null;
+        },
+      ),
+    );
+    Overlay.of(context).insert(_helpMenuOverlay!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Color(0xFF20493C),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: IconButton(
+              icon: Icon(Icons.help),
+              onPressed: _showHelpMenu,
+              iconSize: 35,
+            ),
+          ),
+        ],
+      ),
       body: _isLoading
           ? Center(
               child: Lottie.asset('assets/loading.json'),
