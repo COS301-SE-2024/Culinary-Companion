@@ -260,7 +260,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFF20493C),
+        backgroundColor: Colors.transparent,
         title: Padding(
           padding: EdgeInsets.only(top: 30, left: 38.0),
           child: Text(

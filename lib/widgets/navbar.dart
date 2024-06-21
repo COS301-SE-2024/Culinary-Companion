@@ -8,11 +8,14 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     //final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final bool isLightTheme = theme.brightness == Brightness.light;
 
     return Padding(
-      padding: EdgeInsets.only(top: screenHeight * 0.03), // Adjust padding as needed
+      padding:
+          EdgeInsets.only(top: screenHeight * 0.03), // Adjust padding as needed
       child: AppBar(
         automaticallyImplyLeading: false, // Disable the back button
         backgroundColor: Colors.transparent,
@@ -24,7 +27,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           children: [
             // Logo
             Image.asset(
-              'logo_2.png',
+              isLightTheme ? 'logo_1.png' : 'logo_2.png',
               height: screenHeight * 0.1, // Adjust the height as needed
             ),
             // Centered tabs
@@ -51,41 +54,26 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             ),
-            // // Conditionally render the search bar
-            // if (screenWidth >= 1135)
-            //   Container(
-            //     width: screenWidth * 0.2,
-            //     height: screenHeight * 0.04,
-            //     child: TextField(
-            //       decoration: InputDecoration(
-            //         hintText: 'Search...',
-            //         hintStyle: TextStyle(color: Color(0xFFD9D9D9)),
-            //         border: OutlineInputBorder(
-            //           borderRadius: BorderRadius.circular(screenHeight * 0.02),
-            //           borderSide: BorderSide(color: Colors.white),
-            //         ),
-            //         suffixIcon: Icon(
-            //           Icons.search,
-            //           color: Color(0xFFD9D9D9),
-            //         ),
-            //         filled: false,
-            //         contentPadding: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
-            //       ),
-            //       style: TextStyle(color: Colors.white),
-            //     ),
-            //   ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(BuildContext context, String title, String route, bool isSelected) {
+  Widget _buildNavItem(
+      BuildContext context, String title, String route, bool isSelected) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final fontSize = screenWidth * 0.03; // Adjust the font size based on screen width
+    final fontSize =
+        screenWidth * 0.03; // Adjust the font size based on screen width
+    final theme = Theme.of(context);
+    final textColor = theme.brightness == Brightness.light
+        ? Color(0xFF1E1E1E)
+        : Color(0xFFD9D9D9);
+    final activeColor = Color(0xFFDC945F);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.005), // Reduce horizontal padding
+      padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.005), // Reduce horizontal padding
       child: TextButton(
         onPressed: () {
           if (!isSelected && onChange != null) {
@@ -93,12 +81,13 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           }
         },
         child: Container(
-          padding: EdgeInsets.only(bottom: 2.0), // Add padding to the bottom side
+          padding:
+              EdgeInsets.only(bottom: 2.0), // Add padding to the bottom side
           decoration: isSelected
               ? BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: Color(0xFFDC945F),
+                      color: activeColor,
                       width: 2.0,
                     ), // Add a bottom border
                   ),
@@ -107,8 +96,10 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           child: Text(
             title,
             style: TextStyle(
-              color: isSelected ? Color(0xFFDC945F) : Color(0xFFD9D9D9),
-              fontSize: fontSize.clamp(12.0, 18.0), // Clamp font size between 12 and 18
+              color: isSelected ? activeColor : textColor,
+              fontSize: 18,
+              // fontSize: screenWidth *
+              //     0.01,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),

@@ -11,7 +11,6 @@ class AddRecipeScreen extends StatefulWidget {
 
 class _AddRecipeScreenState extends State<AddRecipeScreen>
     with SingleTickerProviderStateMixin {
-
   OverlayEntry? _helpMenuOverlay;
 
   @override
@@ -82,7 +81,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
         // If the request is successful, parse the response JSON
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
-          _availableIngredients = data.map((item) => item['name'].toString()).toList();
+          _availableIngredients =
+              data.map((item) => item['name'].toString()).toList();
         });
       } else {
         // Handle other status codes, such as 404 or 500
@@ -258,8 +258,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
         ),
       );
     }
-    }
-
+  }
 
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
     return InputDecoration(
@@ -306,6 +305,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -376,7 +377,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                         // Add functionality to analyze the scanned recipe
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1F4539),
+                        backgroundColor: theme.brightness == Brightness.light
+                            ? Colors.white
+                            : Color(0xFF1F4539),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 20),
                         side: const BorderSide(
@@ -415,7 +418,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                   ),
                 ),
                 const SizedBox(height: 40),
-                const Expanded(
+                Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 32.0),
                     child: TextField(
@@ -425,7 +428,24 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                       textAlign: TextAlign.left,
                       decoration: InputDecoration(
                         hintText: 'Paste your recipe here...',
-                        border: OutlineInputBorder(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                              color: Colors
+                                  .grey), // Optional: customize the border color
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                              color: Colors
+                                  .transparent), // Optional: customize the border color
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide(
+                              color: Colors
+                                  .transparent), // Optional: customize the border color on focus
+                        ),
                         contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
                       ),
                     ),
@@ -460,8 +480,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                         // Add functionality to analyze the pasted recipe
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFF1F4539), // Set the background color
+                        backgroundColor: theme.brightness == Brightness.light
+                            ? Colors.white
+                            : Color(0xFF1F4539), // Set the background color
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 20),
                         side: const BorderSide(
@@ -493,7 +514,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 40),
                   Card(
-                    color: Color(0xFF19372D),
+                    color: theme.brightness == Brightness.light
+                        ? Color.fromARGB(255, 223, 223, 223)
+                        : Color.fromARGB(255, 21, 48, 39),
                     elevation: 4,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10)),

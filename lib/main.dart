@@ -12,7 +12,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
-    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
   );
 
   // Initialize the shared preferences and http client
@@ -34,11 +35,20 @@ class CulinaryCompanionApp extends StatelessWidget {
     required this.httpClient,
   });
 
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Culinary Companion',
       theme: ThemeData(
+        primarySwatch: Colors.green,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.white,
+        inputDecorationTheme: const InputDecorationTheme(
+          border: OutlineInputBorder(),
+          filled: true,
+          fillColor: Colors.black12,
+        ),
+      ),
+      darkTheme: ThemeData(
         primarySwatch: Colors.green,
         brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF20493C),
@@ -48,6 +58,9 @@ class CulinaryCompanionApp extends StatelessWidget {
           fillColor: Colors.white12,
         ),
       ),
+      themeMode: ThemeMode.system, // Use system theme setting
+      //themeMode: ThemeMode.light,
+      //themeMode: ThemeMode.dark,
       initialRoute: '/landing', // Set the initial route to the landing screen
       routes: {
         '/landing': (context) =>
