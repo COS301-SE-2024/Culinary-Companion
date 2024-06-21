@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../widgets/help_menu.dart';
+import '../widgets/help_add_recipe.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   @override

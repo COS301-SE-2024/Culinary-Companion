@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widgets/recipe_card.dart';
 import 'package:lottie/lottie.dart';
-import '../widgets/help_menu.dart';
+import '../widgets/help_profile.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override

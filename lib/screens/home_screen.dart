@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
 import '../widgets/recipe_card.dart';
-import '../widgets/help_menu.dart';
+import '../widgets/help_home.dart';
 
 class HomeScreen extends StatefulWidget {
   @override

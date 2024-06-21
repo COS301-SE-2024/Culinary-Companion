@@ -3,7 +3,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../widgets/help_menu.dart';
+import '../widgets/help_appliance.dart';
 
 class AppliancesPage extends StatefulWidget {
   @override
