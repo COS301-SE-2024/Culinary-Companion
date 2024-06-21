@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 class RecipeCard extends StatefulWidget {
+  final String recipeID;
   final String name;
   final String description;
   final String imagePath;
@@ -15,6 +18,7 @@ class RecipeCard extends StatefulWidget {
   final List<Map<String, dynamic>> ingredients;
 
   RecipeCard({
+    required this.recipeID,
     required this.name,
     required this.description,
     required this.imagePath,
@@ -36,12 +40,79 @@ class RecipeCard extends StatefulWidget {
 class _RecipeCardState extends State<RecipeCard> {
   bool _hovered = false;
   Map<int, bool> _ingredientChecked = {};
+  bool _isFavorite = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+  }
 
   void _onHover(bool hovering) {
     setState(() {
       _hovered = hovering;
     });
   }
+
+void _checkIfFavorite() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
+    final String recipeId = widget.recipeID;
+
+    final url = Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final headers = {"Content-Type": "application/json"};
+    final body = jsonEncode({
+      "action": "getUserFavourites",
+      "userId": userId
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        final List<dynamic> favoriteRecipes = jsonDecode(response.body);
+        final isFavorite =
+            favoriteRecipes.any((recipe) => recipe['recipeid'] == recipeId);
+        setState(() {
+          _isFavorite = isFavorite;
+        });
+      } else {
+        print('Failed to get favorite status: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  void _toggleFavorite() async {
+    setState(() {
+      _isFavorite = !_isFavorite;
+    });
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
+    final String recipeId = widget.recipeID;
+    final String action = _isFavorite ? "addUserFavorite" : "removeUserFavorite";
+
+    final url = Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final headers = {"Content-Type": "application/json"};
+    final body = jsonEncode({
+      "action": action, 
+      "userId": userId,
+      "recipeid": recipeId,
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        print('Favorite status updated');
+      } else {
+        print('Failed to update favorite status: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
 
   void _showRecipeDetails() {
     showDialog(
@@ -79,12 +150,23 @@ class _RecipeCardState extends State<RecipeCard> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.close),
-                      iconSize: screenWidth * 0.02, // Adjust icon size to 2% of screen width
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            _isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: _isFavorite ? Colors.red : Colors.grey,
+                          ),
+                          onPressed: _toggleFavorite,
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close),
+                          iconSize: screenWidth * 0.02, // Adjust icon size to 2% of screen width
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -230,11 +312,13 @@ class _RecipeCardState extends State<RecipeCard> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  widget.imagePath,
-                  fit: BoxFit.cover,
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(widget.imagePath),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
@@ -242,7 +326,7 @@ class _RecipeCardState extends State<RecipeCard> {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 103, 128, 96).withOpacity(0.8),
+                    color: Colors.black.withOpacity(0.6),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -382,6 +466,17 @@ class _RecipeCardState extends State<RecipeCard> {
                   ),
                 ),
               ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                icon: Icon(
+                  _isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: _isFavorite ? Colors.red : Colors.grey,
+                ),
+                onPressed: _toggleFavorite,
+              ),
+            ),
           ],
         ),
       ),
