@@ -108,6 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 365,
                       height: 70,
                       child: TextFormField(
+                        key: ValueKey('email'),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Email:',
@@ -158,6 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 365,
                       height: 70,
                       child: TextFormField(
+                        key: ValueKey('password'),
                         obscureText: true,
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -222,6 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: 365,
                       height: 46,
                       child: ElevatedButton(
+                        key: ValueKey('Login'),
                         onPressed: _handleLogin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFDC945F), // Button background color
@@ -300,6 +303,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // ),
                     const SizedBox(height: 16),
                     TextButton(
+                      key: ValueKey('signupLink'),
                       onPressed: () {
                         Navigator.pushNamed(context, '/signup');
                       },
