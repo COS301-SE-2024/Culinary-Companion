@@ -64,8 +64,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildNavItem(
       BuildContext context, String title, String route, bool isSelected) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final fontSize =
-        screenWidth * 0.03; // Adjust the font size based on screen width
+    // final fontSize =
+    //     screenWidth * 0.03; // Adjust the font size based on screen width
     final theme = Theme.of(context);
     final textColor = theme.brightness == Brightness.light
         ? Color(0xFF1E1E1E)
