@@ -120,6 +120,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       width: 365,
                       height: 70,
                       child: TextFormField(
+                        key: Key('emailField'),
                         decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             labelText: 'Email:',
@@ -167,6 +168,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         width: 365,
                         height: 70,
                         child: TextFormField(
+                          key: Key('passwordField'),
                           obscureText: true,
                           decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -212,6 +214,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         width: 365,
                         height: 70,
                         child: TextFormField(
+                          key: Key('confirmPasswordField'),
                           obscureText: true,
                           decoration: InputDecoration(
                             floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -260,6 +263,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         width: 365,
                         height: 46,
                         child: ElevatedButton(
+                          key: ValueKey('signupSubmitButton'),
                           onPressed: _handleSignup,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFDC945F),

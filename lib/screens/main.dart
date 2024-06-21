@@ -1,6 +1,81 @@
+// import 'package:flutter/material.dart';
+// import 'home_screen.dart';
+// //import 'shopping_pantry_screen.dart';
+// import 'shopping_list_screen.dart';
+// import 'pantry_screen.dart';
+// import 'appliances_screen.dart';
+// import 'saved_recipes_screen.dart';
+// import 'profile_screen.dart';
+// import 'add_recipe_screen.dart';
+// import '../widgets/navbar.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
+
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await Supabase.initialize(
+//     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
+//     anonKey:
+//         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
+//   );
+//   runApp(CulinaryCompanionApp());
+// }
+
+// class CulinaryCompanionApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: MainScreen(),
+//     );
+//   }
+// }
+
+// class MainScreen extends StatefulWidget {
+//   @override
+//   _MainScreenState createState() => _MainScreenState();
+// }
+
+// class _MainScreenState extends State<MainScreen> {
+//   String currentRoute = '/';
+
+//   void changeRoute(String newRoute) {
+//     setState(() {
+//       currentRoute = newRoute;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: Navbar(currentRoute: currentRoute, onChange: changeRoute),
+//       body: _buildScreen(currentRoute),
+//     );
+//   }
+
+//   Widget _buildScreen(String route) {
+//     switch (route) {
+//       case '/':
+//         return HomeScreen();
+//       case '/scan-recipe':
+//         return AddRecipeScreen();
+//       case '/shopping-list':
+//         //return ShoppingPantryScreen();
+//         return ShoppingListScreen();
+//       case '/pantry-list':
+//         return PantryScreen();
+//       case '/appliances':
+//         return AppliancesPage();
+//       case '/saved-recipes':
+//         return SavedRecipesScreen();
+//       case '/profile':
+//         return ProfileScreen();
+//       default:
+//         return Container(); // Add any default behavior here
+//     }
+//   }
+// }
+
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-//import 'shopping_pantry_screen.dart';
 import 'shopping_list_screen.dart';
 import 'pantry_screen.dart';
 import 'appliances_screen.dart';
@@ -14,8 +89,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
-    anonKey:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdzbmh3dnFwcm1kdGljemdsd2RmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTY2MzAwNzgsImV4cCI6MjAzMjIwNjA3OH0.1VIuJzuMHBLFC6EduaGCOk0IPoIBdkOJsF2FwrqcP7Y',
+    anonKey: 'YOUR_ANON_KEY',
   );
   runApp(CulinaryCompanionApp());
 }
@@ -43,12 +117,76 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar:
+//           ResponsiveNavBar(currentRoute: currentRoute, onChange: changeRoute),
+//       body: _buildScreen(currentRoute),
+//     );
+//   }
+//   //   return Scaffold(
+//   //     body: Stack(
+//   //       children: [
+//   //         _buildScreen(currentRoute),
+//   //         Positioned(
+//   //           top: 0,
+//   //           left: 0,
+//   //           right: 0,
+//   //           child: ExpandableNavbar(
+//   //             currentRoute: currentRoute,
+//   //             onChange: changeRoute,
+//   //           ),
+//   //         ),
+//   //       ],
+//   //     ),
+//   //   );
+//   // }
+// }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: Navbar(currentRoute: currentRoute, onChange: changeRoute),
-      body: _buildScreen(currentRoute),
-    );
+    double screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 1360) {
+      // return Scaffold(
+      //   appBar: ExpandableNavbar(
+      //     currentRoute: currentRoute,
+      //     onChange: changeRoute,
+      //   ),
+      //   body: _buildScreen(currentRoute),
+      // );
+      return Scaffold(
+        body: Stack(
+          children: [
+            Positioned(
+              top: MediaQuery.of(context).padding.top +
+                  80.0, // Adjust 56.0 as needed based on your AppBar height
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _buildScreen(currentRoute),
+            ),
+            Positioned(
+              top: MediaQuery.of(context).padding.top,
+              left: 0,
+              right: 0,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0), // Adjust padding as needed
+                child: ExpandableNavbar(
+                  currentRoute: currentRoute,
+                  onChange: changeRoute,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: Navbar(currentRoute: currentRoute, onChange: changeRoute),
+        body: _buildScreen(currentRoute),
+      );
+    }
   }
 
   Widget _buildScreen(String route) {
@@ -58,7 +196,6 @@ class _MainScreenState extends State<MainScreen> {
       case '/scan-recipe':
         return AddRecipeScreen();
       case '/shopping-list':
-        //return ShoppingPantryScreen();
         return ShoppingListScreen();
       case '/pantry-list':
         return PantryScreen();
@@ -69,7 +206,7 @@ class _MainScreenState extends State<MainScreen> {
       case '/profile':
         return ProfileScreen();
       default:
-        return Container(); // Add any default behavior here
+        return Container();
     }
   }
 }
