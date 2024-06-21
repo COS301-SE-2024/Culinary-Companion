@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
           //Background image
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'Lightmode.png' : 'Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
               fit: BoxFit.cover,
             ),
           ),

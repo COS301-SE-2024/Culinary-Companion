@@ -17,11 +17,11 @@ class HelpMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final ClickColor = theme.brightness == Brightness.light
+    final clickColor = theme.brightness == Brightness.light
         ? Colors.white
         : Color.fromARGB(255, 25, 58, 48);
 
-    final FontColor = getFontColor(context);
+    final fontColor = getFontColor(context);
 
     return GestureDetector(
       onTap: onClose,
@@ -30,7 +30,7 @@ class HelpMenu extends StatelessWidget {
         child: Center(
           child: Material(
             borderRadius: BorderRadius.circular(10),
-            color: ClickColor,
+            color: clickColor,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
               width: MediaQuery.of(context).size.width * 0.8,
@@ -48,7 +48,7 @@ class HelpMenu extends StatelessWidget {
                           style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: FontColor),
+                              color: fontColor),
                         ),
                         SizedBox(height: 16),
                       ],
@@ -59,21 +59,21 @@ class HelpMenu extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildSectionTitle('Contact Us', FontColor),
+                          _buildSectionTitle('Contact Us', fontColor),
                           _buildParagraph(
                               'If you encounter any issues or have any queries that could not be answered through the FAQs, feel free to reach out to us. We are here to help!',
-                              FontColor),
+                              fontColor),
                           _buildLink(
                               'tecktonic.capstone@gmail.com',
                               'mailto:tecktonic.capstone@gmail.com?subject=Help Request&body=I need help with...',
-                              FontColor),
+                              fontColor),
                           SizedBox(height: 20),
-                          _buildSectionTitle('How it works', FontColor),
-                          _buildInstructionalContent(FontColor),
+                          _buildSectionTitle('How it works', fontColor),
+                          _buildInstructionalContent(fontColor),
                           SizedBox(height: 20),
                           _buildSectionTitle(
-                              'Frequently Asked Questions', FontColor),
-                          _buildFAQs(FontColor),
+                              'Frequently Asked Questions', fontColor),
+                          _buildFAQs(fontColor),
                         ],
                       ),
                     ),
