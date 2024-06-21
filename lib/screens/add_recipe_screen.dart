@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../widgets/help_add_recipe.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -10,6 +11,9 @@ class AddRecipeScreen extends StatefulWidget {
 
 class _AddRecipeScreenState extends State<AddRecipeScreen>
     with SingleTickerProviderStateMixin {
+
+  OverlayEntry? _helpMenuOverlay;
+
   @override
   void initState() {
     super.initState();
@@ -288,12 +292,34 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     }
   }
 
+  void _showHelpMenu() {
+    _helpMenuOverlay = OverlayEntry(
+      builder: (context) => HelpMenu(
+        onClose: () {
+          _helpMenuOverlay?.remove();
+          _helpMenuOverlay = null;
+        },
+      ),
+    );
+    Overlay.of(context).insert(_helpMenuOverlay!);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: IconButton(
+              icon: Icon(Icons.help),
+              onPressed: _showHelpMenu,
+              iconSize: 35,
+            ),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: const [

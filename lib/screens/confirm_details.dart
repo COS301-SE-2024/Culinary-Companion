@@ -255,7 +255,7 @@ int getSpiceLevelNumber(String spiceLevel) {
                     //   child: CircleAvatar(
                     //     radius: 50,
                     //     backgroundImage: _profileImage != null
-                    //         ? FileImage(_profileImage!)
+                    //    2     ? FileImage(_profileImage!)
                     //         : const AssetImage('default_profile.jpeg') as ImageProvider,
                     //     child: _profileImage == null
                     //         ? const Icon(Icons.add, size: 50, color: Color(0xFFDC945F))
