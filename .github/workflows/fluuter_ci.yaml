@@ -46,11 +46,14 @@ jobs:
 
     - name: Start ChromeDriver server
       run: |
-        CHROMEDRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)
-        wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
-        unzip chromedriver_linux64.zip
-        export PATH=$PATH:`pwd`/chromedriver
+        wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+        sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+        sudo apt-get install -y chromedriver
+        chromedriver --version
+        nohup chromedriver &
 
     - name: Run integration tests
-      run: flutter drive --target=test_driver/app.dart
+      run: flutter drive --target=test_driver/app.dart -d web-server
 
