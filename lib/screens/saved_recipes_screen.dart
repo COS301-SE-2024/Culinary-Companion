@@ -162,6 +162,7 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                             }
 
                             return RecipeCard(
+                              recipeID: recipes[index]['recipeID'] ?? '',
                               name: recipes[index]['name'] ?? '',
                               description: recipes[index]['description'] ?? '',
                               imagePath:

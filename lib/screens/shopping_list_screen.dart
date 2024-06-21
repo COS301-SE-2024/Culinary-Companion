@@ -6,6 +6,21 @@ import 'package:http/http.dart'
 import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
 import '../widgets/help_shopping.dart';
 
+Color Shaded(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.brightness == Brightness.light
+      ? Color.fromARGB(181, 52, 78, 70)
+      : Color(0xFF344E46);
+}
+
+// color: shaded ? Color(0xFF344E46) : Color(0xFF1D2C1F)
+Color Unshaded(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.brightness == Brightness.light
+      ? Color.fromARGB(188, 29, 44, 31)
+      : Color(0xFF1D2C1F);
+}
+
 class ShoppingListScreen extends StatefulWidget {
   @override
   _ShoppingListScreenState createState() => _ShoppingListScreenState();
@@ -364,7 +379,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Container(
         decoration: BoxDecoration(
-          color: shaded ? Color(0xFF344E46) : Color(0xFF1D2C1F),
+          color: shaded ? Shaded(context) : Unshaded(context),
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Padding(

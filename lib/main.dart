@@ -35,9 +35,10 @@ class CulinaryCompanionApp extends StatelessWidget {
     required this.httpClient,
   });
 
-@override
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Culinary Companion',
       theme: ThemeData(
         primarySwatch: Colors.green,

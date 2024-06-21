@@ -9,6 +9,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
 
     return Padding(
       padding: EdgeInsets.only(top: screenHeight * 0.03),
@@ -23,7 +25,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Image.asset(
-                'logo_2.png',
+                isLightTheme ? 'logo_1.png' : 'logo_2.png',
                 height: screenHeight * 0.1,
               ),
             ),
@@ -62,10 +64,17 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildNavItem(
       BuildContext context, String title, String route, bool isSelected) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final fontSize = screenWidth * 0.03;
+    final fontSize =
+        screenWidth * 0.03; // Adjust the font size based on screen width
+    final theme = Theme.of(context);
+    final textColor = theme.brightness == Brightness.light
+        ? Color(0xFF1E1E1E)
+        : Color(0xFFD9D9D9);
+    final activeColor = Color(0xFFDC945F);
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.005),
+      padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.005), // Reduce horizontal padding
       child: TextButton(
         onPressed: () {
           if (!isSelected && onChange != null) {
@@ -73,22 +82,25 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           }
         },
         child: Container(
-          padding: EdgeInsets.only(bottom: 2.0),
+          padding:
+              EdgeInsets.only(bottom: 2.0), // Add padding to the bottom side
           decoration: isSelected
               ? BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: Color(0xFFDC945F),
+                      color: activeColor,
                       width: 2.0,
-                    ),
+                    ), // Add a bottom border
                   ),
                 )
               : null,
           child: Text(
             title,
             style: TextStyle(
-              color: isSelected ? Color(0xFFDC945F) : Color(0xFFD9D9D9),
-              fontSize: fontSize.clamp(12.0, 18.0),
+              color: isSelected ? activeColor : textColor,
+              fontSize: 18,
+              // fontSize: screenWidth *
+              //     0.01,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -128,6 +140,8 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
     double expandedWidth = screenWidth * 0.2; // 30% of screen width
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
 
     return Column(
       //mainAxisSize: MainAxisSize.min,
@@ -142,7 +156,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Image.asset(
-                  'logo_2.png',
+                  isLightTheme ? 'logo_1.png' : 'logo_2.png',
                   height: screenHeight * 0.1,
                 ),
               ),

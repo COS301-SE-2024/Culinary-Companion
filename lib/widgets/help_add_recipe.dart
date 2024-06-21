@@ -8,6 +8,11 @@ class HelpMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final ClickColor = theme.brightness == Brightness.light
+        ? Colors.white
+        : Color.fromARGB(255, 25, 58, 48);
     return GestureDetector(
       onTap: onClose,
       child: Container(
@@ -15,7 +20,7 @@ class HelpMenu extends StatelessWidget {
         child: Center(
           child: Material(
             borderRadius: BorderRadius.circular(10),
-            color: Color(0xFF20493C), // Dark green background color
+            color: ClickColor, // Dark green background color
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
               width: MediaQuery.of(context).size.width * 0.8,
@@ -86,7 +91,7 @@ class HelpMenu extends StatelessWidget {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            '1. Recipe Scanning and Formatting', 
+                            '1. Recipe Scanning and Formatting',
                           ),
                           SizedBox(height: 8),
                           Text(
@@ -166,11 +171,11 @@ class HelpMenu extends StatelessWidget {
                       onPressed: onClose,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFFDC945F),
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       ),
-                      child: Text('Close',
-                          style: TextStyle(color: Colors.white)),
+                      child:
+                          Text('Close', style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],

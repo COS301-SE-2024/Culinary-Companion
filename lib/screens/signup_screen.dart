@@ -81,9 +81,6 @@ class _SignupScreenState extends State<SignupScreen> {
     final bool isLightTheme = theme.brightness == Brightness.light;
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Sign Up'),
-      // ),
       body: Stack(
         children: [
           //Background Image
@@ -159,39 +156,39 @@ class _SignupScreenState extends State<SignupScreen> {
                           filled: false,
                           fillColor: Colors.transparent,
                         ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) => _email = value,
-                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) => _email = value,
                       ),
-                      const SizedBox(height: 16),
-                      Container( 
-                        width: 365,
-                        height: 70,
-                        child: TextFormField(
-                          key: Key('passwordField'),
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            labelText: 'Password:',
-                            labelStyle: TextStyle(
-                              fontSize: 20,
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      width: 365,
+                      height: 70,
+                      child: TextFormField(
+                        key: Key('passwordField'),
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: 'Password:',
+                          labelStyle: TextStyle(
+                            fontSize: 20,
                             color: isLightTheme
                                 ? Color.fromARGB(255, 94, 94, 94)
                                 : Colors.white,
+                          ),
+                          hintText: '••••••••••',
+                          hintStyle: const TextStyle(color: Color(0xFF778579)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            borderSide: const BorderSide(
+                              color: Color(0xFFA9B8AC),
+                              width: 2.0,
                             ),
-                            hintText: '••••••••••',
-                            hintStyle: const TextStyle(color: Color(0xFF778579)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFA9B8AC), 
-                                width: 2.0, 
-                              ),                        
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -216,70 +213,28 @@ class _SignupScreenState extends State<SignupScreen> {
                         onChanged: (value) => _email = value,
                       ),
                     ),
-                      const SizedBox(height: 16),
-                      Container( 
-                        width: 365,
-                        height: 70,
-                        child: TextFormField(
-                          key: Key('confirmPasswordField'),
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            labelText: 'Confirm Password',
-                            labelStyle: TextStyle(
-                              fontSize: 20, 
-                                                          color: isLightTheme
+                    const SizedBox(height: 16),
+                    Container(
+                      width: 365,
+                      height: 70,
+                      child: TextFormField(
+                        key: Key('confirmPasswordField'),
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelText: 'Confirm Password',
+                          labelStyle: TextStyle(
+                            fontSize: 20, // Increase the font size as needed
+                            color: isLightTheme
                                 ? Color.fromARGB(255, 94, 94, 94)
                                 : Colors.white,
-                            ),
-                            hintText: '••••••••••',
-                            hintStyle: const TextStyle(color: Color(0xFF778579)),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: const BorderSide(
-                                color: Color(0xFFA9B8AC),
-                                width: 2.0,
-                              ),
-                            ),
                           ),
-                          focusedBorder: OutlineInputBorder(
+                          hintText: '••••••••••',
+                          hintStyle: const TextStyle(color: Color(0xFF778579)),
+                          border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(
-                              color: Color(0xFFE2954F),
-                              width: 2.0,
-                            ),
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 12.0,
-                            horizontal: 12.0,
-                          ),
-                          filled: false,
-                          fillColor: Colors.transparent,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter your password';
-                          }
-                          return null;
-                        },
-                        onChanged: (value) => _password = value,
-                      ),
-                    ),
-                      const SizedBox(height: 24),
-                      Container( 
-                        width: 365,
-                        height: 46,
-                        child: ElevatedButton(
-                          key: ValueKey('signupSubmitButton'),
-                          onPressed: _handleSignup,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFDC945F),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            side: const BorderSide(
-                              color: Colors.transparent,
+                              color: Color(0xFFA9B8AC),
                               width: 2.0,
                             ),
                           ),
@@ -314,6 +269,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       width: 365,
                       height: 46,
                       child: ElevatedButton(
+                        key: ValueKey('signupSubmitButton'),
                         onPressed: _handleSignup,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFDC945F),

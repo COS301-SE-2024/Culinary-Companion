@@ -5,6 +5,21 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../widgets/help_appliance.dart';
 
+Color Shaded(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.brightness == Brightness.light
+      ? Color.fromARGB(181, 52, 78, 70)
+      : Color(0xFF344E46);
+}
+
+// color: shaded ? Color(0xFF344E46) : Color(0xFF1D2C1F)
+Color Unshaded(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.brightness == Brightness.light
+      ? Color.fromARGB(188, 29, 44, 31)
+      : Color(0xFF1D2C1F);
+}
+
 class AppliancesPage extends StatefulWidget {
   @override
   _AppliancesPageState createState() => _AppliancesPageState();
@@ -299,9 +314,8 @@ class _AppliancesPageState extends State<AppliancesPage> {
                     itemBuilder: (context, index) {
                       final appliance = appliances[index];
                       return Card(
-                        color: index.isEven
-                            ? Color(0xFF1D2C1F)
-                            : Color(0xFF344E46),
+                        color:
+                            index.isEven ? Shaded(context) : Unshaded(context),
                         margin: EdgeInsets.symmetric(vertical: 8.0),
                         child: ListTile(
                           contentPadding: EdgeInsets.symmetric(
