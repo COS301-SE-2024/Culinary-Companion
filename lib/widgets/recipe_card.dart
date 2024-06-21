@@ -36,10 +36,18 @@ class RecipeCard extends StatefulWidget {
 class _RecipeCardState extends State<RecipeCard> {
   bool _hovered = false;
   Map<int, bool> _ingredientChecked = {};
+  bool _isFavorite = false;
 
   void _onHover(bool hovering) {
     setState(() {
       _hovered = hovering;
+    });
+  }
+
+  void _toggleFavorite() {
+    setState(() {
+      _isFavorite = !_isFavorite;
+      print('Favorite state: $_isFavorite');
     });
   }
 
@@ -79,12 +87,23 @@ class _RecipeCardState extends State<RecipeCard> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    IconButton(
-                      icon: Icon(Icons.close),
-                      iconSize: screenWidth * 0.02, // Adjust icon size to 2% of screen width
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            _isFavorite ? Icons.favorite : Icons.favorite_border,
+                            color: _isFavorite ? Colors.red : Colors.grey,
+                          ),
+                          onPressed: _toggleFavorite,
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close),
+                          iconSize: screenWidth * 0.02, // Adjust icon size to 2% of screen width
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -230,11 +249,13 @@ class _RecipeCardState extends State<RecipeCard> {
         child: Stack(
           children: [
             Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image.network(
-                  widget.imagePath,
-                  fit: BoxFit.cover,
+              child: Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(widget.imagePath),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
             ),
@@ -242,7 +263,7 @@ class _RecipeCardState extends State<RecipeCard> {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 103, 128, 96).withOpacity(0.8),
+                    color: Colors.black.withOpacity(0.6),
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
@@ -382,6 +403,17 @@ class _RecipeCardState extends State<RecipeCard> {
                   ),
                 ),
               ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                icon: Icon(
+                  _isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: _isFavorite ? Colors.red : Colors.grey,
+                ),
+                onPressed: _toggleFavorite,
+              ),
+            ),
           ],
         ),
       ),
