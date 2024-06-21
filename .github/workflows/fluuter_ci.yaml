@@ -32,28 +32,19 @@ jobs:
 
   integration_test:
     runs-on: ubuntu-latest
-    needs: analyze  # This ensures the analyze job completes before starting this job
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
 
-    - name: Install dependencies
-      run: flutter pub get
+      - name: Install dependencies
+        run: flutter pub get
 
-    - name: Start ChromeDriver server
-      run: |
-        wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-        sudo sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
-        sudo apt-get install -y chromedriver
-        chromedriver --version
-        nohup chromedriver &
+      - name: Start ChromeDriver server
+        run: chromedriver --port=4444 &
 
-    - name: Run integration tests
-      run: flutter drive --target=test_driver/app.dart -d web-server
-
+      - name: Run integration tests
+        run: flutter drive --target=test_driver/app.dart -d web-server
