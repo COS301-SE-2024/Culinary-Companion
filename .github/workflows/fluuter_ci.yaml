@@ -15,20 +15,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
+      - name: Install dependencies
+        run: flutter pub get
 
-    - name: Install dependencies
-      run: flutter pub get
+      - name: Run linter
+        run: flutter analyze
 
-    - name: Run linter
-      run: flutter analyze
+  unit_tests:
+    runs-on: ubuntu-latest
 
-    - name: Run tests
-      run: flutter test --coverage
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-   
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run unit tests
+        run: flutter test --coverage
+
+  integration_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Start ChromeDriver server
+        run: chromedriver --port=4444 &
+
+      - name: Run integration tests
+        run: flutter drive --target=test_driver/app.dart -d web-server

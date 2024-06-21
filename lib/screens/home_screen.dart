@@ -146,8 +146,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               steps = (recipes[index]['steps'] as String)
                                   .split(',');
                             }
-
+                            
                             return RecipeCard(
+                              recipeID: recipes[index]['recipeId'] ?? '',
                               name: recipes[index]['name'] ?? '',
                               description: recipes[index]['description'] ?? '',
                               imagePath:

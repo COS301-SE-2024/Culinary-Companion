@@ -8,49 +8,48 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    //final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final bool isLightTheme = theme.brightness == Brightness.light;
 
     return Padding(
-      padding:
-          EdgeInsets.only(top: screenHeight * 0.03), // Adjust padding as needed
+      padding: EdgeInsets.only(top: screenHeight * 0.03),
       child: AppBar(
-        automaticallyImplyLeading: false, // Disable the back button
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         shadowColor: Colors.transparent,
-        toolbarHeight: screenHeight * 0.1, // Set a custom height for the AppBar
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        toolbarHeight: screenHeight * 0.1,
+        title: Stack(
           children: [
-            // Logo
-            Image.asset(
-              isLightTheme ? 'logo_1.png' : 'logo_2.png',
-              height: screenHeight * 0.1, // Adjust the height as needed
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Image.asset(
+                'logo_2.png',
+                height: screenHeight * 0.1,
+              ),
             ),
-            // Centered tabs
-            Expanded(
+            Center(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _buildNavItem(context, 'Home', '/', currentRoute == '/'),
-                    _buildNavItem(context, 'Add Recipe', '/scan-recipe',
-                        currentRoute == '/scan-recipe'),
-                    _buildNavItem(context, 'Shopping List', '/shopping-list',
-                        currentRoute == '/shopping-list'),
-                    _buildNavItem(context, 'Pantry', '/pantry-list',
-                        currentRoute == '/pantry-list'),
-                    _buildNavItem(context, 'Appliances', '/appliances',
-                        currentRoute == '/appliances'),
-                    _buildNavItem(context, 'Saved Recipes', '/saved-recipes',
-                        currentRoute == '/saved-recipes'),
-                    _buildNavItem(context, 'Profile', '/profile',
-                        currentRoute == '/profile'),
-                  ],
+                child: Padding(
+                  padding: EdgeInsets.only(top: screenHeight * 0.02),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      _buildNavItem(context, 'Home', '/', currentRoute == '/'),
+                      _buildNavItem(context, 'Add Recipe', '/scan-recipe',
+                          currentRoute == '/scan-recipe'),
+                      _buildNavItem(context, 'Shopping List', '/shopping-list',
+                          currentRoute == '/shopping-list'),
+                      _buildNavItem(context, 'Pantry', '/pantry-list',
+                          currentRoute == '/pantry-list'),
+                      _buildNavItem(context, 'Appliances', '/appliances',
+                          currentRoute == '/appliances'),
+                      _buildNavItem(context, 'Saved Recipes', '/saved-recipes',
+                          currentRoute == '/saved-recipes'),
+                      _buildNavItem(context, 'Profile', '/profile',
+                          currentRoute == '/profile'),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -63,15 +62,10 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   Widget _buildNavItem(
       BuildContext context, String title, String route, bool isSelected) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final theme = Theme.of(context);
-    final textColor = theme.brightness == Brightness.light
-        ? Color(0xFF1E1E1E)
-        : Color(0xFFD9D9D9);
-    final activeColor = Color(0xFFDC945F);
+    final fontSize = screenWidth * 0.03;
 
     return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: screenWidth * 0.005), // Reduce horizontal padding
+      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.005),
       child: TextButton(
         onPressed: () {
           if (!isSelected && onChange != null) {
@@ -79,25 +73,22 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           }
         },
         child: Container(
-          padding:
-              EdgeInsets.only(bottom: 2.0), // Add padding to the bottom side
+          padding: EdgeInsets.only(bottom: 2.0),
           decoration: isSelected
               ? BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: activeColor,
+                      color: Color(0xFFDC945F),
                       width: 2.0,
-                    ), // Add a bottom border
+                    ),
                   ),
                 )
               : null,
           child: Text(
             title,
             style: TextStyle(
-              color: isSelected ? activeColor : textColor,
-              fontSize: 18,
-              // fontSize: screenWidth *
-              //     0.01,
+              color: isSelected ? Color(0xFFDC945F) : Color(0xFFD9D9D9),
+              fontSize: fontSize.clamp(12.0, 18.0),
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -107,5 +98,141 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(120); // Provide a default value
+  Size get preferredSize => Size.fromHeight(120);
+}
+
+class ExpandableNavbar extends StatefulWidget implements PreferredSizeWidget {
+  final String currentRoute;
+  final Function(String)? onChange;
+
+  const ExpandableNavbar({required this.currentRoute, this.onChange});
+
+  @override
+  _ExpandableNavbarState createState() => _ExpandableNavbarState();
+
+  @override
+  Size get preferredSize => Size.fromHeight(120);
+}
+
+class _ExpandableNavbarState extends State<ExpandableNavbar> {
+  bool _isExpanded = false;
+
+  void _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double screenHeight = MediaQuery.of(context).size.height;
+    double screenWidth = MediaQuery.of(context).size.width;
+    double expandedWidth = screenWidth * 0.2; // 30% of screen width
+
+    return Column(
+      //mainAxisSize: MainAxisSize.min,
+      children: [
+        AppBar(
+          automaticallyImplyLeading: false,
+          toolbarHeight: screenHeight * 0.1,
+          backgroundColor: Colors.transparent, // Make AppBar transparent
+          elevation: 0, // Remove AppBar shadow
+          title: Stack(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Image.asset(
+                  'logo_2.png',
+                  height: screenHeight * 0.1,
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: Icon(Icons.menu),
+                  onPressed: _toggleExpanded,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (_isExpanded)
+          Align(
+            alignment: FractionalOffset.topRight,
+            child: Container(
+              height: screenHeight, // Take up the full height of the screen
+              width: expandedWidth, // Take up 30% of the screen width
+              color: Color.fromARGB(143, 2, 20, 14),
+              child: Column(
+                children: [
+                  ListTile(
+                    title: const Text('Home'),
+                    onTap: () {
+                      if (widget.onChange != null) {
+                        widget.onChange!('/');
+                      }
+                      _toggleExpanded();
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Add Recipe'),
+                    onTap: () {
+                      if (widget.onChange != null) {
+                        widget.onChange!('/scan-recipe');
+                      }
+                      _toggleExpanded();
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Shopping List'),
+                    onTap: () {
+                      if (widget.onChange != null) {
+                        widget.onChange!('/shopping-list');
+                      }
+                      _toggleExpanded();
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Pantry'),
+                    onTap: () {
+                      if (widget.onChange != null) {
+                        widget.onChange!('/pantry-list');
+                      }
+                      _toggleExpanded();
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Appliances'),
+                    onTap: () {
+                      if (widget.onChange != null) {
+                        widget.onChange!('/appliances');
+                      }
+                      _toggleExpanded();
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Saved Recipes'),
+                    onTap: () {
+                      if (widget.onChange != null) {
+                        widget.onChange!('/saved-recipes');
+                      }
+                      _toggleExpanded();
+                    },
+                  ),
+                  ListTile(
+                    title: const Text('Profile'),
+                    onTap: () {
+                      if (widget.onChange != null) {
+                        widget.onChange!('/profile');
+                      }
+                      _toggleExpanded();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 }

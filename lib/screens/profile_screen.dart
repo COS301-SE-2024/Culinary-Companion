@@ -510,18 +510,5 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ],
     );
   }
-
-  // Widget recipeCard(String imagePath) {
-  //   return Container(
-  //     width: 200,
-  //     margin: const EdgeInsets.only(right: 16),
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(8),
-  //       image: DecorationImage(
-  //         image: AssetImage(imagePath),
-  //         fit: BoxFit.cover,
-  //       ),
-  //     ),
-  //   );
-  // }
 }
+

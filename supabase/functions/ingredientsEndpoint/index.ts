@@ -87,6 +87,10 @@ Deno.serve(async (req) => {
                 return removeUserAppliance(userId, applianceName, corsHeaders);
             case 'getUserAppliances':
                 return getUserAppliances(userId, corsHeaders);
+            case 'addUserFavorite':
+                return addUserFavorite(userId, recipeid, corsHeaders);
+            case 'removeUserFavorite':
+                return removeUserFavorite(userId, recipeid, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -1295,6 +1299,79 @@ async function getUserAppliances(userId: string, corsHeaders: HeadersInit) {
         });
     }
 }
+
+
+// Function to add a user favorite
+async function addUserFavorite(userId: string, recipeid: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure userId and recipeId are provided
+        if (!userId || !recipeid) {
+            throw new Error('User ID and Recipe ID are required');
+        }
+
+        // Insert the user favorite record
+        const { error: userRecipeError } = await supabase
+            .from('userFavorites')
+            .insert({ userid: userId, recipeid: recipeid })
+            .select('*')
+            .single();
+
+        if (userRecipeError) {
+            console.error('Error adding user favorite:', userRecipeError);
+            return new Response(JSON.stringify({ error: userRecipeError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ message: 'User favorite added successfully' }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        console.error('Error in addUserFavorite function:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function removeUserFavorite(userId: string, recipeid: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure userId and recipeId are provided
+        if (!userId || !recipeid) {
+            throw new Error('User ID and Recipe ID are required');
+        }
+
+        // Insert the user favorite record
+        const { error: userRecipeError } = await supabase
+                .from('userFavorites')
+                .delete()
+                .eq('userid', userId)
+                .eq('recipeid', recipeid);
+
+        if (userRecipeError) {
+            console.error('Error removing user favorite:', userRecipeError);
+            return new Response(JSON.stringify({ error: userRecipeError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ message: 'User favorite removed successfully' }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        console.error('Error in removeUserFavorite function:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 /* To invoke locally:
 

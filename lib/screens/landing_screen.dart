@@ -30,6 +30,7 @@ class LandingScreen extends StatelessWidget {
                 SizedBox(
                   width: 400,
                   child: ElevatedButton(
+                    key: ValueKey('loginButton'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFDC945F), //Button color
                       padding: EdgeInsets.symmetric(vertical: 12),
@@ -87,6 +88,7 @@ class LandingScreen extends StatelessWidget {
                 SizedBox(
                   width: 400,
                   child: ElevatedButton(
+                    key: ValueKey('signupButton'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white, //Button color
                       padding: EdgeInsets.symmetric(vertical: 12),
