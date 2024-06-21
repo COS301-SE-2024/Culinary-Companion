@@ -12,65 +12,45 @@ on:
 
 jobs:
   analyze:
-    name: Analyze Code
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
 
-      - name: Install dependencies
-        run: flutter pub get
+    - name: Install dependencies
+      run: flutter pub get
 
-      - name: Run linter and static analysis
-        run: flutter analyze
+    - name: Run linter
+      run: flutter analyze
 
-  test:
-    name: Run Unit Tests
+    - name: Run unit tests
+      run: flutter test --coverage
+
+  integration_test:
     runs-on: ubuntu-latest
-    needs: analyze  # Ensure analyze job completes before running this
+    needs: analyze  # This ensures the analyze job completes before starting this job
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
 
-      - name: Install dependencies
-        run: flutter pub get
+    - name: Install dependencies
+      run: flutter pub get
 
-      - name: Run unit tests with coverage
-        run: flutter test --coverage
+    - name: Start ChromeDriver server
+      run: |
+        CHROMEDRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)
+        wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
+        unzip chromedriver_linux64.zip
+        export PATH=$PATH:`pwd`/chromedriver
 
-  integration_tests:
-    name: Run Flutter Integration Tests
-    runs-on: ubuntu-latest
-    needs: test  # Ensure test job completes before running this
+    - name: Run integration tests
+      run: flutter drive --target=test_driver/app.dart
 
-    services:
-      xvfb:
-        image: trufflesuite/ganache-cli:latest
-        options: --privileged
-
-      chromedriver:
-        image: selenium/standalone-chrome
-        options: --shm-size=2g
-        ports:
-          - 4444:4444
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Run integration tests with Chromedriver
-        run: flutter drive --target=test_driver/app.dart -d web-server

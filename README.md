@@ -1,3 +1,4 @@
+[![Flutter CI](https://github.com/COS301-SE-2024/Culinary-Companion/actions/workflows/fluuter_ci.yaml/badge.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/actions/workflows/fluuter_ci.yaml)
 # Culinary Companion
 
 <p align="center">
