@@ -73,4 +73,4 @@ jobs:
         run: flutter pub get
 
       - name: Run integration tests with Chromedriver
-        run: flutter drive --target=test_driver/app.dart --browser-name=chrome --no-headless --driver-port=4444 --browser-dimension=1600x1200
+        run: flutter drive --target=test_driver/app.dart -d web-server
