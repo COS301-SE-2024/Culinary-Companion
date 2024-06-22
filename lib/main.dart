@@ -60,8 +60,8 @@ class CulinaryCompanionApp extends StatelessWidget {
           fillColor: Colors.white12,
         ),
       ),
-      themeMode: ThemeMode.system, // Use system theme setting
-      //themeMode: ThemeMode.light,
+      //themeMode: ThemeMode.system, // Use system theme setting
+      themeMode: ThemeMode.light,
       //themeMode: ThemeMode.dark,
       initialRoute: '/landing', // Set the initial route to the landing screen
       routes: {
