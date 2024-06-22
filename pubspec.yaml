@@ -39,6 +39,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   lottie: ^1.2.1
   url_launcher: ^6.0.9
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
