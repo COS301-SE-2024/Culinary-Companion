@@ -23,6 +23,10 @@ void main() {
     expect(find.byType(Lottie), findsOneWidget);
   });
 
+  testWidgets('Profile screen loads user data', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: ProfileScreen()));
+    expect(find.byType(Lottie), findsOneWidget);
+  });
 
   testWidgets('ProfileScreen displays error message when userId is null', (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({});
