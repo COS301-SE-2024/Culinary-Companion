@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+
 class RecipeCard extends StatefulWidget {
   final String recipeID;
   final String name;
@@ -54,17 +55,15 @@ class _RecipeCardState extends State<RecipeCard> {
     });
   }
 
-void _checkIfFavorite() async {
+  void _checkIfFavorite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
     final String recipeId = widget.recipeID;
 
-    final url = Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final url = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
     final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({
-      "action": "getUserFavourites",
-      "userId": userId
-    });
+    final body = jsonEncode({"action": "getUserFavourites", "userId": userId});
 
     try {
       final response = await http.post(url, headers: headers, body: body);
@@ -91,12 +90,14 @@ void _checkIfFavorite() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
     final String recipeId = widget.recipeID;
-    final String action = _isFavorite ? "addUserFavorite" : "removeUserFavorite";
+    final String action =
+        _isFavorite ? "addUserFavorite" : "removeUserFavorite";
 
-    final url = Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final url = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
     final headers = {"Content-Type": "application/json"};
     final body = jsonEncode({
-      "action": action, 
+      "action": action,
       "userId": userId,
       "recipeid": recipeId,
     });
@@ -113,26 +114,35 @@ void _checkIfFavorite() async {
     }
   }
 
-
   void _showRecipeDetails() {
+    final theme = Theme.of(context);
+
+    final clickColor = theme.brightness == Brightness.light
+        ? Colors.white
+        : Color.fromARGB(255, 25, 58, 48);
     showDialog(
       context: context,
       builder: (BuildContext context) {
         final double screenWidth = MediaQuery.of(context).size.width;
-        final bool showImage = screenWidth > 1359; // Adjust the threshold as needed
+        final bool showImage =
+            screenWidth > 1359; // Adjust the threshold as needed
 
         return Dialog(
-          backgroundColor: Color.fromARGB(255, 25, 58, 48), // Change background color to green
+          backgroundColor: clickColor, // Change background color to green
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(screenWidth * 0.01),
           ),
           child: Container(
             width: screenWidth * 0.6, // Set width to 60% of screen width
-            height: MediaQuery.of(context).size.height * 0.8, // Set height to 80% of screen height
+            height: MediaQuery.of(context).size.height *
+                0.8, // Set height to 80% of screen height
             padding: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height * 0.04, // Adjust top padding to 4% of screen height
-              left: screenWidth * 0.05, // Adjust left padding to 5% of screen width
-              right: screenWidth * 0.05, // Adjust right padding to 5% of screen width
+              top: MediaQuery.of(context).size.height *
+                  0.04, // Adjust top padding to 4% of screen height
+              left: screenWidth *
+                  0.05, // Adjust left padding to 5% of screen width
+              right: screenWidth *
+                  0.05, // Adjust right padding to 5% of screen width
             ),
             child: Column(
               children: [
@@ -143,7 +153,8 @@ void _checkIfFavorite() async {
                       child: Text(
                         widget.name,
                         style: TextStyle(
-                          fontSize: screenWidth * 0.02, // Adjust font size to 2% of screen width
+                          fontSize: screenWidth *
+                              0.02, // Adjust font size to 2% of screen width
                           fontWeight: FontWeight.bold,
                         ),
                         maxLines: 2,
@@ -154,14 +165,17 @@ void _checkIfFavorite() async {
                       children: [
                         IconButton(
                           icon: Icon(
-                            _isFavorite ? Icons.favorite : Icons.favorite_border,
+                            _isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             color: _isFavorite ? Colors.red : Colors.grey,
                           ),
                           onPressed: _toggleFavorite,
                         ),
                         IconButton(
                           icon: Icon(Icons.close),
-                          iconSize: screenWidth * 0.02, // Adjust icon size to 2% of screen width
+                          iconSize: screenWidth *
+                              0.02, // Adjust icon size to 2% of screen width
                           onPressed: () {
                             Navigator.of(context).pop();
                           },
@@ -170,7 +184,9 @@ void _checkIfFavorite() async {
                     ),
                   ],
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Adjust height to 1% of screen height
+                SizedBox(
+                    height: MediaQuery.of(context).size.height *
+                        0.01), // Adjust height to 1% of screen height
                 Expanded(
                   child: SingleChildScrollView(
                     child: Row(
@@ -181,68 +197,101 @@ void _checkIfFavorite() async {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(widget.description),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Adjust height to 1% of screen height
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.01), // Adjust height to 1% of screen height
                               Row(
                                 children: [
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Text(
                                         'Prep Time:',
-                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text('${widget.prepTime} mins'),
                                     ],
                                   ),
-                                  SizedBox(width: screenWidth * 0.02), // 2% of screen width
+                                  SizedBox(
+                                      width: screenWidth *
+                                          0.02), // 2% of screen width
                                   VerticalDivider(
-                                    color: Colors.black, // Customize the color as needed
-                                    thickness: 1, // Customize the thickness as needed
+                                    color: Colors
+                                        .black, // Customize the color as needed
+                                    thickness:
+                                        1, // Customize the thickness as needed
                                     width: 1,
                                   ),
-                                  SizedBox(width: screenWidth * 0.02), // 2% of screen width
+                                  SizedBox(
+                                      width: screenWidth *
+                                          0.02), // 2% of screen width
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Text(
                                         'Cook Time:',
-                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       Text('${widget.cookTime} mins'),
                                     ],
                                   ),
-                                  SizedBox(width: screenWidth * 0.02), // 2% of screen width
+                                  SizedBox(
+                                      width: screenWidth *
+                                          0.02), // 2% of screen width
                                   VerticalDivider(
-                                    color: Colors.black, // Customize the color as needed
-                                    thickness: 1, // Customize the thickness as needed
+                                    color: Colors
+                                        .black, // Customize the color as needed
+                                    thickness:
+                                        1, // Customize the thickness as needed
                                     width: 1,
                                   ),
-                                  SizedBox(width: screenWidth * 0.02), // 2% of screen width
+                                  SizedBox(
+                                      width: screenWidth *
+                                          0.02), // 2% of screen width
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: [
                                       Text(
                                         'Total Time:',
-                                        style: TextStyle(fontWeight: FontWeight.bold),
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
                                       ),
-                                      Text('${widget.prepTime + widget.cookTime} mins'),
+                                      Text(
+                                          '${widget.prepTime + widget.cookTime} mins'),
                                     ],
                                   ),
                                 ],
                               ),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Adjust height to 1% of screen height
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.01), // Adjust height to 1% of screen height
                               Text('Cuisine: ${widget.cuisine}'),
                               Text('Spice Level: ${widget.spiceLevel}'),
                               Text('Course: ${widget.course}'),
                               Text('Servings: ${widget.servings}'),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.02), // Adjust height to 2% of screen height
-                              Text('Ingredients:', style: TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Adjust height to 1% of screen height
-                              ...widget.ingredients.asMap().entries.map((entry) {
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.02), // Adjust height to 2% of screen height
+                              Text('Ingredients:',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.01), // Adjust height to 1% of screen height
+                              ...widget.ingredients
+                                  .asMap()
+                                  .entries
+                                  .map((entry) {
                                 int idx = entry.key;
                                 Map<String, dynamic> ingredient = entry.value;
                                 return CheckableItem(
-                                  title: '${ingredient['quantity']} ${ingredient['measurementunit']} ${ingredient['name']}',
+                                  title:
+                                      '${ingredient['quantity']} ${ingredient['measurementunit']} ${ingredient['name']}',
                                   isChecked: _ingredientChecked[idx] ?? false,
                                   onChanged: (bool? value) {
                                     setState(() {
@@ -251,20 +300,38 @@ void _checkIfFavorite() async {
                                   },
                                 );
                               }),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.02), // Adjust height to 2% of screen height
-                              Text('Appliances:', style: TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Adjust height to 1% of screen height
-                              ...widget.appliances.map((appliance) => Text(appliance)),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.02), // Adjust height to 2% of screen height
-                              Text('Instructions:', style: TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(height: MediaQuery.of(context).size.height * 0.01), // Adjust height to 1% of screen height
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.02), // Adjust height to 2% of screen height
+                              Text('Appliances:',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.01), // Adjust height to 1% of screen height
+                              ...widget.appliances
+                                  .map((appliance) => Text(appliance)),
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.02), // Adjust height to 2% of screen height
+                              Text('Instructions:',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.01), // Adjust height to 1% of screen height
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                children: widget.steps.asMap().entries.map((entry) {
+                                children:
+                                    widget.steps.asMap().entries.map((entry) {
                                   int index = entry.key;
                                   String step = entry.value;
                                   return Padding(
-                                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.01), // Add some spacing between steps
+                                    padding: EdgeInsets.only(
+                                        bottom: MediaQuery.of(context)
+                                                .size
+                                                .height *
+                                            0.01), // Add some spacing between steps
                                     child: Text('${index + 1}. $step'),
                                   );
                                 }).toList(),
@@ -273,12 +340,17 @@ void _checkIfFavorite() async {
                           ),
                         ),
                         if (showImage) ...[
-                          SizedBox(width: screenWidth * 0.05), // 5% of screen width for spacing
+                          SizedBox(
+                              width: screenWidth *
+                                  0.05), // 5% of screen width for spacing
                           Container(
-                            width: screenWidth * 0.2, // 20% of screen width for the image
-                            height: MediaQuery.of(context).size.height * 0.5, // 50% of screen height for the image
+                            width: screenWidth *
+                                0.2, // 20% of screen width for the image
+                            height: MediaQuery.of(context).size.height *
+                                0.5, // 50% of screen height for the image
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(screenWidth * 0.005), // 0.5% of screen width for rounded corners
+                              borderRadius: BorderRadius.circular(screenWidth *
+                                  0.005), // 0.5% of screen width for rounded corners
                               image: DecorationImage(
                                 image: NetworkImage(widget.imagePath),
                                 fit: BoxFit.cover,
@@ -300,9 +372,14 @@ void _checkIfFavorite() async {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     double screenWidth = MediaQuery.of(context).size.width;
     double fontSizeTitle = screenWidth * 0.02;
     double fontSizeDescription = screenWidth * 0.01;
+
+    final hoverColor = theme.brightness == Brightness.light
+        ? Color(0xFF202920).withOpacity(0.8)
+        : Color.fromARGB(255, 103, 128, 96).withOpacity(0.8);
 
     return GestureDetector(
       onTap: _showRecipeDetails,
@@ -326,7 +403,7 @@ void _checkIfFavorite() async {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.6),
+                    color: hoverColor,
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),

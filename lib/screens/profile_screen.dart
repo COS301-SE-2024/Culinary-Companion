@@ -47,47 +47,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 ///////////fetch the users profile details/////////
   Future<void> _fetchUserDetails() async {
-  if (_userId == null) return;
+    if (_userId == null) return;
 
-  setState(() {
-    _isLoading = true;  // Show loading indicator
-  });
+    setState(() {
+      _isLoading = true; // Show loading indicator
+    });
 
-  final String url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
-  try {
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'action': 'getUserDetails', 'userId': _userId}),
-    );
+    final String url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'action': 'getUserDetails', 'userId': _userId}),
+      );
 
-    if (response.statusCode == 200) {
-      List<dynamic> data = jsonDecode(response.body);
-      if (data.isNotEmpty) {
-        setState(() {
-          _userDetails = data[0];  // Get the first item in the list
-        });
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        if (data.isNotEmpty) {
+          setState(() {
+            _userDetails = data[0]; // Get the first item in the list
+          });
+        } else {
+          setState(() {
+            _errorMessage = 'No user details found';
+          });
+        }
       } else {
         setState(() {
-          _errorMessage = 'No user details found';
+          _errorMessage = 'Failed to load user details';
         });
       }
-    } else {
+    } catch (error) {
       setState(() {
-        _errorMessage = 'Failed to load user details';
+        _errorMessage = 'Error fetching user details';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading indicator
       });
     }
-  } catch (error) {
-    setState(() {
-      _errorMessage = 'Error fetching user details';
-    });
-  } finally {
-    setState(() {
-      _isLoading = false;  // Stop loading indicator
-    });
   }
-}
-
 
   Future<void> fetchRecipes() async {
     final url =
@@ -169,10 +169,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    //final textColor = theme.brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Color(0xFF20493C),
+        backgroundColor: Colors.transparent,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
@@ -184,7 +186,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ],
       ),
-      backgroundColor: const Color(0xFF20493C),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -192,15 +194,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: _isLoading
                 ? Center(
                     // Step 3: Replace CircularProgressIndicator with Lottie widget
-                    child: Lottie.asset(
-                      'assets/loading.json'
-                    ),
+                    child: Lottie.asset('assets/loading.json'),
                   )
                 : _errorMessage != null
                     ? Center(
                         child: Text(
                           _errorMessage!,
-                          style: TextStyle(color: Colors.white),
+                          style: TextStyle(
+                              color: theme.brightness == Brightness.light
+                                  ? Color(0xFF1E1E1E)
+                                  : Color(0xFFD9D9D9)),
                         ),
                       )
                     : LayoutBuilder(
@@ -246,15 +249,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildHeader(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.brightness == Brightness.light
+        ? Color(0xFF1E1E1E)
+        : Color(0xFFD9D9D9);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
+        Text(
           'Account',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: textColor,
           ),
         ),
         IconButton(
@@ -269,12 +276,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (result == true) {
               // Reload user details if the profile was updated
               await _fetchUserDetails();
-            
             }
           },
           icon: Icon(
             Icons.settings,
-            color: Colors.white,
+            color: textColor,
           ),
         ),
       ],
@@ -282,6 +288,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildProfileInfo() {
+    final theme = Theme.of(context);
+    final textColor = theme.brightness == Brightness.light
+        ? Color(0xFF1E1E1E)
+        : Color(0xFFD9D9D9);
     final String username =
         _userDetails?['username']?.toString() ?? 'Jane Doe'; //default values
     //final String email = 'jane.doe@gmail.com'; //default
@@ -312,8 +322,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           username,
 
           ///username
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: textColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -331,14 +341,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             // Handle sign out
           },
           style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Colors.white),
+            side: BorderSide(color: textColor),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(24),
             ),
           ),
-          child: const Text(
+          child: Text(
             'Sign Out',
-            style: TextStyle(color: Colors.white),
+            style: TextStyle(color: textColor),
           ),
         ),
       ],
@@ -346,6 +356,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildPreferences() {
+    final theme = Theme.of(context);
+    final textColor = theme.brightness == Brightness.light
+        ? Color(0xFF1E1E1E)
+        : Color(0xFFD9D9D9);
+
     final String spiceLevel =
         _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
     final String preferredCuisine =
@@ -360,7 +375,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           'Spice Level',
           style: TextStyle(
-            color: Colors.white,
+            color: textColor,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -382,7 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           'Preferred Cuisine',
           style: TextStyle(
-            color: Colors.white,
+            color: textColor,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -404,7 +419,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           'Dietary Constraints',
           style: TextStyle(
-            color: Colors.white,
+            color: textColor,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -428,13 +443,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildMyRecipes() {
+    final theme = Theme.of(context);
+    final textColor = theme.brightness == Brightness.light
+        ? Color(0xFF1E1E1E)
+        : Color(0xFFD9D9D9);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'My Recipes',
           style: TextStyle(
-            color: Colors.white,
+            color: textColor,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),
@@ -450,59 +470,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
             double crossAxisSpacing = 8.0;
             double mainAxisSpacing = 8.0;
 
-          return GridView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: recipes.length,
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 5,
-              crossAxisSpacing: crossAxisSpacing,
-              mainAxisSpacing: mainAxisSpacing,
-              childAspectRatio: aspectRatio,
-            ),
-            itemBuilder: (context, index) {
-              // List<String> keywords =
-              //     (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
-              List<String> steps = [];
-              if (recipes[index]['steps'] != null) {
-                steps = (recipes[index]['steps'] as String).split(',');
-              }
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: recipes.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 5,
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: mainAxisSpacing,
+                childAspectRatio: aspectRatio,
+              ),
+              itemBuilder: (context, index) {
+                // List<String> keywords =
+                //     (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
+                List<String> steps = [];
+                if (recipes[index]['steps'] != null) {
+                  steps = (recipes[index]['steps'] as String).split(',');
+                }
 
-              return RecipeCard(
-                recipeID: recipes[index]['recipeId'] ?? '',
-                name: recipes[index]['name'] ?? '',
-                description: recipes[index]['description'] ?? '',
-                imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
-                prepTime: recipes[index]['preptime'] ?? 0,
-                cookTime: recipes[index]['cooktime'] ?? 0,
-                cuisine: recipes[index]['cuisine'] ?? '',
-                spiceLevel: recipes[index]['spicelevel'] ?? 0,
-                course: recipes[index]['course'] ?? '',
-                servings: recipes[index]['servings'] ?? 0,
-                steps: steps,
-                appliances: List<String>.from(recipes[index]['appliances']),
-                ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
-              );
-            },
-          );
-        },
-      ),
-    ],
-  );
-}
-
-
-  // Widget recipeCard(String imagePath) {
-  //   return Container(
-  //     width: 200,
-  //     margin: const EdgeInsets.only(right: 16),
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.circular(8),
-  //       image: DecorationImage(
-  //         image: AssetImage(imagePath),
-  //         fit: BoxFit.cover,
-  //       ),
-  //     ),
-  //   );
-  // }
+                return RecipeCard(
+                  recipeID: recipes[index]['recipeID'] ?? '',
+                  name: recipes[index]['name'] ?? '',
+                  description: recipes[index]['description'] ?? '',
+                  imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
+                  prepTime: recipes[index]['preptime'] ?? 0,
+                  cookTime: recipes[index]['cooktime'] ?? 0,
+                  cuisine: recipes[index]['cuisine'] ?? '',
+                  spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                  course: recipes[index]['course'] ?? '',
+                  servings: recipes[index]['servings'] ?? 0,
+                  steps: steps,
+                  appliances: List<String>.from(recipes[index]['appliances']),
+                  ingredients: List<Map<String, dynamic>>.from(
+                      recipes[index]['ingredients']),
+                );
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
 }
