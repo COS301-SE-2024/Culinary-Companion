@@ -46,7 +46,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                           currentRoute == '/pantry-list'),
                       _buildNavItem(context, 'Appliances', '/appliances',
                           currentRoute == '/appliances'),
-                      _buildNavItem(context, 'Saved Recipes', '/saved-recipes',
+                      _buildNavItem(context, 'Favorite Recipes', '/saved-recipes',
                           currentRoute == '/saved-recipes'),
                       _buildNavItem(context, 'Profile', '/profile',
                           currentRoute == '/profile'),
@@ -225,7 +225,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                     },
                   ),
                   ListTile(
-                    title: const Text('Saved Recipes'),
+                    title: const Text('Favorite Recipes'),
                     onTap: () {
                       if (widget.onChange != null) {
                         widget.onChange!('/saved-recipes');
