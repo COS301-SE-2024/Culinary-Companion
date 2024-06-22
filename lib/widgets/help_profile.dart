@@ -26,7 +26,7 @@ class HelpMenu extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset('helper_chef.png', height: 80),
+                        Image.asset('assets/helper_chef.png', height: 80),
                         SizedBox(height: 10),
                         Text(
                           'How may I help you?',
