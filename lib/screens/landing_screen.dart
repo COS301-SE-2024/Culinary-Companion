@@ -12,7 +12,7 @@ class LandingScreen extends StatelessWidget {
           //Background image
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'Lightmode.png' : 'Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -22,7 +22,7 @@ class LandingScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  isLightTheme ? 'logo_1.png' : 'logo_2.png',
+                  isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
                   height: 100,
                 ),
                 SizedBox(height: 32), //spacing between logo and buttons

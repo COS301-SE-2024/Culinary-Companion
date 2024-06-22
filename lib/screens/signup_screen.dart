@@ -86,7 +86,7 @@ class _SignupScreenState extends State<SignupScreen> {
           //Background Image
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'Lightmode.png' : 'Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -103,7 +103,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     Column(
                       children: [
                         Image.asset(
-                          isLightTheme ? 'logo_1.png' : 'logo_2.png',
+                          isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
                           height: 80,
                         ),
                         const SizedBox(height: 16),
