@@ -6,6 +6,7 @@ import 'dart:convert';
 import '../widgets/recipe_card.dart';
 import 'package:lottie/lottie.dart';
 import '../widgets/help_profile.dart';
+import 'landing_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -337,8 +338,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         // ),
         const SizedBox(height: 8),
         OutlinedButton(
-          onPressed: () {
-            // Handle sign out
+          onPressed: () async {
+            // Clear shared preferences
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.clear();
+
+            // Navigate to LandingScreen
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => LandingScreen()),
+              (route) => false,
+            );
           },
           style: OutlinedButton.styleFrom(
             side: BorderSide(color: textColor),
