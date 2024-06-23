@@ -1,6 +1,4 @@
 [![Flutter CI](https://github.com/COS301-SE-2024/Culinary-Companion/actions/workflows/fluuter_ci.yaml/badge.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/actions/workflows/fluuter_ci.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/COS301-SE-2024/Culinary-Companion/badge.svg?branch=main)](https://coveralls.io/github/COS301-SE-2024/Culinary-Companion?branch=main)
-[![Code Quality](https://img.shields.io/codefactor/grade/github/COS301-SE-2024/Culinary-Companion/main)](https://www.codefactor.io/repository/github/COS301-SE-2024/Culinary-Companion)
 [![GitHub stars](https://img.shields.io/github/stars/COS301-SE-2024/Culinary-Companion.svg?style=social&label=Star)](https://github.com/COS301-SE-2024/Culinary-Companion/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/COS301-SE-2024/Culinary-Companion.svg?style=social&label=Fork)](https://github.com/COS301-SE-2024/Culinary-Companion/network/members)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/graphs/commit-activity)
@@ -54,18 +52,23 @@ As a project committed to continuous improvement and user satisfaction, Culinary
 # Demo Video
 <p align="center">
 <a href="https://drive.google.com/file/d/15_5Z1gA2fE5ary6gUPKAXGd8STM5MKtF/view?usp=sharing">Demo 1</a><br>
+<a href="https://drive.google.com/file/d/1V_g0KkcuujZR5V86HbeliEnzHzAhgSkR/view?usp=sharing">Demo 2</a><br>
 <!-- <a href="">Demo 2</a><br> -->
 </p>
 
 # Here are the links to our Documentation
 
 <p align="center">
-<a href="https://drive.google.com/drive/u/0/folders/1ZnmKO3qS6L-8hnpoZXd2Y9Ym1cz955pI">Google Drive (For Dev purposes)</a><br>
-<a href="https://drive.google.com/file/d/1S89jOO6uwtdGO69uQlcny6oqonXwpjXO/view">System Requirements (SRS)</a><br>
+<a href="https://drive.google.com/drive/u/0/folders/1J3UkGzdmvfzHlvo3s3H9XGm8tCHz1Uby">Google Drive (For Dev purposes)</a><br>
+<a href="https://docs.google.com/document/d/15BmymzqP6uVTuVqwOn0Yr3DsMgQYDttUQXpStN8uthY/edit">System Requirements (SRS)</a><br>
 <a href ="https://docs.google.com/document/d/1jnSFyKLy5eKni1W7SQXsAEFjbcDD9z4gKG0Ik5CG4Ns/edit?usp=sharing">Github Strategy</a><br>
 <a href="https://www.figma.com/design/arOZQVX3lf29HQ8i4AX62q/Culinary-Companion-Wireframe?node-id=0-1&t=RlUZKlPywj5BnrZA-1">Figma designs</a><br>
 <a href="https://github.com/orgs/COS301-SE-2024/projects/58">GitHub Project Board</a><br>
-<a href="https://docs.google.com/document/d/1g2y0eYqlM3KTqKUrnQyZ14FAw0r3NWiBiadqF8cziJQ/edit?usp=sharing">Testing Guidelines</a><br>
+<a href="https://docs.google.com/document/d/1ZoVi9KfAVdYJh_LYhZx1c4JbL_N_GcJW1Ux66Hivqok/edit">Testing Guidelines</a><br>
+<a href="https://docs.google.com/document/d/1XVFKQBNgAKO-0a8WxgVJc_MtoPRM8112bPF1p04mdIs/edit">Architectural requirements</a><br>
+<a href="https://docs.google.com/document/d/1q83kjc26SDcv6gT9tssgXCbJLZIAMjvUQ0csrpDg_dg/edit#heading=h.guha62j8eqgf">Coding Standards</a><br>
+<a href="https://drive.google.com/drive/u/0/folders/1J3UkGzdmvfzHlvo3s3H9XGm8tCHz1Uby">User Manual</a><br>
+<a href="https://docs.google.com/document/d/1tnc2obcVK6tWu-XDuHJx8DG9czl4Mv55UhOr-jQdhVY/edit">Design Specification</a><br>
 </p>
 
 # Our Tech stack

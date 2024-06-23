@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import '../lib/screens/shopping_list_screen.dart'; // Replace with actual import
+import 'package:flutter_application_1/screens/shopping_list_screen.dart'; // Replace with actual import
 
 import 'shopping_list_screen_test.mocks.dart';
 
