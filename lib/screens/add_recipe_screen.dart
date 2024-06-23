@@ -835,6 +835,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                     horizontal: 40, vertical: 20),
                               ),
                               child: const Text(
+                                key: ValueKey('AddRecipe'),
                                 'Add Recipe',
                                 style: TextStyle(
                                     color: Colors.white,

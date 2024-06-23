@@ -110,6 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ? Center(child: Lottie.asset('assets/loading.json'))
           : SingleChildScrollView(
               child: Padding(
+                key: ValueKey('Home'),
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

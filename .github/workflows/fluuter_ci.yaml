@@ -59,5 +59,8 @@ jobs:
       - name: Start ChromeDriver server
         run: chromedriver --port=4444 &
 
-      - name: Run integration tests
+      - name: Run integration tests 1
         run: flutter drive --target=test_driver/app.dart -d web-server
+      
+      - name: Run integration tests 2
+        run: flutter drive --target=test_driver/app_2.dart -d web-server

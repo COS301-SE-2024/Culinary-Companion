@@ -292,6 +292,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
+                      key: ValueKey('Pantry'),
                       onPressed: () {
                         _showAddItemDialog(context, 'Shopping');
                       },
