@@ -12,7 +12,6 @@ class ConfirmDetailsScreen extends StatefulWidget {
 }
 
 class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
-
   String? _userId;
   List<String>? _cuisineOptions;
   List<String>? _dietaryOptions;
@@ -24,45 +23,45 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
     super.initState();
     _initializeData();
   }
-   Future<void> _initializeData() async {
-  try {
-    await _loadUserId();
-    final List<String> cuisineItems = await _loadCuisines();
-    final List<String> constraintItems = await _loadDietaryConstraints();
-    setState(() {
-      _cuisineOptions = cuisineItems;
-      _dietaryOptions = constraintItems;
-     // _isLoading = false;
-    });
-  } catch (error) {
-    print('Error initializing data: $error');
-    setState(() {
-      //_isLoading = false;
-      //_errorMessage = 'Error initializing data';
-    });
-  }
-}
 
-Future<List<String>> _loadCuisines() async {
-  final url =
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
-  try {
-    final response = await http.post(Uri.parse(url),
-        body: json.encode({'action': 'getCuisines'}));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      final List<String> cuisineItems =
-          data.map<String>((cuisine) => cuisine['name'].toString()).toList();
-      return cuisineItems;
-    } else {
-      throw Exception('Failed to load cuisines');
+  Future<void> _initializeData() async {
+    try {
+      await _loadUserId();
+      final List<String> cuisineItems = await _loadCuisines();
+      final List<String> constraintItems = await _loadDietaryConstraints();
+      setState(() {
+        _cuisineOptions = cuisineItems;
+        _dietaryOptions = constraintItems;
+        // _isLoading = false;
+      });
+    } catch (error) {
+      print('Error initializing data: $error');
+      setState(() {
+        //_isLoading = false;
+        //_errorMessage = 'Error initializing data';
+      });
     }
-  } catch (e) {
-    throw Exception('Error fetching cuisines: $e');
   }
-}
 
+  Future<List<String>> _loadCuisines() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(Uri.parse(url),
+          body: json.encode({'action': 'getCuisines'}));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        final List<String> cuisineItems =
+            data.map<String>((cuisine) => cuisine['name'].toString()).toList();
+        return cuisineItems;
+      } else {
+        throw Exception('Failed to load cuisines');
+      }
+    } catch (e) {
+      throw Exception('Error fetching cuisines: $e');
+    }
+  }
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -71,87 +70,92 @@ Future<List<String>> _loadCuisines() async {
       print('Login successful: $_userId');
     });
   }
+
   Future<List<String>> _loadDietaryConstraints() async {
-  final url =
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
-  try {
-    final response = await http.post(Uri.parse(url),
-        body: json.encode({'action': 'getDietaryConstraints'}));
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(Uri.parse(url),
+          body: json.encode({'action': 'getDietaryConstraints'}));
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      final List<String> constraintItems =
-          data.map<String>((constraint) => constraint['name'].toString()).toList();
-      return constraintItems;
-    } else {
-      throw Exception('Failed to load dietary constraints');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        final List<String> constraintItems = data
+            .map<String>((constraint) => constraint['name'].toString())
+            .toList();
+        return constraintItems;
+      } else {
+        throw Exception('Failed to load dietary constraints');
+      }
+    } catch (e) {
+      throw Exception('Error fetching dietary constraints: $e');
     }
-  } catch (e) {
-    throw Exception('Error fetching dietary constraints: $e');
   }
-}
 
-Future<void> _createUserProfile(String userId, String username, String cuisineName, int spiceLevel, String imageURL) async {
-  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint'; // Replace with your actual backend endpoint
-  // print('spice:  $spiceLevel');
-  // print('userid:  $_userId');
-  // print('name:  $username');
-  // print('c:  $cuisineName');
-  // print('image:  $imageURL');
-  try {
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'action': 'createUserProfile',
-        'userId': userId,
-        'username': username,
-        'cuisine': cuisineName,
-        'spicelevel': spiceLevel,
-        //'imageUrl': imageURL,
-      }),
-    );
+  Future<void> _createUserProfile(String userId, String username,
+      String cuisineName, int spiceLevel, String imageURL) async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint'; // Replace with your actual backend endpoint
+    // print('spice:  $spiceLevel');
+    // print('userid:  $_userId');
+    // print('name:  $username');
+    // print('c:  $cuisineName');
+    // print('image:  $imageURL');
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'action': 'createUserProfile',
+          'userId': userId,
+          'username': username,
+          'cuisine': cuisineName,
+          'spicelevel': spiceLevel,
+          //'imageUrl': imageURL,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      print('User profile created successfully');
-    } else {
-      throw Exception('Failed to create user profile');
+      if (response.statusCode == 200) {
+        print('User profile created successfully');
+      } else {
+        throw Exception('Failed to create user profile');
+      }
+    } catch (error) {
+      print('Error creating user profile: $error');
     }
-  } catch (error) {
-    print('Error creating user profile: $error');
   }
-}
 
+  Future<void> _addUserDietaryConstraints(
+      String userId, String dietaryConstraint) async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint'; // Replace with your actual backend endpoint
 
-Future<void> _addUserDietaryConstraints(String userId, String dietaryConstraint) async {
-  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint'; // Replace with your actual backend endpoint
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'action': 'addUserDietaryConstraints',
+          'userId': userId,
+          'dietaryConstraint': dietaryConstraint,
+        }),
+      );
 
-  try {
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'action': 'addUserDietaryConstraints',
-        'userId': userId,
-        'dietaryConstraint': dietaryConstraint,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('Dietary constraint added successfully');
-    } else {
-      throw Exception('Failed to add dietary constraint');
+      if (response.statusCode == 200) {
+        print('Dietary constraint added successfully');
+      } else {
+        throw Exception('Failed to add dietary constraint');
+      }
+    } catch (error) {
+      print('Error adding dietary constraint: $error');
     }
-  } catch (error) {
-    print('Error adding dietary constraint: $error');
   }
-}
 
-int getSpiceLevelNumber(String spiceLevel) {
+  int getSpiceLevelNumber(String spiceLevel) {
     switch (spiceLevel) {
       case 'None':
         return 1;
@@ -167,7 +171,7 @@ int getSpiceLevelNumber(String spiceLevel) {
         throw Exception('Invalid spice level');
     }
   }
-  
+
   final _formKey = GlobalKey<FormState>();
   // ignore: unused_field
   String _username = '';
@@ -177,11 +181,12 @@ int getSpiceLevelNumber(String spiceLevel) {
   File? _profileImage;
 
   final List<String> _spiceLevels = [
-    'None', 
-    'Mild🌶️', 
-    'Medium🌶️🌶️', 
-    'Hot🌶️🌶️🌶️', 
-    'Extra Hot🌶️🌶️🌶️🌶️'];
+    'None',
+    'Mild🌶️',
+    'Medium🌶️🌶️',
+    'Hot🌶️🌶️🌶️',
+    'Extra Hot🌶️🌶️🌶️🌶️'
+  ];
 
   // Future<void> _pickImage() async {
   //   final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -198,11 +203,19 @@ int getSpiceLevelNumber(String spiceLevel) {
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {
       int spiceLevel = getSpiceLevelNumber(_spiceLevel);
-      
-      _createUserProfile(_userId!, _username, _cuisine, spiceLevel, _profileImage != null ? _profileImage!.path : ''); // Call to create user profile
+
+      _createUserProfile(
+          _userId!,
+          _username,
+          _cuisine,
+          spiceLevel,
+          _profileImage != null
+              ? _profileImage!.path
+              : ''); // Call to create user profile
       for (String restriction in _dietaryRestrictions) {
-      _addUserDietaryConstraints(_userId!, restriction); // Call to add dietary constraints
-    }
+        _addUserDietaryConstraints(
+            _userId!, restriction); // Call to add dietary constraints
+      }
       // Navigate to home page or handle signup
       Navigator.pushReplacementNamed(context, '/home');
     }
@@ -224,12 +237,15 @@ int getSpiceLevelNumber(String spiceLevel) {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+
     return Scaffold(
       body: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
-              'assets/Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -244,7 +260,9 @@ int getSpiceLevelNumber(String spiceLevel) {
                     Column(
                       children: [
                         Image.asset(
-                          'logo.png',
+                          isLightTheme
+                              ? 'assets/logo_1.png'
+                              : 'assets/logo_2.png',
                           height: 80,
                         ),
                         const SizedBox(height: 32),
@@ -309,7 +327,9 @@ int getSpiceLevelNumber(String spiceLevel) {
                       width: 365,
                       height: 70,
                       child: DropdownButtonFormField<String>(
-                        dropdownColor: const Color(0xFF1F4539),
+                        dropdownColor: isLightTheme
+                            ? Colors.white
+                            : Color(0xFF1F4539), //const Color(0xFF1F4539),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Preferred spice level:',
@@ -360,9 +380,13 @@ int getSpiceLevelNumber(String spiceLevel) {
                         children: [
                           Expanded(
                             child: DropdownButtonFormField<String>(
-                              dropdownColor: const Color(0xFF1F4539),
+                              dropdownColor: isLightTheme
+                                  ? Colors.white
+                                  : Color(
+                                      0xFF1F4539), //const Color(0xFF1F4539),
                               decoration: InputDecoration(
-                                floatingLabelBehavior: FloatingLabelBehavior.always,
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
                                 labelText: 'Dietary restrictions:',
                                 labelStyle: const TextStyle(
                                   fontSize: 20,
@@ -404,27 +428,30 @@ int getSpiceLevelNumber(String spiceLevel) {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Container(  
+                    Container(
                       width: 365,
-                      child: Column(  
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: _dietaryRestrictions
-                        .map((restriction) => Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(  
-                              restriction,
-                              style: const TextStyle(
-                                fontSize: 16, 
-                                color: Colors.white),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.remove, color: Colors.red),
-                              onPressed: () => _removeDietaryRestriction(restriction),
-                            ),
-                          ],
-                        ))
-                        .toList(),
+                            .map((restriction) => Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      restriction,
+                                      style: const TextStyle(
+                                          fontSize: 16, color: Colors.white),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.remove,
+                                          color: Colors.red),
+                                      onPressed: () =>
+                                          _removeDietaryRestriction(
+                                              restriction),
+                                    ),
+                                  ],
+                                ))
+                            .toList(),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -432,7 +459,9 @@ int getSpiceLevelNumber(String spiceLevel) {
                       width: 365,
                       height: 70,
                       child: DropdownButtonFormField<String>(
-                        dropdownColor: const Color(0xFF1F4539),
+                        dropdownColor: isLightTheme
+                            ? Colors.white
+                            : Color(0xFF1F4539), //const Color(0xFF1F4539),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Preferred cuisine:',
@@ -519,4 +548,3 @@ int getSpiceLevelNumber(String spiceLevel) {
     );
   }
 }
-

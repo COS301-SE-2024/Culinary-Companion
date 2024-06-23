@@ -3,11 +3,8 @@ import 'package:flutter/material.dart';
 class LandingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    //Getting the screen size
-    // final size = MediaQuery.of(context).size;
-    // final buttonWidth = size.width * 0.2;
-    // final logoHeight = size.height * 0.2;
-    // final textSize = size.width * 0.08;
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
 
     return Scaffold(
       body: Stack(
@@ -15,7 +12,7 @@ class LandingScreen extends StatelessWidget {
           //Background image
           Positioned.fill(
             child: Image.asset(
-              'assets/Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -25,10 +22,10 @@ class LandingScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'assets/logo.png',
+                  isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
                   height: 100,
                 ),
-                SizedBox(height: 32),//spacing between logo and buttons
+                SizedBox(height: 32), //spacing between logo and buttons
                 //Login button
                 SizedBox(
                   width: 400,
@@ -55,25 +52,34 @@ class LandingScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
                 //Line with "or" text
-                Row(  
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
                       width: 180,
                       height: 1,
-                      color: Colors.white,
+                      color: isLightTheme
+                          ? const Color.fromARGB(255, 94, 94, 94)
+                          : Colors.white,
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 10),
                       child: Text(
                         'or',
-                        style: TextStyle(color: Colors.white, fontSize: 18),
+                        style: TextStyle(
+                          color: isLightTheme
+                              ? const Color.fromARGB(255, 94, 94, 94)
+                              : Colors.white,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                     Container(
                       width: 180,
                       height: 1,
-                      color: Colors.white,
+                      color: isLightTheme
+                          ? const Color.fromARGB(255, 94, 94, 94)
+                          : Colors.white,
                     ),
                   ],
                 ),

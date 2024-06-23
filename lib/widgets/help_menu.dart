@@ -8,6 +8,11 @@ class HelpMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final clickColor = theme.brightness == Brightness.light
+        ? Colors.white
+        : Color.fromARGB(255, 25, 58, 48);
     return GestureDetector(
       onTap: onClose,
       child: Container(
@@ -15,7 +20,7 @@ class HelpMenu extends StatelessWidget {
         child: Center(
           child: Material(
             borderRadius: BorderRadius.circular(10),
-            color: Color(0xFF20493C),
+            color: clickColor,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
               width: MediaQuery.of(context).size.width * 0.8,
@@ -92,11 +97,9 @@ class HelpMenu extends StatelessWidget {
                             '1. Navigating the Home Page', //will have link to something?
                           ),
                           SizedBox(height: 8),
-                          Text(
-                            '1.1. Scroll up and down to view all recipes.\n'
-                            '1.2. Hover over any of the recipes to see details such as the recipe name, description, prep time, cook time, cuisine, spice level, course, servings, steps, appliances, and ingredients.\n'
-                            '1.3. Tap on any recipe card to view detailed information about the recipe.\n'
-                          ),
+                          Text('1.1. Scroll up and down to view all recipes.\n'
+                              '1.2. Hover over any of the recipes to see details such as the recipe name, description, prep time, cook time, cuisine, spice level, course, servings, steps, appliances, and ingredients.\n'
+                              '1.3. Tap on any recipe card to view detailed information about the recipe.\n'),
                           SizedBox(height: 8),
                           Text(
                             '2. Recipe Scanning and Formatting', //will have link to something?

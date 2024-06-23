@@ -60,19 +60,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+
     return Scaffold(
-      // appBar: AppBar(
-      //   // title: Text('Login'),
-      //   automaticallyImplyLeading: false,
-      //   backgroundColor: Colors.transparent,
-      //   elevation: 0,
-      // ),
       body: Stack(
         children: [
           //Background image
           Positioned.fill(
             child: Image.asset(
-              'assets/Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -89,16 +86,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     Column(
                       children: [
                         Image.asset(
-                          'logo.png',
+                          isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
                           height: 80,
                         ),
                         const SizedBox(height: 16),
-                        const Text(
+                        Text(
                           'Welcome Back!',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: isLightTheme
+                                ? Color.fromARGB(255, 0, 0, 0)
+                                : Colors.white,
                           ),
                         ),
                         const SizedBox(height: 32),
@@ -112,9 +111,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Email:',
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontSize: 20, // Increase the font size as needed
-                            color: Colors.white,
+                            color: isLightTheme
+                                ? Color.fromARGB(255, 94, 94, 94)
+                                : Colors.white,
                           ),
                           hintText: 'example@gmail.com',
                           hintStyle: const TextStyle(color: Color(0xFF778579)),
@@ -164,9 +165,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Password:',
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontSize: 20, // Increase the font size as needed
-                            color: Colors.white,
+                            color: isLightTheme
+                                ? Color.fromARGB(255, 94, 94, 94)
+                                : Colors.white,
                           ),
                           hintText: '••••••••••',
                           hintStyle: const TextStyle(color: Color(0xFF778579)),
@@ -227,10 +230,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         key: ValueKey('Login'),
                         onPressed: _handleLogin,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFDC945F), // Button background color
+                          backgroundColor: const Color(
+                              0xFFDC945F), // Button background color
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0), // Border radius
+                            borderRadius:
+                                BorderRadius.circular(8.0), // Border radius
                           ),
                           side: const BorderSide(
                             color: Colors.transparent, // Border color
