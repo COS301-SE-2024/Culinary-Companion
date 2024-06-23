@@ -92,7 +92,7 @@ class _PantryScreenState extends State<PantryScreen> {
         });
       } else {
         // Handle other status codes, such as 404 or 500
-        print('Failed to fetch ingredient names: ${response.statusCode}');
+        //print('Failed to fetch ingredient names: ${response.statusCode}');
       }
     } catch (error) {
       // Handle network errors or other exceptions
@@ -128,7 +128,7 @@ class _PantryScreenState extends State<PantryScreen> {
         });
       } else {
         // Handle other status codes, such as 404 or 500
-        print('Failed to fetch pantry list: ${response.statusCode}');
+        //print('Failed to fetch pantry list: ${response.statusCode}');
       }
     } catch (error) {
       // Handle network errors or other exceptions

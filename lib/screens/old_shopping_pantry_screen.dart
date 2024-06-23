@@ -72,7 +72,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
         });
       } else {
         // Handle other status codes, such as 404 or 500
-        print('Failed to fetch ingredient names: ${response.statusCode}');
+        //print('Failed to fetch ingredient names: ${response.statusCode}');
       }
     } catch (error) {
       // Handle network errors or other exceptions
@@ -108,7 +108,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
         });
       } else {
         // Handle other status codes, such as 404 or 500
-        print('Failed to fetch shopping list: ${response.statusCode}');
+        //print('Failed to fetch shopping list: ${response.statusCode}');
       }
     } catch (error) {
       // Handle network errors or other exceptions
@@ -144,7 +144,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
         });
       } else {
         // Handle other status codes, such as 404 or 500
-        print('Failed to fetch pantry list: ${response.statusCode}');
+        //print('Failed to fetch pantry list: ${response.statusCode}');
       }
     } catch (error) {
       // Handle network errors or other exceptions
