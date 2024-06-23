@@ -32,7 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = prefs.getString('userId');
-      print('Login successful: $_userId');
+      //print('Login successful: $_userId');
     });
     if (_userId != null) {
       await _fetchUserDetails();

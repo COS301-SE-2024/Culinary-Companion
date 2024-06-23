@@ -104,7 +104,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
       });
 
       // Print the appliances to verify
-      print(appliances);
+      //print(appliances);
     } else {
       print('Failed to fetch appliances');
     }

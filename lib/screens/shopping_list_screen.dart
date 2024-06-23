@@ -145,7 +145,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('Successfully added $ingredientName to shopping list');
+        //print('Successfully added $ingredientName to shopping list');
       } else {
         print(
             'Failed to add $ingredientName to shopping list: ${response.statusCode}');

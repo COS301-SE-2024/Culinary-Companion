@@ -34,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response.statusCode == 200) {
         final responseBody = jsonDecode(response.body);
         // Authentication successful, handle the user object as needed
-        print('Login successful: ${responseBody['user']}');
+        //print('Login successful: ${responseBody['user']}');
         String userId = responseBody['user']['id'];
 
         // Save the userId to SharedPreferences
