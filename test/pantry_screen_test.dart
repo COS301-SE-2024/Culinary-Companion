@@ -39,4 +39,19 @@ void main() {
     
     expect(find.text('Add New Item To Pantry List'), findsOneWidget);
   });
+
+   testWidgets('Adding an item to the pantry updates the UI', (WidgetTester tester) async {
+    await pumpPantryScreen(tester);
+    
+    await tester.tap(find.byType(ElevatedButton));
+    await tester.pumpAndSettle();
+    
+    await tester.enterText(find.byType(TypeAheadFormField<String>).first, 'Dairy');
+    await tester.enterText(find.byType(TypeAheadFormField<String>).last, 'Cheese');
+    
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Cheese'), findsOneWidget);
+  });
 }
