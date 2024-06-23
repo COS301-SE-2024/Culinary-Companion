@@ -62,6 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
     return Scaffold(
       body: Stack(
@@ -86,7 +87,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     Column(
                       children: [
                         Image.asset(
-                          isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
+                          isLightTheme
+                              ? 'assets/logo_1.png'
+                              : 'assets/logo_2.png',
                           height: 80,
                         ),
                         const SizedBox(height: 16),
@@ -112,10 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Email:',
                           labelStyle: TextStyle(
-                            fontSize: 20, // Increase the font size as needed
-                            color: isLightTheme
-                                ? Color.fromARGB(255, 94, 94, 94)
-                                : Colors.white,
+                            fontSize: 20,
+                            color: textColor,
                           ),
                           hintText: 'example@gmail.com',
                           hintStyle: const TextStyle(color: Color(0xFF778579)),
@@ -165,12 +166,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Password:',
-                          labelStyle: TextStyle(
-                            fontSize: 20, // Increase the font size as needed
-                            color: isLightTheme
-                                ? Color.fromARGB(255, 94, 94, 94)
-                                : Colors.white,
-                          ),
+                          labelStyle: TextStyle(fontSize: 20, color: textColor),
                           hintText: '••••••••••',
                           hintStyle: const TextStyle(color: Color(0xFF778579)),
                           border: OutlineInputBorder(
@@ -312,7 +308,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.pushNamed(context, '/signup');
                       },
-                      child: const Text('Don\'t have an account? Sign up'),
+                      child: Text(
+                        'Don\'t have an account? Sign up',
+                        style: TextStyle(
+                          color: textColor,
+                        ),
+                      ),
                     ),
                   ],
                 ),

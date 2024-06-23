@@ -391,6 +391,8 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     return Scaffold(
       // appBar: AppBar(
       //   title: Text('Sign Up'),
@@ -422,11 +424,11 @@ class _SignupScreenState extends State<SignupScreen> {
                           height: 80,
                         ),
                         const SizedBox(height: 16),
-                        const Text(
+                        Text(
                           'Create an account',
                           style: TextStyle(
                             fontSize: 24,
-                            color: Colors.white,
+                            color: textColor,
                           ),
                         ),
                         const SizedBox(height: 32),
@@ -440,9 +442,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Email:',
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontSize: 20,
-                            color: Colors.white,
+                            color: textColor,
                           ),
                           hintText: 'example@gmail.com',
                           hintStyle: const TextStyle(color: Color(0xFF778579)),
@@ -486,8 +488,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Password:',
-                          labelStyle: const TextStyle(
-                              fontSize: 20, color: Colors.white),
+                          labelStyle: TextStyle(fontSize: 20, color: textColor),
                           hintText: '••••••••••',
                           hintStyle: const TextStyle(color: Color(0xFF778579)),
                           border: OutlineInputBorder(
@@ -530,8 +531,7 @@ class _SignupScreenState extends State<SignupScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Confirm Password',
-                          labelStyle: const TextStyle(
-                              fontSize: 20, color: Colors.white),
+                          labelStyle: TextStyle(fontSize: 20, color: textColor),
                           hintText: '••••••••••',
                           hintStyle: const TextStyle(color: Color(0xFF778579)),
                           border: OutlineInputBorder(
@@ -585,7 +585,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             width: 2.0,
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Sign Up',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -600,7 +600,12 @@ class _SignupScreenState extends State<SignupScreen> {
                       onPressed: () {
                         Navigator.pushNamed(context, '/login');
                       },
-                      child: const Text('Already have an account? Login'),
+                      child: Text(
+                        'Already have an account? Login',
+                        style: TextStyle(
+                          color: textColor,
+                        ),
+                      ),
                     ),
                   ],
                 ),

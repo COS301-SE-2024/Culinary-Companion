@@ -585,6 +585,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   // For dietary constraints multi-select
   Widget _buildDietaryConstraintsMultiSelect() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
       child: Column(
@@ -613,18 +617,17 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             buttonText: Text(
               'Select Dietary Constraints',
               style: TextStyle(
-                color: Colors.white,
+                color: textColor,
               ),
             ),
             buttonIcon: Icon(
               Icons.arrow_drop_down,
-              color: Colors.white,
+              color: textColor,
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(8)),
               border: Border.all(
-                color: Colors
-                    .white, // Change this color to the desired border color
+                color: textColor, // Change this color to the desired border color
                 width: 1, // Change the width as needed
               ),
             ),
@@ -639,25 +642,28 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     // final String profilePhoto =
     //     _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
     // print('User\'s preferred cuisine: $_selectedCuisine');
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
     if (_isLoading) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('Edit Profile'),
-      backgroundColor: Color(0xFF20493C),
-    ),
-    body: Center(
-      child: Lottie.asset(
-        'assets/loading.json'
-      ),
-    ),
-  );
-}
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Edit Profile', style: TextStyle(color: textColor)),
+          backgroundColor: isLightTheme ? Colors.white : Color(0xFF20493C),
+        ),
+        body: Center(
+          child: Lottie.asset(
+            'assets/loading.json'
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Profile'),
-        backgroundColor: Color(0xFF20493C),
+        title: Text('Edit Profile', style: TextStyle(color: textColor)),
+        backgroundColor: isLightTheme ? Colors.white : Color(0xFF20493C),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
