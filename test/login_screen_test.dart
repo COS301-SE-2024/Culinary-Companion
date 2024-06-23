@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import '../lib/screens/landing_screen.dart'; // Adjust the import according to your project structure
+import 'package:flutter_application_1/screens/landing_screen.dart'; // Adjust the import according to your project structure
 import 'mock_navigator_observer.mocks.dart';
 
 void main() {

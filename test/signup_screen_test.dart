@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../lib/screens/signup_screen.dart'; // Replace 'your_app_name' with your actual app name
+import 'package:flutter_application_1/screens/signup_screen.dart'; // Replace 'your_app_name' with your actual app name
 
 import 'signup_screen_test.mocks.dart';
 
