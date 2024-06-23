@@ -1,6 +1,4 @@
 [![Flutter CI](https://github.com/COS301-SE-2024/Culinary-Companion/actions/workflows/fluuter_ci.yaml/badge.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/actions/workflows/fluuter_ci.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/COS301-SE-2024/Culinary-Companion/badge.svg?branch=main)](https://coveralls.io/github/COS301-SE-2024/Culinary-Companion?branch=main)
-[![Code Quality](https://img.shields.io/codefactor/grade/github/COS301-SE-2024/Culinary-Companion/main)](https://www.codefactor.io/repository/github/COS301-SE-2024/Culinary-Companion)
 [![GitHub stars](https://img.shields.io/github/stars/COS301-SE-2024/Culinary-Companion.svg?style=social&label=Star)](https://github.com/COS301-SE-2024/Culinary-Companion/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/COS301-SE-2024/Culinary-Companion.svg?style=social&label=Fork)](https://github.com/COS301-SE-2024/Culinary-Companion/network/members)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/graphs/commit-activity)
