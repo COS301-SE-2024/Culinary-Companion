@@ -22,17 +22,22 @@ Color unshade(BuildContext context) {
 }
 
 class PantryScreen extends StatefulWidget {
+  final http.Client? client;
+
+  PantryScreen({Key? key, this.client}) : super(key: key);
   @override
   _PantryScreenState createState() => _PantryScreenState();
 }
 
 class _PantryScreenState extends State<PantryScreen> {
+  late http.Client _client;
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
 
   @override
   void initState() {
     super.initState();
+    _client = widget.client ?? http.Client();
     _initializeData();
   }
 
