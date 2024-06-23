@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../lib/screens/edit_profile_screen.dart'; // Adjust this import path
+import 'package:flutter_application_1/screens/edit_profile_screen.dart'; // Adjust this import path
 
 void main() {
   testWidgets('ProfileEditScreen renders', (WidgetTester tester) async {

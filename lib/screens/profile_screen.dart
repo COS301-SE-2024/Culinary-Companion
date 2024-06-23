@@ -499,7 +499,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 }
 
                 return RecipeCard(
-                  recipeID: recipes[index]['recipeID'] ?? '',
+                  recipeID: recipes[index]['recipeId'] ?? '',
                   name: recipes[index]['name'] ?? '',
                   description: recipes[index]['description'] ?? '',
                   imagePath: recipes[index]['photo'] ?? 'assets/pfp.jpg',
