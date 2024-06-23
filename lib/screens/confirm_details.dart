@@ -67,7 +67,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = prefs.getString('userId');
-      print('Login successful: $_userId');
+      //print('Login successful: $_userId');
     });
   }
 
@@ -118,7 +118,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('User profile created successfully');
+        //print('User profile created successfully');
       } else {
         throw Exception('Failed to create user profile');
       }
@@ -146,7 +146,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('Dietary constraint added successfully');
+        //('Dietary constraint added successfully');
       } else {
         throw Exception('Failed to add dietary constraint');
       }

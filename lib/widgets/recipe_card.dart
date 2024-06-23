@@ -105,7 +105,7 @@ class _RecipeCardState extends State<RecipeCard> {
     try {
       final response = await http.post(url, headers: headers, body: body);
       if (response.statusCode == 200) {
-        print('Favorite status updated');
+        //print('Favorite status updated');
       } else {
         print('Failed to update favorite status: ${response.reasonPhrase}');
       }

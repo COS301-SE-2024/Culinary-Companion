@@ -28,9 +28,9 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = prefs.getString('userId');
-      print('Login successful: $_userId');
+      //print('Login successful: $_userId');
       if (_userId != null) {
-        print('here 1');
+        //print('here 1');
         fetchRecipes(); // Call fetchRecipes only if userId is loaded successfully
       }
     });

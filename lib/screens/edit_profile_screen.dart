@@ -37,7 +37,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   // Pick image from gallery
 
   Future<void> _pickImage() async {
-    print('Starting image picking process...');
+    //print('Starting image picking process...');
 
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -46,21 +46,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       return;
     }
 
-    print('Image picked: ${image.path}');
-    print('User ID: $_userId');
+    //print('Image picked: ${image.path}');
+    //print('User ID: $_userId');
     final supabase = Supabase.instance.client;
     //final userId = _userId;//await supabase.auth.currentUser!.id;
     //final user = supabase.auth.currentUser;
 
-    final imageEx = image.path.split('.').last.toLowerCase();
+    //final imageEx = image.path.split('.').last.toLowerCase();
     final imagePath = '/$_userId/profile_photos';
-    print('Image extension: $imageEx');
-    print('Image path: $imagePath');
+    //print('Image extension: $imageEx');
+    //print('Image path: $imagePath');
 
     final imageBytes = await image.readAsBytes();
     //print('image bytes:$imageBytes');
 
-    print('Uploading image to Supabase storage...');
+    //print('Uploading image to Supabase storage...');
     try {
       final response =
           await supabase.storage.from('profile_photos').uploadBinary(
@@ -74,18 +74,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       //print("here");
 
       if (response.isNotEmpty) {
-        print('Image uploaded successfully.');
+        //('Image uploaded successfully.');
 
         imageUrl =
             supabase.storage.from('profile_photos').getPublicUrl(imagePath);
 
-        print('Image URL: $imageUrl');
+        //print('Image URL: $imageUrl');
 
         imageUrl = Uri.parse(imageUrl).replace(queryParameters: {
           't': DateTime.now().microsecondsSinceEpoch.toString()
         }).toString();
 
-        print('Updated image URL: $imageUrl');
+        //print('Updated image URL: $imageUrl');
 
         await supabase
             .from('userProfile')
@@ -94,7 +94,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         setState(() {
           imageUrl = imageUrl;
         });
-        print('User profile photo updated successfully.');
+        //print('User profile photo updated successfully.');
       } else {
         print('Error uploading image: $response');
       }
@@ -131,7 +131,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _userId = prefs.getString('userId');
-      print('Login successful: $_userId');
+      //print('Login successful: $_userId');
     });
   }
 
@@ -154,7 +154,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
-        print('Response data: $data'); //response data
+        //print('Response data: $data'); //response data
         if (data.isNotEmpty) {
           setState(() {
             _userDetails = data[0]; //get the first item in the list
@@ -403,7 +403,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('Dietary constraint added successfully');
+        //print('Dietary constraint added successfully');
       } else {
         throw Exception('Failed to add dietary constraint');
       }
@@ -430,7 +430,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('Dietary constraint removed successfully');
+        //print('Dietary constraint removed successfully');
       } else {
         throw Exception('Failed to remove dietary constraint');
       }
@@ -454,7 +454,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('Cuisine updated successfully');
+        //print('Cuisine updated successfully');
       } else {
         throw Exception('Failed to update cuisine');
       }
@@ -480,7 +480,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('Spice level updated successfully');
+        //print('Spice level updated successfully');
       } else {
         throw Exception('Failed to update spice level');
       }
@@ -540,7 +540,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('Username updated successfully');
+        //print('Username updated successfully');
       } else {
         throw Exception('Failed to update username');
       }
@@ -574,7 +574,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         }
       }
 
-      print('Profile updated successfully');
+      //print('Profile updated successfully');
       Navigator.pop(context,true);
 
       // You can navigate to another screen or show a success message here

@@ -145,7 +145,7 @@ class _PantryScreenState extends State<PantryScreen> {
       );
 
       if (response.statusCode == 200) {
-        print('Successfully added $ingredientName to pantry list');
+        //print('Successfully added $ingredientName to pantry list');
       } else {
         print(
             'Failed to add $ingredientName to pantry list: ${response.statusCode}');
