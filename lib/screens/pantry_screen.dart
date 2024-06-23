@@ -22,17 +22,22 @@ Color unshade(BuildContext context) {
 }
 
 class PantryScreen extends StatefulWidget {
+  final http.Client? client;
+
+  PantryScreen({Key? key, this.client}) : super(key: key);
   @override
   _PantryScreenState createState() => _PantryScreenState();
 }
 
 class _PantryScreenState extends State<PantryScreen> {
+  //late http.Client _client;
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
 
   @override
   void initState() {
     super.initState();
+    //_client = widget.client ?? http.Client();
     _initializeData();
   }
 
@@ -87,7 +92,7 @@ class _PantryScreenState extends State<PantryScreen> {
         });
       } else {
         // Handle other status codes, such as 404 or 500
-        print('Failed to fetch ingredient names: ${response.statusCode}');
+        //print('Failed to fetch ingredient names: ${response.statusCode}');
       }
     } catch (error) {
       // Handle network errors or other exceptions
@@ -123,7 +128,7 @@ class _PantryScreenState extends State<PantryScreen> {
         });
       } else {
         // Handle other status codes, such as 404 or 500
-        print('Failed to fetch pantry list: ${response.statusCode}');
+        //print('Failed to fetch pantry list: ${response.statusCode}');
       }
     } catch (error) {
       // Handle network errors or other exceptions
