@@ -31,14 +31,14 @@ class ShoppingListScreen extends StatefulWidget {
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
-  late http.Client _client;
+  //late http.Client _client;
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
 
   @override
   void initState() {
     super.initState();
-    _client = widget.client ?? http.Client();
+    //_client = widget.client ?? http.Client();
     _initializeData();
   }
 

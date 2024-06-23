@@ -30,14 +30,14 @@ class PantryScreen extends StatefulWidget {
 }
 
 class _PantryScreenState extends State<PantryScreen> {
-  late http.Client _client;
+  //late http.Client _client;
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
 
   @override
   void initState() {
     super.initState();
-    _client = widget.client ?? http.Client();
+    //_client = widget.client ?? http.Client();
     _initializeData();
   }
 
