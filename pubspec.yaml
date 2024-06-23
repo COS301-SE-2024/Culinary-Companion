@@ -110,6 +110,7 @@ flutter:
     - assets/helper_chef.png
     - assets/logo_1.png
     - assets/logo_2.png
+    - assets/emptyPlate.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
