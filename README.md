@@ -1,15 +1,24 @@
 [![Flutter CI](https://github.com/COS301-SE-2024/Culinary-Companion/actions/workflows/fluuter_ci.yaml/badge.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/actions/workflows/fluuter_ci.yaml)
+[![Coverage Status](https://coveralls.io/repos/github/COS301-SE-2024/Culinary-Companion/badge.svg?branch=main)](https://coveralls.io/github/COS301-SE-2024/Culinary-Companion?branch=main)
+[![Code Quality](https://img.shields.io/codefactor/grade/github/COS301-SE-2024/Culinary-Companion/main)](https://www.codefactor.io/repository/github/COS301-SE-2024/Culinary-Companion)
+[![GitHub stars](https://img.shields.io/github/stars/COS301-SE-2024/Culinary-Companion.svg?style=social&label=Star)](https://github.com/COS301-SE-2024/Culinary-Companion/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/COS301-SE-2024/Culinary-Companion.svg?style=social&label=Fork)](https://github.com/COS301-SE-2024/Culinary-Companion/network/members)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/graphs/commit-activity)
+[![GitHub last commit](https://img.shields.io/github/last-commit/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/commits/main)
+[![GitHub contributors](https://img.shields.io/github/contributors/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/graphs/contributors)
+[![GitHub open issues](https://img.shields.io/github/issues-raw/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/issues)
+[![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/issues?q=is%3Aissue+is%3Aclosed)
+[![GitHub open pull requests](https://img.shields.io/github/issues-pr-raw/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/pulls)
+[![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed-raw/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion/pulls?q=is%3Apr+is%3Aclosed)
+[![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion)
+[![GitHub repo size](https://img.shields.io/github/repo-size/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion)
+[![Top language](https://img.shields.io/github/languages/top/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion)
+[![Languages count](https://img.shields.io/github/languages/count/COS301-SE-2024/Culinary-Companion.svg)](https://github.com/COS301-SE-2024/Culinary-Companion)
+
+
 # Culinary Companion
 
 <p align="center">
-
-<!-- ![https://github.com/COS301-SE-2024/Culinary-Companion/pulse](https://img.shields.io/github/commit-activity/y/COS301-SE-2024/MiniProject13?style=flat-square)
-![Codecov](https://img.shields.io/codecov/c/github/COS301-SE-2024/MiniProject13?style=flat-square)
-![GitHub License](https://img.shields.io/github/license/COS301-SE-2024/MiniProject13?style=flat-square)
-![GitHub repo size](https://img.shields.io/github/repo-size/COS301-SE-2024/MiniProject13?style=flat-square)
-![GitHub Actions Workflow Status](https:/x/img.shields.io/github/actions/workflow/status/COS301-SE-2024/MiniProject13/.github%2Fworkflows%2Ftest.yml?style=flat-square)
-
-[![alt-text](img-url)][url-to-point-to] -->
 
 </p>
 
