@@ -25,7 +25,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Image.asset(
-                isLightTheme ? 'logo_1.png' : 'logo_2.png',
+                isLightTheme ? 'assets/logo_1.png' : 'asssets/logo_2.png',
                 height: screenHeight * 0.1,
               ),
             ),
@@ -76,6 +76,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       padding: EdgeInsets.symmetric(
           horizontal: screenWidth * 0.005), // Reduce horizontal padding
       child: TextButton(
+        key: Key('$title'),
         onPressed: () {
           if (!isSelected && onChange != null) {
             onChange!(route);
@@ -156,7 +157,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: Image.asset(
-                  isLightTheme ? 'logo_1.png' : 'logo_2.png',
+                  isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
                   height: screenHeight * 0.1,
                 ),
               ),
@@ -180,6 +181,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
               child: Column(
                 children: [
                   ListTile(
+                    key: Key('Home'),
                     title: const Text('Home'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -189,6 +191,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                     },
                   ),
                   ListTile(
+                    key: ValueKey('AddRecipe'),
                     title: const Text('Add Recipe'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -198,6 +201,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                     },
                   ),
                   ListTile(
+                    key: Key('ShoppingList'),
                     title: const Text('Shopping List'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -207,6 +211,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                     },
                   ),
                   ListTile(
+                    key: ValueKey('Pantry'),
                     title: const Text('Pantry'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -216,6 +221,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                     },
                   ),
                   ListTile(
+                    key: Key('Appliance'),
                     title: const Text('Appliances'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -225,6 +231,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                     },
                   ),
                   ListTile(
+                    key: ValueKey('Favourites'),
                     title: const Text('Favorite Recipes'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -234,6 +241,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                     },
                   ),
                   ListTile(
+                    key: ValueKey('Profile'),
                     title: const Text('Profile'),
                     onTap: () {
                       if (widget.onChange != null) {

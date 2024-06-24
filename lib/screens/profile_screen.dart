@@ -191,6 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
+            key: ValueKey('Profile'),
             padding: const EdgeInsets.all(20.0),
             child: _isLoading
                 ? Center(

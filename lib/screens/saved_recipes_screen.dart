@@ -124,6 +124,7 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
             )
           : SingleChildScrollView(
               child: Padding(
+                key: ValueKey('Favourites'),
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

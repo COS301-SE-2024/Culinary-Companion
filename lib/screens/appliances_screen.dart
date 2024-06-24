@@ -345,6 +345,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
+                    key: ValueKey('Appliances'),
                     onPressed: _showAddApplianceDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
