@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print('Failed to load recipe details: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error fetching recipe details: $error');
+      //print('Error fetching recipe details: $error');
     }
   }
 

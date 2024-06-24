@@ -25,7 +25,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
             Align(
               alignment: Alignment.centerLeft,
               child: Image.asset(
-                isLightTheme ? 'assets/logo_1.png' : 'asssets/logo_2.png',
+                isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
                 height: screenHeight * 0.1,
               ),
             ),

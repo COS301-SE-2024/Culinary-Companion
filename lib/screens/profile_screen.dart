@@ -135,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         print('Failed to load recipe details: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error fetching recipe details: $error');
+      //print('Error fetching recipe details: $error');
     }
   }
 
