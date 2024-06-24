@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         await Future.wait(detailFetches);
       } else {
-        print('Failed to load recipes: ${response.statusCode}');
+        //print('Failed to load recipes: ${response.statusCode}');
       }
     } catch (error) {
       print('Error fetching recipes: $error');

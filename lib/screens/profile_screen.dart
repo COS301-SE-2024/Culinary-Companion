@@ -108,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           await fetchRecipeDetails(recipeId);
         }
       } else {
-        print('Failed to load recipes: ${response.statusCode}');
+        //print('Failed to load recipes: ${response.statusCode}');
       }
     } catch (error) {
       print('Error fetching recipes: $error');
