@@ -503,7 +503,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   recipeID: recipes[index]['recipeId'] ?? '',
                   name: recipes[index]['name'] ?? '',
                   description: recipes[index]['description'] ?? '',
-                  imagePath: recipes[index]['photo'] ?? 'assets/emptyplate.jpg',
+                  imagePath: recipes[index]['photo'] ?? 'assets/emptyPlate.jpg',
                   prepTime: recipes[index]['preptime'] ?? 0,
                   cookTime: recipes[index]['cooktime'] ?? 0,
                   cuisine: recipes[index]['cuisine'] ?? '',
