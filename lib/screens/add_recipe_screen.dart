@@ -306,7 +306,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    //final bool isLightTheme = theme.brightness == Brightness.light;
+    final bool isLightTheme = theme.brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -553,7 +553,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           ),
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
-                            dropdownColor: const Color(0xFF1F4539),
+                            dropdownColor:
+                                isLightTheme ? Colors.white : Color(0xFF1F4539),
                             value: _selectedCuisine,
                             onChanged: (value) {
                               setState(() {
@@ -571,7 +572,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           ),
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
-                            dropdownColor: const Color(0xFF1F4539),
+                            dropdownColor:
+                                isLightTheme ? Colors.white : Color(0xFF1F4539),
                             value: _selectedCourse,
                             onChanged: (value) {
                               setState(() {
@@ -650,7 +652,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                 children: [
                                   Expanded(
                                     child: DropdownButtonFormField<String>(
-                                      dropdownColor: const Color(0xFF1F4539),
+                                      dropdownColor: isLightTheme
+                                          ? Colors.white
+                                          : Color(0xFF1F4539),
                                       value: _ingredients[index]['name'],
                                       onChanged: (value) {
                                         setState(() {
@@ -796,7 +800,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 6),
                           if (_showAppliancesDropdown)
                             DropdownButtonFormField<String>(
-                              dropdownColor: const Color(0xFF1F4539),
+                              dropdownColor: isLightTheme
+                                  ? Colors.white
+                                  : Color(0xFF1F4539),
                               items: _appliances.map((appliance) {
                                 return DropdownMenuItem<String>(
                                   value: appliance,
