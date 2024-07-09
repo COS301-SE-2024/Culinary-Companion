@@ -23,8 +23,9 @@ Color unshade(BuildContext context) {
 
 class ShoppingListScreen extends StatefulWidget {
   final http.Client? client;
+  final Future<void> Function()? fetchShoppingList;
 
-  ShoppingListScreen({Key? key, this.client}) : super(key: key);
+  ShoppingListScreen({Key? key, this.client, this.fetchShoppingList}) : super(key: key);
 
   @override
   _ShoppingListScreenState createState() => _ShoppingListScreenState();
@@ -46,7 +47,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     await _loadUserId();
     _fetchIngredientNames();
     _loadDontShowAgainPreference();
-    _fetchShoppingList();
+    if (widget.fetchShoppingList != null) {
+      await widget.fetchShoppingList!();
+    } else {
+      await _fetchShoppingList();
+    }
   }
 
   final Map<String, List<String>> _shoppingList = {};
