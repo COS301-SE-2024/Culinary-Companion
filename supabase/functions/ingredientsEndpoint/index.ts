@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
             case 'addToShoppingList':
               return addToShoppingList(userId, ingredientName,quantity,measurementUnit);
             case 'addToPantryList':
-              return addToPantryList(userId, ingredientName);
+              return addToPantryList(userId, ingredientName,quantity,measurementUnit);
             case 'removeFromShoppingList':
               return removeFromShoppingList(userId, ingredientName);
             case 'removeFromPantryList':
@@ -492,7 +492,7 @@ async function addToShoppingList(userId: string, ingredientName: string, quantit
 
 
 // Add an ingredient to the pantry list
-async function addToPantryList(userId: string, ingredientName: string) {
+async function addToPantryList(userId: string, ingredientName: string,quantity: number,measurementUnit: string) {
     const corsHeaders = {
         "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
         "Access-Control-Allow-Methods": "POST",
@@ -500,8 +500,8 @@ async function addToPantryList(userId: string, ingredientName: string) {
         "Content-Type": "application/json"
     };
     try {
-        if (!userId || !ingredientName) {
-            throw new Error('User ID and ingredient name are required');
+        if (!userId || !ingredientName || !quantity || !measurementUnit) {
+            throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
         }
 
         // Get the ingredient ID from the ingredient name
@@ -533,8 +533,8 @@ async function addToPantryList(userId: string, ingredientName: string) {
             .insert({
                 userid: userId,
                 ingredientid: ingredientId,
-                quantity: 1, // Default quantity, adjust as needed
-                measurmentunit: 'unit' // Default measurement unit, adjust as needed
+                quantity: quantity, // Default quantity, adjust as needed
+                measurmentunit: measurementUnit // Default measurement unit, adjust as needed
             });
 
         if (pantryListError) {
