@@ -141,7 +141,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   String _selectedCuisine = 'Mexican';
   String _selectedCourse = 'Main';
   int _spiceLevel = 1;
-  bool _showAppliancesDropdown = false;
+  // bool _showAppliancesDropdown = false;
 
   final List<String> _courses = [
     'Main',
@@ -178,18 +178,18 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     });
   }
 
-  void _addAppliance(String appliance) {
-    setState(() {
-      _selectedAppliances.add(appliance);
-      _showAppliancesDropdown = false;
-    });
-  }
+  // void _addAppliance(String appliance) {
+  //   setState(() {
+  //     _selectedAppliances.add(appliance);
+  //     _showAppliancesDropdown = false;
+  //   });
+  // }
 
-  void _removeAppliance(String appliance) {
-    setState(() {
-      _selectedAppliances.remove(appliance);
-    });
-  }
+  // void _removeAppliance(String appliance) {
+  //   setState(() {
+  //     _selectedAppliances.remove(appliance);
+  //   });
+  // }
 
   Future<void> _submitRecipe() async {
     List<Map<String, String>> appliancesData =
