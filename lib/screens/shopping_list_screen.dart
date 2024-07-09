@@ -470,11 +470,12 @@ Widget _buildCategoryHeader(String title) {
 
   // List of measurement units
   List<String> _measurementUnits = [
-  'whole', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
+  'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
   'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
   'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
-  'can', 'bottle', 'jar', 'bag', 'box'
+  'can', 'bottle', 'jar', 'bag', 'box', 'whole'
 ];
+
 
 
   await showDialog(
