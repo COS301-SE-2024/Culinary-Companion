@@ -47,35 +47,6 @@ class _PantryScreenState extends State<PantryScreen>{
   final Map<String, List<String>> _pantryList = {};
   final Map<String, bool> _checkboxStates = {};
 
-  final List<String> _categories = [
-    'Dairy',
-    'Meat',
-    'Fish',
-    'Nuts',
-    'Spice/Herb',
-    'Starch',
-    'Vegetable',
-    'Vegeterian',
-    'Fruit',
-    'Legume',
-    'Staple',
-    'Other'
-  ];
-
-  final Map<String, IconData> _categoryIcons = {
-    'Dairy': Icons.local_drink,
-    'Meat': Icons.local_dining,
-    'Fish': Icons.pool,
-    'Nuts': Icons.spa,
-    'Spice/Herb': Icons.local_florist,
-    'Starch': Icons.fastfood,
-    'Vegetable': Icons.eco,
-    'Fruit': Icons.local_offer,
-    'Legume': Icons.grass,
-    'Staple': Icons.kitchen,
-    'Other': Icons.category,
-  };
-
   List<Map<String, String>> _items = [];
 
   Future<void> _loadUserId() async {
@@ -259,12 +230,12 @@ class _PantryScreenState extends State<PantryScreen>{
     }
   }
 
-  void _toggleCheckbox(String category, String item) {
-    setState(() {
-      final isChecked = !(_checkboxStates[item] ?? false);
-      _checkboxStates[item] = isChecked;
-    });
-  }
+  // void _toggleCheckbox(String category, String item) {
+  //   setState(() {
+  //     final isChecked = !(_checkboxStates[item] ?? false);
+  //     _checkboxStates[item] = isChecked;
+  //   });
+  // }
 
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
@@ -335,7 +306,7 @@ class _PantryScreenState extends State<PantryScreen>{
                                 ],
                                 ...entry.value.asMap().entries.map((item) =>
                                     _buildCheckableListItem(entry.key,
-                                        item.value, item.key % 2 == 1, false)),
+                                        item.value, item.key % 2 == 1)),
                               ];
                             }).toList(),
                           ),
@@ -370,7 +341,7 @@ Widget _buildCategoryHeader(String title) {
   final Map<String, IconData> categoryIcons = {
     'Dairy': Icons.icecream,
     'Meat': Icons.kebab_dining,
-    'Fish': Icons.set_meal_outlined,
+    'Fish': Icons.pool,
     'Nuts': Icons.sports_rugby_outlined,
     'Spice/Herb': Icons.grass,
     'Starch': Icons.bakery_dining,
@@ -463,9 +434,9 @@ Widget _buildCategoryHeader(String title) {
 
 
 Future<void> _showEditItemDialog(BuildContext context, String category, String item) async {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  double _quantity = 1.0; // Default quantity
-  String _measurementUnit = 'unit'; // Default measurement unit
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  double quantity = 1.0; // Default quantity
+  String measurementUnit = 'unit'; // Default measurement unit
 
   // Extract existing quantity and measurement unit from the item string
   final parts = item.split(' (');
@@ -473,13 +444,13 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
   if (parts.length == 2) {
     final quantityParts = parts[1].split(' ');
     if (quantityParts.length == 2) {
-      _quantity = double.tryParse(quantityParts[0]) ?? 1.0;
-      _measurementUnit = quantityParts[1].replaceAll(')', '');
+      quantity = double.tryParse(quantityParts[0]) ?? 1.0;
+      measurementUnit = quantityParts[1].replaceAll(')', '');
     }
   }
 
-  final TextEditingController _quantityController = TextEditingController(text: _quantity.toString());
-  final List<String> _measurementUnits = [
+  final TextEditingController quantityController = TextEditingController(text: quantity.toString());
+  final List<String> measurementUnits = [
   'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
   'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
   'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
@@ -498,12 +469,12 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
         backgroundColor: unshade(context),
         content: SingleChildScrollView(
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 TextFormField(
-                  controller: _quantityController,
+                  controller: quantityController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: 'Quantity',
@@ -523,12 +494,12 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                     return null;
                   },
                   onChanged: (value) {
-                    _quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
+                    quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
                   },
                 ),
                 SizedBox(height: 16.0),
                 DropdownButtonFormField<String>(
-                  value: _measurementUnit,
+                  value: measurementUnit,
                   decoration: InputDecoration(
                     labelText: 'Measurement Unit',
                     labelStyle: TextStyle(color: Colors.white),
@@ -540,7 +511,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                     ),
                   ),
                   dropdownColor: unshade(context),
-                  items: _measurementUnits.map((unit) {
+                  items: measurementUnits.map((unit) {
                     return DropdownMenuItem<String>(
                       value: unit,
                       child: Text(unit, style: TextStyle(color: Colors.white)),
@@ -548,7 +519,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                   }).toList(),
                   onChanged: (value) {
                     setState(() {
-                      _measurementUnit = value!;
+                      measurementUnit = value!;
                     });
                   },
                   style: TextStyle(color: Colors.white),
@@ -581,9 +552,9 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
               backgroundColor: Color(0xFFDC945F),
             ),
             onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                _editPantryItem(category, itemName, _quantity, _measurementUnit);
+              if (formKey.currentState!.validate()) {
+                formKey.currentState!.save();
+                _editPantryItem(category, itemName, quantity, measurementUnit);
                 Navigator.of(context).pop();
               }
             },
@@ -601,17 +572,17 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
 
 
   Future<void> _showAddItemDialog(BuildContext context) async {
-  String _selectedItem = '';
-  double _quantity = 1.0; // Default quantity
-  String _measurementUnit = 'unit'; // Default measurement unit
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String selectedItem = '';
+  double quantity = 1.0; // Default quantity
+  String measurementUnit = 'unit'; // Default measurement unit
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  final TextEditingController _itemNameController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
-  final TextEditingController _quantityController = TextEditingController();
-  final TextEditingController _measurementUnitController = TextEditingController();
+  final TextEditingController itemNameController = TextEditingController();
+  final TextEditingController categoryController = TextEditingController();
+  final TextEditingController quantityController = TextEditingController();
+  //final TextEditingController measurementUnitController = TextEditingController();
 
-  List<String> _measurementUnits = [
+  List<String> measurementUnits = [
   'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
   'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
   'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
@@ -629,12 +600,12 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
           title: Text('Add Item to Shopping List'),
           content: SingleChildScrollView(
             child: Form(
-              key: _formKey,
+              key: formKey,
               child: Column(
                 children: <Widget>[
                   TypeAheadFormField<Map<String, String>>(
                     textFieldConfiguration: TextFieldConfiguration(
-                      controller: _itemNameController,
+                      controller: itemNameController,
                       decoration: InputDecoration(labelText: 'Item Name'),
                     ),
                     suggestionsCallback: (pattern) async {
@@ -649,9 +620,9 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                       );
                     },
                     onSuggestionSelected: (Map<String, String> suggestion) {
-                      _itemNameController.text = suggestion['name']!;
-                      _categoryController.text = suggestion['category']!;
-                      _selectedItem = suggestion['name']!;
+                      itemNameController.text = suggestion['name']!;
+                      categoryController.text = suggestion['category']!;
+                      selectedItem = suggestion['name']!;
                     },
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -660,11 +631,11 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                       return null;
                     },
                     onSaved: (value) {
-                      _selectedItem = value!;
+                      selectedItem = value!;
                     },
                   ),
                   TextFormField(
-                    controller: _quantityController,
+                    controller: quantityController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'Quantity',
@@ -676,15 +647,15 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                       return null;
                     },
                     onChanged: (value) {
-                      _quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
+                      quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
                     },
                   ),
                   DropdownButtonFormField<String>(
-                    value: _measurementUnit,
+                    value: measurementUnit,
                     decoration: InputDecoration(
                       labelText: 'Measurement Unit',
                     ),
-                    items: _measurementUnits.map((unit) {
+                    items: measurementUnits.map((unit) {
                       return DropdownMenuItem<String>(
                         value: unit,
                         child: Text(unit),
@@ -692,7 +663,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                     }).toList(),
                     onChanged: (value) {
                       setState(() {
-                        _measurementUnit = value!;
+                        measurementUnit = value!;
                       });
                     },
                     validator: (value) {
@@ -729,10 +700,10 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                 backgroundColor: const Color(0xFFDC945F),
               ),
               onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  final category = _categoryController.text;
-                  _addItem(category, _selectedItem, false,_quantity, _measurementUnit);
+                if (formKey.currentState!.validate()) {
+                  formKey.currentState!.save();
+                  final category = categoryController.text;
+                  _addItem(category, selectedItem, false,quantity, measurementUnit);
                   Navigator.of(context).pop();
                 }
               },
