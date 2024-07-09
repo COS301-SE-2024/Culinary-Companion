@@ -627,7 +627,13 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
   }
 
   final TextEditingController _quantityController = TextEditingController(text: _quantity.toString());
-  final List<String> _measurementUnits = ['unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz'];
+  final List<String> _measurementUnits = [
+  'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
+  'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
+  'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
+  'can', 'bottle', 'jar', 'bag', 'box', 'whole'
+];
+
 
   await showDialog(
     context: context,
