@@ -75,7 +75,7 @@ class _RecipeCardState extends State<RecipeCard> {
           _isFavorite = isFavorite;
         });
       } else {
-        print('Failed to get favorite status: ${response.reasonPhrase}');
+        //print('Failed to get favorite status: ${response.reasonPhrase}');
       }
     } catch (error) {
       print('Error: $error');
@@ -107,7 +107,7 @@ class _RecipeCardState extends State<RecipeCard> {
       if (response.statusCode == 200) {
         //print('Favorite status updated');
       } else {
-        print('Failed to update favorite status: ${response.reasonPhrase}');
+        //print('Failed to update favorite status: ${response.reasonPhrase}');
       }
     } catch (error) {
       print('Error: $error');

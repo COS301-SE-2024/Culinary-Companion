@@ -276,18 +276,29 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                   SizedBox(height: 30.0),
                   // Shopping list items with categories and checkboxes
                   Expanded(
-                    child: ListView(
-                      children: _shoppingList.entries.expand((entry) {
-                        return [
-                          if (entry.value.isNotEmpty) ...[
-                            _buildCategoryHeader(entry.key),
-                          ],
-                          ...entry.value.asMap().entries.map((item) =>
-                              _buildCheckableListItem(entry.key, item.value,
-                                  item.key % 2 == 1, true)),
-                        ];
-                      }).toList(),
-                    ),
+                    child: _shoppingList.isEmpty
+                        ? Center(
+                            child: Text(
+                              "No ingredients have been added. Click the plus icon to add your first ingredient!",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          )
+                        : ListView(
+                            children: _shoppingList.entries.expand((entry) {
+                              return [
+                                if (entry.value.isNotEmpty) ...[
+                                  _buildCategoryHeader(entry.key),
+                                ],
+                                ...entry.value.asMap().entries.map((item) =>
+                                    _buildCheckableListItem(entry.key,
+                                        item.value, item.key % 2 == 1, true)),
+                              ];
+                            }).toList(),
+                          ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
