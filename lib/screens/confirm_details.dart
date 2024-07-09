@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class ConfirmDetailsScreen extends StatefulWidget {
   @override
@@ -12,6 +13,9 @@ class ConfirmDetailsScreen extends StatefulWidget {
 }
 
 class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
+  List<MultiSelectItem<String>> _dietaryConstraints = [];
+  List<String> _selectedDietaryConstraints = [];
+
   String? _userId;
   List<String>? _cuisineOptions;
   List<String>? _dietaryOptions;
@@ -32,7 +36,10 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
       setState(() {
         _cuisineOptions = cuisineItems;
         _dietaryOptions = constraintItems;
-        // _isLoading = false;
+        _dietaryConstraints = _dietaryOptions!
+            .map(
+                (constraint) => MultiSelectItem<String>(constraint, constraint))
+            .toList();
       });
     } catch (error) {
       print('Error initializing data: $error');
@@ -41,6 +48,76 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
         //_errorMessage = 'Error initializing data';
       });
     }
+  }
+
+  Widget _buildDietaryConstraintsMultiSelect() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
+    return Container(
+      width: 400,
+      //height: 150,
+      padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Dietary Constraints:',
+            style: TextStyle(fontSize: 14, color: textColor),
+          ),
+          SizedBox(height: 10),
+          MultiSelectDialogField<String>(
+            checkColor: Colors.white,
+            selectedColor: Color(0xFF20493C),
+            backgroundColor: Color(0xFFDC945F),
+            items: _dietaryConstraints,
+            initialValue: _selectedDietaryConstraints,
+            onConfirm: (values) {
+              setState(() {
+                _selectedDietaryConstraints = values;
+              });
+            },
+            chipDisplay: MultiSelectChipDisplay.none(),
+            buttonText: Text(
+              'Select Dietary Constraints',
+              style: TextStyle(
+                fontSize: 16,
+                // color: textColor,
+              ),
+            ),
+            buttonIcon: Icon(
+              Icons.arrow_drop_down,
+              color: textColor,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              border: Border.all(
+                color: Color(0xFFA9B8AC),
+                width: 2.0,
+              ),
+            ),
+          ),
+          SizedBox(height: 10),
+          Wrap(
+            spacing: 8.0,
+            runSpacing: 4.0,
+            children: _selectedDietaryConstraints.map((constraint) {
+              return Chip(
+                label: Text(constraint),
+                backgroundColor: Color(0xFFDC945F),
+                labelStyle: TextStyle(color: Color(0xFF20493C), fontSize: 16),
+                onDeleted: () {
+                  setState(() {
+                    _selectedDietaryConstraints.remove(constraint);
+                  });
+                },
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<List<String>> _loadCuisines() async {
@@ -176,7 +253,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
   // ignore: unused_field
   String _username = '';
   String _spiceLevel = 'None';
-  List<String> _dietaryRestrictions = [];
+  // List<String> _dietaryRestrictions = [];
   String _cuisine = 'Mexican';
   File? _profileImage;
 
@@ -212,7 +289,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
           _profileImage != null
               ? _profileImage!.path
               : ''); // Call to create user profile
-      for (String restriction in _dietaryRestrictions) {
+      for (String restriction in _selectedDietaryConstraints) {
         _addUserDietaryConstraints(
             _userId!, restriction); // Call to add dietary constraints
       }
@@ -221,25 +298,10 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
     }
   }
 
-  void _addDietaryRestriction(String restriction) {
-    setState(() {
-      if (!_dietaryRestrictions.contains(restriction)) {
-        _dietaryRestrictions.add(restriction);
-      }
-    });
-  }
-
-  void _removeDietaryRestriction(String restriction) {
-    setState(() {
-      _dietaryRestrictions.remove(restriction);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
     return Scaffold(
       body: Stack(
@@ -289,9 +351,9 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Username:',
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             fontSize: 20,
-                            color: textColor,
+                            color: Colors.white,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -334,9 +396,9 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Preferred spice level:',
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             fontSize: 20,
-                            color: textColor,
+                            color: Colors.white,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -373,88 +435,6 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    Container(
-                      width: 365,
-                      height: 70,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: DropdownButtonFormField<String>(
-                              dropdownColor: isLightTheme
-                                  ? Colors.white
-                                  : Color(
-                                      0xFF1F4539), //const Color(0xFF1F4539),
-                              decoration: InputDecoration(
-                                floatingLabelBehavior:
-                                    FloatingLabelBehavior.always,
-                                labelText: 'Dietary restrictions:',
-                                labelStyle: TextStyle(
-                                  fontSize: 20,
-                                  color: textColor,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFA9B8AC),
-                                    width: 2.0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: const BorderSide(
-                                    color: Color(0xFFDC945F),
-                                    width: 2.0,
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 12.0,
-                                  horizontal: 12.0,
-                                ),
-                                filled: false,
-                                fillColor: Colors.transparent,
-                              ),
-                              items: _dietaryOptions?.map((String option) {
-                                return DropdownMenuItem<String>(
-                                  value: option,
-                                  child: Text(option),
-                                );
-                              }).toList(),
-                              onChanged: (newValue) {
-                                _addDietaryRestriction(newValue!);
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      width: 365,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: _dietaryRestrictions
-                            .map((restriction) => Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      restriction,
-                                      style: TextStyle(
-                                          fontSize: 16, color: textColor),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.remove,
-                                          color: Colors.red),
-                                      onPressed: () =>
-                                          _removeDietaryRestriction(
-                                              restriction),
-                                    ),
-                                  ],
-                                ))
-                            .toList(),
-                      ),
-                    ),
                     const SizedBox(height: 16),
                     Container(
                       width: 365,
@@ -466,9 +446,9 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Preferred cuisine:',
-                          labelStyle: TextStyle(
+                          labelStyle: const TextStyle(
                             fontSize: 20,
-                            color: textColor,
+                            color: Colors.white,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -505,30 +485,28 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         },
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    Container(
-                      width: 365,
-                      height: 46,
-                      child: ElevatedButton(
-                        onPressed: _handleSignup,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFDC945F),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          side: const BorderSide(
-                            color: Colors.transparent,
-                            width: 2.0,
-                          ),
+                    // const SizedBox(height: 2),
+                    _buildDietaryConstraintsMultiSelect(),
+                    const SizedBox(height: 50),
+                    ElevatedButton(
+                      onPressed: _handleSignup,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFDC945F),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 16,
-                          ),
+                        side: const BorderSide(
+                          color: Colors.transparent,
+                          width: 2.0,
+                        ),
+                      ),
+                      child: const Text(
+                        'Sign Up',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 16,
                         ),
                       ),
                     ),
