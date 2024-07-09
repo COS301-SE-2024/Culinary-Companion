@@ -173,6 +173,37 @@ Future<void> _addToShoppingList(String? userId, String ingredientName, double qu
   }
 }
 
+Future<void> _editShoppingListItem(String category, String item, double quantity, String measurementUnit) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'editShoppingListItem',
+        'userId': _userId,
+        'ingredientName': item,
+        'quantity': quantity,
+        'measurementUnit': measurementUnit,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _shoppingList[category] = _shoppingList[category]?.map((ingredient) {
+          if (ingredient == item) {
+            return '$item ($quantity $measurementUnit)';
+          }
+          return ingredient;
+        }).toList() ?? [];
+      });
+      print('Successfully edited $item in shopping list with quantity $quantity $measurementUnit');
+    } else {
+      print('Failed to edit $item in shopping list: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error editing $item in shopping list: $error');
+  }
+}
 
   Future<void> _removeFromShoppingList(String category, String ingredientName) async {
     try {
@@ -359,50 +390,66 @@ Widget _buildCategoryHeader(String title) {
 }
 
 
-  Widget _buildCheckableListItem(
-      String category, String item, bool isShaded) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isShaded ? shade(context) : unshade(context),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        child: ListTile(
-          key: ValueKey(item),
-          leading: Checkbox(
-            value: _checkboxStates[item] ?? false,
-            onChanged: (bool? value) {
-              if (value != null) {
-                _toggleCheckbox(category, item);
-                if (value) {
-                  Future.delayed(Duration(seconds: 1), () {
-                    _removeFromShoppingList(category, item);
-                  });
-                }
+  Widget _buildCheckableListItem(String category, String item, bool isShaded) {
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 8.0),
+    child: Container(
+      decoration: BoxDecoration(
+        color: isShaded ? shade(context) : unshade(context),
+        borderRadius: BorderRadius.circular(5.0),
+      ),
+      child: ListTile(
+        key: ValueKey(item),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        leading: Checkbox(
+          value: _checkboxStates[item] ?? false,
+          onChanged: (bool? value) {
+            if (value != null) {
+              _toggleCheckbox(category, item);
+              if (value) {
+                Future.delayed(Duration(seconds: 1), () {
+                  _removeFromShoppingList(category, item);
+                });
               }
-            },
-            activeColor: Colors.orange,
-            checkColor: Colors.white,
+            }
+          },
+          activeColor: Colors.orange,
+          checkColor: Colors.white,
+        ),
+        title: Text(
+          item,
+          style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.normal,
+            color: Colors.white,
           ),
-          title: Text(
-            item,
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.normal,
-              color: Colors.white,
-            ),
-          ),
-          trailing: IconButton(
-            icon: Icon(Icons.delete, color: Colors.white),
-            onPressed: () {
-              _removeFromShoppingList(category, item);
-            },
+        ),
+        trailing: Container(
+          margin: EdgeInsets.only(left: 8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  _showEditItemDialog(context, category, item);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.white),
+                onPressed: () {
+                  _removeFromShoppingList(category, item);
+                },
+              ),
+            ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
 
   Future<void> _showAddItemDialog(BuildContext context) async {
   String _selectedItem = '';
@@ -545,6 +592,125 @@ Widget _buildCategoryHeader(String title) {
             ),
           ],
         ),
+      );
+    },
+  );
+}
+
+Future<void> _showEditItemDialog(BuildContext context, String category, String item) async {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  double _quantity = 1.0; // Default quantity
+  String _measurementUnit = 'unit'; // Default measurement unit
+
+  final TextEditingController _quantityController = TextEditingController();
+  final List<String> _measurementUnits = ['unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz'];
+
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          'Edit Item',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: unshade(context),
+        content: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                TextFormField(
+                  controller: _quantityController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Quantity',
+                    labelStyle: TextStyle(color: Colors.white),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
+                  ),
+                  style: TextStyle(color: Colors.white),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter a quantity';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    _quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
+                  },
+                ),
+                SizedBox(height: 16.0),
+                DropdownButtonFormField<String>(
+                  value: _measurementUnit,
+                  decoration: InputDecoration(
+                    labelText: 'Measurement Unit',
+                    labelStyle: TextStyle(color: Colors.white),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
+                  ),
+                  dropdownColor: unshade(context),
+                  items: _measurementUnits.map((unit) {
+                    return DropdownMenuItem<String>(
+                      value: unit,
+                      child: Text(unit, style: TextStyle(color: Colors.white)),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _measurementUnit = value!;
+                    });
+                  },
+                  style: TextStyle(color: Colors.white),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a measurement unit';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            style: TextButton.styleFrom(
+              side: BorderSide(color: Color(0xFFDC945F), width: 1.5),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFFDC945F)),
+            ),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: Color(0xFFDC945F),
+            ),
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                _formKey.currentState!.save();
+                _editShoppingListItem(category, item, _quantity, _measurementUnit);
+                Navigator.of(context).pop();
+              }
+            },
+            child: Text(
+              'Save',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
       );
     },
   );
