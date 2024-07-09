@@ -418,7 +418,7 @@ Widget _buildCategoryHeader(String title) {
   final TextEditingController _quantityController = TextEditingController();
   final TextEditingController _measurementUnitController = TextEditingController();
 
-
+  List<String> _measurementUnits = ['unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz'];
   await showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -480,19 +480,27 @@ Widget _buildCategoryHeader(String title) {
                       _quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
                     },
                   ),
-                  TextFormField(
-                    controller: _measurementUnitController,
+                  DropdownButtonFormField<String>(
+                    value: _measurementUnit,
                     decoration: InputDecoration(
                       labelText: 'Measurement Unit',
                     ),
+                    items: _measurementUnits.map((unit) {
+                      return DropdownMenuItem<String>(
+                        value: unit,
+                        child: Text(unit),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _measurementUnit = value!;
+                      });
+                    },
                     validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please enter a measurement unit';
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a measurement unit';
                       }
                       return null;
-                    },
-                    onChanged: (value) {
-                      _measurementUnit = value;
                     },
                   ),
                 ],
