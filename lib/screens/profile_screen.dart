@@ -192,7 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: SingleChildScrollView(
           child: Padding(
             key: ValueKey('Profile'),
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.only(left: 50, right: 20.0),
             child: _isLoading
                 ? Center(
                     // Step 3: Replace CircularProgressIndicator with Lottie widget
