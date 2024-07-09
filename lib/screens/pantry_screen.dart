@@ -273,18 +273,29 @@ class _PantryScreenState extends State<PantryScreen> {
                 children: <Widget>[
                   SizedBox(height: 30.0),
                   Expanded(
-                    child: ListView(
-                      children: _pantryList.entries.expand((entry) {
-                        return [
-                          if (entry.value.isNotEmpty) ...[
-                            _buildCategoryHeader(entry.key),
-                          ],
-                          ...entry.value.asMap().entries.map((item) =>
-                              _buildCheckableListItem(entry.key, item.value,
-                                  item.key % 2 == 1, false)),
-                        ];
-                      }).toList(),
-                    ),
+                    child: _pantryList.isEmpty
+                        ? Center(
+                            child: Text(
+                              "No ingredients have been added. Click the plus icon to add your first ingredient!",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          )
+                        : ListView(
+                            children: _pantryList.entries.expand((entry) {
+                              return [
+                                if (entry.value.isNotEmpty) ...[
+                                  _buildCategoryHeader(entry.key),
+                                ],
+                                ...entry.value.asMap().entries.map((item) =>
+                                    _buildCheckableListItem(entry.key,
+                                        item.value, item.key % 2 == 1, false)),
+                              ];
+                            }).toList(),
+                          ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
