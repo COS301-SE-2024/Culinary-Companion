@@ -93,6 +93,8 @@ Deno.serve(async (req) => {
                 return removeUserFavorite(userId, recipeid, corsHeaders);
             case 'editShoppingListItem':
                 return editShoppingListItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
+            case 'editPantryItem':
+                return editPantryItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -549,6 +551,65 @@ async function editShoppingListItem(userId: string, ingredientName: string, quan
         });
     }
 }
+
+async function editPantryItem(userId: string, ingredientName: string, quantity: number, measurementUnit: string, corsHeaders: HeadersInit) {
+    try {
+        if (!userId || !ingredientName || quantity === undefined || !measurementUnit) {
+            throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
+        }
+
+        // Get the ingredient ID from the ingredient name
+        const { data: ingredientData, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .single();
+
+        if (ingredientError) {
+            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const ingredientId = ingredientData?.ingredientid;
+
+        if (!ingredientId) {
+            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredientName}` }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Update the pantry list item
+        const { error: updateError } = await supabase
+            .from('availableingredients')
+            .update({
+                quantity: quantity,
+                measurmentunit: measurementUnit
+            })
+            .eq('userid', userId)
+            .eq('ingredientid', ingredientId);
+
+        if (updateError) {
+            return new Response(JSON.stringify({ error: updateError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 
 
