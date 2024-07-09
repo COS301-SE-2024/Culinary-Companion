@@ -469,7 +469,13 @@ Widget _buildCategoryHeader(String title) {
   final TextEditingController _quantityController = TextEditingController();
 
   // List of measurement units
-  List<String> _measurementUnits = ['unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz'];
+  List<String> _measurementUnits = [
+  'whole', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
+  'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
+  'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
+  'can', 'bottle', 'jar', 'bag', 'box'
+];
+
 
   await showDialog(
     context: context,
