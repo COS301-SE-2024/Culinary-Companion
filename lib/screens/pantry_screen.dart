@@ -111,40 +111,39 @@ class _PantryScreenState extends State<PantryScreen>{
   }
 
   Future<void> _fetchPantryList() async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'getAvailableIngredients',
-          'userId':
-              _userId, //'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
-        }), // Body of the request
-        headers: {'Content-Type': 'application/json'},
-      );
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'getAvailableIngredients',
+        'userId': _userId,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        // If the request is successful, parse the response JSON
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        final List<dynamic> pantryList = data['availableIngredients'];
-        setState(() {
-          _pantryList.clear();
-          for (var item in pantryList) {
-            final ingredientName = item['name'].toString();
-            final category = item['category'] ?? 'Other';
-            _pantryList.putIfAbsent(category, () => []);
-            _pantryList[category]?.add(ingredientName);
-          }
-        });
-      } else {
-        // Handle other status codes, such as 404 or 500
-        //print('Failed to fetch pantry list: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle network errors or other exceptions
-      print('Error fetching pantry list: $error');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> pantryList = data['availableIngredients'];
+      setState(() {
+        _pantryList.clear();
+        for (var item in pantryList) {
+          final ingredientName = item['name'].toString();
+          final quantity = item['quantity'].toString();
+          final measurementUnit = item['measurmentunit'].toString();
+          final category = item['category'] ?? 'Other';
+          final displayText = '$ingredientName ($quantity $measurementUnit)';
+          _pantryList.putIfAbsent(category, () => []);
+          _pantryList[category]?.add(displayText);
+        }
+      });
+    } else {
+      print('Failed to fetch pantry list: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Error fetching pantry list: $error');
   }
+}
+
 
   Future<void> _addToPantryList(String? userId, String ingredientName, double quantity, String measurementUnit) async {
     try {
@@ -188,12 +187,13 @@ class _PantryScreenState extends State<PantryScreen>{
 
     if (response.statusCode == 200) {
       setState(() {
-        _pantryList[category] = _pantryList[category]?.map((ingredient) {
-          if (ingredient == item) {
-            return '$item ($quantity $measurementUnit)';
+        final displayText = '$item ($quantity $measurementUnit)';
+        if (_pantryList[category] != null) {
+          final index = _pantryList[category]!.indexWhere((ingredient) => ingredient.startsWith(item));
+          if (index != -1) {
+            _pantryList[category]![index] = displayText;
           }
-          return ingredient;
-        }).toList() ?? [];
+        }
       });
       print('Successfully edited $item in pantry list with quantity $quantity $measurementUnit');
     } else {
@@ -203,6 +203,7 @@ class _PantryScreenState extends State<PantryScreen>{
     print('Error editing $item in pantry list: $error');
   }
 }
+
 
   Future<void> _removeFromPantryList(
       String category, String ingredientName) async {
@@ -449,12 +450,24 @@ Widget _buildCategoryHeader(String title) {
   );
 }
 
+
 Future<void> _showEditItemDialog(BuildContext context, String category, String item) async {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   double _quantity = 1.0; // Default quantity
   String _measurementUnit = 'unit'; // Default measurement unit
 
-  final TextEditingController _quantityController = TextEditingController();
+  // Extract existing quantity and measurement unit from the item string
+  final parts = item.split(' (');
+  String itemName = parts[0];
+  if (parts.length == 2) {
+    final quantityParts = parts[1].split(' ');
+    if (quantityParts.length == 2) {
+      _quantity = double.tryParse(quantityParts[0]) ?? 1.0;
+      _measurementUnit = quantityParts[1].replaceAll(')', '');
+    }
+  }
+
+  final TextEditingController _quantityController = TextEditingController(text: _quantity.toString());
   final List<String> _measurementUnits = ['unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz'];
 
   await showDialog(
@@ -553,7 +566,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                _editPantryItem(category, item, _quantity, _measurementUnit);
+                _editPantryItem(category, itemName, _quantity, _measurementUnit);
                 Navigator.of(context).pop();
               }
             },
@@ -567,6 +580,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
     },
   );
 }
+
 
 
   Future<void> _showAddItemDialog(BuildContext context) async {
