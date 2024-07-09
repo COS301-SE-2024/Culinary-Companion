@@ -309,38 +309,52 @@ class _AppliancesPageState extends State<AppliancesPage> {
               children: <Widget>[
                 SizedBox(height: 30.0),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: appliances.length,
-                    itemBuilder: (context, index) {
-                      final appliance = appliances[index];
-                      return Card(
-                        color: index.isEven ? shade(context) : unshade(context),
-                        margin: EdgeInsets.symmetric(vertical: 8.0),
-                        child: ListTile(
-                          contentPadding: EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 8.0,
-                          ),
-                          leading: Icon(Icons.kitchen, color: Colors.white),
-                          title: Text(
-                            appliance,
+                  child: appliances.isEmpty
+                      ? Center(
+                          child: Text(
+                            "No appliances have been added. Click the plus icon to add your first appliance!",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w500,
+                              fontSize: 16,
+                              color: Colors.grey[600],
                             ),
                           ),
-                          trailing: IconButton(
-                            icon:
-                                Icon(Icons.delete_outline, color: Colors.white),
-                            onPressed: () {
-                              _removeAppliance(appliance);
-                            },
-                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: appliances.length,
+                          itemBuilder: (context, index) {
+                            final appliance = appliances[index];
+                            return Card(
+                              color: index.isEven
+                                  ? shade(context)
+                                  : unshade(context),
+                              margin: EdgeInsets.symmetric(vertical: 8.0),
+                              child: ListTile(
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16.0,
+                                  vertical: 8.0,
+                                ),
+                                leading:
+                                    Icon(Icons.kitchen, color: Colors.white),
+                                title: Text(
+                                  appliance,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                trailing: IconButton(
+                                  icon: Icon(Icons.delete_outline,
+                                      color: Colors.white),
+                                  onPressed: () {
+                                    _removeAppliance(appliance);
+                                  },
+                                ),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
