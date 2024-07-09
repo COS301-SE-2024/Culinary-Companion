@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/help_add_recipe.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -12,6 +13,8 @@ class AddRecipeScreen extends StatefulWidget {
 class _AddRecipeScreenState extends State<AddRecipeScreen>
     with SingleTickerProviderStateMixin {
   OverlayEntry? _helpMenuOverlay;
+  List<MultiSelectItem<String>> _applianceItems = [];
+  List<String> _selectedAppliances = [];
 
   @override
   void initState() {
@@ -109,12 +112,13 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
-          // Ensure the UI updates after cuisines are loaded
-          _appliances = data.map<String>((cuisine) {
-            return cuisine['name'].toString();
+          _appliances = data.map<String>((appliance) {
+            return appliance['name'].toString();
           }).toList();
+          _applianceItems = _appliances
+              .map((appliance) => MultiSelectItem<String>(appliance, appliance))
+              .toList();
         });
-        //print(_cuisines);
       } else {
         throw Exception('Failed to load appliances');
       }
@@ -125,7 +129,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
 
   final List<Map<String, String>> _ingredients = [];
   final List<String> _methods = [];
-  final List<String> _selectedAppliances = [];
   late TabController _tabController;
 
   final TextEditingController _nameController = TextEditingController();
@@ -291,6 +294,61 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     }
   }
 
+  Widget _buildAppliancesMultiSelect() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 5, top: 10, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Text(
+              'Appliances:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          SizedBox(height: 10),
+          MultiSelectDialogField<String>(
+            checkColor: Colors.white,
+            selectedColor: Color(0xFF20493C),
+            backgroundColor: Color(0xFFDC945F),
+            items: _applianceItems,
+            initialValue: _selectedAppliances,
+            onConfirm: (values) {
+              setState(() {
+                _selectedAppliances = values;
+              });
+            },
+            chipDisplay: MultiSelectChipDisplay(
+              chipColor: Color(0xFFDC945F),
+              textStyle: TextStyle(color: Color(0xFF20493C), fontSize: 16),
+            ),
+            buttonText: Text(
+              'Select Appliances',
+              style: TextStyle(
+                color: textColor,
+              ),
+            ),
+            buttonIcon: Icon(
+              Icons.arrow_drop_down,
+              color: textColor,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              border: Border.all(
+                color: textColor,
+                width: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
       builder: (context) => HelpMenu(
@@ -306,7 +364,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final bool isLightTheme = theme.brightness == Brightness.light;
+    //final bool isLightTheme = theme.brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -553,8 +611,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           ),
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
-                            dropdownColor:
-                                isLightTheme ? Colors.white : Color(0xFF1F4539),
+                            dropdownColor: const Color(0xFF1F4539),
                             value: _selectedCuisine,
                             onChanged: (value) {
                               setState(() {
@@ -572,8 +629,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           ),
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
-                            dropdownColor:
-                                isLightTheme ? Colors.white : Color(0xFF1F4539),
+                            dropdownColor: const Color(0xFF1F4539),
                             value: _selectedCourse,
                             onChanged: (value) {
                               setState(() {
@@ -652,9 +708,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                 children: [
                                   Expanded(
                                     child: DropdownButtonFormField<String>(
-                                      dropdownColor: isLightTheme
-                                          ? Colors.white
-                                          : Color(0xFF1F4539),
+                                      dropdownColor: const Color(0xFF1F4539),
                                       value: _ingredients[index]['name'],
                                       onChanged: (value) {
                                         setState(() {
@@ -754,83 +808,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                             ),
                           ),
                           const SizedBox(height: 24),
-                          const Text('Appliances:',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: _selectedAppliances.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.restaurant,
-                                          size: 16.0,
-                                          color: Color(0xFFDC945F),
-                                        ),
-                                        const SizedBox(
-                                            width:
-                                                8.0), //space between icon and text
-                                        Text(
-                                          _selectedAppliances[index],
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                      ],
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                          Icons.remove_circle_outline,
-                                          color: Colors.red),
-                                      onPressed: () {
-                                        _removeAppliance(
-                                            _selectedAppliances[index]);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 6),
-                          if (_showAppliancesDropdown)
-                            DropdownButtonFormField<String>(
-                              dropdownColor: isLightTheme
-                                  ? Colors.white
-                                  : Color(0xFF1F4539),
-                              items: _appliances.map((appliance) {
-                                return DropdownMenuItem<String>(
-                                  value: appliance,
-                                  child: Text(appliance),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                if (value != null &&
-                                    !_selectedAppliances.contains(value)) {
-                                  _addAppliance(value);
-                                }
-                              },
-                              decoration:
-                                  _buildInputDecoration('Select Appliance'),
-                            ),
-                          Align(
-                            alignment: Alignment.center,
-                            child: IconButton(
-                              icon: const Icon(Icons.add_circle_outline),
-                              onPressed: () {
-                                setState(() {
-                                  _showAppliancesDropdown =
-                                      !_showAppliancesDropdown;
-                                });
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: 16),
+                          _buildAppliancesMultiSelect(),
                           const SizedBox(height: 24),
                           Center(
                             child: ElevatedButton(
