@@ -127,12 +127,12 @@ async function getAllIngredients(corsHeaders: HeadersInit) {
     }
 }
 
-// Get all the ingredient names and their ids
+// Get all the ingredient names and their ids and categories
 async function getIngredientNames(corsHeaders: HeadersInit) {
     try {
         const { data: ingredients, error } = await supabase
             .from('ingredient')
-            .select('ingredientid, name');
+            .select('ingredientid, name, category');
 
         if (error) {
             throw new Error(error.message);
@@ -140,7 +140,8 @@ async function getIngredientNames(corsHeaders: HeadersInit) {
 
         const ingredientNames = ingredients.map(ingredient => ({
             id: ingredient.ingredientid,
-            name: ingredient.name
+            name: ingredient.name,
+            category: ingredient.category
         }));
 
         return new Response(JSON.stringify(ingredientNames), {
