@@ -111,35 +111,39 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   }
 
   Future<void> _fetchShoppingList() async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'getShoppingList',
-          'userId': _userId,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'getShoppingList',
+        'userId': _userId,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        final List<dynamic> shoppingList = data['shoppingList'];
-        setState(() {
-          _shoppingList.clear();
-          for (var item in shoppingList) {
-            final ingredientName = item['ingredientName'].toString();
-            final category = item['category'] ?? 'Other';
-            _shoppingList.putIfAbsent(category, () => []);
-            _shoppingList[category]?.add(ingredientName);
-          }
-        });
-      } else {
-        print('Failed to fetch shopping list: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching shopping list: $error');
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> shoppingList = data['shoppingList'];
+      setState(() {
+        _shoppingList.clear();
+        for (var item in shoppingList) {
+          final ingredientName = item['ingredientName'].toString();
+          final category = item['category'] ?? 'Other';
+          final quantity = item['quantity'] ?? 1.0;
+          final measurementUnit = item['measurmentunit'] ?? 'unit';
+          final displayText = '$ingredientName ($quantity $measurementUnit)';
+          _shoppingList.putIfAbsent(category, () => []);
+          _shoppingList[category]?.add(displayText);
+        }
+      });
+    } else {
+      print('Failed to fetch shopping list: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Error fetching shopping list: $error');
   }
+}
+
 
   void _addItem(String category, String item, double quantity, String measurementUnit) {
   setState(() {
@@ -189,12 +193,13 @@ Future<void> _editShoppingListItem(String category, String item, double quantity
 
     if (response.statusCode == 200) {
       setState(() {
-        _shoppingList[category] = _shoppingList[category]?.map((ingredient) {
-          if (ingredient == item) {
-            return '$item ($quantity $measurementUnit)';
+        final displayText = '$item ($quantity $measurementUnit)';
+        if (_shoppingList[category] != null) {
+          final index = _shoppingList[category]!.indexWhere((ingredient) => ingredient.startsWith(item));
+          if (index != -1) {
+            _shoppingList[category]![index] = displayText;
           }
-          return ingredient;
-        }).toList() ?? [];
+        }
       });
       print('Successfully edited $item in shopping list with quantity $quantity $measurementUnit');
     } else {
@@ -204,6 +209,7 @@ Future<void> _editShoppingListItem(String category, String item, double quantity
     print('Error editing $item in shopping list: $error');
   }
 }
+
 
   Future<void> _removeFromShoppingList(String category, String ingredientName) async {
     try {
@@ -602,7 +608,18 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
   double _quantity = 1.0; // Default quantity
   String _measurementUnit = 'unit'; // Default measurement unit
 
-  final TextEditingController _quantityController = TextEditingController();
+  // Extract existing quantity and measurement unit from the item string
+  final parts = item.split(' (');
+  String itemName = parts[0];
+  if (parts.length == 2) {
+    final quantityParts = parts[1].split(' ');
+    if (quantityParts.length == 2) {
+      _quantity = double.tryParse(quantityParts[0]) ?? 1.0;
+      _measurementUnit = quantityParts[1].replaceAll(')', '');
+    }
+  }
+
+  final TextEditingController _quantityController = TextEditingController(text: _quantity.toString());
   final List<String> _measurementUnits = ['unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz'];
 
   await showDialog(
@@ -701,7 +718,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                _editShoppingListItem(category, item, _quantity, _measurementUnit);
+                _editShoppingListItem(category, itemName, _quantity, _measurementUnit);
                 Navigator.of(context).pop();
               }
             },
