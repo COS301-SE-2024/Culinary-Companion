@@ -141,27 +141,38 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     }
   }
 
-  Future<void> _addToShoppingList(String? userId, String ingredientName) async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'addToShoppingList',
-          'userId': userId,
-          'ingredientName': ingredientName,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
+  void _addItem(String category, String item, double quantity, String measurementUnit) {
+  setState(() {
+    _shoppingList.putIfAbsent(category, () => []).add(item);
+    _checkboxStates[item] = false;
+  });
+  _addToShoppingList(_userId, item, quantity, measurementUnit); // Pass quantity and measurementUnit
+}
 
-      if (response.statusCode == 200) {
-        print('Successfully added $ingredientName to shopping list');
-      } else {
-        print('Failed to add $ingredientName to shopping list: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error adding $ingredientName to shopping list: $error');
+Future<void> _addToShoppingList(String? userId, String ingredientName, double quantity, String measurementUnit) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'addToShoppingList',
+        'userId': userId,
+        'ingredientName': ingredientName,
+        'quantity': quantity,
+        'measurementUnit': measurementUnit,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Successfully added $ingredientName to shopping list with quantity $quantity $measurementUnit');
+    } else {
+      print('Failed to add $ingredientName to shopping list: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Error adding $ingredientName to shopping list: $error');
   }
+}
+
 
   Future<void> _removeFromShoppingList(String category, String ingredientName) async {
     try {
@@ -196,13 +207,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     });
   }
 
-  void _addItem(String category, String item) {
-    setState(() {
-      _shoppingList.putIfAbsent(category, () => []).add(item);
-      _checkboxStates[item] = false;
-    });
-    _addToShoppingList(_userId, item);
-  }
 
   void _toggleCheckbox(String category, String item) {
     setState(() {
@@ -402,10 +406,15 @@ Widget _buildCategoryHeader(String title) {
 
   Future<void> _showAddItemDialog(BuildContext context) async {
   String _selectedItem = '';
+  double _quantity = 1.0; // Default quantity
+  String _measurementUnit = 'unit'; // Default measurement unit
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _itemNameController = TextEditingController();
   final TextEditingController _categoryController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
+  final TextEditingController _measurementUnitController = TextEditingController();
 
   await showDialog(
     context: context,
@@ -452,6 +461,37 @@ Widget _buildCategoryHeader(String title) {
                       _selectedItem = value!;
                     },
                   ),
+                  TextFormField(
+                    controller: _quantityController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Quantity',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a quantity';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      _quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
+                    },
+                  ),
+                  TextFormField(
+                    controller: _measurementUnitController,
+                    decoration: InputDecoration(
+                      labelText: 'Measurement Unit',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a measurement unit';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      _measurementUnit = value;
+                    },
+                  ),
                 ],
               ),
             ),
@@ -482,7 +522,7 @@ Widget _buildCategoryHeader(String title) {
                 if (_formKey.currentState!.validate()) {
                   _formKey.currentState!.save();
                   final category = _categoryController.text;
-                  _addItem(category, _selectedItem);
+                  _addItem(category, _selectedItem, _quantity, _measurementUnit);
                   Navigator.of(context).pop();
                 }
               },
