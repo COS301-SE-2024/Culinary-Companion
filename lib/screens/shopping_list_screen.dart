@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:http/http.dart'
-    as http; // Add this line to import the http package
-import 'dart:convert'; // Add this line to import the dart:convert library for JSON parsing
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../widgets/help_shopping.dart';
 
 Color shade(BuildContext context) {
@@ -13,7 +12,6 @@ Color shade(BuildContext context) {
       : Color(0xFF344E46);
 }
 
-// color: shaded ? Color(0xFF344E46) : Color(0xFF1D2C1F)
 Color unshade(BuildContext context) {
   final theme = Theme.of(context);
   return theme.brightness == Brightness.light
@@ -31,20 +29,18 @@ class ShoppingListScreen extends StatefulWidget {
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
-  //late http.Client _client;
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
 
   @override
   void initState() {
     super.initState();
-    //_client = widget.client ?? http.Client();
     _initializeData();
   }
 
   Future<void> _initializeData() async {
     await _loadUserId();
-    _fetchIngredientNames();
+    await _fetchIngredientNames();
     _loadDontShowAgainPreference();
     _fetchShoppingList();
   }
@@ -52,22 +48,23 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   final Map<String, List<String>> _shoppingList = {};
   final Map<String, bool> _checkboxStates = {};
 
-  final List<String> _categories = [
-    'Dairy',
-    'Meat',
-    'Fish',
-    'Nuts',
-    'Spice/Herb',
-    'Starch',
-    'Vegetable',
-    'Vegeterian',
-    'Fruit',
-    'Legume',
-    'Staple',
-    'Other'
-  ];
+  
 
-  List<String> _items = [];
+  // final Map<String, IconData> _categoryIcons = {
+  //   'Dairy': Icons.local_drink,
+  //   'Meat': Icons.local_dining,
+  //   'Fish': Icons.pool,
+  //   'Nuts': Icons.spa,
+  //   'Spice/Herb': Icons.local_florist,
+  //   'Starch': Icons.fastfood,
+  //   'Vegetable': Icons.eco,
+  //   'Fruit': Icons.local_offer,
+  //   'Legume': Icons.grass,
+  //   'Staple': Icons.kitchen,
+  //   'Other': Icons.category,
+  // };
+
+  List<Map<String, String>> _items = [];
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -79,94 +76,133 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   Future<void> _fetchIngredientNames() async {
     try {
       final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: '{"action": "getIngredientNames"}', // Body of the request
+        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: '{"action": "getIngredientNames"}',
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
-        // If the request is successful, parse the response JSON
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
-          _items = data.map((item) => item['name'].toString()).toList();
+          _items = data.map((item) => {
+            'id': item['id'].toString(),
+            'name': item['name'].toString(),
+            'category': item['category'].toString(),
+          }).toList();
         });
       } else {
-        // Handle other status codes, such as 404 or 500
-        //print('Failed to fetch ingredient names: ${response.statusCode}');
+        print('Failed to fetch ingredient names: ${response.statusCode}');
       }
     } catch (error) {
-      // Handle network errors or other exceptions
       print('Error fetching ingredient names: $error');
     }
   }
 
   Future<void> _fetchShoppingList() async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'getShoppingList',
-          'userId':
-              _userId, //'dcd8108f-acc2-4be8-aef6-69d5763f8b5b', // Hardcoded user ID
-        }), // Body of the request
-        headers: {'Content-Type': 'application/json'},
-      );
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'getShoppingList',
+        'userId': _userId,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        // If the request is successful, parse the response JSON
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        final List<dynamic> shoppingList = data['shoppingList'];
-        setState(() {
-          _shoppingList.clear();
-          for (var item in shoppingList) {
-            final ingredientName = item['ingredientName'].toString();
-            final category = item['category'] ?? 'Other';
-            _shoppingList.putIfAbsent(category, () => []);
-            _shoppingList[category]?.add(ingredientName);
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> shoppingList = data['shoppingList'];
+      setState(() {
+        _shoppingList.clear();
+        for (var item in shoppingList) {
+          final ingredientName = item['ingredientName'].toString();
+          final category = item['category'] ?? 'Other';
+          final quantity = item['quantity'] ?? 1.0;
+          final measurementUnit = item['measurmentunit'] ?? 'unit';
+          final displayText = '$ingredientName ($quantity $measurementUnit)';
+          _shoppingList.putIfAbsent(category, () => []);
+          _shoppingList[category]?.add(displayText);
+        }
+      });
+    } else {
+      print('Failed to fetch shopping list: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error fetching shopping list: $error');
+  }
+}
+
+
+  void _addItem(String category, String item, double quantity, String measurementUnit) {
+  setState(() {
+    _shoppingList.putIfAbsent(category, () => []).add(item);
+    _checkboxStates[item] = false;
+  });
+  _addToShoppingList(_userId, item, quantity, measurementUnit); // Pass quantity and measurementUnit
+}
+
+Future<void> _addToShoppingList(String? userId, String ingredientName, double quantity, String measurementUnit) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'addToShoppingList',
+        'userId': userId,
+        'ingredientName': ingredientName,
+        'quantity': quantity,
+        'measurementUnit': measurementUnit,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Successfully added $ingredientName to shopping list with quantity $quantity $measurementUnit');
+    } else {
+      print('Failed to add $ingredientName to shopping list: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error adding $ingredientName to shopping list: $error');
+  }
+}
+
+Future<void> _editShoppingListItem(String category, String item, double quantity, String measurementUnit) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'editShoppingListItem',
+        'userId': _userId,
+        'ingredientName': item,
+        'quantity': quantity,
+        'measurementUnit': measurementUnit,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        final displayText = '$item ($quantity $measurementUnit)';
+        if (_shoppingList[category] != null) {
+          final index = _shoppingList[category]!.indexWhere((ingredient) => ingredient.startsWith(item));
+          if (index != -1) {
+            _shoppingList[category]![index] = displayText;
           }
-        });
-      } else {
-        // Handle other status codes, such as 404 or 500
-        //print('Failed to fetch shopping list: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle network errors or other exceptions
-      print('Error fetching shopping list: $error');
+        }
+      });
+      print('Successfully edited $item in shopping list with quantity $quantity $measurementUnit');
+    } else {
+      print('Failed to edit $item in shopping list: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Error editing $item in shopping list: $error');
   }
+}
 
-  Future<void> _addToShoppingList(String? userId, String ingredientName) async {
+
+  Future<void> _removeFromShoppingList(String category, String ingredientName) async {
     try {
       final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'addToShoppingList',
-          'userId': userId,
-          'ingredientName': ingredientName,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        //print('Successfully added $ingredientName to shopping list');
-      } else {
-        print(
-            'Failed to add $ingredientName to shopping list: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error adding $ingredientName to shopping list: $error');
-    }
-  }
-
-  Future<void> _removeFromShoppingList(
-      String category, String ingredientName) async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         body: jsonEncode({
           'action': 'removeFromShoppingList',
           'userId': _userId,
@@ -176,17 +212,13 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       );
 
       if (response.statusCode == 200) {
-        // If the request is successful, update the shopping list
         setState(() {
           _shoppingList[category]?.remove(ingredientName);
         });
       } else {
-        // Handle other status codes
-        print(
-            'Failed to remove item from shopping list: ${response.statusCode}');
+        print('Failed to remove item from shopping list: ${response.statusCode}');
       }
     } catch (error) {
-      // Handle network errors or other exceptions
       print('Error removing item from shopping list: $error');
     }
   }
@@ -201,21 +233,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     });
   }
 
-  void _addItem(String category, String item, bool type) {
-    if (type) {
-      setState(() {
-        _shoppingList.putIfAbsent(category, () => []).add(item);
-        _checkboxStates[item] = false;
-      });
-      _addToShoppingList(_userId, item); // Existing line for shopping list
-    } else {
-      setState(() {
-        _checkboxStates[item] = false;
-      });
-    }
-  }
 
-  void _toggleCheckbox(String category, String item, bool type) {
+  void _toggleCheckbox(String category, String item) {
     setState(() {
       final isChecked = !(_checkboxStates[item] ?? false);
       _checkboxStates[item] = isChecked;
@@ -245,8 +264,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           child: Text(
             'Shopping List',
             style: TextStyle(
-              fontSize: 24.0, // Set the font size for h2 equivalent
-              fontWeight: FontWeight.bold, // Make the text bold
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -265,16 +284,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: Row(
           children: <Widget>[
-            // Shopping List Column
             Expanded(
-              // Adjust the top padding as needed
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Left-align children
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(height: 30.0),
-                  // Shopping list items with categories and checkboxes
                   Expanded(
                     child: _shoppingList.isEmpty
                         ? Center(
@@ -295,7 +310,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                                 ],
                                 ...entry.value.asMap().entries.map((item) =>
                                     _buildCheckableListItem(entry.key,
-                                        item.value, item.key % 2 == 1, true)),
+                                        item.value, item.key % 2 == 1)),
                               ];
                             }).toList(),
                           ),
@@ -305,31 +320,18 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                     child: ElevatedButton(
                       key: ValueKey('Pantry'),
                       onPressed: () {
-                        _showAddItemDialog(context, 'Shopping');
+                        _showAddItemDialog(context);
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFDC945F), // Button background color
-                        foregroundColor: Colors.white, // Text color
-                        fixedSize: const Size(
-                            48.0, 48.0), // Ensure the button is square
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(16), // Rounded corners
-                        ),
-                        padding:
-                            const EdgeInsets.all(0), // Remove default padding
+                        backgroundColor: const Color(0xFFDC945F),
+                        foregroundColor: Colors.white,
+                        fixedSize: const Size(48.0, 48.0),
+                        shape: const CircleBorder(),
+                        padding: EdgeInsets.all(0),
                       ),
-                      child: const Center(
-                        child: Text(
-                          '+',
-                          style: TextStyle(
-                            fontSize: 35, // Increase the font size
-                          ),
-                        ),
-                      ),
+                      child: const Icon(Icons.add, size: 32.0),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -338,296 +340,409 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       ),
     );
   }
+// Helper method to build a category header
+Widget _buildCategoryHeader(String title) {
+  final Map<String, IconData> categoryIcons = {
+    'Dairy': Icons.icecream,
+    'Meat': Icons.kebab_dining,
+    'Fish': Icons.set_meal_outlined,
+    'Nuts': Icons.sports_rugby_outlined,
+    'Spice/Herb': Icons.grass,
+    'Starch': Icons.bakery_dining,
+    'Vegetable': Icons.local_florist,
+    'Vegeterian': Icons.eco_outlined,
+    'Fruit': Icons.apple,
+    'Legume': Icons.grain, //scatter_plot
+    'Staple': Icons.breakfast_dining,
+    'Other': Icons.workspaces,
+  };
 
-  // Helper method to build a category header
-  Widget _buildCategoryHeader(String title) {
-    final Map<String, IconData> categoryIcons = {
-      'Dairy': Icons.icecream,
-      'Meat': Icons.kebab_dining,
-      'Fish': Icons.set_meal_outlined,
-      'Nuts': Icons.sports_rugby_outlined,
-      'Spice/Herb': Icons.grass,
-      'Starch': Icons.bakery_dining,
-      'Vegetable': Icons.local_florist,
-      'Vegeterian': Icons.eco_outlined,
-      'Fruit': Icons.apple,
-      'Legume': Icons.grain, //scatter_plot
-      'Staple': Icons.breakfast_dining,
-      'Other': Icons.workspaces,
-    };
+  final Map<String, Color> categoryColors = {
+    'Dairy': const Color.fromARGB(255, 255, 190, 24),
+    'Meat': Color.fromARGB(255, 163, 26, 16),
+    'Fish': Colors.blue,
+    'Nuts': Color.fromARGB(255, 131, 106, 98),
+    'Spice/Herb': Colors.green,
+    'Starch': Colors.orange,
+    'Vegetable': Colors.green,
+    'Vegeterian': Colors.green,
+    'Fruit': Colors.red,
+    'Legume': Color.fromARGB(255, 131, 106, 98),
+    'Staple': const Color.fromARGB(255, 225, 195, 151),
+    'Other': Colors.grey,
+  };
 
-    final Map<String, Color> categoryColors = {
-      'Dairy': const Color.fromARGB(255, 255, 190, 24),
-      'Meat': Color.fromARGB(255, 163, 26, 16),
-      'Fish': Colors.blue,
-      'Nuts': Color.fromARGB(255, 131, 106, 98),
-      'Spice/Herb': Colors.green,
-      'Starch': Colors.orange,
-      'Vegetable': Colors.green,
-      'Vegeterian': Colors.green,
-      'Fruit': Colors.red,
-      'Legume': Color.fromARGB(255, 131, 106, 98),
-      'Staple': const Color.fromARGB(255, 225, 195, 151),
-      'Other': Colors.grey,
-    };
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 8.0),
+    child: Row(
+      children: [
+        Icon(
+          categoryIcons[title] ?? Icons.category,
+          size: 28.0,
+          color: categoryColors[title] ?? Colors.orange,
+        ),
+        SizedBox(width: 8.0),
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF1D2C1F),
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          Icon(categoryIcons[title] ?? Icons.category,
-              color: categoryColors[title] ?? Colors.black),
-          SizedBox(width: 8.0),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 20.0, // Font size for category headers
-              fontWeight: FontWeight.bold, // Bold text for headers
-              color: categoryColors[title] ?? Colors.black,
+
+  Widget _buildCheckableListItem(String category, String item, bool isShaded) {
+  return Padding(
+    padding: EdgeInsets.symmetric(vertical: 8.0),
+    child: Container(
+      decoration: BoxDecoration(
+        color: isShaded ? shade(context) : unshade(context),
+        borderRadius: BorderRadius.circular(5.0),
+      ),
+      child: ListTile(
+        key: ValueKey(item),
+        contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        leading: Checkbox(
+          value: _checkboxStates[item] ?? false,
+          onChanged: (bool? value) {
+            if (value != null) {
+              _toggleCheckbox(category, item);
+              if (value) {
+                Future.delayed(Duration(seconds: 1), () {
+                  _removeFromShoppingList(category, item);
+                });
+              }
+            }
+          },
+          activeColor: Colors.orange,
+          checkColor: Colors.white,
+        ),
+        title: Text(
+          item,
+          style: TextStyle(
+            fontSize: 18.0,
+            fontWeight: FontWeight.normal,
+            color: Colors.white,
+          ),
+        ),
+        trailing: Container(
+          margin: EdgeInsets.only(left: 8.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                icon: Icon(Icons.edit, color: Colors.white),
+                onPressed: () {
+                  _showEditItemDialog(context, category, item);
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.delete, color: Colors.white),
+                onPressed: () {
+                  _removeFromShoppingList(category, item);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+
+
+  Future<void> _showAddItemDialog(BuildContext context) async {
+  String selectedItem = '';
+  double quantity = 1.0; // Default quantity
+  String measurementUnit = 'unit'; // Default measurement unit
+
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  final TextEditingController itemNameController = TextEditingController();
+  final TextEditingController categoryController = TextEditingController();
+  final TextEditingController quantityController = TextEditingController();
+
+  // List of measurement units
+  List<String> measurementUnits = [
+  'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
+  'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
+  'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
+  'can', 'bottle', 'jar', 'bag', 'box', 'whole'
+];
+
+
+
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Theme(
+        data: ThemeData(
+          dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        ),
+        child: AlertDialog(
+          title: Text('Add Item to Shopping List'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: <Widget>[
+                  TypeAheadFormField<Map<String, String>>(
+                    textFieldConfiguration: TextFieldConfiguration(
+                      controller: itemNameController,
+                      decoration: InputDecoration(labelText: 'Item Name'),
+                    ),
+                    suggestionsCallback: (pattern) async {
+                      return _items.where((item) =>
+                          item['name']!
+                              .toLowerCase()
+                              .contains(pattern.toLowerCase()));
+                    },
+                    itemBuilder: (context, Map<String, String> suggestion) {
+                      return ListTile(
+                        title: Text(suggestion['name']!),
+                      );
+                    },
+                    onSuggestionSelected: (Map<String, String> suggestion) {
+                      itemNameController.text = suggestion['name']!;
+                      categoryController.text = suggestion['category']!;
+                      selectedItem = suggestion['name']!;
+                    },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please select an item';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      selectedItem = value!;
+                    },
+                  ),
+                  TextFormField(
+                    controller: quantityController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: 'Quantity',
+                    ),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Please enter a quantity';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
+                    },
+                  ),
+                  DropdownButtonFormField<String>(
+                    value: measurementUnit,
+                    decoration: InputDecoration(
+                      labelText: 'Measurement Unit',
+                    ),
+                    items: measurementUnits.map((unit) {
+                      return DropdownMenuItem<String>(
+                        value: unit,
+                        child: Text(unit),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        measurementUnit = value!;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a measurement unit';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCheckableListItem(
-      String category, String title, bool shaded, bool listType) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: shaded ? shade(context) : unshade(context),
-          borderRadius: BorderRadius.circular(16.0),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-          child: ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
-            leading: listType
-                ? // Conditionally include the checkbox
-                Container(
-                    decoration: const BoxDecoration(),
-                    child: Transform.scale(
-                      scale: 1,
-                      child: Checkbox(
-                        value: _checkboxStates[title] ?? false,
-                        onChanged: (bool? value) {
-                          _toggleCheckbox(category, title, listType);
-                        },
-                      ),
-                    ),
-                  )
-                : null,
-            title: Padding(
-              padding: const EdgeInsets.only(left: 16.0),
-              child: Text(
-                title,
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                side: const BorderSide(
+                  color: Color(0xFFDC945F),
+                  width: 1.5,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color(0xFFDC945F),
+                ),
+              ),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFFDC945F),
+              ),
+              onPressed: () {
+                if (formKey.currentState!.validate()) {
+                  formKey.currentState!.save();
+                  final category = categoryController.text;
+                  _addItem(category, selectedItem, quantity, measurementUnit);
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text(
+                'Add',
                 style: TextStyle(
                   color: Colors.white,
                 ),
               ),
             ),
-            trailing: IconButton(
-              icon: Icon(Icons.delete_outline, color: Colors.white),
-              onPressed: () {
-                _confirmRemoveItem(context, category, title, listType);
-              },
-            ),
-            onTap: () {
-              if (listType) {
-                _toggleCheckbox(category, title, listType);
-              }
-            },
-          ),
+          ],
         ),
-      ),
-    );
+      );
+    },
+  );
+}
+
+Future<void> _showEditItemDialog(BuildContext context, String category, String item) async {
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  double quantity = 1.0; // Default quantity
+  String measurementUnit = 'unit'; // Default measurement unit
+
+  // Extract existing quantity and measurement unit from the item string
+  final parts = item.split(' (');
+  String itemName = parts[0];
+  if (parts.length == 2) {
+    final quantityParts = parts[1].split(' ');
+    if (quantityParts.length == 2) {
+      quantity = double.tryParse(quantityParts[0]) ?? 1.0;
+      measurementUnit = quantityParts[1].replaceAll(')', '');
+    }
   }
 
-  void _confirmRemoveItem(
-      BuildContext context, String category, String title, bool listType) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Theme(
-          // Apply custom theme to the AlertDialog
-          data: ThemeData(
-            // Set the background color to white
-            dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
-          ),
-          child: AlertDialog(
-            title: const Text("Confirm Remove"),
-            content: Text(
-                "Are you sure you want to remove '$title' from the Shopping List?"),
-            actions: <Widget>[
-              TextButton(
-                style: TextButton.styleFrom(
-                  side: const BorderSide(
-                    color: Colors.orange,
-                    width: 1.5, // Border thickness
-                  ), // Outline color
-                ),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(
-                    color: Color(0xFFDC945F), // Set the color to orange
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFFDC945F), // Background color
-                ),
-                child: const Text(
-                  'Remove',
-                  style: TextStyle(
-                    color: Colors.white, // Set the color to white
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Dismiss the dialog
-                  _removeItem(category, title, listType); // Remove the item
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  final TextEditingController quantityController = TextEditingController(text: quantity.toString());
+  final List<String> measurementUnits = [
+  'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
+  'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
+  'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
+  'can', 'bottle', 'jar', 'bag', 'box', 'whole'
+];
 
-  void _removeItem(String category, String title, bool listType) {
-    setState(() {
-      if (listType) {
-        _removeFromShoppingList(category, title);
-        _shoppingList[category]?.remove(title);
-        if (_shoppingList[category]?.isEmpty ?? true) {
-          _shoppingList.remove(category);
-        }
-      }
-      _checkboxStates.remove(title);
-    });
-  }
 
-  void _showAddItemDialog(BuildContext context, String type) {
-    final TextEditingController textFieldController = TextEditingController();
-    final TextEditingController foodTypeController = TextEditingController();
-    // String? selectedCategory;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Theme(
-          // Apply custom theme to the AlertDialog
-          data: ThemeData(
-            // Set the background color to white
-            dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
-          ),
-          child: AlertDialog(
-            title: Text('Add New Item To $type List'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          'Edit Item',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: unshade(context),
+        content: SingleChildScrollView(
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                TypeAheadFormField<String>(
-                  textFieldConfiguration: TextFieldConfiguration(
-                    controller: foodTypeController, // Use the controller here
-                    decoration:
-                        const InputDecoration(labelText: 'Select Food Type'),
+                TextFormField(
+                  controller: quantityController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Quantity',
+                    labelStyle: TextStyle(color: Colors.white),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
                   ),
-                  suggestionsCallback: (pattern) {
-                    return _categories.where((category) =>
-                        category.toLowerCase().contains(pattern.toLowerCase()));
+                  style: TextStyle(color: Colors.white),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Please enter a quantity';
+                    }
+                    return null;
                   },
-                  itemBuilder: (context, suggestion) {
-                    return ListTile(
-                      title: Text(suggestion),
-                    );
+                  onChanged: (value) {
+                    quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
                   },
-                  onSuggestionSelected: (suggestion) {
-                    foodTypeController.text = suggestion;
-                  },
-                  validator: (value) =>
-                      value == null ? 'Please select a category' : null,
                 ),
-                TypeAheadFormField<String>(
-                  textFieldConfiguration: TextFieldConfiguration(
-                    controller: textFieldController,
-                    decoration:
-                        const InputDecoration(hintText: "Enter item name"),
+                SizedBox(height: 16.0),
+                DropdownButtonFormField<String>(
+                  value: measurementUnit,
+                  decoration: InputDecoration(
+                    labelText: 'Measurement Unit',
+                    labelStyle: TextStyle(color: Colors.white),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
                   ),
-                  suggestionsCallback: (pattern) {
-                    return _items.where((item) =>
-                        item.toLowerCase().contains(pattern.toLowerCase()));
-                  },
-                  itemBuilder: (context, suggestion) {
-                    return ListTile(
-                      title: Text(suggestion),
+                  dropdownColor: unshade(context),
+                  items: measurementUnits.map((unit) {
+                    return DropdownMenuItem<String>(
+                      value: unit,
+                      child: Text(unit, style: TextStyle(color: Colors.white)),
                     );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      measurementUnit = value!;
+                    });
                   },
-                  onSuggestionSelected: (suggestion) {
-                    textFieldController.text = suggestion;
+                  style: TextStyle(color: Colors.white),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a measurement unit';
+                    }
+                    return null;
                   },
-                  validator: (value) =>
-                      value!.isEmpty ? 'Please enter an item name' : null,
                 ),
               ],
             ),
-            actions: <Widget>[
-              TextButton(
-                style: TextButton.styleFrom(
-                  side: const BorderSide(
-                    color: Colors.orange,
-                    width: 1.5, // Border thickness
-                  ), // Outline color
-                ),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(
-                    color: Color(0xFFDC945F), // Set the color to orange
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: const Color(0xFFDC945F), // Background color
-                ),
-                child: const Text(
-                  'Add',
-                  style: TextStyle(
-                    color: Colors.white, // Set the color to orange
-                  ),
-                ),
-                onPressed: () {
-                  if (foodTypeController.text.isNotEmpty &&
-                      textFieldController.text.isNotEmpty) {
-                    if (type == 'Shopping') {
-                      _addItem(
-                        foodTypeController.text,
-                        textFieldController.text,
-                        true,
-                      );
-                    } else {
-                      _addItem(
-                        foodTypeController.text,
-                        textFieldController.text,
-                        false,
-                      );
-                    }
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-            ],
           ),
-        );
-      },
-    );
-  }
+        ),
+        actions: <Widget>[
+          TextButton(
+            style: TextButton.styleFrom(
+              side: BorderSide(color: Color(0xFFDC945F), width: 1.5),
+            ),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Color(0xFFDC945F)),
+            ),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              backgroundColor: Color(0xFFDC945F),
+            ),
+            onPressed: () {
+              if (formKey.currentState!.validate()) {
+                formKey.currentState!.save();
+                _editShoppingListItem(category, itemName, quantity, measurementUnit);
+                Navigator.of(context).pop();
+              }
+            },
+            child: Text(
+              'Save',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      );
+    },
+  );
+}
 }
