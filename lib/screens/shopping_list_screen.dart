@@ -203,29 +203,39 @@ Future<void> _editShoppingListItem(String category, String item, double quantity
 }
 
 
-  Future<void> _removeFromShoppingList(String category, String ingredientName) async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'removeFromShoppingList',
-          'userId': _userId,
-          'ingredientName': ingredientName,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
+  Future<void> _removeFromShoppingList(String category, String item) async {
+  // Extract the ingredient name, quantity, and measurement unit from the item string
+  final parts = item.split(' (');
+  String ingredientName = parts[0];
 
-      if (response.statusCode == 200) {
-        setState(() {
-          _shoppingList[category]?.remove(ingredientName);
-        });
-      } else {
-        print('Failed to remove item from shopping list: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error removing item from shopping list: $error');
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'removeFromShoppingList',
+        'userId': _userId,
+        'ingredientName': ingredientName,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _shoppingList[category]?.remove(item);
+        if (_shoppingList[category]?.isEmpty ?? true) {
+          _shoppingList.remove(category);
+        }
+        _checkboxStates.remove(item);
+      });
+      print('Successfully removed $ingredientName from shopping list');
+    } else {
+      print('Failed to remove $ingredientName from shopping list: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Error removing $ingredientName from shopping list: $error');
   }
+}
+
 
   // ignore: unused_field
   bool _dontShowAgain = false;
@@ -239,11 +249,56 @@ Future<void> _editShoppingListItem(String category, String item, double quantity
 
 
   void _toggleCheckbox(String category, String item) {
-    setState(() {
-      final isChecked = !(_checkboxStates[item] ?? false);
-      _checkboxStates[item] = isChecked;
-    });
+  setState(() {
+    final isChecked = !(_checkboxStates[item] ?? false);
+    _checkboxStates[item] = isChecked;
+    if (isChecked) {
+      Future.delayed(Duration(seconds: 1), () {
+        _removeFromShoppingList(category, item);
+        _addToPantryList(_userId, item); // Add to pantry
+      });
+    }
+  });
+}
+
+Future<void> _addToPantryList(String? userId, String item) async {
+  // Extract the ingredient name, quantity, and measurement unit from the item string
+  final parts = item.split(' (');
+  String ingredientName = parts[0];
+  double quantity = 1.0; // Default quantity
+  String measurementUnit = 'unit'; // Default measurement unit
+
+  if (parts.length == 2) {
+    final quantityParts = parts[1].split(' ');
+    if (quantityParts.length == 2) {
+      quantity = double.tryParse(quantityParts[0]) ?? 1.0;
+      measurementUnit = quantityParts[1].replaceAll(')', '');
+    }
   }
+
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'addToPantryList',
+        'userId': userId,
+        'ingredientName': ingredientName,
+        'quantity': quantity,
+        'measurementUnit': measurementUnit,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      print('Successfully added $ingredientName to pantry list');
+    } else {
+      print('Failed to add $ingredientName to pantry list: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error adding $ingredientName to pantry list: $error');
+  }
+}
+
 
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
@@ -416,11 +471,6 @@ Widget _buildCategoryHeader(String title) {
           onChanged: (bool? value) {
             if (value != null) {
               _toggleCheckbox(category, item);
-              if (value) {
-                Future.delayed(Duration(seconds: 1), () {
-                  _removeFromShoppingList(category, item);
-                });
-              }
             }
           },
           activeColor: Colors.orange,
@@ -458,6 +508,7 @@ Widget _buildCategoryHeader(String title) {
     ),
   );
 }
+
 
 
 
