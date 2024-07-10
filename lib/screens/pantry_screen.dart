@@ -30,6 +30,7 @@ class PantryScreen extends StatefulWidget {
 class _PantryScreenState extends State<PantryScreen>{
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
+  String _measurementUnit = ''; 
 
   @override
   void initState() {
@@ -71,6 +72,7 @@ class _PantryScreenState extends State<PantryScreen>{
             'id': item['id'].toString(),
             'name': item['name'].toString(),
             'category': item['category'].toString(),
+            'measurementUnit': item['measurementUnit'].toString(),
           }).toList();
         });
       } else {
@@ -218,17 +220,19 @@ class _PantryScreenState extends State<PantryScreen>{
     });
   }
 
-  void _addItem(String category, String item, bool type,double quantity, String measurementUnit) {
-    if (type) {
-      //do nothing
-    } else {
-      setState(() {
-        _pantryList.putIfAbsent(category, () => []).add(item);
-        _checkboxStates[item] = false;
-      });
-      _addToPantryList(_userId, item,quantity,measurementUnit); // New line for pantry list
-    }
+  void _addItem(String category, String item, bool type, double quantity, String measurementUnit) {
+  if (type) {
+    // Do nothing
+  } else {
+    setState(() {
+      final displayText = '$item ($quantity $measurementUnit)';
+      _pantryList.putIfAbsent(category, () => []).add(displayText);
+      _checkboxStates[displayText] = false;
+    });
+    _addToPantryList(_userId, item, quantity, measurementUnit); // New line for pantry list
   }
+}
+
 
   // void _toggleCheckbox(String category, String item) {
   //   setState(() {
@@ -450,120 +454,86 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
   }
 
   final TextEditingController quantityController = TextEditingController(text: quantity.toString());
-  final List<String> measurementUnits = [
-  'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
-  'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
-  'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
-  'can', 'bottle', 'jar', 'bag', 'box', 'whole'
-];
-
 
   await showDialog(
     context: context,
     builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(
-          'Edit Item',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: unshade(context),
-        content: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                TextFormField(
-                  controller: quantityController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    labelText: 'Quantity',
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange),
-                    ),
-                  ),
-                  style: TextStyle(color: Colors.white),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Please enter a quantity';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
-                  },
-                ),
-                SizedBox(height: 16.0),
-                DropdownButtonFormField<String>(
-                  value: measurementUnit,
-                  decoration: InputDecoration(
-                    labelText: 'Measurement Unit',
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange),
-                    ),
-                  ),
-                  dropdownColor: unshade(context),
-                  items: measurementUnits.map((unit) {
-                    return DropdownMenuItem<String>(
-                      value: unit,
-                      child: Text(unit, style: TextStyle(color: Colors.white)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      measurementUnit = value!;
-                    });
-                  },
-                  style: TextStyle(color: Colors.white),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a measurement unit';
-                    }
-                    return null;
-                  },
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            style: TextButton.styleFrom(
-              side: BorderSide(color: Color(0xFFDC945F), width: 1.5),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Color(0xFFDC945F)),
-            ),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              backgroundColor: Color(0xFFDC945F),
-            ),
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                formKey.currentState!.save();
-                _editPantryItem(category, itemName, quantity, measurementUnit);
-                Navigator.of(context).pop();
-              }
-            },
-            child: Text(
-              'Save',
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(
+              'Edit Item',
               style: TextStyle(color: Colors.white),
             ),
-          ),
-        ],
+            backgroundColor: unshade(context),
+            content: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    TextFormField(
+                      controller: quantityController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Quantity',
+                        labelStyle: TextStyle(color: Colors.white),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.orange),
+                        ),
+                      ),
+                      style: TextStyle(color: Colors.white),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter a quantity';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
+                      },
+                    ),
+                    SizedBox(height: 16.0), // Add spacing for better UI
+                    Text('Measurement Unit: $measurementUnit', style: TextStyle(color: Colors.white)), // Display the measurement unit
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  side: BorderSide(color: Color(0xFFDC945F), width: 1.5),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: Color(0xFFDC945F)),
+                ),
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: Color(0xFFDC945F),
+                ),
+                onPressed: () {
+                  if (formKey.currentState!.validate()) {
+                    formKey.currentState!.save();
+                    _editPantryItem(category, itemName, quantity, measurementUnit);
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: Text(
+                  'Save',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          );
+        },
       );
     },
   );
@@ -571,153 +541,134 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
 
 
 
-  Future<void> _showAddItemDialog(BuildContext context) async {
+
+ Future<void> _showAddItemDialog(BuildContext context) async {
   String selectedItem = '';
   double quantity = 1.0; // Default quantity
-  String measurementUnit = 'unit'; // Default measurement unit
+  String _measurementUnit = ''; // Default measurement unit
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final TextEditingController itemNameController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
-  //final TextEditingController measurementUnitController = TextEditingController();
-
-  List<String> measurementUnits = [
-  'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
-  'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
-  'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
-  'can', 'bottle', 'jar', 'bag', 'box', 'whole'
-];
 
   await showDialog(
     context: context,
     builder: (BuildContext context) {
-      return Theme(
-        data: ThemeData(
-          dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
-        ),
-        child: AlertDialog(
-          title: Text('Add Item to Shopping List'),
-          content: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                children: <Widget>[
-                  TypeAheadFormField<Map<String, String>>(
-                    textFieldConfiguration: TextFieldConfiguration(
-                      controller: itemNameController,
-                      decoration: InputDecoration(labelText: 'Item Name'),
-                    ),
-                    suggestionsCallback: (pattern) async {
-                      return _items.where((item) =>
-                          item['name']!
-                              .toLowerCase()
-                              .contains(pattern.toLowerCase()));
-                    },
-                    itemBuilder: (context, Map<String, String> suggestion) {
-                      return ListTile(
-                        title: Text(suggestion['name']!),
-                      );
-                    },
-                    onSuggestionSelected: (Map<String, String> suggestion) {
-                      itemNameController.text = suggestion['name']!;
-                      categoryController.text = suggestion['category']!;
-                      selectedItem = suggestion['name']!;
-                    },
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please select an item';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      selectedItem = value!;
-                    },
-                  ),
-                  TextFormField(
-                    controller: quantityController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: 'Quantity',
-                    ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please enter a quantity';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
-                    },
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: measurementUnit,
-                    decoration: InputDecoration(
-                      labelText: 'Measurement Unit',
-                    ),
-                    items: measurementUnits.map((unit) {
-                      return DropdownMenuItem<String>(
-                        value: unit,
-                        child: Text(unit),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        measurementUnit = value!;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select a measurement unit';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
-              ),
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return Theme(
+            data: ThemeData(
+              dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
             ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                side: const BorderSide(
-                  color: Color(0xFFDC945F),
-                  width: 1.5,
+            child: AlertDialog(
+              title: Text('Add Item to Pantry List'),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    children: <Widget>[
+                      TypeAheadFormField<Map<String, String>>(
+                        textFieldConfiguration: TextFieldConfiguration(
+                          controller: itemNameController,
+                          decoration: InputDecoration(labelText: 'Item Name'),
+                        ),
+                        suggestionsCallback: (pattern) async {
+                          return _items.where((item) =>
+                              item['name']!
+                                  .toLowerCase()
+                                  .contains(pattern.toLowerCase()));
+                        },
+                        itemBuilder: (context, Map<String, String> suggestion) {
+                          return ListTile(
+                            title: Text(suggestion['name']!),
+                          );
+                        },
+                        onSuggestionSelected: (Map<String, String> suggestion) {
+                          itemNameController.text = suggestion['name']!;
+                          categoryController.text = suggestion['category']!;
+                          selectedItem = suggestion['name']!;
+                          setState(() {
+                            _measurementUnit = suggestion['measurementUnit']!; // Set measurement unit in the state
+                          });
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please select an item';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          selectedItem = value!;
+                        },
+                      ),
+                      TextFormField(
+                        controller: quantityController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Quantity',
+                        ),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please enter a quantity';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
+                        },
+                      ),
+                      SizedBox(height: 16.0), // Add spacing for better UI
+                      Text('Measurement Unit: $_measurementUnit'), // Display the measurement unit
+                    ],
+                  ),
                 ),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Color(0xFFDC945F),
+              actions: <Widget>[
+                TextButton(
+                  style: TextButton.styleFrom(
+                    side: const BorderSide(
+                      color: Color(0xFFDC945F),
+                      width: 1.5,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Color(0xFFDC945F),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFDC945F),
-              ),
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  formKey.currentState!.save();
-                  final category = categoryController.text;
-                  _addItem(category, selectedItem, false,quantity, measurementUnit);
-                  Navigator.of(context).pop();
-                }
-              },
-              child: const Text(
-                'Add',
-                style: TextStyle(
-                  color: Colors.white,
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFFDC945F),
+                  ),
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      formKey.currentState!.save();
+                      final category = categoryController.text;
+                      _addItem(category, selectedItem, false, quantity, _measurementUnit);
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text(
+                    'Add',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       );
     },
   );
 }
+
+
 }
