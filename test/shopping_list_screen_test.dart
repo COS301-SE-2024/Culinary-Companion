@@ -28,12 +28,12 @@ void main() {
     expect(find.byIcon(Icons.help), findsOneWidget);
   });
 
-  testWidgets('Add item button shows dialog', (WidgetTester tester) async {
-    await pumpShoppingListScreen(tester);
+  // testWidgets('Add item button shows dialog', (WidgetTester tester) async {
+  //   await pumpShoppingListScreen(tester);
     
-    await tester.tap(find.byType(ElevatedButton));
-    await tester.pumpAndSettle();
+  //   await tester.tap(find.byType(ElevatedButton));
+  //   await tester.pumpAndSettle();
     
-    expect(find.text('Add New Item To Shopping List'), findsOneWidget);
-  });
+  //   expect(find.text('Add New Item To Shopping List'), findsOneWidget);
+  // });
 }

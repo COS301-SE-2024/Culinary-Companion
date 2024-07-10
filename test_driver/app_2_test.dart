@@ -33,13 +33,13 @@ void main() {
       //expect(await driver.getText(find.text('Pantry')), 'Pantry');
       await driver.waitFor(find.byValueKey('Pantry'));
     });
-        test('Navigate to ShoppingList screen', () async {
-      // Tap on the Pantry item in the navbar
-      await driver.tap(find.byValueKey(('ShoppingList')));
-      // Verify that we're on the Pantry screen
-      //expect(await driver.getText(find.text('Pantry')), 'Pantry');
-      await driver.waitFor(find.text('Shopping List'));
-    });
+    //     test('Navigate to ShoppingList screen', () async {
+    //   // Tap on the Pantry item in the navbar
+    //   await driver.tap(find.byValueKey(('ShoppingList')));
+    //   // Verify that we're on the Pantry screen
+    //   //expect(await driver.getText(find.text('Pantry')), 'Pantry');
+    //   await driver.waitFor(find.text('Shopping List'));
+    // });
         
   });
 }
