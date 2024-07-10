@@ -37,7 +37,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_userId != null) {
       await _fetchUserDetails();
       await fetchRecipes(); //Fetch user recipes after fetching user details
-      //print('hereeee 2');
     } else {
       setState(() {
         _isLoading = false;
@@ -176,6 +175,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
+        title: Padding(
+          padding: EdgeInsets.only(top: 30, left: 38.0),
+          child: Text(
+            'Account',
+            style: TextStyle(
+              fontSize: 24.0, // Set the font size for h2 equivalent
+              fontWeight: FontWeight.bold, // Make the text bold
+            ),
+          ),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
@@ -191,11 +200,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            key: ValueKey('Profile'),
             padding: const EdgeInsets.only(left: 50, right: 20.0),
             child: _isLoading
                 ? Center(
-                    // Step 3: Replace CircularProgressIndicator with Lottie widget
                     child: Lottie.asset('assets/loading.json'),
                   )
                 : _errorMessage != null
@@ -205,58 +212,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           style: TextStyle(
                               color: theme.brightness == Brightness.light
                                   ? Color(0xFF1E1E1E)
-                                  : Color(0xFFD9D9D9)
-                          ),
+                                  : Color(0xFFD9D9D9)),
                         ),
                       )
-                      :Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildHeader(context),
-                          const SizedBox(height: 20),
-                          buildProfileInfo(),
-                          const SizedBox(height: 20),
-                          buildPreferences(),
-                          const SizedBox(height: 20),
-                          buildMyRecipes(),
-                        ],
+                    : LayoutBuilder(
+                        builder: (context, constraints) {
+                          if (constraints.maxWidth < 600) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildHeader(context),
+                                const SizedBox(height: 20),
+                                const SizedBox(height: 20),
+                                buildPreferences(),
+                                const SizedBox(height: 20),
+                                buildMyRecipes(),
+                              ],
+                            );
+                          } else {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildHeader(context),
+                                const SizedBox(height: 20),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(width: 32),
+                                    Expanded(child: buildPreferences()),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                buildMyRecipes(),
+                              ],
+                            );
+                          }
+                        },
                       ),
-                    // : LayoutBuilder(
-                    //     builder: (context, constraints) {
-                    //       if (constraints.maxWidth < 600) {
-                    //         return Column(
-                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                    //           children: [
-                    //             buildHeader(context),
-                    //             const SizedBox(height: 20),
-                    //             buildProfileInfo(),
-                    //             const SizedBox(height: 20),
-                    //             buildPreferences(),
-                    //             const SizedBox(height: 20),
-                    //             buildMyRecipes(),
-                    //           ],
-                    //         );
-                    //       } else {
-                    //         return Column(
-                    //           crossAxisAlignment: CrossAxisAlignment.start,
-                    //           children: [
-                    //             buildHeader(context),
-                    //             const SizedBox(height: 20),
-                    //             Row(
-                    //               crossAxisAlignment: CrossAxisAlignment.start,
-                    //               children: [
-                    //                 buildProfileInfo(),
-                    //                 const SizedBox(width: 32),
-                    //                 Expanded(child: buildPreferences()),
-                    //               ],
-                    //             ),
-                    //             const SizedBox(height: 20),
-                    //             buildMyRecipes(),
-                    //           ],
-                    //         );
-                    //       }
-                    //     },
-                    //   ),
           ),
         ),
       ),
@@ -268,357 +260,220 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final textColor = theme.brightness == Brightness.light
         ? Color(0xFF1E1E1E)
         : Color(0xFFD9D9D9);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Account',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        Row(
-          children: [
-            TextButton(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfileEditScreen(),
-                  ),
-                );
 
-                if (result == true) {
-                  await _fetchUserDetails();
-                }
-              },
-              child: Text(
-                'Edit Profile',
-                style: TextStyle(color: textColor, fontSize: 16),
-              ),
-            ),
-            const SizedBox(width: 10),
-            OutlinedButton(
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.clear();
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => LandingScreen()),
-                  (route) => false,
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: textColor),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(24),
-                ),
-              ),
-              child: Text(
-                'Sign Out',
-                style: TextStyle(color: textColor, fontSize: 16),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-  //       IconButton(
-  //         onPressed: () async {
-  //           final result = await Navigator.push(
-  //             context,
-  //             MaterialPageRoute(
-  //               builder: (context) => ProfileEditScreen(),
-  //             ),
-  //           );
-
-  //           if (result == true) {
-  //             // Reload user details if the profile was updated
-  //             await _fetchUserDetails();
-  //           }
-  //         },
-  //         icon: Icon(
-  //           Icons.settings,
-  //           color: textColor,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  Widget buildProfileInfo() {
-    final theme = Theme.of(context);
-    final textColor = theme.brightness == Brightness.light
-        ? Color(0xFF1E1E1E)
-        : Color(0xFFD9D9D9);
     final String username =
         _userDetails?['username']?.toString() ?? 'Jane Doe'; //default values
-    //final String email = 'jane.doe@gmail.com'; //default
     final String profilePhoto =
         _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
+    //final String email = 'jane.doe@gmail.com'; //default
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(75),
-            child: profilePhoto.startsWith('http')
-                ? Image.network(
-                    profilePhoto,
-                    width: 150,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  )
-                : Image.asset(
-                    profilePhoto,
-                    width: 150,
-                    height: 150,
-                    fit: BoxFit.cover,
-                  ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Center(
-          child: Text(
-            username,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: textColor,
+    return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(180),
+              child: profilePhoto.startsWith('http')
+                  ? Image.network(
+                      profilePhoto,
+                      width: 250,
+                      height: 250,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset(
+                      profilePhoto,
+                      width: 250,
+                      height: 250,
+                      fit: BoxFit.cover,
+                    ),
             ),
-          ),
-        ),
-      ],
-    );
+            const SizedBox(width: 50),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  username,
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(width: 25),
+                Row(
+                  children: [
+                    OutlinedButton(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ProfileEditScreen(),
+                          ),
+                        );
+
+                        if (result == true) {
+                          // Reload user details if the profile was updated
+                          await _fetchUserDetails();
+                        }
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: textColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        backgroundColor: const Color(0xFFDC945F),
+                        foregroundColor: Colors.white,
+                      ),
+                      child: Text(
+                        'Edit Profile',
+                        style: TextStyle(color: textColor, fontSize: 16),
+                      ),
+                    ),
+                    const SizedBox(width: 25),
+                    OutlinedButton(
+                      onPressed: () async {
+                        // Clear shared preferences
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        await prefs.clear();
+
+                        // Navigate to LandingScreen
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LandingScreen()),
+                          (route) => false,
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: textColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        foregroundColor: const Color(0xFFDC945F),
+                      ),
+                      child: Text(
+                        'Sign Out',
+                        style: TextStyle(color: textColor, fontSize: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ));
   }
-  //     children: [
-  //       ClipRRect(
-  //         borderRadius: BorderRadius.circular(8),
-  //         child: profilePhoto.startsWith('http') //profile photo
-  //             ? Image.network(
-  //                 profilePhoto,
-  //                 width: 150,
-  //                 height: 150,
-  //                 fit: BoxFit.cover,
-  //               )
-  //             : Image.asset(
-  //                 profilePhoto,
-  //                 width: 150,
-  //                 height: 150,
-  //                 fit: BoxFit.cover,
-  //               ),
-  //       ),
-  //       const SizedBox(height: 16),
-  //       Text(
-  //         username,
 
-  //         ///username
-  //         style: TextStyle(
-  //           color: textColor,
-  //           fontSize: 20,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       // Text(
-  //       //   email, //user email
-  //       //   style: const TextStyle(
-  //       //     color: Colors.grey,
-  //       //     fontSize: 16,
-  //       //   ),
-  //       // ),
-  //       const SizedBox(height: 8),
-  //       OutlinedButton(
-  //         onPressed: () async {
-  //           // Clear shared preferences
-  //           SharedPreferences prefs = await SharedPreferences.getInstance();
-  //           await prefs.clear();
-
-  //           // Navigate to LandingScreen
-  //           Navigator.pushAndRemoveUntil(
-  //             context,
-  //             MaterialPageRoute(builder: (context) => LandingScreen()),
-  //             (route) => false,
-  //           );
-  //         },
-  //         style: OutlinedButton.styleFrom(
-  //           side: BorderSide(color: textColor),
-  //           shape: RoundedRectangleBorder(
-  //             borderRadius: BorderRadius.circular(24),
-  //           ),
-  //         ),
-  //         child: Text(
-  //           'Sign Out',
-  //           style: TextStyle(color: textColor),
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  // Widget buildPreferences() {
-  //   final theme = Theme.of(context);
-  //   final textColor = theme.brightness == Brightness.light
-  //       ? Color(0xFF1E1E1E)
-  //       : Color(0xFFD9D9D9);
-
-  //   final String spiceLevel =
-  //       _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
-  //   final String preferredCuisine =
-  //       _userDetails?['cuisine']?.toString() ?? 'Mexican'; //default
-  //   final List<String> dietaryConstraints = List<String>.from(
-  //       _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
-
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       // Spice Level
-  //       Text(
-  //         'Spice Level',
-  //         style: TextStyle(
-  //           color: textColor,
-  //           fontSize: 18,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       const SizedBox(height: 8),
-  //       Wrap(
-  //         spacing: 8.0,
-  //         runSpacing: 4.0,
-  //         children: [
-  //           Chip(
-  //             label: Text(getSpiceLevelText(spiceLevel)), //spice level
-  //             backgroundColor: Colors.grey[700],
-  //             labelStyle: const TextStyle(color: Colors.white),
-  //           ),
-  //         ],
-  //       ),
-  //       const SizedBox(height: 24),
-  //       // Preferred Cuisine
-  //       Text(
-  //         'Preferred Cuisine',
-  //         style: TextStyle(
-  //           color: textColor,
-  //           fontSize: 18,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       const SizedBox(height: 8),
-  //       Wrap(
-  //         spacing: 8.0,
-  //         runSpacing: 4.0,
-  //         children: [
-  //           Chip(
-  //             label: Text(preferredCuisine), //preferred cuisine
-  //             backgroundColor: Colors.grey[700],
-  //             labelStyle: const TextStyle(color: Colors.white),
-  //           ),
-  //         ],
-  //       ),
-  //       const SizedBox(height: 24),
-  //       // Dietary Constraints
-  //       Text(
-  //         'Dietary Constraints',
-  //         style: TextStyle(
-  //           color: textColor,
-  //           fontSize: 18,
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       const SizedBox(height: 8),
-  //       Wrap(
-  //         spacing: 8.0,
-  //         runSpacing: 4.0,
-  //         children: dietaryConstraints
-  //             .map(
-  //               (constraint) => Chip(
-  //                 label: Text(constraint), //list of constraints
-  //                 backgroundColor: Colors.grey[700],
-  //                 labelStyle: const TextStyle(color: Colors.white),
-  //               ),
-  //             )
-  //             .toList(),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-Widget buildPreferences() {
+  Widget buildPreferences() {
     final theme = Theme.of(context);
     final textColor = theme.brightness == Brightness.light
         ? Color(0xFF1E1E1E)
         : Color(0xFFD9D9D9);
+
+    final String spiceLevel =
+        _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
+    final String preferredCuisine =
+        _userDetails?['cuisine']?.toString() ?? 'Mexican'; //default
+    final List<String> dietaryConstraints = List<String>.from(
+        _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
 
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.brightness == Brightness.light
-            ? Color(0xFFF1F1F1)
-            : Color(0xFF2E2E2E),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
           color: theme.brightness == Brightness.light
-              ? Color(0xFFD1D1D1)
-              : Color(0xFF4E4E4E),
+              ? Color(0xFFF1F1F1)
+              : Color(0xFF2E2E2E),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: theme.brightness == Brightness.light
+                ? Color(0xFFD1D1D1)
+                : Color(0xFF4E4E4E),
+          ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Preferences:',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: textColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Preferences:',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
             ),
-          ),
-          const SizedBox(height: 20),
-          buildPreferenceRow('Spice Level:',
-              getSpiceLevelText(_userDetails?['spicelevel'].toString() ?? '')),
-          const SizedBox(height: 10),
-          buildPreferenceRow('Calories:', _userDetails?['calories'] ?? ''),
-          const SizedBox(height: 10),
-          buildPreferenceRow('Prep Time:', _userDetails?['preptime'] ?? ''),
-          const SizedBox(height: 10),
-          buildPreferenceRow(
-              'Dietary Restrictions:', _userDetails?['restrictions'] ?? ''),
-        ],
-      ),
-    );
+            const SizedBox(height: 20),
+            // Spice Level
+            Text(
+              'Spice Level',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: [
+                Chip(
+                  label: Text(getSpiceLevelText(spiceLevel)), //spice level
+                  backgroundColor: Colors.grey[700],
+                  labelStyle: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Preferred Cuisine
+            Text(
+              'Preferred Cuisine',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: [
+                Chip(
+                  label: Text(preferredCuisine), //preferred cuisine
+                  backgroundColor: Colors.grey[700],
+                  labelStyle: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Dietary Constraints
+            Text(
+              'Dietary Constraints',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: dietaryConstraints
+                  .map(
+                    (constraint) => Chip(
+                      label: Text(constraint), //list of constraints
+                      backgroundColor: Colors.grey[700],
+                      labelStyle: const TextStyle(color: Colors.white),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        ));
   }
-
-  Widget buildPreferenceRow(String title, String value) {
-    final theme = Theme.of(context);
-    final textColor = theme.brightness == Brightness.light
-        ? Color(0xFF1E1E1E)
-        : Color(0xFFD9D9D9);
-
-    return Row(
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 18,
-            color: textColor,
-          ),
-        ),
-        const SizedBox(width: 10),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-      ],
-    );
-  }
-
 
   Widget buildMyRecipes() {
     final theme = Theme.of(context);
@@ -633,7 +488,7 @@ Widget buildPreferences() {
           'My Recipes',
           style: TextStyle(
             color: textColor,
-            fontSize: 24,//18
+            fontSize: 24, //18
             fontWeight: FontWeight.bold,
           ),
         ),
