@@ -261,6 +261,7 @@ Future<void> _editShoppingListItem(String category, String item, double quantity
   });
 }
 
+
 Future<void> _addToPantryList(String? userId, String item) async {
   // Extract the ingredient name, quantity, and measurement unit from the item string
   final parts = item.split(' (');
@@ -290,7 +291,12 @@ Future<void> _addToPantryList(String? userId, String item) async {
     );
 
     if (response.statusCode == 200) {
-      print('Successfully added $ingredientName to pantry list');
+      final responseBody = jsonDecode(response.body);
+      if (responseBody['newQuantity'] != null) {
+        print('Updated quantity of $ingredientName in pantry list to ${responseBody['newQuantity']}');
+      } else {
+        print('Successfully added $ingredientName to pantry list');
+      }
     } else {
       print('Failed to add $ingredientName to pantry list: ${response.statusCode}');
     }
@@ -298,6 +304,7 @@ Future<void> _addToPantryList(String? userId, String item) async {
     print('Error adding $ingredientName to pantry list: $error');
   }
 }
+
 
 
   void _showHelpMenu() {
