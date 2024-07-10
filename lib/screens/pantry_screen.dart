@@ -178,37 +178,38 @@ class _PantryScreenState extends State<PantryScreen>{
 }
 
 
-  Future<void> _removeFromPantryList(
-      String category, String ingredientName) async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'removeFromPantryList',
-          'userId': _userId,
-          'ingredientName': ingredientName,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
+ Future<void> _removeFromPantryList(String category, String item) async {
+  // Extract the ingredient name from the item string
+  final parts = item.split(' (');
+  String ingredientName = parts[0];
 
-      if (response.statusCode == 200) {
-        // If the request is successful, update the pantry list
-        setState(() {
-          _pantryList[category]?.remove(ingredientName);
-          if (_pantryList[category]?.isEmpty ?? true) {
-            _pantryList.remove(category);
-          }
-        });
-      } else {
-        // Handle other status codes
-        print('Failed to remove item from pantry list: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle network errors or other exceptions
-      print('Error removing item from pantry list: $error');
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'removeFromPantryList',
+        'userId': _userId,
+        'ingredientName': ingredientName,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _pantryList[category]?.remove(item);
+        if (_pantryList[category]?.isEmpty ?? true) {
+          _pantryList.remove(category);
+        }
+      });
+      print('Successfully removed $ingredientName from pantry list');
+    } else {
+      print('Failed to remove $ingredientName from pantry list: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Error removing $ingredientName from pantry list: $error');
   }
+}
+
 
   // ignore: unused_field
   bool _dontShowAgain = false;
