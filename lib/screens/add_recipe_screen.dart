@@ -16,6 +16,14 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   List<MultiSelectItem<String>> _applianceItems = [];
   List<String> _selectedAppliances = [];
 
+  // Add this line inside your class
+  List<String> measurementUnits = [
+    'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
+    'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
+    'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
+    'can', 'bottle', 'jar', 'bag', 'box', 'whole'
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -154,11 +162,15 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   List<String> _availableIngredients = [];
 
   void _addIngredientField() {
-    setState(() {
-      _ingredients
-          .add({'name': _availableIngredients[0], 'quantity': '', 'unit': ''});
+  setState(() {
+    _ingredients.add({
+      'name': _availableIngredients.isNotEmpty ? _availableIngredients[0] : '',
+      'quantity': '',
+      'unit': measurementUnits.first, // Set to first unit in the list
     });
-  }
+  });
+}
+
 
   void _removeIngredientField(int index) {
     setState(() {
@@ -701,6 +713,19 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                           ..._ingredients.map((ingredient) {
                             int index = _ingredients.indexOf(ingredient);
+                            String initialUnit = _ingredients[index]['unit'] ??
+                                measurementUnits.first;
+
+                            
+                            //print('Ingredient: ${_ingredients[index]['name']}');
+                            //print('Initial Unit: $initialUnit');
+                            //print('Measurement Units: $measurementUnits');
+
+                            // Ensure initialUnit is in measurementUnits
+                            if (!measurementUnits.contains(initialUnit)) {
+                              initialUnit = measurementUnits.first;
+                            }
+
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 8.0),
@@ -741,12 +766,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
-                                    child: TextField(
+                                    child: DropdownButtonFormField<String>(
+                                      dropdownColor: const Color(0xFF1F4539),
+                                      value: initialUnit,
                                       onChanged: (value) {
                                         setState(() {
-                                          _ingredients[index]['unit'] = value;
+                                          _ingredients[index]['unit'] = value!;
                                         });
                                       },
+                                      items: measurementUnits.map((unit) {
+                                        return DropdownMenuItem<String>(
+                                          value: unit,
+                                          child: Text(unit),
+                                        );
+                                      }).toList(),
                                       decoration: _buildInputDecoration('Unit'),
                                     ),
                                   ),
