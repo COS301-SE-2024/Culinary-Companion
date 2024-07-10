@@ -30,7 +30,7 @@ class PantryScreen extends StatefulWidget {
 class _PantryScreenState extends State<PantryScreen>{
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
-  String _measurementUnit = ''; 
+  //String measurementUnit = ''; 
 
   @override
   void initState() {
@@ -546,7 +546,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
  Future<void> _showAddItemDialog(BuildContext context) async {
   String selectedItem = '';
   double quantity = 1.0; // Default quantity
-  String _measurementUnit = ''; // Default measurement unit
+  String measurementUnit = ''; // Default measurement unit
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final TextEditingController itemNameController = TextEditingController();
@@ -590,7 +590,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                           categoryController.text = suggestion['category']!;
                           selectedItem = suggestion['name']!;
                           setState(() {
-                            _measurementUnit = suggestion['measurementUnit']!; // Set measurement unit in the state
+                            measurementUnit = suggestion['measurementUnit']!; // Set measurement unit in the state
                           });
                         },
                         validator: (value) {
@@ -620,7 +620,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                         },
                       ),
                       SizedBox(height: 16.0), // Add spacing for better UI
-                      Text('Measurement Unit: $_measurementUnit'), // Display the measurement unit
+                      Text('Measurement Unit: $measurementUnit'), // Display the measurement unit
                     ],
                   ),
                 ),
@@ -651,7 +651,7 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                     if (formKey.currentState!.validate()) {
                       formKey.currentState!.save();
                       final category = categoryController.text;
-                      _addItem(category, selectedItem, false, quantity, _measurementUnit);
+                      _addItem(category, selectedItem, false, quantity, measurementUnit);
                       Navigator.of(context).pop();
                     }
                   },
