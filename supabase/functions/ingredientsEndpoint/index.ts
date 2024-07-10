@@ -136,7 +136,7 @@ async function getIngredientNames(corsHeaders: HeadersInit) {
     try {
         const { data: ingredients, error } = await supabase
             .from('ingredient')
-            .select('ingredientid, name, category');
+            .select('ingredientid, name, category, measurement_unit');
 
         if (error) {
             throw new Error(error.message);
@@ -145,7 +145,8 @@ async function getIngredientNames(corsHeaders: HeadersInit) {
         const ingredientNames = ingredients.map(ingredient => ({
             id: ingredient.ingredientid,
             name: ingredient.name,
-            category: ingredient.category
+            category: ingredient.category,
+            measurementUnit: ingredient.measurement_unit
         }));
 
         return new Response(JSON.stringify(ingredientNames), {
