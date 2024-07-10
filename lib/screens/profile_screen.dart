@@ -223,7 +223,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 buildHeader(context),
                                 const SizedBox(height: 20),
-                                const SizedBox(height: 20),
                                 buildPreferences(),
                                 const SizedBox(height: 20),
                                 buildMyRecipes(),
@@ -234,14 +233,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildHeader(context),
-                                const SizedBox(height: 20),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const SizedBox(width: 32),
-                                    Expanded(child: buildPreferences()),
-                                  ],
-                                ),
                                 const SizedBox(height: 20),
                                 buildMyRecipes(),
                               ],
@@ -272,26 +263,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(180),
-              child: profilePhoto.startsWith('http')
-                  ? Image.network(
-                      profilePhoto,
-                      width: 250,
-                      height: 250,
-                      fit: BoxFit.cover,
-                    )
-                  : Image.asset(
-                      profilePhoto,
-                      width: 250,
-                      height: 250,
-                      fit: BoxFit.cover,
-                    ),
-            ),
-            const SizedBox(width: 50),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
               children: [
+                SizedBox(height: 20),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(180),
+                  child: profilePhoto.startsWith('http')
+                      ? Image.network(
+                          profilePhoto,
+                          width: 240,
+                          height: 240,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          profilePhoto,
+                          width: 240,
+                          height: 240,
+                          fit: BoxFit.cover,
+                        ),
+                ),
+                SizedBox(height: 5),
                 Text(
                   username,
                   style: TextStyle(
@@ -300,7 +291,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: textColor,
                   ),
                 ),
-                const SizedBox(width: 25),
+                SizedBox(height: 5),
                 Row(
                   children: [
                     OutlinedButton(
@@ -362,6 +353,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
+            SizedBox(width: 20),
+            Column(
+              children: [
+                const SizedBox(height: 25, width: 50),
+                buildPreferences(),
+              ],
+            )
           ],
         ));
   }
@@ -380,6 +378,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
 
     return Container(
+        height: 300,
+        width: 1100,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: theme.brightness == Brightness.light
@@ -395,15 +395,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Preferences:',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-            ),
-            const SizedBox(height: 20),
             // Spice Level
             Text(
               'Spice Level',
