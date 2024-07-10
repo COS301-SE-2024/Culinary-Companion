@@ -31,6 +31,7 @@ class ShoppingListScreen extends StatefulWidget {
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
+  String _measurementUnit = ''; 
 
   @override
   void initState() {
@@ -74,29 +75,31 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   }
 
   Future<void> _fetchIngredientNames() async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: '{"action": "getIngredientNames"}',
-        headers: {'Content-Type': 'application/json'},
-      );
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: '{"action": "getIngredientNames"}',
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _items = data.map((item) => {
-            'id': item['id'].toString(),
-            'name': item['name'].toString(),
-            'category': item['category'].toString(),
-          }).toList();
-        });
-      } else {
-        print('Failed to fetch ingredient names: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching ingredient names: $error');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        _items = data.map((item) => {
+          'id': item['id'].toString(),
+          'name': item['name'].toString(),
+          'category': item['category'].toString(),
+          'measurementUnit': item['measurementUnit'].toString(),
+        }).toList();
+      });
+    } else {
+      print('Failed to fetch ingredient names: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Error fetching ingredient names: $error');
   }
+}
+
 
   Future<void> _fetchShoppingList() async {
   try {
@@ -135,11 +138,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   void _addItem(String category, String item, double quantity, String measurementUnit) {
   setState(() {
-    _shoppingList.putIfAbsent(category, () => []).add(item);
-    _checkboxStates[item] = false;
+    _shoppingList.putIfAbsent(category, () => []).add('$item ($quantity $measurementUnit)');
+    _checkboxStates['$item ($quantity $measurementUnit)'] = false;
   });
   _addToShoppingList(_userId, item, quantity, measurementUnit); // Pass quantity and measurementUnit
 }
+
 
 Future<void> _addToShoppingList(String? userId, String ingredientName, double quantity, String measurementUnit) async {
   try {
@@ -199,29 +203,39 @@ Future<void> _editShoppingListItem(String category, String item, double quantity
 }
 
 
-  Future<void> _removeFromShoppingList(String category, String ingredientName) async {
-    try {
-      final response = await http.post(
-        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'removeFromShoppingList',
-          'userId': _userId,
-          'ingredientName': ingredientName,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
+  Future<void> _removeFromShoppingList(String category, String item) async {
+  // Extract the ingredient name, quantity, and measurement unit from the item string
+  final parts = item.split(' (');
+  String ingredientName = parts[0];
 
-      if (response.statusCode == 200) {
-        setState(() {
-          _shoppingList[category]?.remove(ingredientName);
-        });
-      } else {
-        print('Failed to remove item from shopping list: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error removing item from shopping list: $error');
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'removeFromShoppingList',
+        'userId': _userId,
+        'ingredientName': ingredientName,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _shoppingList[category]?.remove(item);
+        if (_shoppingList[category]?.isEmpty ?? true) {
+          _shoppingList.remove(category);
+        }
+        _checkboxStates.remove(item);
+      });
+      print('Successfully removed $ingredientName from shopping list');
+    } else {
+      print('Failed to remove $ingredientName from shopping list: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Error removing $ingredientName from shopping list: $error');
   }
+}
+
 
   // ignore: unused_field
   bool _dontShowAgain = false;
@@ -235,11 +249,63 @@ Future<void> _editShoppingListItem(String category, String item, double quantity
 
 
   void _toggleCheckbox(String category, String item) {
-    setState(() {
-      final isChecked = !(_checkboxStates[item] ?? false);
-      _checkboxStates[item] = isChecked;
-    });
+  setState(() {
+    final isChecked = !(_checkboxStates[item] ?? false);
+    _checkboxStates[item] = isChecked;
+    if (isChecked) {
+      Future.delayed(Duration(seconds: 1), () {
+        _removeFromShoppingList(category, item);
+        _addToPantryList(_userId, item); // Add to pantry
+      });
+    }
+  });
+}
+
+
+Future<void> _addToPantryList(String? userId, String item) async {
+  // Extract the ingredient name, quantity, and measurement unit from the item string
+  final parts = item.split(' (');
+  String ingredientName = parts[0];
+  double quantity = 1.0; // Default quantity
+  String measurementUnit = 'unit'; // Default measurement unit
+
+  if (parts.length == 2) {
+    final quantityParts = parts[1].split(' ');
+    if (quantityParts.length == 2) {
+      quantity = double.tryParse(quantityParts[0]) ?? 1.0;
+      measurementUnit = quantityParts[1].replaceAll(')', '');
+    }
   }
+
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'addToPantryList',
+        'userId': userId,
+        'ingredientName': ingredientName,
+        'quantity': quantity,
+        'measurementUnit': measurementUnit,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final responseBody = jsonDecode(response.body);
+      if (responseBody['newQuantity'] != null) {
+        print('Updated quantity of $ingredientName in pantry list to ${responseBody['newQuantity']}');
+      } else {
+        print('Successfully added $ingredientName to pantry list');
+      }
+    } else {
+      print('Failed to add $ingredientName to pantry list: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error adding $ingredientName to pantry list: $error');
+  }
+}
+
+
 
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
@@ -412,11 +478,6 @@ Widget _buildCategoryHeader(String title) {
           onChanged: (bool? value) {
             if (value != null) {
               _toggleCheckbox(category, item);
-              if (value) {
-                Future.delayed(Duration(seconds: 1), () {
-                  _removeFromShoppingList(category, item);
-                });
-              }
             }
           },
           activeColor: Colors.orange,
@@ -457,26 +518,16 @@ Widget _buildCategoryHeader(String title) {
 
 
 
+
   Future<void> _showAddItemDialog(BuildContext context) async {
   String selectedItem = '';
   double quantity = 1.0; // Default quantity
-  String measurementUnit = 'unit'; // Default measurement unit
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final TextEditingController itemNameController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
   final TextEditingController quantityController = TextEditingController();
-
-  // List of measurement units
-  List<String> measurementUnits = [
-  'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
-  'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
-  'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
-  'can', 'bottle', 'jar', 'bag', 'box', 'whole'
-];
-
-
 
   await showDialog(
     context: context,
@@ -485,130 +536,118 @@ Widget _buildCategoryHeader(String title) {
         data: ThemeData(
           dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
         ),
-        child: AlertDialog(
-          title: Text('Add Item to Shopping List'),
-          content: SingleChildScrollView(
-            child: Form(
-              key: formKey,
-              child: Column(
-                children: <Widget>[
-                  TypeAheadFormField<Map<String, String>>(
-                    textFieldConfiguration: TextFieldConfiguration(
-                      controller: itemNameController,
-                      decoration: InputDecoration(labelText: 'Item Name'),
-                    ),
-                    suggestionsCallback: (pattern) async {
-                      return _items.where((item) =>
-                          item['name']!
-                              .toLowerCase()
-                              .contains(pattern.toLowerCase()));
-                    },
-                    itemBuilder: (context, Map<String, String> suggestion) {
-                      return ListTile(
-                        title: Text(suggestion['name']!),
-                      );
-                    },
-                    onSuggestionSelected: (Map<String, String> suggestion) {
-                      itemNameController.text = suggestion['name']!;
-                      categoryController.text = suggestion['category']!;
-                      selectedItem = suggestion['name']!;
-                    },
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please select an item';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      selectedItem = value!;
-                    },
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Add Item to Shopping List'),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    children: <Widget>[
+                      TypeAheadFormField<Map<String, String>>(
+                        textFieldConfiguration: TextFieldConfiguration(
+                          controller: itemNameController,
+                          decoration: InputDecoration(labelText: 'Item Name'),
+                        ),
+                        suggestionsCallback: (pattern) async {
+                          return _items.where((item) =>
+                              item['name']!
+                                  .toLowerCase()
+                                  .contains(pattern.toLowerCase()));
+                        },
+                        itemBuilder: (context, Map<String, String> suggestion) {
+                          return ListTile(
+                            title: Text(suggestion['name']!),
+                          );
+                        },
+                        onSuggestionSelected: (Map<String, String> suggestion) {
+                          itemNameController.text = suggestion['name']!;
+                          categoryController.text = suggestion['category']!;
+                          selectedItem = suggestion['name']!;
+                          setState(() {
+                            _measurementUnit = suggestion['measurementUnit']!;
+                          });
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please select an item';
+                          }
+                          return null;
+                        },
+                        onSaved: (value) {
+                          selectedItem = value!;
+                        },
+                      ),
+                      TextFormField(
+                        controller: quantityController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Quantity',
+                        ),
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Please enter a quantity';
+                          }
+                          return null;
+                        },
+                        onChanged: (value) {
+                          quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
+                        },
+                      ),
+                      SizedBox(height: 16.0), // Add spacing for better UI
+                      Text('Measurement Unit: $_measurementUnit'), // Display the measurement unit
+                    ],
                   ),
-                  TextFormField(
-                    controller: quantityController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: 'Quantity',
-                    ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please enter a quantity';
-                      }
-                      return null;
-                    },
-                    onChanged: (value) {
-                      quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
-                    },
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: measurementUnit,
-                    decoration: InputDecoration(
-                      labelText: 'Measurement Unit',
-                    ),
-                    items: measurementUnits.map((unit) {
-                      return DropdownMenuItem<String>(
-                        value: unit,
-                        child: Text(unit),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        measurementUnit = value!;
-                      });
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select a measurement unit';
-                      }
-                      return null;
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                side: const BorderSide(
-                  color: Color(0xFFDC945F),
-                  width: 1.5,
                 ),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text(
-                'Cancel',
-                style: TextStyle(
-                  color: Color(0xFFDC945F),
+              actions: <Widget>[
+                TextButton(
+                  style: TextButton.styleFrom(
+                    side: const BorderSide(
+                      color: Color(0xFFDC945F),
+                      width: 1.5,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Color(0xFFDC945F),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFDC945F),
-              ),
-              onPressed: () {
-                if (formKey.currentState!.validate()) {
-                  formKey.currentState!.save();
-                  final category = categoryController.text;
-                  _addItem(category, selectedItem, quantity, measurementUnit);
-                  Navigator.of(context).pop();
-                }
-              },
-              child: const Text(
-                'Add',
-                style: TextStyle(
-                  color: Colors.white,
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xFFDC945F),
+                  ),
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      formKey.currentState!.save();
+                      final category = categoryController.text;
+                      _addItem(category, selectedItem, quantity, _measurementUnit);
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text(
+                    'Add',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ],
+            );
+          },
         ),
       );
     },
   );
 }
+
+
 
 Future<void> _showEditItemDialog(BuildContext context, String category, String item) async {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -627,13 +666,6 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
   }
 
   final TextEditingController quantityController = TextEditingController(text: quantity.toString());
-  final List<String> measurementUnits = [
-  'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
-  'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
-  'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
-  'can', 'bottle', 'jar', 'bag', 'box', 'whole'
-];
-
 
   await showDialog(
     context: context,
@@ -674,39 +706,8 @@ Future<void> _showEditItemDialog(BuildContext context, String category, String i
                     quantity = double.tryParse(value) ?? 1.0; // Default to 1.0 if parsing fails
                   },
                 ),
-                SizedBox(height: 16.0),
-                DropdownButtonFormField<String>(
-                  value: measurementUnit,
-                  decoration: InputDecoration(
-                    labelText: 'Measurement Unit',
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange),
-                    ),
-                  ),
-                  dropdownColor: unshade(context),
-                  items: measurementUnits.map((unit) {
-                    return DropdownMenuItem<String>(
-                      value: unit,
-                      child: Text(unit, style: TextStyle(color: Colors.white)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      measurementUnit = value!;
-                    });
-                  },
-                  style: TextStyle(color: Colors.white),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a measurement unit';
-                    }
-                    return null;
-                  },
-                ),
+                SizedBox(height: 16.0), // Add spacing for better UI
+                Text('Measurement Unit: $measurementUnit', style: TextStyle(color: Colors.white)), // Display the measurement unit
               ],
             ),
           ),

@@ -16,6 +16,14 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   List<MultiSelectItem<String>> _applianceItems = [];
   List<String> _selectedAppliances = [];
 
+  // Add this line inside your class
+  List<String> measurementUnits = [
+    'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
+    'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
+    'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
+    'can', 'bottle', 'jar', 'bag', 'box', 'whole'
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -72,30 +80,29 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   }
 
   Future<void> _fetchIngredientNames() async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: '{"action": "getIngredientNames"}', // Body of the request
-        headers: {'Content-Type': 'application/json'},
-      );
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: '{"action": "getIngredientNames"}',
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        // If the request is successful, parse the response JSON
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _availableIngredients =
-              data.map((item) => item['name'].toString()).toList();
-        });
-      } else {
-        // Handle other status codes, such as 404 or 500
-        //print('Failed to fetch ingredient names: ${response.statusCode}');
-      }
-    } catch (error) {
-      // Handle network errors or other exceptions
-      print('Error fetching ingredient names: $error');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      setState(() {
+        _availableIngredients = data.map((item) => {
+          'name': item['name'].toString(),
+          'measurementUnit': item['measurementUnit'].toString(),
+        }).toList();
+      });
+    } else {
+      print('Failed to fetch ingredient names: ${response.statusCode}');
     }
+  } catch (error) {
+    print('Error fetching ingredient names: $error');
   }
+}
+
 
   Future<void> _loadAppliances() async {
     final url =
@@ -151,14 +158,23 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   ]; //Change these so it is fetched from database
 
   // Define the list of available ingredients
-  List<String> _availableIngredients = [];
+  //List<String> _availableIngredients = [];
+  List<Map<String, String>> _availableIngredients = [];
+
 
   void _addIngredientField() {
-    setState(() {
-      _ingredients
-          .add({'name': _availableIngredients[0], 'quantity': '', 'unit': ''});
+  setState(() {
+    _ingredients.add({
+      'name': _availableIngredients.isNotEmpty ? _availableIngredients[0]['name'] ?? '' : '',
+      'quantity': '',
+      'unit': _availableIngredients.isNotEmpty ? _availableIngredients[0]['measurementUnit'] ?? measurementUnits.first : measurementUnits.first,
     });
-  }
+  });
+}
+
+
+
+
 
   void _removeIngredientField(int index) {
     setState(() {
@@ -700,67 +716,61 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                           ..._ingredients.map((ingredient) {
-                            int index = _ingredients.indexOf(ingredient);
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: DropdownButtonFormField<String>(
-                                      dropdownColor: const Color(0xFF1F4539),
-                                      value: _ingredients[index]['name'],
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _ingredients[index]['name'] = value!;
-                                        });
-                                      },
-                                      items: _availableIngredients
-                                          .map((ingredient) {
-                                        return DropdownMenuItem<String>(
-                                          value: ingredient,
-                                          child: Text(ingredient),
-                                        );
-                                      }).toList(),
-                                      decoration:
-                                          _buildInputDecoration('Ingredient'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: TextField(
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _ingredients[index]['quantity'] =
-                                              value;
-                                        });
-                                      },
-                                      decoration:
-                                          _buildInputDecoration('Quantity'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: TextField(
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _ingredients[index]['unit'] = value;
-                                        });
-                                      },
-                                      decoration: _buildInputDecoration('Unit'),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(
-                                        Icons.remove_circle_outline,
-                                        color: Colors.red),
-                                    onPressed: () =>
-                                        _removeIngredientField(index),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
+  int index = _ingredients.indexOf(ingredient);
+  String initialUnit = _ingredients[index]['unit'] ?? measurementUnits.first;
+
+  if (!measurementUnits.contains(initialUnit)) {
+    initialUnit = measurementUnits.first;
+  }
+
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Row(
+      children: [
+        Expanded(
+          child: DropdownButtonFormField<String>(
+            dropdownColor: const Color(0xFF1F4539),
+            value: _ingredients[index]['name'],
+            onChanged: (value) {
+              setState(() {
+                _ingredients[index]['name'] = value!;
+                // Find the selected ingredient and update the unit
+                final selectedIngredient = _availableIngredients.firstWhere((ingredient) => ingredient['name'] == value);
+                _ingredients[index]['unit'] = selectedIngredient['measurementUnit']!;
+              });
+            },
+            items: _availableIngredients.map((ingredient) {
+              return DropdownMenuItem<String>(
+                value: ingredient['name'],
+                child: Text(ingredient['name']!),
+              );
+            }).toList(),
+            decoration: _buildInputDecoration('Ingredient'),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: TextField(
+            onChanged: (value) {
+              setState(() {
+                _ingredients[index]['quantity'] = value;
+              });
+            },
+            decoration: _buildInputDecoration('Quantity'),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(_ingredients[index]['unit'] ?? ''), // Display the unit directly
+        IconButton(
+          icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
+          onPressed: () => _removeIngredientField(index),
+        ),
+      ],
+    ),
+  );
+}),
+
+
                           Align(
                             alignment: Alignment.center,
                             child: IconButton(
