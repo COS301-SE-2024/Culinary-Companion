@@ -615,7 +615,7 @@ async function editPantryItem(userId: string, ingredientName: string, quantity: 
 
 
 // Add an ingredient to the pantry list
-async function addToPantryList(userId: string, ingredientName: string,quantity: number,measurementUnit: string) {
+async function addToPantryList(userId: string, ingredientName: string, quantity: number, measurementUnit: string) {
     const corsHeaders = {
         "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
         "Access-Control-Allow-Methods": "POST",
@@ -650,27 +650,67 @@ async function addToPantryList(userId: string, ingredientName: string,quantity: 
             });
         }
 
-        // Insert the ingredient into the pantry list
-        const { error: pantryListError } = await supabase
+        // Check if the ingredient is already in the pantry
+        const { data: pantryItem, error: pantryError } = await supabase
             .from('availableingredients')
-            .insert({
-                userid: userId,
-                ingredientid: ingredientId,
-                quantity: quantity, // Default quantity, adjust as needed
-                measurmentunit: measurementUnit // Default measurement unit, adjust as needed
-            });
+            .select('quantity')
+            .eq('userid', userId)
+            .eq('ingredientid', ingredientId)
+            .single();
 
-        if (pantryListError) {
-            return new Response(JSON.stringify({ error: pantryListError.message }), { 
+        if (pantryError && pantryError.code !== 'PGRST116') { // PGRST116 indicates no rows returned
+            return new Response(JSON.stringify({ error: pantryError.message }), { 
                 status: 400,
                 headers: corsHeaders,
             });
         }
 
-        return new Response(JSON.stringify({ success: true }), { 
-            status: 200,
-            headers: corsHeaders,
-        });
+        if (pantryItem) {
+            // If the item exists, update the quantity
+            const newQuantity = pantryItem.quantity + quantity;
+            const { error: updateError } = await supabase
+                .from('availableingredients')
+                .update({
+                    quantity: newQuantity,
+                    measurmentunit: measurementUnit // Assuming measurement unit remains the same
+                })
+                .eq('userid', userId)
+                .eq('ingredientid', ingredientId);
+
+            if (updateError) {
+                return new Response(JSON.stringify({ error: updateError.message }), { 
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            return new Response(JSON.stringify({ success: true, newQuantity }), { 
+                status: 200,
+                headers: corsHeaders,
+            });
+        } else {
+            // If the item does not exist, insert it
+            const { error: pantryListError } = await supabase
+                .from('availableingredients')
+                .insert({
+                    userid: userId,
+                    ingredientid: ingredientId,
+                    quantity: quantity, // Default quantity, adjust as needed
+                    measurmentunit: measurementUnit // Default measurement unit, adjust as needed
+                });
+
+            if (pantryListError) {
+                return new Response(JSON.stringify({ error: pantryListError.message }), { 
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            return new Response(JSON.stringify({ success: true }), { 
+                status: 200,
+                headers: corsHeaders,
+            });
+        }
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), { 
             status: 500,
@@ -678,6 +718,7 @@ async function addToPantryList(userId: string, ingredientName: string,quantity: 
         });
     }
 }
+
 
 // Function to remove an ingredient from the shopping list
 async function removeFromShoppingList(userId: string, ingredientName: string) {
