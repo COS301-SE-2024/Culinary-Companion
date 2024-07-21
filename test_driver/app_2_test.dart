@@ -20,9 +20,10 @@ void main() {
       // Verify navbar items
       expect(await driver.getText(find.text('Home')), 'Home');
       expect(await driver.getText(find.text('Add Recipe')), 'Add Recipe');
-      expect(await driver.getText(find.text('Shopping List')), 'Shopping List');
-      expect(await driver.getText(find.text('Pantry')), 'Pantry');
-      expect(await driver.getText(find.text('Appliances')), 'Appliances');
+      expect(await driver.getText(find.text('Inventory')), 'Inventory');
+      // expect(await driver.getText(find.text('Shopping List')), 'Shopping List');
+      // expect(await driver.getText(find.text('Pantry')), 'Pantry');
+      // expect(await driver.getText(find.text('Appliances')), 'Appliances');
       expect(await driver.getText(find.text('Favorite Recipes')),
           'Favorite Recipes');
       expect(await driver.getText(find.text('Profile')), 'Profile');
@@ -38,13 +39,7 @@ void main() {
       await driver.waitFor(find.text('Appliances'));
     });
 
-
-    test('Navigate through Inventory tabs', () async {
-      // // Verify and tap on Shopping List tab
-      // expect(await driver.getText(find.text('Shopping List')), 'Shopping List');
-      // await driver.tap(find.text('Shopping List'));
-      // await driver.waitFor(find.byType('ShoppingListScreen'));
-
+    test('Navigate to Pantry tab', () async {
       // Verify and tap on Pantry tab
       expect(await driver.getText(find.text('Pantry')), 'Pantry');
       await driver.tap(find.text('Pantry'));
@@ -56,15 +51,18 @@ void main() {
       await driver.tap(find.byValueKey('close_help_menu'));
       await driver.waitForAbsent(find.byType('HelpMenu'));
     });
-    test('Navigate to Appliances screen', () async {
-      // Tap on the Appliances navigation item
-      await driver.tap(find.byValueKey('Appliances'));
 
-      // Verify that we're on the Appliances screen by checking for the add button
+    test('Verify empty state message for Pantry', () async {
+      await driver.waitFor(find.text(
+          "No ingredients have been added. Click the plus icon to add your first ingredient!"));
+    });
+    test('Navigate to Appliance tab', () async {
+      // Verify and tap on Pantry tab
+      expect(await driver.getText(find.text('Appliances')), 'Appliances');
+      await driver.tap(find.text('Appliances'));
       await driver.waitFor(find.byValueKey('add_appliance_button'));
     });
-
-    test('Verify empty state message', () async {
+    test('Verify empty state message for Appliance', () async {
       await driver.waitFor(find.text(
           "No appliances have been added. Click the plus icon to add your first appliance!"));
     });
@@ -75,13 +73,15 @@ void main() {
       await driver.tap(find.byValueKey('close_help_menu'));
       await driver.waitForAbsent(find.byType('HelpMenu'));
     });
-
-    test('Navigate to Shopping List screen', () async {
-      // Tap on the Appliances navigation item
-      await driver.tap(find.byValueKey('Shopping List'));
-
-      // Verify that we're on the Appliances screen by checking for the add button
+    test('Navigate to Shopping List tab', () async {
+      // Verify and tap on Pantry tab
+      expect(await driver.getText(find.text('Shopping List')), 'Shopping List');
+      await driver.tap(find.text('Shopping List'));
       await driver.waitFor(find.byValueKey('add_shopping_list_button'));
+    });
+    test('Verify empty state message for Shopping List', () async {
+      await driver.waitFor(find.text(
+          "No ingredients have been added. Click the plus icon to add your first ingredient!"));
     });
     test('Open and close Shopping List help menu', () async {
       await driver.tap(find.byType('IconButton'));
@@ -90,12 +90,28 @@ void main() {
       await driver.waitForAbsent(find.byType('HelpMenu'));
     });
 
+    // test('Navigate to Appliances screen', () async {
+    //   // Tap on the Appliances navigation item
+    //   await driver.tap(find.byValueKey('Appliances'));
+
+    //   // Verify that we're on the Appliances screen by checking for the add button
+    //   await driver.waitFor(find.byValueKey('add_appliance_button'));
+    // });
+
     // test('Navigate to Add Recipe screen', () async {
     //   // Tap on the Appliances navigation item
     //   await driver.tap(find.byValueKey('Add Recipe'));
 
     //   // Verify that we're on the Appliances screen by checking for the add button
     //   await driver.waitFor(find.byValueKey('recipe_button'));
+    // });
+
+        // test('Navigate to Shopping List screen', () async {
+    //   // Tap on the Appliances navigation item
+    //   await driver.tap(find.byValueKey('Shopping List'));
+
+    //   // Verify that we're on the Appliances screen by checking for the add button
+    //   await driver.waitFor(find.byValueKey('add_shopping_list_button'));
     // });
   });
 }
