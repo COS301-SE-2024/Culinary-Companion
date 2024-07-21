@@ -121,7 +121,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
 
   Future<bool> _addUserApplianceToDatabase(String applianceName) async {
     final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'; // Replace with your actual API endpoint
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -321,6 +321,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
                           ),
                         )
                       : ListView.builder(
+                        key: Key('appliances_list'),
                           itemCount: appliances.length,
                           itemBuilder: (context, index) {
                             final appliance = appliances[index];
@@ -330,6 +331,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
                                   : unshade(context),
                               margin: EdgeInsets.symmetric(vertical: 8.0),
                               child: ListTile(
+                                key: Key('appliance_item_${index}'),
                                 contentPadding: EdgeInsets.symmetric(
                                   horizontal: 16.0,
                                   vertical: 8.0,
@@ -345,6 +347,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
                                   ),
                                 ),
                                 trailing: IconButton(
+                                  key: Key('delete_appliance_${index}'),
                                   icon: Icon(Icons.delete_outline,
                                       color: Colors.white),
                                   onPressed: () {
@@ -359,7 +362,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    key: ValueKey('Appliances'),
+                    key: Key('add_appliance_button'),
                     onPressed: _showAddApplianceDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor:

@@ -158,14 +158,16 @@ class HelpMenu extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
-                        onPressed: onClose,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFDC945F),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 12),
-                        ),
-                        child: Text('Close',
-                            style: TextStyle(color: Colors.white))),
+                      key: Key('close_help_menu'), // Add this line
+                      onPressed: onClose,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFDC945F),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      ),
+                      child:
+                          Text('Close', style: TextStyle(color: Colors.white)),
+                    ),
                   ),
                 ],
               ),

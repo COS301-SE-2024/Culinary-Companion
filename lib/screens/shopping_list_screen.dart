@@ -369,6 +369,7 @@ Future<void> _addToPantryList(String? userId, String item) async {
                             ),
                           )
                         : ListView(
+                          key: Key('shopping_list'),
                             children: _shoppingList.entries.expand((entry) {
                               return [
                                 if (entry.value.isNotEmpty) ...[
@@ -384,7 +385,7 @@ Future<void> _addToPantryList(String? userId, String item) async {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
-                      key: ValueKey('Pantry'),
+                      key: ValueKey('add_shopping_list_button'),
                       onPressed: () {
                         _showAddItemDialog(context);
                       },
