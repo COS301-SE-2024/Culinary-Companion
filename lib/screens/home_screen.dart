@@ -336,12 +336,26 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: Text(
-            title,
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            double screenWidth = MediaQuery.of(context).size.width;
+            double calculatedFontSize = screenWidth * 0.02;
+            double calculatedPadding = screenWidth * 0.001;
+
+            return Padding(
+              padding: EdgeInsets.only(
+                  left: calculatedPadding,
+                  top: calculatedPadding,
+                  bottom: calculatedPadding),
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: calculatedFontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          },
         ),
         LayoutBuilder(
           builder: (context, constraints) {
