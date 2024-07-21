@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../widgets/help_pantry.dart';
+import 'help_pantry.dart';
 
 Color shade(BuildContext context) {
   final theme = Theme.of(context);

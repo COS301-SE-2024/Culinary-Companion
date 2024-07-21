@@ -3,7 +3,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../widgets/help_appliance.dart';
+import 'help_appliance.dart';
 
 Color shade(BuildContext context) {
   final theme = Theme.of(context);
@@ -20,12 +20,12 @@ Color unshade(BuildContext context) {
       : Color(0xFF1D2C1F);
 }
 
-class AppliancesPage extends StatefulWidget {
+class AppliancesScreen extends StatefulWidget {
   @override
-  _AppliancesPageState createState() => _AppliancesPageState();
+  _AppliancesScreenState createState() => _AppliancesScreenState();
 }
 
-class _AppliancesPageState extends State<AppliancesPage> {
+class _AppliancesScreenState extends State<AppliancesScreen> {
   OverlayEntry? _helpMenuOverlay;
 
   @override
