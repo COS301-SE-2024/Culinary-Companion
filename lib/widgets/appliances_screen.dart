@@ -333,7 +333,7 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
                                   : unshade(context),
                               margin: EdgeInsets.symmetric(vertical: 8.0),
                               child: ListTile(
-                                key: Key('appliance_item_${index}'),
+                                key: Key('appliance_item_$index'),
                                 contentPadding: EdgeInsets.symmetric(
                                   horizontal: 16.0,
                                   vertical: 8.0,
