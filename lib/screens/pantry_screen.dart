@@ -274,6 +274,7 @@ class _PantryScreenState extends State<PantryScreen>{
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
             child: IconButton(
+              key: Key('help_button'),
               icon: Icon(Icons.help),
               onPressed: _showHelpMenu,
               iconSize: 35,
