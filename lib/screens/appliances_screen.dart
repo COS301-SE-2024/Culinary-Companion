@@ -290,6 +290,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
             child: IconButton(
+              key: Key('help_button'),
               icon: Icon(Icons.help),
               onPressed: _showHelpMenu,
               iconSize: 35,
@@ -326,6 +327,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
                           itemBuilder: (context, index) {
                             final appliance = appliances[index];
                             return Card(
+                              key: Key('appliance_item_$index'),
                               color: index.isEven
                                   ? shade(context)
                                   : unshade(context),
@@ -347,7 +349,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
                                   ),
                                 ),
                                 trailing: IconButton(
-                                  key: Key('delete_appliance_${index}'),
+                                  key: Key('delete_appliance_$index'),
                                   icon: Icon(Icons.delete_outline,
                                       color: Colors.white),
                                   onPressed: () {
