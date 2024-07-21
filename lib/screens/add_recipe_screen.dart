@@ -18,10 +18,32 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
 
   // Add this line inside your class
   List<String> measurementUnits = [
-    'unit', 'kg', 'g', 'lbs', 'oz', 'ml', 'fl oz', 
-    'cup', 'tbsp', 'tsp', 'quart', 'pint', 'liter', 'gallon', 
-    'piece', 'pack', 'dozen', 'slice', 'clove', 'bunch', 
-    'can', 'bottle', 'jar', 'bag', 'box', 'whole'
+    'unit',
+    'kg',
+    'g',
+    'lbs',
+    'oz',
+    'ml',
+    'fl oz',
+    'cup',
+    'tbsp',
+    'tsp',
+    'quart',
+    'pint',
+    'liter',
+    'gallon',
+    'piece',
+    'pack',
+    'dozen',
+    'slice',
+    'clove',
+    'bunch',
+    'can',
+    'bottle',
+    'jar',
+    'bag',
+    'box',
+    'whole'
   ];
 
   @override
@@ -80,29 +102,31 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   }
 
   Future<void> _fetchIngredientNames() async {
-  try {
-    final response = await http.post(
-      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: '{"action": "getIngredientNames"}',
-      headers: {'Content-Type': 'application/json'},
-    );
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: '{"action": "getIngredientNames"}',
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      setState(() {
-        _availableIngredients = data.map((item) => {
-          'name': item['name'].toString(),
-          'measurementUnit': item['measurementUnit'].toString(),
-        }).toList();
-      });
-    } else {
-      print('Failed to fetch ingredient names: ${response.statusCode}');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _availableIngredients = data
+              .map((item) => {
+                    'name': item['name'].toString(),
+                    'measurementUnit': item['measurementUnit'].toString(),
+                  })
+              .toList();
+        });
+      } else {
+        print('Failed to fetch ingredient names: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching ingredient names: $error');
     }
-  } catch (error) {
-    print('Error fetching ingredient names: $error');
   }
-}
-
 
   Future<void> _loadAppliances() async {
     final url =
@@ -161,20 +185,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   //List<String> _availableIngredients = [];
   List<Map<String, String>> _availableIngredients = [];
 
-
   void _addIngredientField() {
-  setState(() {
-    _ingredients.add({
-      'name': _availableIngredients.isNotEmpty ? _availableIngredients[0]['name'] ?? '' : '',
-      'quantity': '',
-      'unit': _availableIngredients.isNotEmpty ? _availableIngredients[0]['measurementUnit'] ?? measurementUnits.first : measurementUnits.first,
+    setState(() {
+      _ingredients.add({
+        'name': _availableIngredients.isNotEmpty
+            ? _availableIngredients[0]['name'] ?? ''
+            : '',
+        'quantity': '',
+        'unit': _availableIngredients.isNotEmpty
+            ? _availableIngredients[0]['measurementUnit'] ??
+                measurementUnits.first
+            : measurementUnits.first,
+      });
     });
-  });
-}
-
-
-
-
+  }
 
   void _removeIngredientField(int index) {
     setState(() {
@@ -380,28 +404,41 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    //final bool isLightTheme = theme.brightness == Brightness.light;
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0),
-            child: IconButton(
-              icon: Icon(Icons.help),
-              onPressed: _showHelpMenu,
-              iconSize: 35,
-            ),
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(10.0),
+          child: Stack(
+            alignment: Alignment.centerRight, //aligns help button to the right
+            children: [
+              TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'Scan Recipe'),
+                  Tab(text: 'Paste Recipe'),
+                  Tab(text: 'Add My Own Recipe'),
+                ],
+                labelColor: textColor,
+                unselectedLabelColor: Color(0xFFDC945F),
+                indicatorColor: textColor,
+              ),
+              Positioned(
+                right: 20,
+                bottom: 5,
+                child: IconButton(
+                  icon: Icon(Icons.help),
+                  onPressed: _showHelpMenu,
+                  iconSize: 35,
+                ),
+              ),
+            ],
           ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Scan Recipe'),
-            Tab(text: 'Paste Recipe'),
-            Tab(text: 'Add My Own Recipe'),
-          ],
         ),
       ),
       body: TabBarView(
@@ -412,8 +449,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // //const SizedBox(height: 20),
+                // const Padding(
+                //   padding: EdgeInsets.only(left: 32.0),
+                //   child: Row(
+                //     children: [
+                //       Text(
+                //         'Scan Recipe:',
+                //         style: TextStyle(
+                //             fontSize: 24, fontWeight: FontWeight.bold),
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 const Icon(Icons.camera_alt, size: 100),
-                const SizedBox(height: 16),
                 const Text(
                   'Drag & Drop Recipe Here',
                   style: TextStyle(fontSize: 18),
@@ -587,7 +636,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Recipe Details:',
+                  const Text('Recipe Details',
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 40),
@@ -720,61 +769,75 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                           ..._ingredients.map((ingredient) {
-  int index = _ingredients.indexOf(ingredient);
-  String initialUnit = _ingredients[index]['unit'] ?? measurementUnits.first;
+                            int index = _ingredients.indexOf(ingredient);
+                            String initialUnit = _ingredients[index]['unit'] ??
+                                measurementUnits.first;
 
-  if (!measurementUnits.contains(initialUnit)) {
-    initialUnit = measurementUnits.first;
-  }
+                            if (!measurementUnits.contains(initialUnit)) {
+                              initialUnit = measurementUnits.first;
+                            }
 
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8.0),
-    child: Row(
-      children: [
-        Expanded(
-          child: DropdownButtonFormField<String>(
-            dropdownColor: const Color(0xFF1F4539),
-            value: _ingredients[index]['name'],
-            onChanged: (value) {
-              setState(() {
-                _ingredients[index]['name'] = value!;
-                // Find the selected ingredient and update the unit
-                final selectedIngredient = _availableIngredients.firstWhere((ingredient) => ingredient['name'] == value);
-                _ingredients[index]['unit'] = selectedIngredient['measurementUnit']!;
-              });
-            },
-            items: _availableIngredients.map((ingredient) {
-              return DropdownMenuItem<String>(
-                value: ingredient['name'],
-                child: Text(ingredient['name']!),
-              );
-            }).toList(),
-            decoration: _buildInputDecoration('Ingredient'),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: TextField(
-            onChanged: (value) {
-              setState(() {
-                _ingredients[index]['quantity'] = value;
-              });
-            },
-            decoration: _buildInputDecoration('Quantity'),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(_ingredients[index]['unit'] ?? ''), // Display the unit directly
-        IconButton(
-          icon: const Icon(Icons.remove_circle_outline, color: Colors.red),
-          onPressed: () => _removeIngredientField(index),
-        ),
-      ],
-    ),
-  );
-}),
-
-
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: DropdownButtonFormField<String>(
+                                      dropdownColor: const Color(0xFF1F4539),
+                                      value: _ingredients[index]['name'],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _ingredients[index]['name'] = value!;
+                                          // Find the selected ingredient and update the unit
+                                          final selectedIngredient =
+                                              _availableIngredients.firstWhere(
+                                                  (ingredient) =>
+                                                      ingredient['name'] ==
+                                                      value);
+                                          _ingredients[index]['unit'] =
+                                              selectedIngredient[
+                                                  'measurementUnit']!;
+                                        });
+                                      },
+                                      items: _availableIngredients
+                                          .map((ingredient) {
+                                        return DropdownMenuItem<String>(
+                                          value: ingredient['name'],
+                                          child: Text(ingredient['name']!),
+                                        );
+                                      }).toList(),
+                                      decoration:
+                                          _buildInputDecoration('Ingredient'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: TextField(
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _ingredients[index]['quantity'] =
+                                              value;
+                                        });
+                                      },
+                                      decoration:
+                                          _buildInputDecoration('Quantity'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(_ingredients[index]['unit'] ??
+                                      ''), // Display the unit directly
+                                  IconButton(
+                                    icon: const Icon(
+                                        Icons.remove_circle_outline,
+                                        color: Colors.red),
+                                    onPressed: () =>
+                                        _removeIngredientField(index),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
                           Align(
                             alignment: Alignment.center,
                             child: IconButton(

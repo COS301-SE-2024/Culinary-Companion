@@ -27,11 +27,27 @@ void main() {
           'Favorite Recipes');
       expect(await driver.getText(find.text('Profile')), 'Profile');
     });
-    test('Navigate to Pantry screen', () async {
-      // Tap on the Pantry item in the navbar
-      await driver.tap(find.byValueKey(('Pantry')));
-      // Verify that we're on the Pantry screen
-      //expect(await driver.getText(find.text('Pantry')), 'Pantry');
+
+    test('Navigate to Inventory screen and verify tabs', () async {
+      // Tap on the Inventory item in the navbar
+      await driver.tap(find.text('Inventory'));
+
+      // Verify that we're on the Inventory screen
+      await driver.waitFor(find.text('Shopping List'));
+      await driver.waitFor(find.text('Pantry'));
+      await driver.waitFor(find.text('Appliances'));
+    });
+
+
+    test('Navigate through Inventory tabs', () async {
+      // // Verify and tap on Shopping List tab
+      // expect(await driver.getText(find.text('Shopping List')), 'Shopping List');
+      // await driver.tap(find.text('Shopping List'));
+      // await driver.waitFor(find.byType('ShoppingListScreen'));
+
+      // Verify and tap on Pantry tab
+      expect(await driver.getText(find.text('Pantry')), 'Pantry');
+      await driver.tap(find.text('Pantry'));
       await driver.waitFor(find.byValueKey('Pantry'));
     });
     test('Open and close Pantry help menu', () async {
