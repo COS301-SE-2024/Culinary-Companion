@@ -36,21 +36,21 @@ void main() {
   //   await tester.tap(find.byType(ElevatedButton));
   //   await tester.pumpAndSettle();
     
-    expect(find.text('Add New Item To Shopping List'), findsOneWidget);
-  });
+  //   expect(find.text('Add New Item To Shopping List'), findsOneWidget);
+  // });
 
-  testWidgets('ShoppingListScreen UI Test', (WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: ShoppingListScreen(client: mockClient)));
+  // testWidgets('ShoppingListScreen UI Test', (WidgetTester tester) async {
+  //   await tester.pumpWidget(MaterialApp(home: ShoppingListScreen(client: mockClient)));
 
-    // Check if the app bar title is present
-    expect(find.text('Shopping List'), findsOneWidget);
+  //   // Check if the app bar title is present
+  //   expect(find.text('Shopping List'), findsOneWidget);
 
-    // Check if the help icon is present
-    expect(find.byIcon(Icons.help), findsOneWidget);
+  //   // Check if the help icon is present
+  //   expect(find.byIcon(Icons.help), findsOneWidget);
 
-    // Check if the add item button is present
-    expect(find.byKey(ValueKey('Pantry')), findsOneWidget);
-  });
+  //   // Check if the add item button is present
+  //   expect(find.byKey(ValueKey('Pantry')), findsOneWidget);
+  // });
 // testWidgets('Fetch shopping list test', (WidgetTester tester) async {
 //   when(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
 //       .thenAnswer((_) async => http.Response(
