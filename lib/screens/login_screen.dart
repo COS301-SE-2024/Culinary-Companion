@@ -63,6 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    final FocusNode _passwordFocusNode = FocusNode();
 
     return Scaffold(
       body: Stack(
@@ -157,12 +158,62 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // Container(
+                    //   width: 365,
+                    //   height: 70,
+                    //   child: TextFormField(
+                    //     key: ValueKey('password'),
+                    //     obscureText: true,
+                    //     decoration: InputDecoration(
+                    //       floatingLabelBehavior: FloatingLabelBehavior.always,
+                    //       labelText: 'Password:',
+                    //       labelStyle: TextStyle(fontSize: 20, color: textColor),
+                    //       hintText: '••••••••••',
+                    //       hintStyle: const TextStyle(color: Color(0xFF778579)),
+                    //       border: OutlineInputBorder(
+                    //         borderRadius: BorderRadius.circular(
+                    //             8.0), // Adjust the border radius as needed
+                    //         borderSide: const BorderSide(
+                    //           color: Color(0xFFA9B8AC), // Set the border color
+                    //           width:
+                    //               2.0, // Adjust the border thickness as needed
+                    //         ),
+                    //       ),
+                    //       focusedBorder: OutlineInputBorder(
+                    //         borderRadius: BorderRadius.circular(
+                    //             8.0), // Ensure the border radius matches
+                    //         borderSide: const BorderSide(
+                    //           color: Color(
+                    //               0xFFE2954F), // Set the border color when the field is focused
+                    //           width:
+                    //               2.0, // Adjust the border thickness as needed
+                    //         ),
+                    //       ),
+                    //       contentPadding: const EdgeInsets.symmetric(
+                    //         vertical: 12.0,
+                    //         horizontal: 12.0,
+                    //       ), // Adjust padding to ensure label text sits above the border
+                    //       filled: false, // Ensure the filled property is false
+                    //       fillColor: Colors
+                    //           .transparent, // Set fillColor to transparent if needed
+                    //     ),
+                    //     validator: (value) {
+                    //       if (value == null || value.isEmpty) {
+                    //         return 'Please enter your password';
+                    //       }
+                    //       return null;
+                    //     },
+                    //     onChanged: (value) => _password = value,
+                    //   ),
+                    // ),
                     Container(
                       width: 365,
                       height: 70,
                       child: TextFormField(
                         key: ValueKey('password'),
                         obscureText: true,
+                        focusNode: _passwordFocusNode,
+                        onFieldSubmitted: (value) => _handleLogin(),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Password:',
@@ -225,6 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         key: ValueKey('Login'),
                         onPressed: _handleLogin,
+                        focusNode: _passwordFocusNode,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
                               0xFFDC945F), // Button background color
@@ -247,6 +299,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+                    // Container(
+                    //   width: 365,
+                    //   height: 46,
+                    //   child: ElevatedButton(
+                    //     key: ValueKey('Login'),
+                    //     onPressed: _handleLogin,
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: const Color(
+                    //           0xFFDC945F), // Button background color
+                    //       foregroundColor: Colors.white,
+                    //       shape: RoundedRectangleBorder(
+                    //         borderRadius:
+                    //             BorderRadius.circular(8.0), // Border radius
+                    //       ),
+                    //       side: const BorderSide(
+                    //         color: Colors.transparent, // Border color
+                    //         width: 2.0, // Border thickness
+                    //       ),
+                    //     ),
+                    //     child: const Text(
+                    //       'Login',
+                    //       style: TextStyle(
+                    //         color: Colors.white, // Text color
+                    //         fontSize: 16, // Text size
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                     const SizedBox(height: 16),
                     //Line with "or" text
                     // Row(
