@@ -477,6 +477,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
+                      key: Key('recipe_button'),
                       onPressed: () {
                         // Add functionality to format the scanned recipe
                       },
@@ -496,6 +497,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                     ),
                     const SizedBox(width: 16),
                     ElevatedButton(
+                      key: Key('recipe_button'),
                       onPressed: () {
                         // Add functionality to analyze the scanned recipe
                       },
@@ -579,6 +581,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
+                      key: Key('recipe_button'),
                       onPressed: () {
                         // Add functionality to format the pasted recipe
                       },
@@ -599,6 +602,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                     ),
                     const SizedBox(width: 16),
                     ElevatedButton(
+                      key: Key('recipe_button'),
                       onPressed: () {
                         // Add functionality to analyze the pasted recipe
                       },
@@ -885,6 +889,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           Center(
                             child: ElevatedButton(
+                              key: Key('recipe_button'),
                               onPressed: _submitRecipe,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFDC945F),
