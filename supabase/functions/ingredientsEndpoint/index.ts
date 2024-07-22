@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -52,9 +52,9 @@ Deno.serve(async (req) => {
             case 'addRecipe':
               return addRecipe(userId, recipeData, corsHeaders);
             case 'addToShoppingList':
-              return addToShoppingList(userId, ingredientName);
+              return addToShoppingList(userId, ingredientName,quantity,measurementUnit);
             case 'addToPantryList':
-              return addToPantryList(userId, ingredientName);
+              return addToPantryList(userId, ingredientName,quantity,measurementUnit);
             case 'removeFromShoppingList':
               return removeFromShoppingList(userId, ingredientName);
             case 'removeFromPantryList':
@@ -91,6 +91,10 @@ Deno.serve(async (req) => {
                 return addUserFavorite(userId, recipeid, corsHeaders);
             case 'removeUserFavorite':
                 return removeUserFavorite(userId, recipeid, corsHeaders);
+            case 'editShoppingListItem':
+                return editShoppingListItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
+            case 'editPantryItem':
+                return editPantryItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -127,12 +131,12 @@ async function getAllIngredients(corsHeaders: HeadersInit) {
     }
 }
 
-// Get all the ingredient names and their ids
+// Get all the ingredient names and their ids and categories
 async function getIngredientNames(corsHeaders: HeadersInit) {
     try {
         const { data: ingredients, error } = await supabase
             .from('ingredient')
-            .select('ingredientid, name');
+            .select('ingredientid, name, category, measurement_unit');
 
         if (error) {
             throw new Error(error.message);
@@ -140,7 +144,9 @@ async function getIngredientNames(corsHeaders: HeadersInit) {
 
         const ingredientNames = ingredients.map(ingredient => ({
             id: ingredient.ingredientid,
-            name: ingredient.name
+            name: ingredient.name,
+            category: ingredient.category,
+            measurementUnit: ingredient.measurement_unit
         }));
 
         return new Response(JSON.stringify(ingredientNames), {
@@ -424,16 +430,17 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
 
 
 
-async function addToShoppingList(userId: string, ingredientName: string) {
+async function addToShoppingList(userId: string, ingredientName: string, quantity: number, measurementUnit: string) {
     const corsHeaders = {
         "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
         "Access-Control-Allow-Methods": "POST",
         "Access-Control-Allow-Headers": "Content-Type",
         "Content-Type": "application/json"
     };
+
     try {
-        if (!userId || !ingredientName) {
-            throw new Error('User ID and ingredient name are required');
+        if (!userId || !ingredientName || !quantity || !measurementUnit) {
+            throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
         }
 
         // Get the ingredient ID from the ingredient name
@@ -444,7 +451,7 @@ async function addToShoppingList(userId: string, ingredientName: string) {
             .single();
 
         if (ingredientError) {
-            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), { 
+            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), {
                 status: 400,
                 headers: corsHeaders,
             });
@@ -453,7 +460,7 @@ async function addToShoppingList(userId: string, ingredientName: string) {
         const ingredientId = ingredientData?.ingredientid;
 
         if (!ingredientId) {
-            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredientName}` }), { 
+            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredientName}` }), {
                 status: 400,
                 headers: corsHeaders,
             });
@@ -465,31 +472,150 @@ async function addToShoppingList(userId: string, ingredientName: string) {
             .insert({
                 userid: userId,
                 ingredientid: ingredientId,
-                quantity: 1, // Default quantity, adjust as needed
-                measurmentunit: 'unit' // Default measurement unit, adjust as needed
+                quantity: quantity,
+                measurmentunit: measurementUnit
             });
 
         if (shoppingListError) {
-            return new Response(JSON.stringify({ error: shoppingListError.message }), { 
+            return new Response(JSON.stringify({ error: shoppingListError.message }), {
                 status: 400,
                 headers: corsHeaders,
             });
         }
 
-        return new Response(JSON.stringify({ success: true }), { 
+        return new Response(JSON.stringify({ success: true }), {
             status: 200,
             headers: corsHeaders,
         });
     } catch (error) {
-        return new Response(JSON.stringify({ error: error.message }), { 
+        return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
             headers: corsHeaders,
         });
     }
 }
 
+async function editShoppingListItem(userId: string, ingredientName: string, quantity: number, measurementUnit: string, corsHeaders: HeadersInit) {
+    try {
+        if (!userId || !ingredientName || quantity === undefined || !measurementUnit) {
+            throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
+        }
+
+        // Get the ingredient ID from the ingredient name
+        const { data: ingredientData, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .single();
+
+        if (ingredientError) {
+            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const ingredientId = ingredientData?.ingredientid;
+
+        if (!ingredientId) {
+            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredientName}` }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Update the shopping list item
+        const { error: updateError } = await supabase
+            .from('shoppinglist')
+            .update({
+                quantity: quantity,
+                measurmentunit: measurementUnit
+            })
+            .eq('userid', userId)
+            .eq('ingredientid', ingredientId);
+
+        if (updateError) {
+            return new Response(JSON.stringify({ error: updateError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function editPantryItem(userId: string, ingredientName: string, quantity: number, measurementUnit: string, corsHeaders: HeadersInit) {
+    try {
+        if (!userId || !ingredientName || quantity === undefined || !measurementUnit) {
+            throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
+        }
+
+        // Get the ingredient ID from the ingredient name
+        const { data: ingredientData, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .single();
+
+        if (ingredientError) {
+            return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredientName}` }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        const ingredientId = ingredientData?.ingredientid;
+
+        if (!ingredientId) {
+            return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredientName}` }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Update the pantry list item
+        const { error: updateError } = await supabase
+            .from('availableingredients')
+            .update({
+                quantity: quantity,
+                measurmentunit: measurementUnit
+            })
+            .eq('userid', userId)
+            .eq('ingredientid', ingredientId);
+
+        if (updateError) {
+            return new Response(JSON.stringify({ error: updateError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ success: true }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+
+
+
 // Add an ingredient to the pantry list
-async function addToPantryList(userId: string, ingredientName: string) {
+async function addToPantryList(userId: string, ingredientName: string, quantity: number, measurementUnit: string) {
     const corsHeaders = {
         "Access-Control-Allow-Origin": "*",  // You can restrict this to your Flutter app's URL
         "Access-Control-Allow-Methods": "POST",
@@ -497,8 +623,8 @@ async function addToPantryList(userId: string, ingredientName: string) {
         "Content-Type": "application/json"
     };
     try {
-        if (!userId || !ingredientName) {
-            throw new Error('User ID and ingredient name are required');
+        if (!userId || !ingredientName || !quantity || !measurementUnit) {
+            throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
         }
 
         // Get the ingredient ID from the ingredient name
@@ -524,27 +650,67 @@ async function addToPantryList(userId: string, ingredientName: string) {
             });
         }
 
-        // Insert the ingredient into the pantry list
-        const { error: pantryListError } = await supabase
+        // Check if the ingredient is already in the pantry
+        const { data: pantryItem, error: pantryError } = await supabase
             .from('availableingredients')
-            .insert({
-                userid: userId,
-                ingredientid: ingredientId,
-                quantity: 1, // Default quantity, adjust as needed
-                measurmentunit: 'unit' // Default measurement unit, adjust as needed
-            });
+            .select('quantity')
+            .eq('userid', userId)
+            .eq('ingredientid', ingredientId)
+            .single();
 
-        if (pantryListError) {
-            return new Response(JSON.stringify({ error: pantryListError.message }), { 
+        if (pantryError && pantryError.code !== 'PGRST116') { // PGRST116 indicates no rows returned
+            return new Response(JSON.stringify({ error: pantryError.message }), { 
                 status: 400,
                 headers: corsHeaders,
             });
         }
 
-        return new Response(JSON.stringify({ success: true }), { 
-            status: 200,
-            headers: corsHeaders,
-        });
+        if (pantryItem) {
+            // If the item exists, update the quantity
+            const newQuantity = pantryItem.quantity + quantity;
+            const { error: updateError } = await supabase
+                .from('availableingredients')
+                .update({
+                    quantity: newQuantity,
+                    measurmentunit: measurementUnit // Assuming measurement unit remains the same
+                })
+                .eq('userid', userId)
+                .eq('ingredientid', ingredientId);
+
+            if (updateError) {
+                return new Response(JSON.stringify({ error: updateError.message }), { 
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            return new Response(JSON.stringify({ success: true, newQuantity }), { 
+                status: 200,
+                headers: corsHeaders,
+            });
+        } else {
+            // If the item does not exist, insert it
+            const { error: pantryListError } = await supabase
+                .from('availableingredients')
+                .insert({
+                    userid: userId,
+                    ingredientid: ingredientId,
+                    quantity: quantity, // Default quantity, adjust as needed
+                    measurmentunit: measurementUnit // Default measurement unit, adjust as needed
+                });
+
+            if (pantryListError) {
+                return new Response(JSON.stringify({ error: pantryListError.message }), { 
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            return new Response(JSON.stringify({ success: true }), { 
+                status: 200,
+                headers: corsHeaders,
+            });
+        }
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), { 
             status: 500,
@@ -552,6 +718,7 @@ async function addToPantryList(userId: string, ingredientName: string) {
         });
     }
 }
+
 
 // Function to remove an ingredient from the shopping list
 async function removeFromShoppingList(userId: string, ingredientName: string) {

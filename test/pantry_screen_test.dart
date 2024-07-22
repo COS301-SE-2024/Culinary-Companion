@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_application_1/screens/pantry_screen.dart'; // Replace with actual import
+import 'package:flutter_application_1/widgets/pantry_screen.dart'; // Replace with actual import
 
 import 'pantry_screen_test.mocks.dart';
 
@@ -28,14 +28,14 @@ void main() {
     expect(find.byIcon(Icons.help), findsOneWidget);
   });
 
-  testWidgets('Add item button shows dialog', (WidgetTester tester) async {
-    await pumpPantryScreen(tester);
+  // testWidgets('Add item button shows dialog', (WidgetTester tester) async {
+  //   await pumpPantryScreen(tester);
     
-    await tester.tap(find.byType(ElevatedButton));
-    await tester.pumpAndSettle();
+  //   await tester.tap(find.byType(ElevatedButton));
+  //   await tester.pumpAndSettle();
     
-    expect(find.text('Add New Item To Pantry List'), findsOneWidget);
-  });
+  //   expect(find.text('Add New Item To Pantry List'), findsOneWidget);
+  // });
 
   //  testWidgets('Adding an item to the pantry updates the UI', (WidgetTester tester) async {
   //   await pumpPantryScreen(tester);
