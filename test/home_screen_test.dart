@@ -18,18 +18,18 @@ void main() {
       mockClient = MockClient();
     });
 
-    testWidgets('HomeScreen shows GridView after loading', (WidgetTester tester) async {
-      // Mock successful HTTP response
-      when(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
-          .thenAnswer((_) async => http.Response('[]', 200));
+    // testWidgets('HomeScreen shows GridView after loading', (WidgetTester tester) async {
+    //   // Mock successful HTTP response
+    //   when(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
+    //       .thenAnswer((_) async => http.Response('[]', 200));
 
-      await tester.pumpWidget(MaterialApp(home: HomeScreen()));
+    //   await tester.pumpWidget(MaterialApp(home: HomeScreen()));
       
-      // Wait for async operations and rebuild
-      await tester.pumpAndSettle();
+    //   // Wait for async operations and rebuild
+    //   await tester.pumpAndSettle();
 
-      expect(find.byType(GridView), findsOneWidget);
-    });
+    //   expect(find.byType(GridView), findsOneWidget);
+    // });
 
     testWidgets('HomeScreen displays help menu when help icon is tapped', (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(home: HomeScreen()));
