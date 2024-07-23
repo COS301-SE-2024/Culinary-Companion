@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
-    final FocusNode _passwordFocusNode = FocusNode();
+    final FocusNode passwordFocusNode = FocusNode();
 
     return Scaffold(
       body: Stack(
@@ -212,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: TextFormField(
                         key: ValueKey('password'),
                         obscureText: true,
-                        focusNode: _passwordFocusNode,
+                        focusNode: passwordFocusNode,
                         onFieldSubmitted: (value) => _handleLogin(),
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: ElevatedButton(
                         key: ValueKey('Login'),
                         onPressed: _handleLogin,
-                        focusNode: _passwordFocusNode,
+                        focusNode: passwordFocusNode,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
                               0xFFDC945F), // Button background color
