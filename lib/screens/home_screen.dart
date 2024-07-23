@@ -397,7 +397,7 @@ class _HomeScreenState extends State<HomeScreen> {
               items: filteredRecipes.map((recipe) {
                 List<String> steps = [];
                 if (recipe['steps'] != null) {
-                  steps = (recipe['steps'] as String).split(',');
+                  steps = (recipe['steps'] as String).split('<');
                 }
 
                 return Padding(
