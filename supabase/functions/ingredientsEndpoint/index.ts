@@ -14,6 +14,7 @@ interface RecipeData {
     servingAmount: number;
     ingredients: { name: string, quantity: number, unit: string }[];
     appliances: { name: string }[];
+    photo:string;
   }
   
 
@@ -277,7 +278,8 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
             course, 
             servingAmount, 
             ingredients, 
-            appliances 
+            appliances,
+            photo
         } = recipeData;
 
         // Insert the recipe
@@ -293,6 +295,7 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
                 preptime: prepTime,
                 course,
                 servings: servingAmount,
+                photo: photo,
             })
             .select('recipeid')
             .single();
