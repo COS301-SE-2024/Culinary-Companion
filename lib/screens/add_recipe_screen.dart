@@ -940,9 +940,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           _buildAppliancesMultiSelect(),
                           const SizedBox(height: 24),
-                          const Text('Select Image:',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          ElevatedButton(
+                            onPressed: _pickImage,
+                            child: const Text('Upload Image'),
+                          ),
                           const SizedBox(height: 10),
                           const Text('Or choose a preloaded image:'),
                           const SizedBox(height: 10),
