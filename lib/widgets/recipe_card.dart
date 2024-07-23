@@ -322,7 +322,7 @@ void _fetchPantryIngredients() async {
                                 Map<String, dynamic> ingredient = entry.value;
                                 return CheckableItem(
                                   title:
-                                      '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurementunit']})',
+                                      '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
                                   isChecked: _ingredientChecked[idx] ?? true,
                                   onChanged: (bool? value) {
                                     setState(() {
