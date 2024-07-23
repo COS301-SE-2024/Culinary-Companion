@@ -50,7 +50,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
 
   final List<String> _preloadedImages = [
     'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z',
-    'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/Caesar_salad.jpeg?t=2024-07-23T08%3A24%3A46.050Z',
+    'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/recipe_photos/d2.jpg?t=2024-07-23T08%3A45%3A33.653Z',
+    'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/recipe_photos/d3.jpg?t=2024-07-23T08%3A45%3A33.653Z',
   ];
 
   String _imageUrl = "";
