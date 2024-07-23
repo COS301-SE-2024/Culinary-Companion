@@ -49,12 +49,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   ];
 
   final List<String> _preloadedImages = [
-  'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z',
-  'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/Caesar_salad.jpeg?t=2024-07-23T08%3A24%3A46.050Z',
-];
+    'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z',
+    'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/Caesar_salad.jpeg?t=2024-07-23T08%3A24%3A46.050Z',
+  ];
 
-String _imageUrl = "";
-String? _selectedImage;
+  String _imageUrl = "";
+  String? _selectedImage;
 
   @override
   void initState() {
@@ -71,44 +71,45 @@ String? _selectedImage;
   }
 
   Future<void> _pickImage() async {
-  final ImagePicker picker = ImagePicker();
-  final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-  if (image == null) {
-    print('No image selected.');
-    return;
-  }
-
-  final supabase = Supabase.instance.client;
-  final imageBytes = await image.readAsBytes();
-  //final imagePath = '/recipe_photos';
-  final imageName = '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
-  final imagePath = 'recipe_photos/$imageName';
-
-  try {
-    final response = await supabase.storage.from('recipe_photos').uploadBinary(
-      imagePath,
-      imageBytes,
-      fileOptions: FileOptions(
-        upsert: true,
-        contentType: 'image/*',
-      ),
-    );
-
-    if (response.isNotEmpty) {
-      
-      _imageUrl = supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
-      //print('here1: $_imageUrl');
-      setState(() {
-        _selectedImage = _imageUrl;
-      });
-      //print('here2: $_selectedImage');
-    } else {
-      print('Error uploading image: $response');
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image == null) {
+      print('No image selected.');
+      return;
     }
-  } catch (error) {
-    print('Exception during image upload: $error');
+
+    final supabase = Supabase.instance.client;
+    final imageBytes = await image.readAsBytes();
+    //final imagePath = '/recipe_photos';
+    final imageName = '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
+    final imagePath = 'recipe_photos/$imageName';
+
+    try {
+      final response =
+          await supabase.storage.from('recipe_photos').uploadBinary(
+                imagePath,
+                imageBytes,
+                fileOptions: FileOptions(
+                  upsert: true,
+                  contentType: 'image/*',
+                ),
+              );
+
+      if (response.isNotEmpty) {
+        _imageUrl =
+            supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
+        //print('here1: $_imageUrl');
+        setState(() {
+          _selectedImage = _imageUrl;
+        });
+        //print('here2: $_selectedImage');
+      } else {
+        print('Error uploading image: $response');
+      }
+    } catch (error) {
+      print('Exception during image upload: $error');
+    }
   }
-}
 
   String? _userId;
   List<String> _cuisines = [];
@@ -938,36 +939,40 @@ String? _selectedImage;
                           const SizedBox(height: 24),
                           _buildAppliancesMultiSelect(),
                           const SizedBox(height: 24),
-                const Text('Select Image:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 10),
-const Text('Or choose a preloaded image:'),
-const SizedBox(height: 10),
-Wrap(
-  spacing: 10,
-  children: _preloadedImages.map((image) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedImage = image;
-        });
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: _selectedImage == image ? Colors.blue : Colors.transparent,
-            width: 3,
-          ),
-        ),
-        child: Image.network(
-          image,
-          width: 100,
-          height: 100,
-          fit: BoxFit.cover,
-        ),
-      ),
-    );
-  }).toList(),
-),
+                          const Text('Select Image:',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 10),
+                          const Text('Or choose a preloaded image:'),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 10,
+                            children: _preloadedImages.map((image) {
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedImage = image;
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: _selectedImage == image
+                                          ? Colors.blue
+                                          : Colors.transparent,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  child: Image.network(
+                                    image,
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
                           const SizedBox(height: 24),
                           Center(
                             child: ElevatedButton(
