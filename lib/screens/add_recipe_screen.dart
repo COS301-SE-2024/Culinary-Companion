@@ -291,7 +291,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     final recipeData = {
       'name': _nameController.text,
       'description': _descriptionController.text,
-      'methods': _methods.join(',\n'),
+      'methods': _methods.join('<\n'),
       'cookTime': int.parse(_cookingTimeController.text),
       'cuisine': _selectedCuisine,
       'spiceLevel': _spiceLevel,
