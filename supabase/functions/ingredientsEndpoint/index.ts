@@ -1,4 +1,5 @@
 /// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
+import { privateEncrypt } from 'crypto';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.43.4'
 
 // Define the structure of the recipeData object
@@ -14,6 +15,7 @@ interface RecipeData {
     servingAmount: number;
     ingredients: { name: string, quantity: number, unit: string }[];
     appliances: { name: string }[];
+    photo:string;
   }
   
 
@@ -277,7 +279,8 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
             course, 
             servingAmount, 
             ingredients, 
-            appliances 
+            appliances,
+            photo
         } = recipeData;
 
         // Insert the recipe
@@ -293,6 +296,7 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
                 preptime: prepTime,
                 course,
                 servings: servingAmount,
+                photo: photo,
             })
             .select('recipeid')
             .single();
@@ -1197,18 +1201,18 @@ async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
         // Fetch recipe ingredients
         const { data: ingredientsData, error: ingredientsError } = await supabase
             .from('recipeingredients')
-            .select('ingredientid, quantity, measurementunit')
+            .select('ingredientid, quantity')
             .eq('recipeid', recipeId);
 
         if (ingredientsError) {
             throw new Error(`Error fetching recipe ingredients: ${ingredientsError.message}`);
         }
 
-        // Fetch ingredient names based on ingredient ids
+        // Fetch ingredient names and measurement units based on ingredient ids
         const ingredientIds = ingredientsData.map(ingredient => ingredient.ingredientid);
         const { data: ingredientNamesData, error: ingredientNamesError } = await supabase
             .from('ingredient')
-            .select('ingredientid, name')
+            .select('ingredientid, name, measurement_unit')
             .in('ingredientid', ingredientIds);
 
         if (ingredientNamesError) {
@@ -1216,14 +1220,16 @@ async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
         }
 
         const ingredients = ingredientsData.map(ingredient => {
-            const ingredientName = ingredientNamesData.find(nameData => nameData.ingredientid === ingredient.ingredientid)?.name;
+            const ingredientData = ingredientNamesData.find(nameData => nameData.ingredientid === ingredient.ingredientid);
             return {
                 ingredientid: ingredient.ingredientid,
-                name: ingredientName,
+                name: ingredientData?.name,
                 quantity: ingredient.quantity,
-                measurementunit: ingredient.measurementunit,
+                measurement_unit: ingredientData?.measurement_unit,
             };
         });
+
+        //console.log('hereee:'ingredientData?.measurement_unit);
 
         // Create a custom object with the desired structure
         const recipe = {
@@ -1255,6 +1261,7 @@ async function getRecipe(recipeId: string, corsHeaders: HeadersInit) {
         });
     }
 }
+
 
 async function getAllAppliances(corsHeaders: HeadersInit) {
     try {

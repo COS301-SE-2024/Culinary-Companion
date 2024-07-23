@@ -322,7 +322,7 @@ void _fetchPantryIngredients() async {
                                 Map<String, dynamic> ingredient = entry.value;
                                 return CheckableItem(
                                   title:
-                                      '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurementunit']})',
+                                      '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
                                   isChecked: _ingredientChecked[idx] ?? true,
                                   onChanged: (bool? value) {
                                     setState(() {
@@ -354,21 +354,17 @@ void _fetchPantryIngredients() async {
                                   height: MediaQuery.of(context).size.height *
                                       0.01), // Adjust height to 1% of screen height
                               Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children:
-                                    widget.steps.asMap().entries.map((entry) {
-                                  int index = entry.key;
-                                  String step = entry.value;
-                                  return Padding(
-                                    padding: EdgeInsets.only(
-                                        bottom: MediaQuery.of(context)
-                                                .size
-                                                .height *
-                                            0.01), // Add some spacing between steps
-                                    child: Text('${index + 1}. $step'),
-                                  );
-                                }).toList(),
-                              ),
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: widget.steps.expand((step) {
+                                    return step.split('<').map((subStep) => Padding(
+                                      padding: EdgeInsets.only(
+                                        bottom: MediaQuery.of(context).size.height * 0.01,
+                                      ),
+                                      child: Text('${widget.steps.indexOf(step) + 1}. $subStep'),
+                                    ));
+                                  }).toList(),
+                                ),
+
                             ],
                           ),
                         ),
