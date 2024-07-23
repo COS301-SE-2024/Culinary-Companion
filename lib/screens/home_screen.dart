@@ -241,6 +241,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/help_home.dart';
 
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class HomeScreen extends StatefulWidget {
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -252,14 +255,34 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isGridView = false;
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
+  String _generatedText = 'Fetching content...';
 
   @override
   void initState() {
     super.initState();
     fetchAllRecipes();
+    _fetchContent();
+  }
+    Future<void> _fetchContent() async {
+    final apiKey = dotenv.env['API_KEY'] ?? '';
+    if (apiKey.isEmpty) {
+      setState(() {
+        _generatedText = 'No \$API_KEY environment variable';
+      });
+      return;
+    }
+
+    final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+    final content = [Content.text('Write a story about a magic backpack.')];
+    final response = await model.generateContent(content);
+    
+    setState(() {
+      _generatedText = response.text!;
+    });
   }
 
   Future<void> fetchAllRecipes() async {
+    
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
@@ -522,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
             child: IconButton(
-              icon: Icon(Icons.help),
+              icon: Icon(Icons.help), 
               onPressed: _showHelpMenu,
               iconSize: 35,
             ),
@@ -543,6 +566,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 24),
+                         Text(
+                        _generatedText,
+                        style: TextStyle(fontSize: 18),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 16),
                         _buildCarousel('Main', _filterRecipesByCourse('Main')),
                         _buildCarousel(
                             'Breakfast', _filterRecipesByCourse('Breakfast')),
