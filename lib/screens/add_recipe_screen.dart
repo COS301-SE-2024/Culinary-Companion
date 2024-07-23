@@ -940,32 +940,34 @@ String? _selectedImage;
                           const SizedBox(height: 24),
                 const Text('Select Image:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: _pickImage,
-                  child: const Text('Upload Image'),
-                ),
-                const SizedBox(height: 10),
-                const Text('Or choose a preloaded image:'),
-                const SizedBox(height: 10),
-                Wrap(
-                  spacing: 10,
-                  children: _preloadedImages.map((image) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedImage = image;
-                        });
-                      },
-                      child: Image.network(
-                        image,
-                        width: 100,
-                        height: 100,
-                        fit: BoxFit.cover,
-                        
-                      ),
-                    );
-                  }).toList(),
-                  ),
+const Text('Or choose a preloaded image:'),
+const SizedBox(height: 10),
+Wrap(
+  spacing: 10,
+  children: _preloadedImages.map((image) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedImage = image;
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: _selectedImage == image ? Colors.blue : Colors.transparent,
+            width: 3,
+          ),
+        ),
+        child: Image.network(
+          image,
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+  }).toList(),
+),
                           const SizedBox(height: 24),
                           Center(
                             child: ElevatedButton(
