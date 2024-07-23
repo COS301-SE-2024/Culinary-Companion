@@ -184,6 +184,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                 children: [
                   ListTile(
                     key: Key('Home'),
+                    leading: Icon(Icons.home),
                     title: const Text('Home'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -194,6 +195,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                   ),
                   ListTile(
                     key: ValueKey('AddRecipe'),
+                    leading: Icon(Icons.add),
                     title: const Text('Add Recipe'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -204,6 +206,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                   ),
                   ListTile(
                     key: Key('Inventory'),
+                    leading: Icon(Icons.inventory),
                     title: const Text('Inventory'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -244,6 +247,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                   // ),
                   ListTile(
                     key: ValueKey('Favourites'),
+                    leading: Icon(Icons.favorite),
                     title: const Text('Favorite Recipes'),
                     onTap: () {
                       if (widget.onChange != null) {
@@ -254,6 +258,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                   ),
                   ListTile(
                     key: ValueKey('Profile'),
+                    leading: Icon(Icons.person),
                     title: const Text('Profile'),
                     onTap: () {
                       if (widget.onChange != null) {
