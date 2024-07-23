@@ -241,8 +241,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/help_home.dart';
 
-import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../gemini_service.dart';
 
 class HomeScreen extends StatefulWidget {
