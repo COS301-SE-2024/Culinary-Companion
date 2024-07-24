@@ -365,6 +365,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildPreferences() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final theme = Theme.of(context);
     final textColor = theme.brightness == Brightness.light
         ? Color(0xFF1E1E1E)
@@ -378,8 +380,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
 
     return Container(
-        height: 300,
-        width: 1100,
+        height: screenHeight * 0.3,
+        width: screenWidth * 0.7,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: theme.brightness == Brightness.light
