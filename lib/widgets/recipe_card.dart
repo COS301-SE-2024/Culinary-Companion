@@ -46,20 +46,21 @@ class _RecipeCardState extends State<RecipeCard> {
   Map<String, Map<String, dynamic>> _pantryIngredients = {};
 
   @override
-void initState() {
-  super.initState();
-  _checkIfFavorite();
-  _fetchPantryIngredients();
-}
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+    _fetchPantryIngredients();
+  }
 
-void _fetchPantryIngredients() async {
+  void _fetchPantryIngredients() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
 
     final url = Uri.parse(
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
     final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({"action": "getAvailableIngredients", "userId": userId});
+    final body =
+        jsonEncode({"action": "getAvailableIngredients", "userId": userId});
 
     try {
       final response = await http.post(url, headers: headers, body: body);
@@ -317,29 +318,34 @@ void _fetchPantryIngredients() async {
                                   height: MediaQuery.of(context).size.height *
                                       0.01), // Adjust height to 1% of screen height
                               ...widget.ingredients
-    .asMap()
-    .entries
-    .map((entry) {
-  int idx = entry.key;
-  Map<String, dynamic> ingredient = entry.value;
-  bool isInPantry = _pantryIngredients.containsKey(ingredient['name']);
-  double availableQuantity = isInPantry ? (_pantryIngredients[ingredient['name']]?['quantity'] ?? 0.0) : 0.0;
-  
-  return CheckableItem(
-    title: '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-    requiredQuantity: ingredient['quantity'],
-    requiredUnit: ingredient['measurement_unit'],
-    onChanged: (bool? value) {
-      setState(() {
-        _ingredientChecked[idx] = value ?? false;
-      });
-    },
-    isInPantry: isInPantry,
-    availableQuantity: availableQuantity,
-    isChecked: _ingredientChecked[idx] ?? true,
-  );
-}),
+                                  .asMap()
+                                  .entries
+                                  .map((entry) {
+                                int idx = entry.key;
+                                Map<String, dynamic> ingredient = entry.value;
+                                bool isInPantry = _pantryIngredients
+                                    .containsKey(ingredient['name']);
+                                double availableQuantity = isInPantry
+                                    ? (_pantryIngredients[ingredient['name']]
+                                            ?['quantity'] ??
+                                        0.0)
+                                    : 0.0;
 
+                                return CheckableItem(
+                                  title:
+                                      '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
+                                  requiredQuantity: ingredient['quantity'],
+                                  requiredUnit: ingredient['measurement_unit'],
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      _ingredientChecked[idx] = value ?? false;
+                                    });
+                                  },
+                                  isInPantry: isInPantry,
+                                  availableQuantity: availableQuantity,
+                                  isChecked: _ingredientChecked[idx] ?? true,
+                                );
+                              }),
 
                               SizedBox(
                                   height: MediaQuery.of(context).size.height *
@@ -362,17 +368,22 @@ void _fetchPantryIngredients() async {
                                   height: MediaQuery.of(context).size.height *
                                       0.01), // Adjust height to 1% of screen height
                               Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: widget.steps.expand((step) {
-                                    return step.split('<').map((subStep) => Padding(
-                                      padding: EdgeInsets.only(
-                                        bottom: MediaQuery.of(context).size.height * 0.01,
-                                      ),
-                                      child: Text('${widget.steps.indexOf(step) + 1}. $subStep'),
-                                    ));
-                                  }).toList(),
-                                ),
-
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: widget.steps.expand((step) {
+                                  return step
+                                      .split('<')
+                                      .map((subStep) => Padding(
+                                            padding: EdgeInsets.only(
+                                              bottom: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.01,
+                                            ),
+                                            child: Text(
+                                                '${widget.steps.indexOf(step) + 1}. $subStep'),
+                                          ));
+                                }).toList(),
+                              ),
                             ],
                           ),
                         ),
@@ -626,7 +637,8 @@ class _CheckableItemState extends State<CheckableItem> {
 
   @override
   Widget build(BuildContext context) {
-    bool isSufficient = widget.isInPantry && widget.availableQuantity >= widget.requiredQuantity;
+    bool isSufficient = widget.isInPantry &&
+        widget.availableQuantity >= widget.requiredQuantity;
     return Row(
       children: [
         if (isSufficient)
@@ -638,8 +650,15 @@ class _CheckableItemState extends State<CheckableItem> {
           )
         else
           TextButton(
-            onPressed: _isAdded ? null : () => _addToShoppingList(widget.title, widget.requiredQuantity - widget.availableQuantity, widget.requiredUnit),
-            child: Text(_isAdded ? 'Added to shopping list' : 'Add rest to shopping list'),
+            onPressed: _isAdded
+                ? null
+                : () => _addToShoppingList(
+                    widget.title,
+                    widget.requiredQuantity - widget.availableQuantity,
+                    widget.requiredUnit),
+            child: Text(_isAdded
+                ? 'Added to shopping list'
+                : 'Add rest to shopping list'),
             style: TextButton.styleFrom(
               foregroundColor: Colors.green,
             ),
@@ -654,55 +673,59 @@ class _CheckableItemState extends State<CheckableItem> {
     );
   }
 
- void _addToShoppingList(String ingredientString, double remainingQuantity, String unit) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? userId = prefs.getString('userId');
+  void _addToShoppingList(
+      String ingredientString, double remainingQuantity, String unit) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
 
-  // Regular expression to extract the ingredient name
-  final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
-  final match = regex.firstMatch(ingredientString);
-  final ingredientName = match != null ? match.group(1) ?? ingredientString : ingredientString;
+    // Regular expression to extract the ingredient name
+    final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
+    final match = regex.firstMatch(ingredientString);
+    final ingredientName =
+        match != null ? match.group(1) ?? ingredientString : ingredientString;
 
-  print("name $ingredientName");
-  print("quantity $remainingQuantity");
-  print("unit $unit");
+    print("name $ingredientName");
+    print("quantity $remainingQuantity");
+    print("unit $unit");
 
-  final url = Uri.parse(
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-  final headers = {"Content-Type": "application/json"};
-  final body = jsonEncode({
-    "action": "addToShoppingList",
-    "userId": userId,
-    "ingredientName": ingredientName,
-    "quantity": remainingQuantity,
-    "measurementUnit": unit
-  });
+    final url = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final headers = {"Content-Type": "application/json"};
+    final body = jsonEncode({
+      "action": "addToShoppingList",
+      "userId": userId,
+      "ingredientName": ingredientName,
+      "quantity": remainingQuantity,
+      "measurementUnit": unit
+    });
 
-  try {
-    final response = await http.post(url, headers: headers, body: body);
-    if (response.statusCode == 200) {
-      setState(() {
-        _isAdded = true;
-      });
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        setState(() {
+          _isAdded = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added remaining $ingredientName to shopping list'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Failed to add $ingredientName to shopping list: ${response.body}'),
+          ),
+        );
+      }
+    } catch (error) {
+      print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Added remaining $ingredientName to shopping list'),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to add $ingredientName to shopping list: ${response.body}'),
+          content:
+              Text('Error adding $ingredientName to shopping list: $error'),
         ),
       );
     }
-  } catch (error) {
-    print('Error: $error');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Error adding $ingredientName to shopping list: $error'),
-      ),
-    );
   }
-}
 }
