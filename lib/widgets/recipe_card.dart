@@ -44,41 +44,40 @@ class _RecipeCardState extends State<RecipeCard> {
   bool _isFavorite = false;
   Map<String, bool> _pantryIngredients = {};
 
-
   @override
-void initState() {
-  super.initState();
-  _checkIfFavorite();
-  _fetchPantryIngredients();
-}
-
-void _fetchPantryIngredients() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? userId = prefs.getString('userId');
-
-  final url = Uri.parse(
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-  final headers = {"Content-Type": "application/json"};
-  final body = jsonEncode({"action": "getAvailableIngredients", "userId": userId});
-
-  try {
-    final response = await http.post(url, headers: headers, body: body);
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List<dynamic> pantryIngredients = data['availableIngredients'];
-      setState(() {
-        for (var ingredient in pantryIngredients) {
-          _pantryIngredients[ingredient['name']] = true;
-        }
-      });
-    } else {
-      //print('Failed to fetch pantry ingredients: ${response.reasonPhrase}');
-    }
-  } catch (error) {
-    print('Error: $error');
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+    _fetchPantryIngredients();
   }
-}
 
+  void _fetchPantryIngredients() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
+
+    final url = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final headers = {"Content-Type": "application/json"};
+    final body =
+        jsonEncode({"action": "getAvailableIngredients", "userId": userId});
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> pantryIngredients = data['availableIngredients'];
+        setState(() {
+          for (var ingredient in pantryIngredients) {
+            _pantryIngredients[ingredient['name']] = true;
+          }
+        });
+      } else {
+        //print('Failed to fetch pantry ingredients: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
 
   void _onHover(bool hovering) {
     setState(() {
@@ -329,9 +328,9 @@ void _fetchPantryIngredients() async {
                                       _ingredientChecked[idx] = value ?? false;
                                     });
                                   },
-                                  isInPantry: _pantryIngredients.containsKey(
-                                      ingredient['name']),
-                                );                              
+                                  isInPantry: _pantryIngredients
+                                      .containsKey(ingredient['name']),
+                                );
                               }),
                               SizedBox(
                                   height: MediaQuery.of(context).size.height *
@@ -354,17 +353,22 @@ void _fetchPantryIngredients() async {
                                   height: MediaQuery.of(context).size.height *
                                       0.01), // Adjust height to 1% of screen height
                               Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: widget.steps.expand((step) {
-                                    return step.split('<').map((subStep) => Padding(
-                                      padding: EdgeInsets.only(
-                                        bottom: MediaQuery.of(context).size.height * 0.01,
-                                      ),
-                                      child: Text('${widget.steps.indexOf(step) + 1}. $subStep'),
-                                    ));
-                                  }).toList(),
-                                ),
-
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: widget.steps.expand((step) {
+                                  return step
+                                      .split('<')
+                                      .map((subStep) => Padding(
+                                            padding: EdgeInsets.only(
+                                              bottom: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.01,
+                                            ),
+                                            child: Text(
+                                                '${widget.steps.indexOf(step) + 1}. $subStep'),
+                                          ));
+                                }).toList(),
+                              ),
                             ],
                           ),
                         ),
@@ -410,11 +414,13 @@ void _fetchPantryIngredients() async {
         ? Color(0xFF202920).withOpacity(0.8)
         : Color.fromARGB(255, 103, 128, 96).withOpacity(0.8);
 
+    bool enableHover = screenWidth >= 840;
+
     return GestureDetector(
       onTap: _showRecipeDetails,
       child: MouseRegion(
-        onEnter: (_) => _onHover(true),
-        onExit: (_) => _onHover(false),
+        onEnter: enableHover ? (_) => _onHover(true) : null,
+        onExit: enableHover ? (_) => _onHover(false) : null,
         child: Stack(
           children: [
             Positioned.fill(
@@ -609,7 +615,7 @@ class CheckableItem extends StatefulWidget {
 
 class _CheckableItemState extends State<CheckableItem> {
   bool _isAdded = false;
-  
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -624,7 +630,8 @@ class _CheckableItemState extends State<CheckableItem> {
         else
           TextButton(
             onPressed: _isAdded ? null : () => _addToShoppingList(widget.title),
-            child: Text(_isAdded ? 'Added to shopping list' : 'Add to shopping list'),
+            child: Text(
+                _isAdded ? 'Added to shopping list' : 'Add to shopping list'),
             style: TextButton.styleFrom(
               foregroundColor: Colors.green,
             ),
@@ -640,69 +647,71 @@ class _CheckableItemState extends State<CheckableItem> {
   }
 
   void _addToShoppingList(String ingredientString) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? userId = prefs.getString('userId');
-  print("ingredient string: $ingredientString");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
+    print("ingredient string: $ingredientString");
 
-  // Regular expression to extract ingredient name, quantity, and measurement unit
-  final regex = RegExp(r'^(.*?)\s*\((\d*\.?\d+)\s*(\w+)\)$');
-  final match = regex.firstMatch(ingredientString);
+    // Regular expression to extract ingredient name, quantity, and measurement unit
+    final regex = RegExp(r'^(.*?)\s*\((\d*\.?\d+)\s*(\w+)\)$');
+    final match = regex.firstMatch(ingredientString);
 
-  if (match != null) {
-    final ingredientName = match.group(1) ?? '';
-    final quantity = match.group(2) ?? '1';
-    final measurementUnit = match.group(3) ?? 'unit';
+    if (match != null) {
+      final ingredientName = match.group(1) ?? '';
+      final quantity = match.group(2) ?? '1';
+      final measurementUnit = match.group(3) ?? 'unit';
 
-    print("ingredientName: $ingredientName");
-    print("quantity: $quantity");
-    print("measurementUnit: $measurementUnit");
+      print("ingredientName: $ingredientName");
+      print("quantity: $quantity");
+      print("measurementUnit: $measurementUnit");
 
-    final url = Uri.parse(
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({
-      "action": "addToShoppingList",
-      "userId": userId,
-      "ingredientName": ingredientName,
-      "quantity": double.tryParse(quantity) ?? 1,
-      "measurementUnit": measurementUnit
-    });
+      final url = Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+      final headers = {"Content-Type": "application/json"};
+      final body = jsonEncode({
+        "action": "addToShoppingList",
+        "userId": userId,
+        "ingredientName": ingredientName,
+        "quantity": double.tryParse(quantity) ?? 1,
+        "measurementUnit": measurementUnit
+      });
 
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-      if (response.statusCode == 200) {
-        // Successfully added to shopping list
-        setState(() {
-          _isAdded = true;
-        });
+      try {
+        final response = await http.post(url, headers: headers, body: body);
+        if (response.statusCode == 200) {
+          // Successfully added to shopping list
+          setState(() {
+            _isAdded = true;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Added $ingredientString shopping list'),
+            ),
+          );
+        } else {
+          // Failed to add to shopping list
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                  'Failed to add $ingredientName to shopping list: ${response.body}'),
+            ),
+          );
+        }
+      } catch (error) {
+        print('Error: $error');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Added $ingredientString shopping list'),
-          ),
-        );
-      } else {
-        // Failed to add to shopping list
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to add $ingredientName to shopping list: ${response.body}'),
+            content:
+                Text('Error adding $ingredientName to shopping list: $error'),
           ),
         );
       }
-    } catch (error) {
-      print('Error: $error');
+    } else {
+      // Handle the case where the regex does not match
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error adding $ingredientName to shopping list: $error'),
+          content: Text('Invalid ingredient format: $ingredientString'),
         ),
       );
     }
-  } else {
-    // Handle the case where the regex does not match
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Invalid ingredient format: $ingredientString'),
-      ),
-    );
   }
-}
 }
