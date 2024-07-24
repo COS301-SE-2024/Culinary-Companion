@@ -44,13 +44,52 @@ class _RecipeCardState extends State<RecipeCard> {
   bool _isFavorite = false;
   //Map<String, bool> _pantryIngredients = {};
   Map<String, Map<String, dynamic>> _pantryIngredients = {};
+  Map<String, Map<String, dynamic>> _shoppingList = {};
 
   @override
   void initState() {
     super.initState();
     _checkIfFavorite();
+    _fetchShoppingList();
     _fetchPantryIngredients();
   }
+
+  void _fetchShoppingList() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? userId = prefs.getString('userId');
+
+  // final url = Uri.parse(
+  //     'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+  // final headers = {"Content-Type": "application/json"};
+  // final body = jsonEncode({"action": "getShoppingList", "userId": userId});
+
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'getShoppingList',
+        'userId': userId,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final List<dynamic> shoppingList = data['shoppingList'];
+      setState(() {
+        for (var item in shoppingList) {
+          _shoppingList[item['ingredientName']] = {
+            'quantity': item['quantity'],
+            'measurementUnit': item['measurmentunit']
+          };
+        }
+      });
+    } else {
+      print('Failed to fetch shopping list: ${response.reasonPhrase}');
+    }
+  } catch (error) {
+    print('Error: $error');
+  }
+}
+
 
   void _fetchPantryIngredients() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -318,34 +357,31 @@ class _RecipeCardState extends State<RecipeCard> {
                                   height: MediaQuery.of(context).size.height *
                                       0.01), // Adjust height to 1% of screen height
                               ...widget.ingredients
-                                  .asMap()
-                                  .entries
-                                  .map((entry) {
-                                int idx = entry.key;
-                                Map<String, dynamic> ingredient = entry.value;
-                                bool isInPantry = _pantryIngredients
-                                    .containsKey(ingredient['name']);
-                                double availableQuantity = isInPantry
-                                    ? (_pantryIngredients[ingredient['name']]
-                                            ?['quantity'] ??
-                                        0.0)
-                                    : 0.0;
+    .asMap()
+    .entries
+    .map((entry) {
+  int idx = entry.key;
+  Map<String, dynamic> ingredient = entry.value;
+  bool isInPantry = _pantryIngredients.containsKey(ingredient['name']);
+  double availableQuantity = isInPantry ? (_pantryIngredients[ingredient['name']]?['quantity'] ?? 0.0) : 0.0;
+  bool isInShoppingList = _shoppingList.containsKey(ingredient['name']);
+  
+  return CheckableItem(
+    title: '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
+    requiredQuantity: ingredient['quantity'],
+    requiredUnit: ingredient['measurement_unit'],
+    onChanged: (bool? value) {
+      setState(() {
+        _ingredientChecked[idx] = value ?? false;
+      });
+    },
+    isInPantry: isInPantry,
+    availableQuantity: availableQuantity,
+    isChecked: _ingredientChecked[idx] ?? true,
+    isInShoppingList: isInShoppingList,
+  );
+}),
 
-                                return CheckableItem(
-                                  title:
-                                      '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-                                  requiredQuantity: ingredient['quantity'],
-                                  requiredUnit: ingredient['measurement_unit'],
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      _ingredientChecked[idx] = value ?? false;
-                                    });
-                                  },
-                                  isInPantry: isInPantry,
-                                  availableQuantity: availableQuantity,
-                                  isChecked: _ingredientChecked[idx] ?? true,
-                                );
-                              }),
 
                               SizedBox(
                                   height: MediaQuery.of(context).size.height *
@@ -617,6 +653,7 @@ class CheckableItem extends StatefulWidget {
   final bool isInPantry;
   final double availableQuantity;
   final bool isChecked;
+  final bool isInShoppingList;
 
   CheckableItem({
     required this.title,
@@ -626,6 +663,7 @@ class CheckableItem extends StatefulWidget {
     required this.isInPantry,
     required this.availableQuantity,
     required this.isChecked,
+    required this.isInShoppingList,
   });
 
   @override
@@ -647,6 +685,14 @@ class _CheckableItemState extends State<CheckableItem> {
             onChanged: widget.onChanged,
             activeColor: Color(0XFFDC945F),
             checkColor: Colors.white,
+          )
+        else if (widget.isInShoppingList)
+          TextButton(
+            onPressed: null,
+            child: Text('In Shopping List'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.green,
+            ),
           )
         else
           TextButton(
@@ -729,3 +775,4 @@ class _CheckableItemState extends State<CheckableItem> {
     }
   }
 }
+
