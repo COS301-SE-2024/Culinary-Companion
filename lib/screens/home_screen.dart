@@ -134,6 +134,25 @@ class _HomeScreenState extends State<HomeScreen> {
             double screenWidth = MediaQuery.of(context).size.width;
             double calculatedPadding = screenWidth * 0.001;
 
+            // Define font sizes based on screen width
+            double titleFontSize;
+            double viewAllFontSize;
+
+            if (screenWidth > 1334) {
+              titleFontSize = 30.0;
+              viewAllFontSize = 16.0;
+            } else if (screenWidth > 820) {
+              titleFontSize = 24.0;
+              viewAllFontSize = 14.0;
+            } else if (screenWidth < 375) {
+              titleFontSize = 18.0;
+              viewAllFontSize = 11.0;
+            } else {
+              titleFontSize =
+                  16.0; // default size for widths between 375 and 980
+              viewAllFontSize = 10.0;
+            }
+
             return Padding(
               padding: EdgeInsets.only(
                   left: calculatedPadding,
@@ -145,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 30.0,
+                      fontSize: titleFontSize,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -159,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Text(
                       'View All',
                       style: TextStyle(
-                        fontSize: 16.0,
+                        fontSize: viewAllFontSize,
                         color: const Color.fromARGB(255, 187, 187, 187),
                         decoration: TextDecoration.underline,
                       ),
@@ -172,6 +191,15 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         LayoutBuilder(
           builder: (context, constraints) {
+            double screenWidth = MediaQuery.of(context).size.width;
+            double paddingg;
+
+            if (screenWidth > 600) {
+              paddingg = 8.0;
+            } else {
+              paddingg = 5.0;
+            }
+
             double viewportWidth = constraints.maxWidth;
             double itemWidth = viewportWidth / 4 -
                 16; // Divide the width by 4 and subtract padding
@@ -194,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
 
                 return Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(paddingg),
                   child: Container(
                     width: itemWidth, // Set the item width dynamically
                     child: RecipeCard(
