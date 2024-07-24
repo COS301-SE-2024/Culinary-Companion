@@ -132,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen> {
         LayoutBuilder(
           builder: (context, constraints) {
             double screenWidth = MediaQuery.of(context).size.width;
-            double calculatedFontSize = screenWidth * 0.018;
             double calculatedPadding = screenWidth * 0.001;
 
             return Padding(
@@ -146,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: calculatedFontSize,
+                      fontSize: 30.0,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -160,7 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Text(
                       'View All',
                       style: TextStyle(
-                        fontSize: calculatedFontSize / 1.3,
+                        fontSize: 16.0,
+                        color: const Color.fromARGB(255, 187, 187, 187),
                         decoration: TextDecoration.underline,
                       ),
                     ),
@@ -176,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
             double itemWidth = viewportWidth / 4 -
                 16; // Divide the width by 4 and subtract padding
             double itemHeight =
-                itemWidth * 320 / 276; // Maintain the aspect ratio
+                itemWidth * 320 / 250; // Maintain the aspect ratio
 
             return CarouselSlider(
               options: CarouselOptions(
@@ -256,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
         LayoutBuilder(
           builder: (context, constraints) {
             double width = constraints.maxWidth;
-            double itemWidth = 276;
+            double itemWidth = 250;
             double itemHeight = 320;
             double aspectRatio = itemWidth / itemHeight;
             double crossAxisSpacing = width * 0.01;
