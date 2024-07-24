@@ -655,6 +655,7 @@ class _RecipeCardState extends State<RecipeCard> {
   }
 }
 
+// ignore: must_be_immutable
 class CheckableItem extends StatefulWidget {
   final String title;
   final double requiredQuantity;
