@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'help_appliance.dart';
+import 'package:lottie/lottie.dart';
 
 Color shade(BuildContext context) {
   final theme = Theme.of(context);
@@ -27,6 +28,8 @@ class AppliancesScreen extends StatefulWidget {
 
 class _AppliancesScreenState extends State<AppliancesScreen> {
   OverlayEntry? _helpMenuOverlay;
+  bool _isLoading = true;
+
 
   @override
   void initState() {
@@ -35,10 +38,17 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
   }
 
   Future<void> _initializeData() async {
-    await _loadUserId();
-    await _loadAppliances();
-    await _loadUserAppliances();
-  }
+  setState(() {
+    _isLoading = true;
+  });
+  await _loadUserId();
+  await _loadAppliances();
+  await _loadUserAppliances();
+  setState(() {
+    _isLoading = false;
+  });
+}
+
 
   String? _userId;
 
@@ -298,7 +308,9 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
           ),
         ],
       ),
-      body: Padding(
+      body: _isLoading
+    ? Center(child: Lottie.asset('assets/loading.json'))
+    : Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: Row(children: <Widget>[
           Expanded(
@@ -392,6 +404,7 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
           ),
         ]),
       ),
+
     );
   }
 }

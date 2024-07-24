@@ -4,6 +4,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'help_shopping.dart';
+import 'package:lottie/lottie.dart';
 
 Color shade(BuildContext context) {
   final theme = Theme.of(context);
@@ -32,6 +33,8 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
   String _measurementUnit = ''; 
+  bool _isLoading = true;
+
 
   @override
   void initState() {
@@ -40,30 +43,21 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   }
 
   Future<void> _initializeData() async {
-    await _loadUserId();
-    await _fetchIngredientNames();
-    _loadDontShowAgainPreference();
-    _fetchShoppingList();
-  }
+  setState(() {
+    _isLoading = true;
+  });
+  await _loadUserId();
+  await _fetchIngredientNames();
+  _loadDontShowAgainPreference();
+  await _fetchShoppingList();
+  setState(() {
+    _isLoading = false;
+  });
+}
+
 
   final Map<String, List<String>> _shoppingList = {};
   final Map<String, bool> _checkboxStates = {};
-
-  
-
-  // final Map<String, IconData> _categoryIcons = {
-  //   'Dairy': Icons.local_drink,
-  //   'Meat': Icons.local_dining,
-  //   'Fish': Icons.pool,
-  //   'Nuts': Icons.spa,
-  //   'Spice/Herb': Icons.local_florist,
-  //   'Starch': Icons.fastfood,
-  //   'Vegetable': Icons.eco,
-  //   'Fruit': Icons.local_offer,
-  //   'Legume': Icons.grass,
-  //   'Staple': Icons.kitchen,
-  //   'Other': Icons.category,
-  // };
 
   List<Map<String, String>> _items = [];
 
@@ -347,65 +341,67 @@ Future<void> _addToPantryList(String? userId, String item) async {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40.0),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
+      body: _isLoading
+          ? Center(child: Lottie.asset('assets/loading.json'))
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Row(
                 children: <Widget>[
-                  SizedBox(height: 30.0),
                   Expanded(
-                    child: _shoppingList.isEmpty
-                        ? Center(
-                            child: Text(
-                              "No ingredients have been added. Click the plus icon to add your first ingredient!",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[600],
-                              ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(height: 30.0),
+                        Expanded(
+                          child: _shoppingList.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    "No ingredients have been added. Click the plus icon to add your first ingredient!",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                )
+                              : ListView(
+                                  key: Key('shopping_list'),
+                                  children: _shoppingList.entries.expand((entry) {
+                                    return [
+                                      if (entry.value.isNotEmpty) ...[
+                                        _buildCategoryHeader(entry.key),
+                                      ],
+                                      ...entry.value.asMap().entries.map((item) =>
+                                          _buildCheckableListItem(entry.key,
+                                              item.value, item.key % 2 == 1)),
+                                    ];
+                                  }).toList(),
+                                ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ElevatedButton(
+                            key: ValueKey('add_shopping_list_button'),
+                            onPressed: () {
+                              _showAddItemDialog(context);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFDC945F),
+                              foregroundColor: Colors.white,
+                              fixedSize: const Size(48.0, 48.0),
+                              shape: const CircleBorder(),
+                              padding: EdgeInsets.all(0),
                             ),
-                          )
-                        : ListView(
-                          key: Key('shopping_list'),
-                            children: _shoppingList.entries.expand((entry) {
-                              return [
-                                if (entry.value.isNotEmpty) ...[
-                                  _buildCategoryHeader(entry.key),
-                                ],
-                                ...entry.value.asMap().entries.map((item) =>
-                                    _buildCheckableListItem(entry.key,
-                                        item.value, item.key % 2 == 1)),
-                              ];
-                            }).toList(),
+                            child: const Icon(Icons.add, size: 32.0),
                           ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      key: ValueKey('add_shopping_list_button'),
-                      onPressed: () {
-                        _showAddItemDialog(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDC945F),
-                        foregroundColor: Colors.white,
-                        fixedSize: const Size(48.0, 48.0),
-                        shape: const CircleBorder(),
-                        padding: EdgeInsets.all(0),
-                      ),
-                      child: const Icon(Icons.add, size: 32.0),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 // Helper method to build a category header
