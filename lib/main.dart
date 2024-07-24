@@ -7,7 +7,7 @@ import 'screens/signup_screen.dart'; // Import the new signup screen
 import 'screens/confirm_details.dart'; //Import the confirm details, a.k.a Signup 2 page
 import 'screens/main.dart'; // Import the main screen
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+//import 'package:flutter_dotenv/flutter_dotenv.dart'; //LLM
 
 void main() async {
   //await dotenv.load(); //LLM
