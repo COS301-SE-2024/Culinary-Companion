@@ -241,7 +241,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/help_home.dart';
 
-import '../gemini_service.dart';
+//import '../gemini_service.dart'; // LLM
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -254,14 +254,14 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isGridView = false;
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
-  String _generatedText = '';
+  //String _generatedText = '';  // LLM
 
-  Future<void> _loadContent() async {
-    final content = await fetchContentBackpack();
-    setState(() {
-      _generatedText = content;
-    });
-  }
+  // Future<void> _loadContent() async {  // LLM
+  //   final content = await fetchContentBackpack();
+  //   setState(() {
+  //     _generatedText = content;
+  //   });
+  // }
 
   @override
   void initState() {
@@ -577,12 +577,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         //   textAlign: TextAlign.center,
                         // ),
                         // SizedBox(height: 16),
-                        Text(_generatedText),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _loadContent,
-                          child: Text('Fetch Content'),
-                        ),
+                        // Text(_generatedText), // LLM
+                        // SizedBox(height: 20),
+                        // ElevatedButton(
+                        //   onPressed: _loadContent,
+                        //   child: Text('Fetch Content'),
+                        // ),
                         SizedBox(height: 24),
                         _buildCarousel('Main', _filterRecipesByCourse('Main')),
                         _buildCarousel(
