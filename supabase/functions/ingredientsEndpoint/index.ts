@@ -443,7 +443,7 @@ async function addToShoppingList(userId: string, ingredientName: string, quantit
     };
 
     try {
-        if (!userId || !ingredientName || !quantity || !measurementUnit) {
+        if (!userId || !ingredientName || quantity==null || !measurementUnit) {
             throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
         }
 
@@ -501,7 +501,7 @@ async function addToShoppingList(userId: string, ingredientName: string, quantit
 
 async function editShoppingListItem(userId: string, ingredientName: string, quantity: number, measurementUnit: string, corsHeaders: HeadersInit) {
     try {
-        if (!userId || !ingredientName || quantity === undefined || !measurementUnit) {
+        if (!userId || !ingredientName || !quantity || !measurementUnit) {
             throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
         }
 
