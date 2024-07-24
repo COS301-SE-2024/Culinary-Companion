@@ -1,66 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:flutter_application_1/screens/landing_screen.dart'; // Adjust the import according to your project structure
-import 'mock_navigator_observer.mocks.dart';
+import 'package:mockito/annotations.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_application_1/screens/login_screen.dart';
+import 'package:flutter_application_1/screens/home_screen.dart';
+
+// Generate mocks
+@GenerateMocks([http.Client])
+import 'login_screen_test.mocks.dart';
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  late MockClient mockClient;
 
-  group('LandingScreen Tests', () {
-    testWidgets('should display logo, buttons, and text correctly', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LandingScreen(),
-        ),
-      );
+  setUp(() {
+    mockClient = MockClient();
+    SharedPreferences.setMockInitialValues({});
+  });
 
-      await tester.pumpAndSettle();
+  testWidgets('LoginScreen UI Test', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(home: LoginScreen()));
 
-      expect(find.byType(Image), findsNWidgets(2)); // Assuming 2 images are used (background and logo)
-      expect(find.text('Log In'), findsOneWidget);
-      expect(find.text('Sign Up'), findsOneWidget);
-      expect(find.text('or'), findsOneWidget);
-    });
+    expect(find.text('Welcome Back!'), findsOneWidget);
+    expect(find.byKey(ValueKey('email')), findsOneWidget);
+    expect(find.byKey(ValueKey('password')), findsOneWidget);
+    expect(find.byKey(ValueKey('Login')), findsOneWidget);
+    expect(find.byKey(ValueKey('signupLink')), findsOneWidget);
+  });
 
-    testWidgets('should navigate to login screen when Log In button is pressed', (WidgetTester tester) async {
-      final mockObserver = MockNavigatorObserver();
+  testWidgets('Login successful', (WidgetTester tester) async {
+    when(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
+        .thenAnswer((_) async => http.Response('{"user": {"id": "123"}}', 200));
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LandingScreen(),
-          navigatorObservers: [mockObserver],
-          routes: {
-            '/login': (context) => Scaffold(body: Text('Login Screen')),
-          },
-        ),
-      );
+    await tester.pumpWidget(MaterialApp(
+      home: LoginScreen(client: mockClient), // Pass the mock client to LoginScreen
+      routes: {
+        '/home': (context) => HomeScreen(),
+      },
+    ));
 
-      await tester.tap(find.text('Log In'));
-      await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(ValueKey('email')), 'test@example.com');
+    await tester.enterText(find.byKey(ValueKey('password')), 'password123');
+    await tester.tap(find.byKey(ValueKey('Login')));
+    await tester.pumpAndSettle();
 
-      expect(find.text('Login Screen'), findsOneWidget);
-      verify(mockObserver.didPush(any, any));
-    });
+    // Verify that the mock was called
+    verify(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body'))).called(1);
 
-    testWidgets('should navigate to signup screen when Sign Up button is pressed', (WidgetTester tester) async {
-      final mockObserver = MockNavigatorObserver();
+    // Check if HomeScreen is present
+    expect(find.byType(HomeScreen), findsOneWidget);
+  });
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: LandingScreen(),
-          navigatorObservers: [mockObserver],
-          routes: {
-            '/signup': (context) => Scaffold(body: Text('Signup Screen')),
-          },
-        ),
-      );
+  testWidgets('Login failed', (WidgetTester tester) async {
+    when(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
+        .thenAnswer((_) async => http.Response('{"error": "Invalid credentials"}', 400));
 
-      await tester.tap(find.text('Sign Up'));
-      await tester.pumpAndSettle();
+    await tester.pumpWidget(MaterialApp(home: LoginScreen(client: mockClient)));
 
-      expect(find.text('Signup Screen'), findsOneWidget);
-      verify(mockObserver.didPush(any, any));
-    });
+    await tester.enterText(find.byKey(ValueKey('email')), 'test@example.com');
+    await tester.enterText(find.byKey(ValueKey('password')), 'wrongpassword');
+    await tester.tap(find.byKey(ValueKey('Login')));
+    await tester.pump(); // Pump once to trigger the SnackBar
+    await tester.pump(Duration(seconds: 1)); // Pump again to ensure SnackBar is visible
+
+    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.text('Login failed: Invalid credentials'), findsOneWidget);
+  });
+
+  testWidgets('Navigate to signup screen', (WidgetTester tester) async {
+    await tester.pumpWidget(MaterialApp(
+      home: LoginScreen(),
+      routes: {
+        '/signup': (context) => Scaffold(body: Text('Signup Screen')),
+      },
+    ));
+
+    await tester.tap(find.byKey(ValueKey('signupLink')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Signup Screen'), findsOneWidget);
   });
 }
