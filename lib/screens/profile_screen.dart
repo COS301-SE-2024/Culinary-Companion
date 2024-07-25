@@ -247,6 +247,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildHeader(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     final theme = Theme.of(context);
     final textColor = theme.brightness == Brightness.light
         ? Color(0xFF1E1E1E)
@@ -265,24 +268,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Column(
               children: [
-                SizedBox(height: 20),
+                SizedBox(height: 20/730),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(180),
+                  borderRadius: BorderRadius.circular(360),
                   child: profilePhoto.startsWith('http')
                       ? Image.network(
                           profilePhoto,
-                          width: 240,
-                          height: 240,
+                          width: screenWidth * 240/1519,//240,
+                          height: screenHeight * 240/730,//240,
                           fit: BoxFit.cover,
                         )
                       : Image.asset(
                           profilePhoto,
-                          width: 240,
-                          height: 240,
+                          width: screenWidth * 240/1519,//240,
+                          height: screenHeight * 240/730,//240,
                           fit: BoxFit.cover,
                         ),
                 ),
-                SizedBox(height: 5),
+                SizedBox(height: screenHeight*5/730),
                 Text(
                   username,
                   style: TextStyle(
@@ -291,7 +294,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: textColor,
                   ),
                 ),
-                SizedBox(height: 5),
+                SizedBox(height: screenHeight * 5/730),
                 Row(
                   children: [
                     OutlinedButton(
@@ -321,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         style: TextStyle(color: textColor, fontSize: 16),
                       ),
                     ),
-                    const SizedBox(width: 25),
+                    SizedBox(width: screenWidth * 25/1519),
                     OutlinedButton(
                       onPressed: () async {
                         // Clear shared preferences
@@ -353,10 +356,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            SizedBox(width: 20),
+            SizedBox(width: screenWidth * 20/1519),
             Column(
               children: [
-                const SizedBox(height: 25, width: 50),
+                SizedBox(height: screenHeight * 25/730, width: screenWidth * 50/1519),
                 buildPreferences(),
               ],
             )
@@ -380,8 +383,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
 
     return Container(
-        height: screenHeight * 0.3,
-        width: screenWidth * 0.7,
+        height: screenHeight * 300/730,
+        width: screenWidth * 1100/1519,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: theme.brightness == Brightness.light
@@ -406,7 +409,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: screenHeight * 8/730),
             Wrap(
               spacing: 8.0,
               runSpacing: 4.0,
@@ -418,7 +421,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: screenHeight * 24/730),
             // Preferred Cuisine
             Text(
               'Preferred Cuisine',
@@ -428,7 +431,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: screenHeight * 8/730),
             Wrap(
               spacing: 8.0,
               runSpacing: 4.0,
@@ -440,7 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: screenHeight * 24/730),
             // Dietary Constraints
             Text(
               'Dietary Constraints',
@@ -450,7 +453,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: screenHeight * 8/730),
             Wrap(
               spacing: 8.0,
               runSpacing: 4.0,
