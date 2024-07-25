@@ -55,7 +55,10 @@ class CulinaryCompanionApp extends StatelessWidget {
         ),
       ),
       darkTheme: ThemeData(
-        textTheme: GoogleFonts.interTextTheme(),
+        textTheme: GoogleFonts.interTextTheme().apply(
+          bodyColor: Color(0xFFD9D9D9),
+          displayColor: Color(0xFFD9D9D9),
+        ),
         primarySwatch: Colors.green,
         brightness: Brightness.dark,
         //scaffoldBackgroundColor: const Color(0xFF20493C),

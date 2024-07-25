@@ -180,8 +180,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       'View All',
                       style: TextStyle(
                         fontSize: viewAllFontSize,
-                        color: const Color.fromARGB(255, 187, 187, 187),
+                        color: Color(0xFFD9D9D9),
                         decoration: TextDecoration.underline,
+                        decorationColor: Color(0xFFD9D9D9),
                       ),
                     ),
                   ),
