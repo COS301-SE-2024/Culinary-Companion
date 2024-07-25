@@ -200,7 +200,7 @@ class _RecipeCardState extends State<RecipeCard> {
                             _isFavorite
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            color: _isFavorite ? Colors.red : Colors.grey,
+                            color: _isFavorite ? Colors.red : Colors.white,
                           ),
                           onPressed: _toggleFavorite,
                         ),
@@ -409,7 +409,7 @@ class _RecipeCardState extends State<RecipeCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSizeTitle = screenWidth * 0.02;
+    double fontSizeTitle = screenWidth * 0.015;
     double fontSizeDescription = screenWidth * 0.01;
 
     final hoverColor = theme.brightness == Brightness.light
@@ -435,21 +435,41 @@ class _RecipeCardState extends State<RecipeCard> {
                 ),
               ),
             ),
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color.fromARGB(0, 0, 0, 0),
-                        const Color.fromARGB(136, 0, 0, 0),
-                      ]),
-                  //color: Colors.white.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(10),
+            if (!_hovered)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color.fromARGB(0, 0, 0, 0),
+                          Color.fromARGB(179, 0, 0, 0),
+                        ]),
+                    //color: Colors.white.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
-            ),
+            if (!_hovered)
+              Positioned(
+                left: 10,
+                bottom: 10,
+                child: Container(
+                  width: MediaQuery.of(context).size.width /
+                      8, // Half the width of the recipe card
+                  child: Text(
+                    widget.name,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: fontSizeTitle,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
             if (_hovered)
               Positioned.fill(
                 child: Container(
@@ -462,7 +482,20 @@ class _RecipeCardState extends State<RecipeCard> {
             if (_hovered)
               Positioned.fill(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  // Padding(
+                  //   padding: EdgeInsets.only(
+                  //     top:  *
+                  //         0.04, // Adjust top padding to 4% of screen height
+                  //     left: screenWidth *
+                  //         0.05, // Adjust left padding to 5% of screen width
+                  //     right: screenWidth *
+                  //         0.05, // Adjust right padding to 5% of screen width
+                  //   ),
+                  // ),
+                  padding: EdgeInsets.only(
+                    left: MediaQuery.of(context).size.width * 0.013,
+                    right: MediaQuery.of(context).size.width * 0.013,
+                  ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -562,6 +595,16 @@ class _RecipeCardState extends State<RecipeCard> {
                           ),
                         ],
                       ),
+                      // Padding(
+                      //   padding: EdgeInsets.only(
+                      //     top: MediaQuery.of(context).size.height *
+                      //         0.04, // Adjust top padding to 4% of screen height
+                      //     left: screenWidth *
+                      //         0.05, // Adjust left padding to 5% of screen width
+                      //     right: screenWidth *
+                      //         0.05, // Adjust right padding to 5% of screen width
+                      //   ),
+                      // ),
                       Text(
                         'Cuisine: ${widget.cuisine}',
                         style: TextStyle(
@@ -595,12 +638,13 @@ class _RecipeCardState extends State<RecipeCard> {
                 ),
               ),
             Positioned(
-              top: 8,
-              right: 8,
+              top: MediaQuery.of(context).size.width * 0.01,
+              right: MediaQuery.of(context).size.width * 0.01,
               child: IconButton(
                 icon: Icon(
                   _isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: _isFavorite ? Colors.red : Colors.grey,
+                  color: _isFavorite ? Colors.red : Colors.white,
+                  size: MediaQuery.of(context).size.width * 0.017,
                 ),
                 onPressed: _toggleFavorite,
               ),
