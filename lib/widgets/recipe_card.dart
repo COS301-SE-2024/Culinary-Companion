@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:shadow_overlay/shadow_overlay.dart';
-
 class RecipeCard extends StatefulWidget {
   final String recipeID;
   final String name;
@@ -411,12 +409,13 @@ class _RecipeCardState extends State<RecipeCard> {
     double screenWidth = MediaQuery.of(context).size.width;
     double fontSizeTitle = screenWidth * 0.015;
     double fontSizeDescription = screenWidth * 0.01;
+    double fontSizeTimes = screenWidth * 0.008;
 
     final hoverColor = theme.brightness == Brightness.light
         ? Color(0xFF202920).withOpacity(0.8)
-        : Color.fromARGB(15, 0, 0, 0).withOpacity(0.4);
+        : Color.fromARGB(15, 0, 0, 0).withOpacity(0.5);
 
-    bool enableHover = screenWidth >= 840;
+    bool enableHover = screenWidth >= 1029;
     return GestureDetector(
       onTap: _showRecipeDetails,
       child: MouseRegion(
@@ -482,16 +481,6 @@ class _RecipeCardState extends State<RecipeCard> {
             if (_hovered)
               Positioned.fill(
                 child: Padding(
-                  // Padding(
-                  //   padding: EdgeInsets.only(
-                  //     top:  *
-                  //         0.04, // Adjust top padding to 4% of screen height
-                  //     left: screenWidth *
-                  //         0.05, // Adjust left padding to 5% of screen width
-                  //     right: screenWidth *
-                  //         0.05, // Adjust right padding to 5% of screen width
-                  //   ),
-                  // ),
                   padding: EdgeInsets.only(
                     left: MediaQuery.of(context).size.width * 0.013,
                     right: MediaQuery.of(context).size.width * 0.013,
@@ -500,117 +489,213 @@ class _RecipeCardState extends State<RecipeCard> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        widget.name,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: fontSizeTitle,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: MediaQuery.of(context).size.width * 0.013,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        child: Text(
+                          widget.name,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: fontSizeTitle,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      SizedBox(height: 8),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.width * 0.008,
+                      ),
                       Flexible(
                         child: Text(
                           widget.description,
                           style: TextStyle(
                             color: Colors.white,
+                            fontWeight: FontWeight.w200,
                             fontSize: fontSizeDescription,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      SizedBox(height: 16),
-                      Row(
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Prep Time:',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSizeDescription,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '${widget.prepTime} mins',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSizeDescription,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(width: 10), // Add spacing between elements
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Cook Time:',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSizeDescription,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '${widget.cookTime} mins',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSizeDescription,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(width: 10), // Add spacing between elements
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Total Time:',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSizeDescription,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                '${widget.prepTime + widget.cookTime} mins',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSizeDescription,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                      SizedBox(
+                        height: MediaQuery.of(context).size.width * 0.008,
                       ),
-                      // Padding(
-                      //   padding: EdgeInsets.only(
-                      //     top: MediaQuery.of(context).size.height *
-                      //         0.04, // Adjust top padding to 4% of screen height
-                      //     left: screenWidth *
-                      //         0.05, // Adjust left padding to 5% of screen width
-                      //     right: screenWidth *
-                      //         0.05, // Adjust right padding to 5% of screen width
-                      //   ),
-                      // ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: MediaQuery.of(context).size.width * 0.013,
+                          bottom: MediaQuery.of(context).size.width * 0.01,
+                        ),
+                        child: Row(
+                          children: [
+                            Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Prep Time:',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: fontSizeTimes,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.006,
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            left: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.006,
+                                          ),
+                                          child: Text(
+                                            '${widget.prepTime} mins',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: fontSizeTimes,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.008,
+                                    ), // Add spacing between elements
+                                    Container(
+                                      height: MediaQuery.of(context)
+                                              .size
+                                              .width *
+                                          0.03, // Set a fixed height for the vertical divider
+                                      child: const VerticalDivider(
+                                        width: 20,
+                                        thickness: 1.8,
+                                        indent: 20,
+                                        endIndent: 0,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.008,
+                                    ), // Add spacing between elements
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Cook Time:',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: fontSizeTimes,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.006,
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                            left: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.006,
+                                          ),
+                                          child: Text(
+                                            '${widget.cookTime} mins',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: fontSizeTimes,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.width * 0.008,
+                            ), // Add spacing between elements
+                            Container(
+                              height: MediaQuery.of(context).size.width *
+                                  0.03, // Set a fixed height for the vertical divider
+                              child: const VerticalDivider(
+                                width: 20,
+                                thickness: 1.8,
+                                indent: 20,
+                                endIndent: 0,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                              height: MediaQuery.of(context).size.width * 0.008,
+                            ), // Add spacing between elements
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Total Time:',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: fontSizeTimes,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.006,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    left: MediaQuery.of(context).size.width *
+                                        0.006,
+                                  ),
+                                  child: Text(
+                                    '${widget.prepTime + widget.cookTime} mins',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: fontSizeTimes,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
                       Text(
                         'Cuisine: ${widget.cuisine}',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: fontSizeDescription,
                         ),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.width * 0.006,
                       ),
                       Text(
                         'Spice Level: ${widget.spiceLevel}',
@@ -619,12 +704,18 @@ class _RecipeCardState extends State<RecipeCard> {
                           fontSize: fontSizeDescription,
                         ),
                       ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.width * 0.006,
+                      ),
                       Text(
                         'Course: ${widget.course}',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: fontSizeDescription,
                         ),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.width * 0.006,
                       ),
                       Text(
                         'Servings: ${widget.servings}',
