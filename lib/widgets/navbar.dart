@@ -129,6 +129,153 @@ class ExpandableNavbar extends StatefulWidget implements PreferredSizeWidget {
   Size get preferredSize => Size.fromHeight(120);
 }
 
+// class _ExpandableNavbarState extends State<ExpandableNavbar> {
+//   bool _isExpanded = false;
+
+//   void _toggleExpanded() {
+//     setState(() {
+//       _isExpanded = !_isExpanded;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     double screenHeight = MediaQuery.of(context).size.height;
+//     double screenWidth = MediaQuery.of(context).size.width;
+//     double expandedWidth = screenWidth * 0.2; // 30% of screen width
+//     final theme = Theme.of(context);
+//     final bool isLightTheme = theme.brightness == Brightness.light;
+
+//     return Column(
+//       //mainAxisSize: MainAxisSize.min,
+//       children: [
+//         AppBar(
+//           automaticallyImplyLeading: false,
+//           toolbarHeight: screenHeight * 0.1,
+//           backgroundColor: Colors.transparent, // Make AppBar transparent
+//           elevation: 0, // Remove AppBar shadow
+//           title: Stack(
+//             children: [
+//               Align(
+//                 alignment: Alignment.centerLeft,
+//                 child: Image.asset(
+//                   isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
+//                   height: screenHeight * 0.1,
+//                 ),
+//               ),
+//               Align(
+//                 alignment: Alignment.centerRight,
+//                 child: IconButton(
+//                   icon: Icon(Icons.menu),
+//                   onPressed: _toggleExpanded,
+//                 ),
+//               ),
+//             ],
+//           ),
+//         ),
+//         if (_isExpanded)
+//           Align(
+//             alignment: FractionalOffset.topRight,
+//             child: Container(
+//               height: screenHeight, // Take up the full height of the screen
+//               width: expandedWidth, // Take up 30% of the screen width
+//               color: Color.fromARGB(143, 2, 20, 14),
+//               child: Column(
+//                 children: [
+//                   ListTile(
+//                     key: Key('Home'),
+//                     leading: Icon(Icons.home),
+//                     title: const Text('Home'),
+//                     onTap: () {
+//                       if (widget.onChange != null) {
+//                         widget.onChange!('/');
+//                       }
+//                       _toggleExpanded();
+//                     },
+//                   ),
+//                   ListTile(
+//                     key: ValueKey('AddRecipe'),
+//                     leading: Icon(Icons.add),
+//                     title: const Text('Add Recipe'),
+//                     onTap: () {
+//                       if (widget.onChange != null) {
+//                         widget.onChange!('/scan-recipe');
+//                       }
+//                       _toggleExpanded();
+//                     },
+//                   ),
+//                   ListTile(
+//                     key: Key('Inventory'),
+//                     leading: Icon(Icons.inventory),
+//                     title: const Text('Inventory'),
+//                     onTap: () {
+//                       if (widget.onChange != null) {
+//                         widget.onChange!('/inventory-screen');
+//                       }
+//                       _toggleExpanded();
+//                     },
+//                   ),
+//                   // ListTile(
+//                   //   key: Key('ShoppingList'),
+//                   //   title: const Text('Shopping List'),
+//                   //   onTap: () {
+//                   //     if (widget.onChange != null) {
+//                   //       widget.onChange!('/shopping-list');
+//                   //     }
+//                   //     _toggleExpanded();
+//                   //   },
+//                   // ),
+//                   // ListTile(
+//                   //   key: ValueKey('Pantry'),
+//                   //   title: const Text('Pantry'),
+//                   //   onTap: () {
+//                   //     if (widget.onChange != null) {
+//                   //       widget.onChange!('/pantry-list');
+//                   //     }
+//                   //     _toggleExpanded();
+//                   //   },
+//                   // ),
+//                   // ListTile(
+//                   //   key: Key('Appliance'),
+//                   //   title: const Text('Appliances'),
+//                   //   onTap: () {
+//                   //     if (widget.onChange != null) {
+//                   //       widget.onChange!('/appliances');
+//                   //     }
+//                   //     _toggleExpanded();
+//                   //   },
+//                   // ),
+//                   ListTile(
+//                     key: ValueKey('Favourites'),
+//                     leading: Icon(Icons.favorite),
+//                     title: const Text('Favorite Recipes'),
+//                     onTap: () {
+//                       if (widget.onChange != null) {
+//                         widget.onChange!('/saved-recipes');
+//                       }
+//                       _toggleExpanded();
+//                     },
+//                   ),
+//                   ListTile(
+//                     key: ValueKey('Profile'),
+//                     leading: Icon(Icons.person),
+//                     title: const Text('Profile'),
+//                     onTap: () {
+//                       if (widget.onChange != null) {
+//                         widget.onChange!('/profile');
+//                       }
+//                       _toggleExpanded();
+//                     },
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//       ],
+//     );
+//   }
+// }
+
 class _ExpandableNavbarState extends State<ExpandableNavbar> {
   bool _isExpanded = false;
 
@@ -142,12 +289,11 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
-    double expandedWidth = screenWidth * 0.2; // 30% of screen width
+    double expandedWidth = screenWidth * 0.2; // 20% of screen width
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
 
     return Column(
-      //mainAxisSize: MainAxisSize.min,
       children: [
         AppBar(
           automaticallyImplyLeading: false,
@@ -178,96 +324,116 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
             alignment: FractionalOffset.topRight,
             child: Container(
               height: screenHeight, // Take up the full height of the screen
-              width: expandedWidth, // Take up 30% of the screen width
+              width: expandedWidth, // Take up 20% of the screen width
               color: Color.fromARGB(143, 2, 20, 14),
-              child: Column(
-                children: [
-                  ListTile(
-                    key: Key('Home'),
-                    leading: Icon(Icons.home),
-                    title: const Text('Home'),
-                    onTap: () {
-                      if (widget.onChange != null) {
-                        widget.onChange!('/');
-                      }
-                      _toggleExpanded();
-                    },
-                  ),
-                  ListTile(
-                    key: ValueKey('AddRecipe'),
-                    leading: Icon(Icons.add),
-                    title: const Text('Add Recipe'),
-                    onTap: () {
-                      if (widget.onChange != null) {
-                        widget.onChange!('/scan-recipe');
-                      }
-                      _toggleExpanded();
-                    },
-                  ),
-                  ListTile(
-                    key: Key('Inventory'),
-                    leading: Icon(Icons.inventory),
-                    title: const Text('Inventory'),
-                    onTap: () {
-                      if (widget.onChange != null) {
-                        widget.onChange!('/inventory-screen');
-                      }
-                      _toggleExpanded();
-                    },
-                  ),
-                  // ListTile(
-                  //   key: Key('ShoppingList'),
-                  //   title: const Text('Shopping List'),
-                  //   onTap: () {
-                  //     if (widget.onChange != null) {
-                  //       widget.onChange!('/shopping-list');
-                  //     }
-                  //     _toggleExpanded();
-                  //   },
-                  // ),
-                  // ListTile(
-                  //   key: ValueKey('Pantry'),
-                  //   title: const Text('Pantry'),
-                  //   onTap: () {
-                  //     if (widget.onChange != null) {
-                  //       widget.onChange!('/pantry-list');
-                  //     }
-                  //     _toggleExpanded();
-                  //   },
-                  // ),
-                  // ListTile(
-                  //   key: Key('Appliance'),
-                  //   title: const Text('Appliances'),
-                  //   onTap: () {
-                  //     if (widget.onChange != null) {
-                  //       widget.onChange!('/appliances');
-                  //     }
-                  //     _toggleExpanded();
-                  //   },
-                  // ),
-                  ListTile(
-                    key: ValueKey('Favourites'),
-                    leading: Icon(Icons.favorite),
-                    title: const Text('Favorite Recipes'),
-                    onTap: () {
-                      if (widget.onChange != null) {
-                        widget.onChange!('/saved-recipes');
-                      }
-                      _toggleExpanded();
-                    },
-                  ),
-                  ListTile(
-                    key: ValueKey('Profile'),
-                    leading: Icon(Icons.person),
-                    title: const Text('Profile'),
-                    onTap: () {
-                      if (widget.onChange != null) {
-                        widget.onChange!('/profile');
-                      }
-                      _toggleExpanded();
-                    },
-                  ),
-                ],
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  bool isCompact = constraints.maxWidth <
+                      760; // Check if screen width is less than 760
+
+                  return Column(
+                    children: [
+                      ListTile(
+                        key: Key('Home'),
+                        leading: Icon(Icons.home),
+                        title: isCompact
+                            ? null
+                            : const Text('Home'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
+                      ListTile(
+                        key: ValueKey('AddRecipe'),
+                        leading: Icon(Icons.add),
+                        title: isCompact
+                            ? null
+                            : const Text(
+                                'Add Recipe'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/scan-recipe');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
+                      ListTile(
+                        key: Key('Inventory'),
+                        leading: Icon(Icons.inventory),
+                        title: isCompact
+                            ? null
+                            : const Text(
+                                'Inventory'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/inventory-screen');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
+                      // ListTile(
+                      //   key: Key('ShoppingList'),
+                      //   title: const Text('Shopping List'),
+                      //   onTap: () {
+                      //     if (widget.onChange != null) {
+                      //       widget.onChange!('/shopping-list');
+                      //     }
+                      //     _toggleExpanded();
+                      //   },
+                      // ),
+                      // ListTile(
+                      //   key: ValueKey('Pantry'),
+                      //   title: const Text('Pantry'),
+                      //   onTap: () {
+                      //     if (widget.onChange != null) {
+                      //       widget.onChange!('/pantry-list');
+                      //     }
+                      //     _toggleExpanded();
+                      //   },
+                      // ),
+                      // ListTile(
+                      //   key: Key('Appliance'),
+                      //   title: const Text('Appliances'),
+                      //   onTap: () {
+                      //     if (widget.onChange != null) {
+                      //       widget.onChange!('/appliances');
+                      //     }
+                      //     _toggleExpanded();
+                      //   },
+                      // ),
+                      ListTile(
+                        key: ValueKey('Favourites'),
+                        leading: Icon(Icons.favorite),
+                        title: isCompact
+                            ? null
+                            : const Text(
+                                'Favorite Recipes'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/saved-recipes');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
+                      ListTile(
+                        key: ValueKey('Profile'),
+                        leading: Icon(Icons.person),
+                        title: isCompact
+                            ? null
+                            : const Text('Profile'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/profile');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),

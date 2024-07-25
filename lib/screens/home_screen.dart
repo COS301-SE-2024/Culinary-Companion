@@ -127,7 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildCarousel(
       String title, List<Map<String, dynamic>> filteredRecipes) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 25.0),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.width * 0.03),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
