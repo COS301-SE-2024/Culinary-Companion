@@ -839,6 +839,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
+  shadow_overlay:
+    dependency: "direct main"
+    description:
+      name: shadow_overlay
+      sha256: "516a117fab493fb34d8a34a2b29436ea89619c1b8a1f737a71f1f4f4841c8dd3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   shared_preferences:
     dependency: "direct dev"
     description:

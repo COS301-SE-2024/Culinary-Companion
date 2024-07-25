@@ -55,7 +55,8 @@ class CulinaryCompanionApp extends StatelessWidget {
       darkTheme: ThemeData(
         primarySwatch: Colors.green,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF20493C),
+        //scaffoldBackgroundColor: const Color(0xFF20493C),
+        scaffoldBackgroundColor: const Color(0xFF283330),
         inputDecorationTheme: const InputDecorationTheme(
           border: OutlineInputBorder(),
           filled: true,

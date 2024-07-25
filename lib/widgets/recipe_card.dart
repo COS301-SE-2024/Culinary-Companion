@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:shadow_overlay/shadow_overlay.dart';
+
 class RecipeCard extends StatefulWidget {
   final String recipeID;
   final String name;
@@ -412,10 +414,9 @@ class _RecipeCardState extends State<RecipeCard> {
 
     final hoverColor = theme.brightness == Brightness.light
         ? Color(0xFF202920).withOpacity(0.8)
-        : Color.fromARGB(255, 103, 128, 96).withOpacity(0.8);
+        : Color.fromARGB(15, 0, 0, 0).withOpacity(0.4);
 
     bool enableHover = screenWidth >= 840;
-
     return GestureDetector(
       onTap: _showRecipeDetails,
       child: MouseRegion(
@@ -430,6 +431,21 @@ class _RecipeCardState extends State<RecipeCard> {
                     image: NetworkImage(widget.imagePath),
                     fit: BoxFit.cover,
                   ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color.fromARGB(0, 0, 0, 0),
+                        const Color.fromARGB(136, 0, 0, 0),
+                      ]),
+                  //color: Colors.white.withOpacity(0.5),
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),

@@ -133,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context, constraints) {
             double screenWidth = MediaQuery.of(context).size.width;
             double calculatedPadding = screenWidth * 0.001;
+            double calculatedLeftPadding = screenWidth * 0.01;
 
             // Define font sizes based on screen width
             double titleFontSize;
@@ -155,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             return Padding(
               padding: EdgeInsets.only(
-                  left: calculatedPadding,
+                  left: calculatedLeftPadding,
                   top: calculatedPadding,
                   bottom: calculatedPadding),
               child: Row(
