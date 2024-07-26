@@ -361,8 +361,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   }
 
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
     return InputDecoration(
       labelText: labelText,
+      labelStyle: TextStyle(color: textColor),
       prefixIcon: icon != null ? Icon(icon) : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -527,7 +531,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                 const SizedBox(height: 8),
                 OutlinedButton(
                   onPressed: () {},
-                  child: const Text('Browse Files'),
+                  child: Text(
+                    'Browse Files',
+                    style: TextStyle(color: textColor),
+                  ),
                 ),
                 const SizedBox(height: 150),
                 Row(
@@ -608,6 +615,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                       maxLines: null,
                       expands: true,
                       textAlign: TextAlign.left,
+                      textAlignVertical: TextAlignVertical.top,
+                      cursorColor: textColor,
                       decoration: InputDecoration(
                         hintText: 'Paste your recipe here...',
                         border: OutlineInputBorder(
@@ -710,12 +719,14 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                         children: [
                           TextField(
                             controller: _nameController,
+                            cursorColor: textColor,
                             decoration: _buildInputDecoration('Name of Recipe',
                                 icon: Icons.fastfood),
                           ),
                           const SizedBox(height: 24),
                           TextField(
                             controller: _descriptionController,
+                            cursorColor: textColor,
                             decoration: _buildInputDecoration(
                                 'Description of Recipe',
                                 icon: Icons.description),
@@ -724,6 +735,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           TextField(
                             controller: _cookingTimeController,
+                            cursorColor: textColor,
                             decoration: _buildInputDecoration(
                                 'Cooking Time (min)',
                                 icon: Icons.timer),
@@ -731,13 +743,15 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           TextField(
                             controller: _prepTimeController,
+                            cursorColor: textColor,
                             decoration: _buildInputDecoration(
                                 'Preparation Time (min)',
                                 icon: Icons.timer_off),
                           ),
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
-                            dropdownColor: const Color(0xFF1F4539),
+                            dropdownColor:
+                                isLightTheme ? Colors.white : Color(0xFF20493C),
                             value: _selectedCuisine,
                             onChanged: (value) {
                               setState(() {
@@ -755,7 +769,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           ),
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
-                            dropdownColor: const Color(0xFF1F4539),
+                            dropdownColor:
+                                isLightTheme ? Colors.white : Color(0xFF20493C),
                             value: _selectedCourse,
                             onChanged: (value) {
                               setState(() {
@@ -843,10 +858,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                     child: TypeAheadFormField<String>(
                                       textFieldConfiguration:
                                           TextFieldConfiguration(
+                                        cursorColor: textColor,
                                         controller:
                                             _ingredientControllers[index],
-                                        decoration:
-                                            _buildInputDecoration('Ingredient'),
+                                        decoration: _buildInputDecoration(
+                                          'Ingredient',
+                                        ),
                                       ),
                                       suggestionsCallback: (pattern) {
                                         return _availableIngredients
@@ -896,6 +913,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: TextField(
+                                      cursorColor: textColor,
                                       onChanged: (value) {
                                         setState(() {
                                           _ingredients[index]['quantity'] =
@@ -940,6 +958,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                 children: [
                                   Expanded(
                                     child: TextField(
+                                      cursorColor: textColor,
                                       onChanged: (value) {
                                         setState(() {
                                           _methods[index2] = value;
@@ -971,7 +990,17 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           ElevatedButton(
                             onPressed: _pickImage,
-                            child: const Text('Upload Image'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isLightTheme
+                                  ? Colors.white
+                                  : Color(0xFF1F4539),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 20),
+                            ),
+                            child: Text(
+                              'Upload Image',
+                              style: TextStyle(color: textColor),
+                            ),
                           ),
                           const SizedBox(height: 10),
                           const Text('Or use the preloaded image:'),
