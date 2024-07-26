@@ -1,7 +1,9 @@
 import 'dart:convert';
-
+import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import '/screens/home_screen.dart'; 
+
 
 Future<String> fetchContentBackpack() async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
@@ -30,12 +32,65 @@ Future<String> fetchContentHorse() async {
   return response.text ?? 'No response text';
 }
 
-Future<String> fetchIngredientSubstitution() async {
+Future<Map<String, dynamic>?> fetchRecipeDetails(String recipeId) async {
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final headers = <String, String>{'Content-Type': 'application/json'};
+  final body = jsonEncode({'action': 'getRecipe', 'recipeid': recipeId});
+
+  try {
+    final response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
+      return fetchedRecipe;
+    } else {
+      print('Failed to load recipe details: ${response.statusCode}');
+      return null;
+    }
+  } catch (error) {
+    print('Error fetching recipe details: $error');
+    return null;
+  }
+}
+
+Future<String> fetchIngredientSubstitution(String recipeId) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
 
+  // save the substitute
+  final substitute = "eggs";
+
+  // Fetch recipe details
+  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  if (recipeDetails == null) {
+    return 'Failed to fetch recipe details';
+  }
+
+  // Ensure the data is parsed correctly
+  List<String> ingredients = [];
+  List<String> steps = [];
+
+  // Handle ingredients
+  final ingredientsData = recipeDetails['ingredients'];
+  if (ingredientsData is List) {
+    ingredients = ingredientsData.map((item) => item.toString()).toList();
+  } else if (ingredientsData is String) {
+    // If the data is a single string, split it by commas or other delimiters
+    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+  }
+
+  // Handle steps
+  final stepsData = recipeDetails['steps'];
+  if (stepsData is List) {
+    steps = stepsData.map((item) => item.toString()).toList();
+  } else if (stepsData is String) {
+    // If the data is a single string, split it by newlines or other delimiters
+    steps = stepsData.split('\n').map((item) => item.trim()).toList();
+  }
+
+  // Construct the prompt using the fetched recipe details
   final formatting = """Return the recipe in JSON using the following structure:
   {
     "title": "\$recipeTitle",
@@ -48,13 +103,9 @@ Future<String> fetchIngredientSubstitution() async {
   title, description, cuisine and servings should be of type String.
   ingredients and steps should be of type List<String>.""";
 
-  final initialPrompt = """For this Simple Brownie Recipe, with ingredients 2 cups white sugar, 1 1/2 cups all-purpose flour, 
-  1 cup butter (melted), 4 eggs, 1/2 cup cocoa powder, 1 teaspoon vanilla extract, 1/2 teaspoon baking powder, 
-  1/2 teaspoon salt, 1/2 cup chopped walnuts and steps 1.Preheat the oven to 350 degrees F (175 degrees C). 
-  Grease a 9x13-inch pan. 2.Mix sugar, flour, melted butter, eggs, cocoa powder, vanilla, baking powder, 
-  and salt in a large bowl until combined. Fold in chopped walnuts. Spread the batter into the prepared pan. 
-  3.Bake in the preheated oven until top is dry and edges have started to pull away from the sides of the pan, 
-  about 20 to 30 minutes; cool before slicing into squares. Suggest a substitution for eggs. 
+  final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
+  suggest a substitution for $substitute. 
   Adjust the recipe keeping the same formatting with the substituted ingredient.""";
   
   final finalPrompt = initialPrompt + formatting;
@@ -66,16 +117,12 @@ Future<String> fetchIngredientSubstitution() async {
   // Ensure response is not null and print the text content
   if (response != null && response.text != null) {
     String jsonString = response.text!;
-    print("Original JSON String:");
-    print(jsonString);
-
+    
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
 
     // Split the JSON string by lines
     List<String> lines = jsonString.split('\n');
-    print(lines.length);
-    print(lines.last);
     
     // Check if there are more than two lines before removing the first and last lines
     if (lines.length > 2) {
@@ -88,9 +135,6 @@ Future<String> fetchIngredientSubstitution() async {
     
     // Join the lines back together
     jsonString = lines.join('\n');
-
-    print("Modified JSON String:");
-    print(jsonString);
     
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
