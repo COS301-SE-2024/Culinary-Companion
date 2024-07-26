@@ -1,5 +1,5 @@
 /// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
-import { privateEncrypt } from 'crypto';
+// import { privateEncrypt } from 'crypto';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.43.4'
 
 // Define the structure of the recipeData object
