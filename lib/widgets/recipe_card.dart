@@ -93,6 +93,75 @@ class _RecipeCardState extends State<RecipeCard> {
     }
   }
 
+  Future<void> _removeIngredientsFromPantry() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? userId = prefs.getString('userId');
+  bool allIngredientsRemoved = true;
+
+  for (var ingredient in widget.ingredients) {
+    final String item = ingredient['name'];
+    final double quantity = ingredient['quantity'];
+    final String measurementUnit = ingredient['measurement_unit'];
+
+    double currentQuantity = _pantryIngredients[item]!['quantity'];
+
+    // Calculate the new quantity
+    double newQuantity = currentQuantity - quantity;
+
+    // Determine the action based on the new quantity
+    String action = newQuantity <= 0 ? 'removeFromPantryList' : 'editPantryItem';
+    double finalQuantity = newQuantity <= 0 ? 0 : newQuantity;
+
+    try {
+      final response = await http.post(
+        Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': action,
+          'userId': userId,
+          'ingredientName': item,
+          if (action == 'editPantryItem') 'quantity': finalQuantity,
+          if (action == 'editPantryItem') 'measurementUnit': measurementUnit,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          if (newQuantity <= 0) {
+            _pantryIngredients.remove(item);
+          } else {
+            _pantryIngredients[item]!['quantity'] = newQuantity;
+          }
+        });
+        print('Successfully updated $item in pantry');
+      } else {
+        allIngredientsRemoved = false;
+        print('Failed to update $item in pantry: ${response.statusCode}');
+      }
+    } catch (error) {
+      allIngredientsRemoved = false;
+      print('Error updating $item in pantry: $error');
+    }
+  }
+
+  if (allIngredientsRemoved) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Removed ingredients from pantry'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Failed to remove some ingredients from pantry'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+
   void _fetchPantryIngredients() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
@@ -391,6 +460,17 @@ class _RecipeCardState extends State<RecipeCard> {
                                   isInShoppingList: isInShoppingList,
                                 );
                               }),
+                              if (widget.ingredients.every((ingredient) =>
+                                  _pantryIngredients
+                                      .containsKey(ingredient['name']) &&
+                                  _pantryIngredients[ingredient['name']]![
+                                          'quantity'] >=
+                                      ingredient['quantity']))
+                                ElevatedButton(
+                                  onPressed: _removeIngredientsFromPantry,
+                                  child: Text('Remove ingredients from pantry'),
+                                ),
+
                               SizedBox(
                                   height: MediaQuery.of(context).size.height *
                                       0.02), // Adjust height to 2% of screen height
@@ -429,7 +509,6 @@ class _RecipeCardState extends State<RecipeCard> {
                                 }).toList(),
                               ),
                             ],
-//>>>>>>> dev
                           ),
                         ),
                         if (showImage) ...[
