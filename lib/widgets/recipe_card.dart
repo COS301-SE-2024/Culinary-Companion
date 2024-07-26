@@ -268,6 +268,7 @@ class _RecipeCardState extends State<RecipeCard> {
     context: context,
     builder: (BuildContext context) {
       final double screenWidth = MediaQuery.of(context).size.width;
+      // ignore: unused_local_variable
       final bool showImage =
           screenWidth > 1359; // Adjust the threshold as needed
 
