@@ -6,6 +6,7 @@ import '../widgets/help_add_recipe.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -17,6 +18,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   OverlayEntry? _helpMenuOverlay;
   List<MultiSelectItem<String>> _applianceItems = [];
   List<String> _selectedAppliances = [];
+  final List<TextEditingController> _ingredientControllers = [];
 
   // Add this line inside your class
   List<String> measurementUnits = [
@@ -249,12 +251,14 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                 measurementUnits.first
             : measurementUnits.first,
       });
+      _ingredientControllers.add(TextEditingController());
     });
   }
 
   void _removeIngredientField(int index) {
     setState(() {
       _ingredients.removeAt(index);
+      _ingredientControllers.removeAt(index);
     });
   }
 
@@ -301,7 +305,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       'ingredients': _ingredients.map((ingredient) {
         return {
           'name': ingredient['name'],
-          'quantity': int.parse(ingredient['quantity']!),
+          'quantity': num.parse(ingredient['quantity']!),
           'unit': ingredient['unit'],
         };
       }).toList(),
@@ -836,32 +840,57 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                               child: Row(
                                 children: [
                                   Expanded(
-                                    child: DropdownButtonFormField<String>(
-                                      dropdownColor: const Color(0xFF1F4539),
-                                      value: _ingredients[index]['name'],
-                                      onChanged: (value) {
+                                    child: TypeAheadFormField<String>(
+                                      textFieldConfiguration:
+                                          TextFieldConfiguration(
+                                        controller:
+                                            _ingredientControllers[index],
+                                        decoration:
+                                            _buildInputDecoration('Ingredient'),
+                                      ),
+                                      suggestionsCallback: (pattern) {
+                                        return _availableIngredients
+                                            .where((ingredient) =>
+                                                ingredient['name']!
+                                                    .toLowerCase()
+                                                    .contains(
+                                                        pattern.toLowerCase()))
+                                            .map((ingredient) =>
+                                                ingredient['name']!)
+                                            .toList();
+                                      },
+                                      itemBuilder:
+                                          (context, String suggestion) {
+                                        return ListTile(
+                                          title: Text(suggestion),
+                                        );
+                                      },
+                                      onSuggestionSelected:
+                                          (String suggestion) {
                                         setState(() {
-                                          _ingredients[index]['name'] = value!;
-                                          // Find the selected ingredient and update the unit
+                                          _ingredients[index]['name'] =
+                                              suggestion;
                                           final selectedIngredient =
                                               _availableIngredients.firstWhere(
                                                   (ingredient) =>
                                                       ingredient['name'] ==
-                                                      value);
+                                                      suggestion);
                                           _ingredients[index]['unit'] =
                                               selectedIngredient[
                                                   'measurementUnit']!;
+                                          _ingredientControllers[index].text =
+                                              suggestion;
                                         });
                                       },
-                                      items: _availableIngredients
-                                          .map((ingredient) {
-                                        return DropdownMenuItem<String>(
-                                          value: ingredient['name'],
-                                          child: Text(ingredient['name']!),
-                                        );
-                                      }).toList(),
-                                      decoration:
-                                          _buildInputDecoration('Ingredient'),
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Please select an ingredient';
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (value) {
+                                        _ingredients[index]['name'] = value!;
+                                      },
                                     ),
                                   ),
                                   const SizedBox(width: 8),
