@@ -7,6 +7,7 @@ import 'screens/signup_screen.dart'; // Import the new signup screen
 import 'screens/confirm_details.dart'; //Import the confirm details, a.k.a Signup 2 page
 import 'screens/main.dart'; // Import the main screen
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 //import 'package:flutter_dotenv/flutter_dotenv.dart'; //LLM
 
 void main() async {
@@ -43,6 +44,7 @@ class CulinaryCompanionApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Culinary Companion',
       theme: ThemeData(
+        textTheme: GoogleFonts.interTextTheme(),
         primarySwatch: Colors.green,
         brightness: Brightness.light,
         scaffoldBackgroundColor: Colors.white,
@@ -53,9 +55,14 @@ class CulinaryCompanionApp extends StatelessWidget {
         ),
       ),
       darkTheme: ThemeData(
+        textTheme: GoogleFonts.interTextTheme().apply(
+          bodyColor: Color(0xFFD9D9D9),
+          displayColor: Color(0xFFD9D9D9),
+        ),
         primarySwatch: Colors.green,
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF20493C),
+        //scaffoldBackgroundColor: const Color(0xFF20493C),
+        scaffoldBackgroundColor: const Color(0xFF283330),
         inputDecorationTheme: const InputDecorationTheme(
           border: OutlineInputBorder(),
           filled: true,
