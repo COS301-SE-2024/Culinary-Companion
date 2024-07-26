@@ -1,4 +1,4 @@
-// import 'dart:convert';
+import 'dart:convert';
 
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -38,12 +38,12 @@ Future<String> fetchIngredientSubstitution() async {
 
   final formatting = """Return the recipe in JSON using the following structure:
   {
-    'title': \$recipeTitle,
-    'ingredients': \$ingredients,
-    'steps': \$steps,
-    'cuisine': \$cuisine,
-    'description': \$description,
-    'servings': \$servings,
+    "title": "\$recipeTitle",
+    "ingredients": \$ingredients,
+    "steps": \$steps,
+    "cuisine": "\$cuisine",
+    "description": "\$description",
+    "servings": "\$servings"
   }
   title, description, cuisine and servings should be of type String.
   ingredients and steps should be of type List<String>.""";
@@ -63,24 +63,45 @@ Future<String> fetchIngredientSubstitution() async {
   final content = [Content.text(finalPrompt)];
   final response = await model.generateContent(content);
 
-  print(response);
-  return response.text ?? 'No response text';
+  // Ensure response is not null and print the text content
+  if (response != null && response.text != null) {
+    String jsonString = response.text!;
+    print("Original JSON String:");
+    print(jsonString);
 
-  // // Ensure response is not null and print the text content
-  // if (response != null && response.text != null) {
-  //   final jsonString = response.text!;
-  //   print(jsonString);
+    // Correct the JSON format by replacing single quotes with double quotes
+    jsonString = jsonString.replaceAll("'", '"');
+
+    // Split the JSON string by lines
+    List<String> lines = jsonString.split('\n');
+    print(lines.length);
+    print(lines.last);
     
-  //   // Optionally, parse the JSON string to a Map to verify it's a valid JSON
-  //   try {
-  //     final jsonMap = jsonDecode(jsonString);
-  //     print('Parsed JSON: $jsonMap');
-  //   } catch (e) {
-  //     print('Failed to parse JSON: $e');
-  //   }
+    // Check if there are more than two lines before removing the first and last lines
+    if (lines.length > 2) {
+      lines.removeAt(0); // Remove the first line
+      lines.removeAt(lines.length - 1); // Remove blank line
+      lines.removeAt(lines.length - 1); // Remove the last line
+    } else {
+      print("The JSON string does not have enough lines to remove the first and last lines.");
+    }
+    
+    // Join the lines back together
+    jsonString = lines.join('\n');
 
-  //   return jsonString;
-  // } else {
-  //   return 'No response text';
-  // }
+    print("Modified JSON String:");
+    print(jsonString);
+    
+    // Optionally, parse the JSON string to a Map to verify it's a valid JSON
+    try {
+      final jsonMap = jsonDecode(jsonString);
+      print('Parsed JSON: $jsonMap');
+    } catch (e) {
+      print('Failed to parse JSON: $e');
+    }
+
+    return jsonString;
+  } else {
+    return 'No response text';
+  }
 }
