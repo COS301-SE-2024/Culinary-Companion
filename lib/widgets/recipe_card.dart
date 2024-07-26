@@ -42,13 +42,54 @@ class _RecipeCardState extends State<RecipeCard> {
   bool _hovered = false;
   Map<int, bool> _ingredientChecked = {};
   bool _isFavorite = false;
-  Map<String, bool> _pantryIngredients = {};
+  //Map<String, bool> _pantryIngredients = {};
+  Map<String, Map<String, dynamic>> _pantryIngredients = {};
+  Map<String, Map<String, dynamic>> _shoppingList = {};
 
   @override
   void initState() {
     super.initState();
     _checkIfFavorite();
+    _fetchShoppingList();
     _fetchPantryIngredients();
+  }
+
+  void _fetchShoppingList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
+
+    // final url = Uri.parse(
+    //     'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    // final headers = {"Content-Type": "application/json"};
+    // final body = jsonEncode({"action": "getShoppingList", "userId": userId});
+
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'getShoppingList',
+          'userId': userId,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final List<dynamic> shoppingList = data['shoppingList'];
+        setState(() {
+          for (var item in shoppingList) {
+            _shoppingList[item['ingredientName']] = {
+              'quantity': item['quantity'],
+              'measurementUnit': item['measurmentunit']
+            };
+          }
+        });
+      } else {
+        print('Failed to fetch shopping list: ${response.reasonPhrase}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
   }
 
   void _fetchPantryIngredients() async {
@@ -68,7 +109,10 @@ class _RecipeCardState extends State<RecipeCard> {
         final List<dynamic> pantryIngredients = data['availableIngredients'];
         setState(() {
           for (var ingredient in pantryIngredients) {
-            _pantryIngredients[ingredient['name']] = true;
+            _pantryIngredients[ingredient['name']] = {
+              'quantity': ingredient['quantity'],
+              'measurementUnit': ingredient['measurmentunit']
+            };
           }
         });
       } else {
@@ -198,7 +242,7 @@ class _RecipeCardState extends State<RecipeCard> {
                             _isFavorite
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            color: _isFavorite ? Colors.red : Colors.white,
+                            color: _isFavorite ? Colors.red : Colors.grey,
                           ),
                           onPressed: _toggleFavorite,
                         ),
@@ -208,6 +252,7 @@ class _RecipeCardState extends State<RecipeCard> {
                               0.02, // Adjust icon size to 2% of screen width
                           onPressed: () {
                             Navigator.of(context).pop();
+                            _fetchShoppingList(); // Refresh shopping list when dialog is closed
                           },
                         ),
                       ],
@@ -319,17 +364,30 @@ class _RecipeCardState extends State<RecipeCard> {
                                   .map((entry) {
                                 int idx = entry.key;
                                 Map<String, dynamic> ingredient = entry.value;
+                                bool isInPantry = _pantryIngredients
+                                    .containsKey(ingredient['name']);
+                                double availableQuantity = isInPantry
+                                    ? (_pantryIngredients[ingredient['name']]
+                                            ?['quantity'] ??
+                                        0.0)
+                                    : 0.0;
+                                bool isInShoppingList = _shoppingList
+                                    .containsKey(ingredient['name']);
+
                                 return CheckableItem(
                                   title:
                                       '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-                                  isChecked: _ingredientChecked[idx] ?? true,
+                                  requiredQuantity: ingredient['quantity'],
+                                  requiredUnit: ingredient['measurement_unit'],
                                   onChanged: (bool? value) {
                                     setState(() {
                                       _ingredientChecked[idx] = value ?? false;
                                     });
                                   },
-                                  isInPantry: _pantryIngredients
-                                      .containsKey(ingredient['name']),
+                                  isInPantry: isInPantry,
+                                  availableQuantity: availableQuantity,
+                                  isChecked: _ingredientChecked[idx] ?? true,
+                                  isInShoppingList: isInShoppingList,
                                 );
                               }),
                               SizedBox(
@@ -370,6 +428,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                 }).toList(),
                               ),
                             ],
+//>>>>>>> dev
                           ),
                         ),
                         if (showImage) ...[
@@ -400,7 +459,10 @@ class _RecipeCardState extends State<RecipeCard> {
           ),
         );
       },
-    );
+    ).then((_) {
+      // This will be called when the dialog is dismissed
+      _fetchShoppingList();
+    });
   }
 
   @override
@@ -747,17 +809,26 @@ class _RecipeCardState extends State<RecipeCard> {
   }
 }
 
+// ignore: must_be_immutable
 class CheckableItem extends StatefulWidget {
   final String title;
-  final bool isChecked;
+  final double requiredQuantity;
+  final String requiredUnit;
   final ValueChanged<bool?> onChanged;
   final bool isInPantry;
+  final double availableQuantity;
+  final bool isChecked;
+  bool isInShoppingList;
 
   CheckableItem({
     required this.title,
-    required this.isChecked,
+    required this.requiredQuantity,
+    required this.requiredUnit,
     required this.onChanged,
     required this.isInPantry,
+    required this.availableQuantity,
+    required this.isChecked,
+    required this.isInShoppingList,
   });
 
   @override
@@ -769,20 +840,33 @@ class _CheckableItemState extends State<CheckableItem> {
 
   @override
   Widget build(BuildContext context) {
+    bool isSufficient = widget.isInPantry &&
+        widget.availableQuantity >= widget.requiredQuantity;
     return Row(
       children: [
-        if (widget.isInPantry)
+        if (isSufficient)
           Checkbox(
             value: widget.isChecked,
             onChanged: widget.onChanged,
             activeColor: Color(0XFFDC945F),
             checkColor: Colors.white,
           )
+        else if (widget.isInShoppingList || _isAdded)
+          TextButton(
+            onPressed: null,
+            child: Text('In Shopping List'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.green,
+            ),
+          )
         else
           TextButton(
-            onPressed: _isAdded ? null : () => _addToShoppingList(widget.title),
-            child: Text(
-                _isAdded ? 'Added to shopping list' : 'Add to shopping list'),
+            onPressed: () => _addToShoppingList(
+              widget.title,
+              widget.requiredQuantity - widget.availableQuantity,
+              widget.requiredUnit,
+            ),
+            child: Text('Add rest to shopping list'),
             style: TextButton.styleFrom(
               foregroundColor: Colors.green,
             ),
@@ -797,72 +881,63 @@ class _CheckableItemState extends State<CheckableItem> {
     );
   }
 
-  void _addToShoppingList(String ingredientString) async {
+  void _addToShoppingList(
+      String ingredientString, double remainingQuantity, String unit) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
-    print("ingredient string: $ingredientString");
 
-    // Regular expression to extract ingredient name, quantity, and measurement unit
-    final regex = RegExp(r'^(.*?)\s*\((\d*\.?\d+)\s*(\w+)\)$');
+    // Regular expression to extract the ingredient name
+    final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
     final match = regex.firstMatch(ingredientString);
+    final ingredientName =
+        match != null ? match.group(1) ?? ingredientString : ingredientString;
 
-    if (match != null) {
-      final ingredientName = match.group(1) ?? '';
-      final quantity = match.group(2) ?? '1';
-      final measurementUnit = match.group(3) ?? 'unit';
+    final url = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final headers = {"Content-Type": "application/json"};
+    final body = jsonEncode({
+      "action": "addToShoppingList",
+      "userId": userId,
+      "ingredientName": ingredientName,
+      "quantity": remainingQuantity,
+      "measurementUnit": unit
+    });
 
-      print("ingredientName: $ingredientName");
-      print("quantity: $quantity");
-      print("measurementUnit: $measurementUnit");
-
-      final url = Uri.parse(
-          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-      final headers = {"Content-Type": "application/json"};
-      final body = jsonEncode({
-        "action": "addToShoppingList",
-        "userId": userId,
-        "ingredientName": ingredientName,
-        "quantity": double.tryParse(quantity) ?? 1,
-        "measurementUnit": measurementUnit
-      });
-
-      try {
-        final response = await http.post(url, headers: headers, body: body);
-        if (response.statusCode == 200) {
-          // Successfully added to shopping list
-          setState(() {
-            _isAdded = true;
-          });
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Added $ingredientString shopping list'),
-            ),
-          );
-        } else {
-          // Failed to add to shopping list
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                  'Failed to add $ingredientName to shopping list: ${response.body}'),
-            ),
-          );
-        }
-      } catch (error) {
-        print('Error: $error');
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+      if (response.statusCode == 200) {
+        setState(() {
+          _isAdded = true;
+          _updateShoppingList(ingredientName, remainingQuantity, unit);
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text('Error adding $ingredientName to shopping list: $error'),
+            content: Text('Added remaining $ingredientName to shopping list'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Failed to add $ingredientName to shopping list: ${response.body}'),
           ),
         );
       }
-    } else {
-      // Handle the case where the regex does not match
+    } catch (error) {
+      print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Invalid ingredient format: $ingredientString'),
+          content:
+              Text('Error adding $ingredientName to shopping list: $error'),
         ),
       );
     }
+  }
+
+  void _updateShoppingList(
+      String ingredientName, double quantity, String measurementUnit) {
+    setState(() {
+      widget.isInShoppingList = true;
+    });
   }
 }

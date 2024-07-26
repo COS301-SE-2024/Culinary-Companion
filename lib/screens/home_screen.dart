@@ -261,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     double titleFontSize;
     double backArrow;
-    String Category;
+    String category;
 
     if (screenWidth > 1334) {
       titleFontSize = 30.0;
@@ -279,9 +279,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (_selectedCategory == 'Mains') {
       _selectedCategory = 'Main';
-      Category = 'Mains';
+      category = 'Mains';
     } else {
-      Category = _selectedCategory;
+      category = _selectedCategory;
     }
 
     List<Map<String, dynamic>> filteredRecipes =
@@ -305,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(width: 10),
               Text(
-                Category,
+                category,
                 style: TextStyle(
                   fontSize: titleFontSize,
                   fontWeight: FontWeight.bold,
