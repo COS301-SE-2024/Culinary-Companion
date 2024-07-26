@@ -443,7 +443,7 @@ async function addToShoppingList(userId: string, ingredientName: string, quantit
     };
 
     try {
-        if (!userId || !ingredientName || !quantity || !measurementUnit) {
+        if (!userId || !ingredientName || quantity == null || !measurementUnit) {
             throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
         }
 
@@ -470,27 +470,67 @@ async function addToShoppingList(userId: string, ingredientName: string, quantit
             });
         }
 
-        // Insert the ingredient into the shopping list
-        const { error: shoppingListError } = await supabase
+        // Check if the ingredient is already in the shopping list
+        const { data: shoppingItem, error: shoppingError } = await supabase
             .from('shoppinglist')
-            .insert({
-                userid: userId,
-                ingredientid: ingredientId,
-                quantity: quantity,
-                measurmentunit: measurementUnit
-            });
+            .select('quantity')
+            .eq('userid', userId)
+            .eq('ingredientid', ingredientId)
+            .single();
 
-        if (shoppingListError) {
-            return new Response(JSON.stringify({ error: shoppingListError.message }), {
+        if (shoppingError && shoppingError.code !== 'PGRST116') { // PGRST116 indicates no rows returned
+            return new Response(JSON.stringify({ error: shoppingError.message }), {
                 status: 400,
                 headers: corsHeaders,
             });
         }
 
-        return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: corsHeaders,
-        });
+        if (shoppingItem) {
+            // If the item exists, update the quantity
+            const newQuantity = shoppingItem.quantity + quantity;
+            const { error: updateError } = await supabase
+                .from('shoppinglist')
+                .update({
+                    quantity: newQuantity,
+                    measurmentunit: measurementUnit // Assuming measurement unit remains the same
+                })
+                .eq('userid', userId)
+                .eq('ingredientid', ingredientId);
+
+            if (updateError) {
+                return new Response(JSON.stringify({ error: updateError.message }), {
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            return new Response(JSON.stringify({ success: true, newQuantity }), {
+                status: 200,
+                headers: corsHeaders,
+            });
+        } else {
+            // If the item does not exist, insert it
+            const { error: shoppingListError } = await supabase
+                .from('shoppinglist')
+                .insert({
+                    userid: userId,
+                    ingredientid: ingredientId,
+                    quantity: quantity, // Default quantity, adjust as needed
+                    measurmentunit: measurementUnit // Default measurement unit, adjust as needed
+                });
+
+            if (shoppingListError) {
+                return new Response(JSON.stringify({ error: shoppingListError.message }), {
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            return new Response(JSON.stringify({ success: true }), {
+                status: 200,
+                headers: corsHeaders,
+            });
+        }
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
@@ -499,9 +539,10 @@ async function addToShoppingList(userId: string, ingredientName: string, quantit
     }
 }
 
+
 async function editShoppingListItem(userId: string, ingredientName: string, quantity: number, measurementUnit: string, corsHeaders: HeadersInit) {
     try {
-        if (!userId || !ingredientName || quantity === undefined || !measurementUnit) {
+        if (!userId || !ingredientName || !quantity || !measurementUnit) {
             throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
         }
 
