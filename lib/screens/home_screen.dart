@@ -26,7 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadContent() async {  // LLM
     // fetchKeywords
     // fetchIngredientSubstitution
-    final content = await fetchKeywords("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
+    // fetchDietaryConstraints
+    final content = await fetchDietaryConstraints("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
     setState(() {
       _generatedText = content;
     });

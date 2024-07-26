@@ -219,3 +219,92 @@ Future<String> fetchKeywords(String recipeId) async {
     return 'No response text';
   }
 }
+
+Future<String> fetchDietaryConstraints(String recipeId) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return 'No API_KEY environment variable';
+  }
+
+  // Fetch recipe details
+  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  if (recipeDetails == null) {
+    return 'Failed to fetch recipe details';
+  }
+
+  // Ensure the data is parsed correctly
+  List<String> ingredients = [];
+  List<String> steps = [];
+
+  // Handle ingredients
+  final ingredientsData = recipeDetails['ingredients'];
+  if (ingredientsData is List) {
+    ingredients = ingredientsData.map((item) => item.toString()).toList();
+  } else if (ingredientsData is String) {
+    // If the data is a single string, split it by commas or other delimiters
+    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+  }
+
+  // Handle steps
+  final stepsData = recipeDetails['steps'];
+  if (stepsData is List) {
+    steps = stepsData.map((item) => item.toString()).toList();
+  } else if (stepsData is String) {
+    // If the data is a single string, split it by newlines or other delimiters
+    steps = stepsData.split('\n').map((item) => item.trim()).toList();
+  }
+
+  final prompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
+analyze the recipe and identify which of the following dietary constraints the recipe belongs to:
+Vegan, Gluten Free, Dairy Free, Nut Free, Low Carb, Low Fat, Low Sodium, Paleo, Keto, Whole30, Pescatarian, 
+Lacto Vegetarian, Ovo Vegetarian, Lacto-Ovo Vegetarian, Halal, Kosher, FODMAP, Sugar Free, Low Sugar, Organic, 
+Raw Food, Diabetic, Low Cholesterol, Soy Free, Corn Free, Nightshade Free, Shellfish Free, Egg Free, Peanut Free, 
+MSG Free, Artificial Colour Free, Artificial Flavour Free, Artificial Preservative Free, Non-GMO, None.
+Just list the categories in JSON format with the following structure:
+{
+  "constraint1": "value1",
+  "constraint2": "value2",
+  "constraint3": "value3",
+  "constraint4": "value4",
+  "constraint5": "value5"
+}
+Ensure that the response is valid JSON and contains only the JSON structure without any additional text or explanation.""";
+
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final content = [Content.text(prompt)];
+  final response = await model.generateContent(content);
+
+  if (response != null && response.text != null) {
+    String responseText = response.text!;
+
+    // Debugging: Print raw response text
+    print("Raw response text:");
+    print(responseText);
+
+    // Clean the response text
+    responseText = responseText.trim();
+
+    // Ensure valid JSON format
+    responseText = responseText.replaceAll(RegExp(r'[^\{]*\{'), '{'); // Remove leading text before the JSON
+    responseText = responseText.replaceAll(RegExp(r'\}[^\}]*$'), '}'); // Remove trailing text after the JSON
+
+    // Debugging: Print cleaned response text
+    print("Cleaned response text:");
+    print(responseText);
+
+    // Attempt to parse the JSON response
+    try {
+      final Map<String, dynamic> jsonResponse = jsonDecode(responseText);
+      // Convert JSON to a pretty-printed string for better readability
+      String prettyJsonString = JsonEncoder.withIndent('  ').convert(jsonResponse);
+      print('Parsed JSON: $prettyJsonString');
+      return prettyJsonString;
+    } catch (e) {
+      print('Failed to parse JSON: $e');
+      return 'Failed to parse JSON response';
+    }
+  } else {
+    return 'No response text';
+  }
+}
