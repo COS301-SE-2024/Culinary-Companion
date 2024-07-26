@@ -305,7 +305,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       'ingredients': _ingredients.map((ingredient) {
         return {
           'name': ingredient['name'],
-          'quantity': int.parse(ingredient['quantity']!),
+          'quantity': num.parse(ingredient['quantity']!),
           'unit': ingredient['unit'],
         };
       }).toList(),
