@@ -24,7 +24,9 @@ class _HomeScreenState extends State<HomeScreen> {
   String _generatedText = '';  // LLM
 
   Future<void> _loadContent() async {  // LLM
-    final content = await fetchIngredientSubstitution("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
+    // fetchKeywords
+    // fetchIngredientSubstitution
+    final content = await fetchKeywords("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
     setState(() {
       _generatedText = content;
     });

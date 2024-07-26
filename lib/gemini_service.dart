@@ -149,3 +149,73 @@ Future<String> fetchIngredientSubstitution(String recipeId) async {
     return 'No response text';
   }
 }
+
+Future<String> fetchKeywords(String recipeId) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return 'No API_KEY environment variable';
+  }
+
+  // Fetch recipe details
+  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  if (recipeDetails == null) {
+    return 'Failed to fetch recipe details';
+  }
+
+  // Ensure the data is parsed correctly
+  List<String> ingredients = [];
+  List<String> steps = [];
+
+  // Handle ingredients
+  final ingredientsData = recipeDetails['ingredients'];
+  if (ingredientsData is List) {
+    ingredients = ingredientsData.map((item) => item.toString()).toList();
+  } else if (ingredientsData is String) {
+    // If the data is a single string, split it by commas or other delimiters
+    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+  }
+
+  // Handle steps
+  final stepsData = recipeDetails['steps'];
+  if (stepsData is List) {
+    steps = stepsData.map((item) => item.toString()).toList();
+  } else if (stepsData is String) {
+    // If the data is a single string, split it by newlines or other delimiters
+    steps = stepsData.split('\n').map((item) => item.trim()).toList();
+  }
+
+  final prompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
+  extract the 5 most relevant keywords that describe the dish, including ingredients and flavours. 
+  Return the result in JSON format with the following structure:
+  {
+    "keyword1": "value1",
+    "keyword2": "value2",
+    "keyword3": "value3",
+    "keyword4": "value4",
+    "keyword5": "value5"
+  }
+  Just list the keywords without explanation and make sure the output is valid JSON.""";
+  
+
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final content = [Content.text(prompt)];
+  final response = await model.generateContent(content);
+
+  if (response != null && response.text != null) {
+    String jsonString = response.text!;
+    
+    print(jsonString);
+
+    try {
+      final jsonMap = jsonDecode(jsonString);
+      print('Parsed JSON: $jsonMap');
+    } catch (e) {
+      print('Failed to parse JSON: $e');
+    }
+
+    return jsonString;
+  } else {
+    return 'No response text';
+  }
+}
