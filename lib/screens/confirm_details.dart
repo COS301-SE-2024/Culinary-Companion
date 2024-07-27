@@ -277,6 +277,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
   //   });
   // }
 
+  // ignore: unused_element
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {
       int spiceLevel = getSpiceLevelNumber(_spiceLevel);
