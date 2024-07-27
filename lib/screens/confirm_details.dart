@@ -489,7 +489,9 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                     _buildDietaryConstraintsMultiSelect(),
                     const SizedBox(height: 50),
                     ElevatedButton(
-                      onPressed: _handleSignup,
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, '/tutorial');
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFDC945F),
                         foregroundColor: Colors.white,
