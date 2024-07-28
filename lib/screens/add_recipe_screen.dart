@@ -7,6 +7,7 @@ import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import '../widgets/number_spinner.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -1082,61 +1083,4 @@ void main() {
   runApp(MaterialApp(
     home: AddRecipeScreen(),
   ));
-}
-
-class NumberSpinner extends StatefulWidget {
-  final int initialValue;
-  final Function(int) onChanged;
-
-  NumberSpinner({required this.initialValue, required this.onChanged});
-
-  @override
-  _NumberSpinnerState createState() => _NumberSpinnerState();
-}
-
-class _NumberSpinnerState extends State<NumberSpinner> {
-  late int _value;
-
-  @override
-  void initState() {
-    super.initState();
-    _value = widget.initialValue;
-  }
-
-  void _increment() {
-    setState(() {
-      _value++;
-      widget.onChanged(_value);
-    });
-  }
-
-  void _decrement() {
-    setState(() {
-      if (_value > 1) {
-        _value--;
-        widget.onChanged(_value);
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.remove),
-          onPressed: _decrement,
-        ),
-        Text(
-          _value.toString(),
-          style: const TextStyle(fontSize: 18),
-        ),
-        IconButton(
-          icon: const Icon(Icons.add),
-          onPressed: _increment,
-        ),
-      ],
-    );
-  }
 }
