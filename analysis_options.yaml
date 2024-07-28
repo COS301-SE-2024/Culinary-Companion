@@ -29,6 +29,7 @@ linter:
     depend_on_referenced_packages: false
     use_super_parameters: false
     unnecessary_string_interpolations: false
+    sort_child_properties_last: false
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`
   # included above or to enable additional rules. A list of all available lints

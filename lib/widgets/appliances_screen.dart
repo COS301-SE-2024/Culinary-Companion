@@ -3,7 +3,8 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../widgets/help_appliance.dart';
+import 'help_appliance.dart';
+import 'package:lottie/lottie.dart';
 
 Color shade(BuildContext context) {
   final theme = Theme.of(context);
@@ -20,13 +21,15 @@ Color unshade(BuildContext context) {
       : Color(0xFF1D2C1F);
 }
 
-class AppliancesPage extends StatefulWidget {
+class AppliancesScreen extends StatefulWidget {
   @override
-  _AppliancesPageState createState() => _AppliancesPageState();
+  _AppliancesScreenState createState() => _AppliancesScreenState();
 }
 
-class _AppliancesPageState extends State<AppliancesPage> {
+class _AppliancesScreenState extends State<AppliancesScreen> {
   OverlayEntry? _helpMenuOverlay;
+  bool _isLoading = true;
+
 
   @override
   void initState() {
@@ -35,10 +38,17 @@ class _AppliancesPageState extends State<AppliancesPage> {
   }
 
   Future<void> _initializeData() async {
-    await _loadUserId();
-    await _loadAppliances();
-    await _loadUserAppliances();
-  }
+  setState(() {
+    _isLoading = true;
+  });
+  await _loadUserId();
+  await _loadAppliances();
+  await _loadUserAppliances();
+  setState(() {
+    _isLoading = false;
+  });
+}
+
 
   String? _userId;
 
@@ -121,7 +131,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
 
   Future<bool> _addUserApplianceToDatabase(String applianceName) async {
     final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'; // Replace with your actual API endpoint
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -290,6 +300,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
             child: IconButton(
+              key: Key('help_button'),
               icon: Icon(Icons.help),
               onPressed: _showHelpMenu,
               iconSize: 35,
@@ -297,7 +308,9 @@ class _AppliancesPageState extends State<AppliancesPage> {
           ),
         ],
       ),
-      body: Padding(
+      body: _isLoading
+    ? Center(child: Lottie.asset('assets/loading.json'))
+    : Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: Row(children: <Widget>[
           Expanded(
@@ -321,15 +334,18 @@ class _AppliancesPageState extends State<AppliancesPage> {
                           ),
                         )
                       : ListView.builder(
+                        key: Key('appliances_list'),
                           itemCount: appliances.length,
                           itemBuilder: (context, index) {
                             final appliance = appliances[index];
                             return Card(
+                              key: Key('appliance_item_$index'),
                               color: index.isEven
                                   ? shade(context)
                                   : unshade(context),
                               margin: EdgeInsets.symmetric(vertical: 8.0),
                               child: ListTile(
+                                key: Key('appliance_item_$index'),
                                 contentPadding: EdgeInsets.symmetric(
                                   horizontal: 16.0,
                                   vertical: 8.0,
@@ -345,6 +361,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
                                   ),
                                 ),
                                 trailing: IconButton(
+                                  key: Key('delete_appliance_$index'),
                                   icon: Icon(Icons.delete_outline,
                                       color: Colors.white),
                                   onPressed: () {
@@ -359,7 +376,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton(
-                    key: ValueKey('Appliances'),
+                    key: Key('add_appliance_button'),
                     onPressed: _showAddApplianceDialog,
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
@@ -387,6 +404,7 @@ class _AppliancesPageState extends State<AppliancesPage> {
           ),
         ]),
       ),
+
     );
   }
 }

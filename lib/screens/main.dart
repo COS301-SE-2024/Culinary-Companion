@@ -1,12 +1,13 @@
 //main2.dart
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-import 'shopping_list_screen.dart';
-import 'pantry_screen.dart';
-import 'appliances_screen.dart';
+// import '../widgets/shopping_list_screen.dart';
+// import '../widgets/pantry_screen.dart';
+// import '../widgets/appliances_screen.dart';
 import 'saved_recipes_screen.dart';
 import 'profile_screen.dart';
 import 'add_recipe_screen.dart';
+import 'inventory_screen.dart';
 import '../widgets/navbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -86,12 +87,8 @@ class _MainScreenState extends State<MainScreen> {
         return HomeScreen();
       case '/scan-recipe':
         return AddRecipeScreen();
-      case '/shopping-list':
-        return ShoppingListScreen();
-      case '/pantry-list':
-        return PantryScreen();
-      case '/appliances':
-        return AppliancesPage();
+      case '/inventory-screen':
+        return InventoryScreen();
       case '/saved-recipes':
         return SavedRecipesScreen();
       case '/profile':

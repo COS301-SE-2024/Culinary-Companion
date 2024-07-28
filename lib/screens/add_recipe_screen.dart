@@ -3,6 +3,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/help_add_recipe.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -12,6 +16,48 @@ class AddRecipeScreen extends StatefulWidget {
 class _AddRecipeScreenState extends State<AddRecipeScreen>
     with SingleTickerProviderStateMixin {
   OverlayEntry? _helpMenuOverlay;
+  List<MultiSelectItem<String>> _applianceItems = [];
+  List<String> _selectedAppliances = [];
+  final List<TextEditingController> _ingredientControllers = [];
+
+  // Add this line inside your class
+  List<String> measurementUnits = [
+    'unit',
+    'kg',
+    'g',
+    'lbs',
+    'oz',
+    'ml',
+    'fl oz',
+    'cup',
+    'tbsp',
+    'tsp',
+    'quart',
+    'pint',
+    'liter',
+    'gallon',
+    'piece',
+    'pack',
+    'dozen',
+    'slice',
+    'clove',
+    'bunch',
+    'can',
+    'bottle',
+    'jar',
+    'bag',
+    'box',
+    'whole'
+  ];
+
+  final List<String> _preloadedImages = [
+    'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z'
+    // 'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/recipe_photos/d2.jpg?t=2024-07-23T08%3A45%3A33.653Z',
+    // 'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/recipe_photos/d3.jpg?t=2024-07-23T08%3A45%3A33.653Z',
+  ];
+
+  String _imageUrl = "";
+  String? _selectedImage;
 
   @override
   void initState() {
@@ -25,6 +71,47 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     await _loadCuisines();
     await _loadAppliances();
     await _fetchIngredientNames();
+  }
+
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image == null) {
+      print('No image selected.');
+      return;
+    }
+
+    final supabase = Supabase.instance.client;
+    final imageBytes = await image.readAsBytes();
+    //final imagePath = '/recipe_photos';
+    final imageName = '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
+    final imagePath = 'recipe_photos/$imageName';
+
+    try {
+      final response =
+          await supabase.storage.from('recipe_photos').uploadBinary(
+                imagePath,
+                imageBytes,
+                fileOptions: FileOptions(
+                  upsert: true,
+                  contentType: 'image/*',
+                ),
+              );
+
+      if (response.isNotEmpty) {
+        _imageUrl =
+            supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
+        //print('here1: $_imageUrl');
+        setState(() {
+          _selectedImage = _imageUrl;
+        });
+        //print('here2: $_selectedImage');
+      } else {
+        print('Error uploading image: $response');
+      }
+    } catch (error) {
+      print('Exception during image upload: $error');
+    }
   }
 
   String? _userId;
@@ -73,23 +160,24 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       final response = await http.post(
         Uri.parse(
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: '{"action": "getIngredientNames"}', // Body of the request
+        body: '{"action": "getIngredientNames"}',
         headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200) {
-        // If the request is successful, parse the response JSON
         final List<dynamic> data = jsonDecode(response.body);
         setState(() {
-          _availableIngredients =
-              data.map((item) => item['name'].toString()).toList();
+          _availableIngredients = data
+              .map((item) => {
+                    'name': item['name'].toString(),
+                    'measurementUnit': item['measurementUnit'].toString(),
+                  })
+              .toList();
         });
       } else {
-        // Handle other status codes, such as 404 or 500
-        //print('Failed to fetch ingredient names: ${response.statusCode}');
+        print('Failed to fetch ingredient names: ${response.statusCode}');
       }
     } catch (error) {
-      // Handle network errors or other exceptions
       print('Error fetching ingredient names: $error');
     }
   }
@@ -109,12 +197,13 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
         setState(() {
-          // Ensure the UI updates after cuisines are loaded
-          _appliances = data.map<String>((cuisine) {
-            return cuisine['name'].toString();
+          _appliances = data.map<String>((appliance) {
+            return appliance['name'].toString();
           }).toList();
+          _applianceItems = _appliances
+              .map((appliance) => MultiSelectItem<String>(appliance, appliance))
+              .toList();
         });
-        //print(_cuisines);
       } else {
         throw Exception('Failed to load appliances');
       }
@@ -125,7 +214,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
 
   final List<Map<String, String>> _ingredients = [];
   final List<String> _methods = [];
-  final List<String> _selectedAppliances = [];
   late TabController _tabController;
 
   final TextEditingController _nameController = TextEditingController();
@@ -138,7 +226,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   String _selectedCuisine = 'Mexican';
   String _selectedCourse = 'Main';
   int _spiceLevel = 1;
-  bool _showAppliancesDropdown = false;
+  // bool _showAppliancesDropdown = false;
 
   final List<String> _courses = [
     'Main',
@@ -148,18 +236,29 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   ]; //Change these so it is fetched from database
 
   // Define the list of available ingredients
-  List<String> _availableIngredients = [];
+  //List<String> _availableIngredients = [];
+  List<Map<String, String>> _availableIngredients = [];
 
   void _addIngredientField() {
     setState(() {
-      _ingredients
-          .add({'name': _availableIngredients[0], 'quantity': '', 'unit': ''});
+      _ingredients.add({
+        'name': _availableIngredients.isNotEmpty
+            ? _availableIngredients[0]['name'] ?? ''
+            : '',
+        'quantity': '',
+        'unit': _availableIngredients.isNotEmpty
+            ? _availableIngredients[0]['measurementUnit'] ??
+                measurementUnits.first
+            : measurementUnits.first,
+      });
+      _ingredientControllers.add(TextEditingController());
     });
   }
 
   void _removeIngredientField(int index) {
     setState(() {
       _ingredients.removeAt(index);
+      _ingredientControllers.removeAt(index);
     });
   }
 
@@ -175,18 +274,18 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     });
   }
 
-  void _addAppliance(String appliance) {
-    setState(() {
-      _selectedAppliances.add(appliance);
-      _showAppliancesDropdown = false;
-    });
-  }
+  // void _addAppliance(String appliance) {
+  //   setState(() {
+  //     _selectedAppliances.add(appliance);
+  //     _showAppliancesDropdown = false;
+  //   });
+  // }
 
-  void _removeAppliance(String appliance) {
-    setState(() {
-      _selectedAppliances.remove(appliance);
-    });
-  }
+  // void _removeAppliance(String appliance) {
+  //   setState(() {
+  //     _selectedAppliances.remove(appliance);
+  //   });
+  // }
 
   Future<void> _submitRecipe() async {
     List<Map<String, String>> appliancesData =
@@ -196,7 +295,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     final recipeData = {
       'name': _nameController.text,
       'description': _descriptionController.text,
-      'methods': _methods.join(',\n'),
+      'methods': _methods.join('<'),
       'cookTime': int.parse(_cookingTimeController.text),
       'cuisine': _selectedCuisine,
       'spiceLevel': _spiceLevel,
@@ -206,11 +305,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       'ingredients': _ingredients.map((ingredient) {
         return {
           'name': ingredient['name'],
-          'quantity': int.parse(ingredient['quantity']!),
+          'quantity': num.parse(ingredient['quantity']!),
           'unit': ingredient['unit'],
         };
       }).toList(),
-      'appliances': appliancesData
+      'appliances': appliancesData,
+      'photo': _selectedImage,
     };
 
     final response = await http.post(
@@ -261,8 +361,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   }
 
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
     return InputDecoration(
       labelText: labelText,
+      labelStyle: TextStyle(color: textColor),
       prefixIcon: icon != null ? Icon(icon) : null,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
@@ -291,6 +395,61 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
     }
   }
 
+  Widget _buildAppliancesMultiSelect() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 5, top: 10, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Text(
+              'Appliances:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ),
+          SizedBox(height: 10),
+          MultiSelectDialogField<String>(
+            checkColor: Colors.white,
+            selectedColor: Color(0xFF20493C),
+            backgroundColor: Color(0xFFDC945F),
+            items: _applianceItems,
+            initialValue: _selectedAppliances,
+            onConfirm: (values) {
+              setState(() {
+                _selectedAppliances = values;
+              });
+            },
+            chipDisplay: MultiSelectChipDisplay(
+              chipColor: Color(0xFFDC945F),
+              textStyle: TextStyle(color: Color(0xFF20493C), fontSize: 16),
+            ),
+            buttonText: Text(
+              'Select Appliances',
+              style: TextStyle(
+                color: textColor,
+              ),
+            ),
+            buttonIcon: Icon(
+              Icons.arrow_drop_down,
+              color: textColor,
+            ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+              border: Border.all(
+                color: textColor,
+                width: 1,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
       builder: (context) => HelpMenu(
@@ -307,27 +466,40 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0),
-            child: IconButton(
-              icon: Icon(Icons.help),
-              onPressed: _showHelpMenu,
-              iconSize: 35,
-            ),
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(10.0),
+          child: Stack(
+            alignment: Alignment.centerRight, //aligns help button to the right
+            children: [
+              TabBar(
+                controller: _tabController,
+                tabs: const [
+                  Tab(text: 'Scan Recipe'),
+                  Tab(text: 'Paste Recipe'),
+                  Tab(text: 'Add My Own Recipe'),
+                ],
+                labelColor: textColor,
+                unselectedLabelColor: Color(0xFFDC945F),
+                indicatorColor: textColor,
+              ),
+              Positioned(
+                right: 20,
+                bottom: 5,
+                child: IconButton(
+                  icon: Icon(Icons.help),
+                  onPressed: _showHelpMenu,
+                  iconSize: 35,
+                ),
+              ),
+            ],
           ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Scan Recipe'),
-            Tab(text: 'Paste Recipe'),
-            Tab(text: 'Add My Own Recipe'),
-          ],
         ),
       ),
       body: TabBarView(
@@ -338,8 +510,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                // //const SizedBox(height: 20),
+                // const Padding(
+                //   padding: EdgeInsets.only(left: 32.0),
+                //   child: Row(
+                //     children: [
+                //       Text(
+                //         'Scan Recipe:',
+                //         style: TextStyle(
+                //             fontSize: 24, fontWeight: FontWeight.bold),
+                //       ),
+                //     ],
+                //   ),
+                // ),
                 const Icon(Icons.camera_alt, size: 100),
-                const SizedBox(height: 16),
                 const Text(
                   'Drag & Drop Recipe Here',
                   style: TextStyle(fontSize: 18),
@@ -347,13 +531,17 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                 const SizedBox(height: 8),
                 OutlinedButton(
                   onPressed: () {},
-                  child: const Text('Browse Files'),
+                  child: Text(
+                    'Browse Files',
+                    style: TextStyle(color: textColor),
+                  ),
                 ),
                 const SizedBox(height: 150),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
+                      key: Key('recipe_button'),
                       onPressed: () {
                         // Add functionality to format the scanned recipe
                       },
@@ -373,6 +561,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                     ),
                     const SizedBox(width: 16),
                     ElevatedButton(
+                      //key: Key('recipe_button'),
                       onPressed: () {
                         // Add functionality to analyze the scanned recipe
                       },
@@ -426,6 +615,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                       maxLines: null,
                       expands: true,
                       textAlign: TextAlign.left,
+                      textAlignVertical: TextAlignVertical.top,
+                      cursorColor: textColor,
                       decoration: InputDecoration(
                         hintText: 'Paste your recipe here...',
                         border: OutlineInputBorder(
@@ -456,6 +647,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
+                      //key: Key('recipe_button'),
                       onPressed: () {
                         // Add functionality to format the pasted recipe
                       },
@@ -476,6 +668,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                     ),
                     const SizedBox(width: 16),
                     ElevatedButton(
+                      //key: Key('recipe_button'),
                       onPressed: () {
                         // Add functionality to analyze the pasted recipe
                       },
@@ -509,7 +702,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Recipe Details:',
+                  const Text('Recipe Details',
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 40),
@@ -526,12 +719,14 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                         children: [
                           TextField(
                             controller: _nameController,
+                            cursorColor: textColor,
                             decoration: _buildInputDecoration('Name of Recipe',
                                 icon: Icons.fastfood),
                           ),
                           const SizedBox(height: 24),
                           TextField(
                             controller: _descriptionController,
+                            cursorColor: textColor,
                             decoration: _buildInputDecoration(
                                 'Description of Recipe',
                                 icon: Icons.description),
@@ -540,6 +735,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           TextField(
                             controller: _cookingTimeController,
+                            cursorColor: textColor,
                             decoration: _buildInputDecoration(
                                 'Cooking Time (min)',
                                 icon: Icons.timer),
@@ -547,6 +743,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           TextField(
                             controller: _prepTimeController,
+                            cursorColor: textColor,
                             decoration: _buildInputDecoration(
                                 'Preparation Time (min)',
                                 icon: Icons.timer_off),
@@ -554,7 +751,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
                             dropdownColor:
-                                isLightTheme ? Colors.white : Color(0xFF1F4539),
+                                isLightTheme ? Colors.white : Color(0xFF20493C),
                             value: _selectedCuisine,
                             onChanged: (value) {
                               setState(() {
@@ -573,7 +770,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                           const SizedBox(height: 24),
                           DropdownButtonFormField<String>(
                             dropdownColor:
-                                isLightTheme ? Colors.white : Color(0xFF1F4539),
+                                isLightTheme ? Colors.white : Color(0xFF20493C),
                             value: _selectedCourse,
                             onChanged: (value) {
                               setState(() {
@@ -645,36 +842,78 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                   fontSize: 18, fontWeight: FontWeight.bold)),
                           ..._ingredients.map((ingredient) {
                             int index = _ingredients.indexOf(ingredient);
+                            String initialUnit = _ingredients[index]['unit'] ??
+                                measurementUnits.first;
+
+                            if (!measurementUnits.contains(initialUnit)) {
+                              initialUnit = measurementUnits.first;
+                            }
+
                             return Padding(
                               padding:
                                   const EdgeInsets.symmetric(vertical: 8.0),
                               child: Row(
                                 children: [
                                   Expanded(
-                                    child: DropdownButtonFormField<String>(
-                                      dropdownColor: isLightTheme
-                                          ? Colors.white
-                                          : Color(0xFF1F4539),
-                                      value: _ingredients[index]['name'],
-                                      onChanged: (value) {
+                                    child: TypeAheadFormField<String>(
+                                      textFieldConfiguration:
+                                          TextFieldConfiguration(
+                                        cursorColor: textColor,
+                                        controller:
+                                            _ingredientControllers[index],
+                                        decoration: _buildInputDecoration(
+                                          'Ingredient',
+                                        ),
+                                      ),
+                                      suggestionsCallback: (pattern) {
+                                        return _availableIngredients
+                                            .where((ingredient) =>
+                                                ingredient['name']!
+                                                    .toLowerCase()
+                                                    .contains(
+                                                        pattern.toLowerCase()))
+                                            .map((ingredient) =>
+                                                ingredient['name']!)
+                                            .toList();
+                                      },
+                                      itemBuilder:
+                                          (context, String suggestion) {
+                                        return ListTile(
+                                          title: Text(suggestion),
+                                        );
+                                      },
+                                      onSuggestionSelected:
+                                          (String suggestion) {
                                         setState(() {
-                                          _ingredients[index]['name'] = value!;
+                                          _ingredients[index]['name'] =
+                                              suggestion;
+                                          final selectedIngredient =
+                                              _availableIngredients.firstWhere(
+                                                  (ingredient) =>
+                                                      ingredient['name'] ==
+                                                      suggestion);
+                                          _ingredients[index]['unit'] =
+                                              selectedIngredient[
+                                                  'measurementUnit']!;
+                                          _ingredientControllers[index].text =
+                                              suggestion;
                                         });
                                       },
-                                      items: _availableIngredients
-                                          .map((ingredient) {
-                                        return DropdownMenuItem<String>(
-                                          value: ingredient,
-                                          child: Text(ingredient),
-                                        );
-                                      }).toList(),
-                                      decoration:
-                                          _buildInputDecoration('Ingredient'),
+                                      validator: (value) {
+                                        if (value!.isEmpty) {
+                                          return 'Please select an ingredient';
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (value) {
+                                        _ingredients[index]['name'] = value!;
+                                      },
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: TextField(
+                                      cursorColor: textColor,
                                       onChanged: (value) {
                                         setState(() {
                                           _ingredients[index]['quantity'] =
@@ -686,16 +925,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  Expanded(
-                                    child: TextField(
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _ingredients[index]['unit'] = value;
-                                        });
-                                      },
-                                      decoration: _buildInputDecoration('Unit'),
-                                    ),
-                                  ),
+                                  Text(_ingredients[index]['unit'] ??
+                                      ''), // Display the unit directly
                                   IconButton(
                                     icon: const Icon(
                                         Icons.remove_circle_outline,
@@ -727,6 +958,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                                 children: [
                                   Expanded(
                                     child: TextField(
+                                      cursorColor: textColor,
                                       onChanged: (value) {
                                         setState(() {
                                           _methods[index2] = value;
@@ -754,86 +986,57 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                             ),
                           ),
                           const SizedBox(height: 24),
-                          const Text('Appliances:',
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                          ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: _selectedAppliances.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(left: 8.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.restaurant,
-                                          size: 16.0,
-                                          color: Color(0xFFDC945F),
-                                        ),
-                                        const SizedBox(
-                                            width:
-                                                8.0), //space between icon and text
-                                        Text(
-                                          _selectedAppliances[index],
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                      ],
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(
-                                          Icons.remove_circle_outline,
-                                          color: Colors.red),
-                                      onPressed: () {
-                                        _removeAppliance(
-                                            _selectedAppliances[index]);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 6),
-                          if (_showAppliancesDropdown)
-                            DropdownButtonFormField<String>(
-                              dropdownColor: isLightTheme
+                          _buildAppliancesMultiSelect(),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: _pickImage,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isLightTheme
                                   ? Colors.white
                                   : Color(0xFF1F4539),
-                              items: _appliances.map((appliance) {
-                                return DropdownMenuItem<String>(
-                                  value: appliance,
-                                  child: Text(appliance),
-                                );
-                              }).toList(),
-                              onChanged: (value) {
-                                if (value != null &&
-                                    !_selectedAppliances.contains(value)) {
-                                  _addAppliance(value);
-                                }
-                              },
-                              decoration:
-                                  _buildInputDecoration('Select Appliance'),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 40, vertical: 20),
                             ),
-                          Align(
-                            alignment: Alignment.center,
-                            child: IconButton(
-                              icon: const Icon(Icons.add_circle_outline),
-                              onPressed: () {
-                                setState(() {
-                                  _showAppliancesDropdown =
-                                      !_showAppliancesDropdown;
-                                });
-                              },
+                            child: Text(
+                              'Upload Image',
+                              style: TextStyle(color: textColor),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 10),
+                          const Text('Or use the preloaded image:'),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 10,
+                            children: _preloadedImages.map((image) {
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    _selectedImage = image;
+                                  });
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: _selectedImage == image
+                                          ? Colors.blue
+                                          : Colors.transparent,
+                                      width: 3,
+                                    ),
+                                  ),
+                                  child: Image.network(
+                                    image,
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
                           const SizedBox(height: 24),
                           Center(
                             child: ElevatedButton(
+                              //key: Key('recipe_button'),
                               onPressed: _submitRecipe,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFDC945F),

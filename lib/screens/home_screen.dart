@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/help_home.dart';
+
+//import '../gemini_service.dart'; // LLM
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -13,13 +16,41 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> recipes = [];
   bool _isLoading = true;
+  bool _isGridView = false;
+  String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
+  //String _generatedText = '';  // LLM
+
+  // Future<void> _loadContent() async {  // LLM
+  //   final content = await fetchContentBackpack();
+  //   setState(() {
+  //     _generatedText = content;
+  //   });
+  // }
 
   @override
   void initState() {
     super.initState();
     fetchAllRecipes();
+    //_fetchContent();
   }
+  //   Future<void> _fetchContent() async {
+  //   final apiKey = dotenv.env['API_KEY'] ?? '';
+  //   if (apiKey.isEmpty) {
+  //     setState(() {
+  //       _generatedText = 'No \$API_KEY environment variable';
+  //     });
+  //     return;
+  //   }
+
+  //   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  //   final content = [Content.text('Write a story about a magic backpack.')];
+  //   final response = await model.generateContent(content);
+
+  //   setState(() {
+  //     _generatedText = response.text!;
+  //   });
+  // }
 
   Future<void> fetchAllRecipes() async {
     final url =
@@ -73,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
         print('Failed to load recipe details: ${response.statusCode}');
       }
     } catch (error) {
-      //print('Error fetching recipe details: $error');
+      print('Error fetching recipe details: $error');
     }
   }
 
@@ -89,12 +120,258 @@ class _HomeScreenState extends State<HomeScreen> {
     Overlay.of(context).insert(_helpMenuOverlay!);
   }
 
+  List<Map<String, dynamic>> _filterRecipesByCourse(String course) {
+    return recipes.where((recipe) => recipe['course'] == course).toList();
+  }
+
+  Widget _buildCarousel(
+      String title, List<Map<String, dynamic>> filteredRecipes) {
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.width * 0.03),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double screenWidth = MediaQuery.of(context).size.width;
+              double calculatedPadding = screenWidth * 0.001;
+              double calculatedLeftPadding = screenWidth * 0.01;
+
+              // Define font sizes based on screen width
+              double titleFontSize;
+              double viewAllFontSize;
+
+              if (screenWidth > 1334) {
+                titleFontSize = 30.0;
+                viewAllFontSize = 16.0;
+              } else if (screenWidth > 820) {
+                titleFontSize = 24.0;
+                viewAllFontSize = 14.0;
+              } else if (screenWidth < 375) {
+                titleFontSize = 18.0;
+                viewAllFontSize = 11.0;
+              } else {
+                titleFontSize =
+                    16.0; // default size for widths between 375 and 980
+                viewAllFontSize = 10.0;
+              }
+
+              return Padding(
+                padding: EdgeInsets.only(
+                    left: calculatedLeftPadding,
+                    top: calculatedPadding,
+                    bottom: calculatedPadding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isGridView = true;
+                          _selectedCategory = title;
+                        });
+                      },
+                      child: Text(
+                        'View All',
+                        style: TextStyle(
+                          fontSize: viewAllFontSize,
+                          color: Color(0xFFD9D9D9),
+                          decoration: TextDecoration.underline,
+                          decorationColor: Color(0xFFD9D9D9),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double screenWidth = MediaQuery.of(context).size.width;
+              double paddingg;
+
+              if (screenWidth > 600) {
+                paddingg = 8.0;
+              } else {
+                paddingg = 5.0;
+              }
+
+              double viewportWidth = constraints.maxWidth;
+              double itemWidth = viewportWidth / 4 -
+                  16; // Divide the width by 4 and subtract padding
+              double itemHeight =
+                  itemWidth * 320 / 250; // Maintain the aspect ratio
+
+              return CarouselSlider(
+                options: CarouselOptions(
+                  height: itemHeight,
+                  enlargeCenterPage: false,
+                  enableInfiniteScroll: true,
+                  viewportFraction: itemWidth / viewportWidth,
+                  initialPage: 0,
+                  scrollPhysics: BouncingScrollPhysics(),
+                ),
+                items: filteredRecipes.map((recipe) {
+                  List<String> steps = [];
+                  if (recipe['steps'] != null) {
+                    steps = (recipe['steps'] as String).split('<');
+                  }
+
+                  return Padding(
+                    padding: EdgeInsets.all(paddingg),
+                    child: Container(
+                      width: itemWidth, // Set the item width dynamically
+                      child: RecipeCard(
+                        recipeID: recipe['recipeId'] ?? '',
+                        name: recipe['name'] ?? '',
+                        description: recipe['description'] ?? '',
+                        imagePath: recipe['photo'] ?? 'assets/emptyPlate.jpg',
+                        prepTime: recipe['preptime'] ?? 0,
+                        cookTime: recipe['cooktime'] ?? 0,
+                        cuisine: recipe['cuisine'] ?? '',
+                        spiceLevel: recipe['spicelevel'] ?? 0,
+                        course: recipe['course'] ?? '',
+                        servings: recipe['servings'] ?? 0,
+                        steps: steps,
+                        appliances: List<String>.from(recipe['appliances']),
+                        ingredients: List<Map<String, dynamic>>.from(
+                            recipe['ingredients']),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGridView() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double titleFontSize;
+    double backArrow;
+    String category;
+
+    if (screenWidth > 1334) {
+      titleFontSize = 30.0;
+      backArrow = 30;
+    } else if (screenWidth > 820) {
+      titleFontSize = 24.0;
+      backArrow = 24;
+    } else if (screenWidth < 375) {
+      titleFontSize = 18.0;
+      backArrow = 18;
+    } else {
+      titleFontSize = 16.0;
+      backArrow = 16; // default size for widths between 375 and 980
+    }
+
+    if (_selectedCategory == 'Mains') {
+      _selectedCategory = 'Main';
+      category = 'Mains';
+    } else {
+      category = _selectedCategory;
+    }
+
+    List<Map<String, dynamic>> filteredRecipes =
+        _filterRecipesByCourse(_selectedCategory);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _isGridView = false;
+                    _selectedCategory = '';
+                  });
+                },
+                child: Icon(Icons.arrow_back, size: backArrow),
+              ),
+              SizedBox(width: 10),
+              Text(
+                category,
+                style: TextStyle(
+                  fontSize: titleFontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            double width = constraints.maxWidth;
+            double itemWidth = 250;
+            double itemHeight = 320;
+            double aspectRatio = itemWidth / itemHeight;
+            double crossAxisSpacing = width * 0.01;
+            double mainAxisSpacing = width * 0.02;
+
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: filteredRecipes.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: mainAxisSpacing,
+                childAspectRatio: aspectRatio,
+              ),
+              itemBuilder: (context, index) {
+                List<String> steps = [];
+                if (filteredRecipes[index]['steps'] != null) {
+                  steps =
+                      (filteredRecipes[index]['steps'] as String).split(',');
+                }
+
+                return RecipeCard(
+                  recipeID: filteredRecipes[index]['recipeId'] ?? '',
+                  name: filteredRecipes[index]['name'] ?? '',
+                  description: filteredRecipes[index]['description'] ?? '',
+                  imagePath: filteredRecipes[index]['photo'] ??
+                      'assets/emptyPlate.jpg',
+                  prepTime: filteredRecipes[index]['preptime'] ?? 0,
+                  cookTime: filteredRecipes[index]['cooktime'] ?? 0,
+                  cuisine: filteredRecipes[index]['cuisine'] ?? '',
+                  spiceLevel: filteredRecipes[index]['spicelevel'] ?? 0,
+                  course: filteredRecipes[index]['course'] ?? '',
+                  servings: filteredRecipes[index]['servings'] ?? 0,
+                  steps: steps,
+                  appliances:
+                      List<String>.from(filteredRecipes[index]['appliances']),
+                  ingredients: List<Map<String, dynamic>>.from(
+                      filteredRecipes[index]['ingredients']),
+                );
+              },
+            );
+          },
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent, //Color(0xFF20493C),
+        backgroundColor: Colors.transparent,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
@@ -108,72 +385,42 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: _isLoading
           ? Center(child: Lottie.asset('assets/loading.json'))
-          : SingleChildScrollView(
-              child: Padding(
-                key: ValueKey('Home'),
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 24),
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        double width = constraints.maxWidth;
-                        double itemWidth = 276;
-                        double itemHeight = 320;
-                        double aspectRatio = itemWidth / itemHeight;
-
-                        double crossAxisSpacing = width * 0.01;
-                        double mainAxisSpacing = width * 0.02;
-
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: recipes.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: crossAxisSpacing,
-                            mainAxisSpacing: mainAxisSpacing,
-                            childAspectRatio: aspectRatio,
-                          ),
-                          itemBuilder: (context, index) {
-                            // List<String> keywords =
-                            //     (recipes[index]['keywords'] as String?)
-                            //             ?.split(', ') ??
-                            //         [];
-                            List<String> steps = [];
-                            if (recipes[index]['steps'] != null) {
-                              steps = (recipes[index]['steps'] as String)
-                                  .split(',');
-                            }
-                            
-                            return RecipeCard(
-                              recipeID: recipes[index]['recipeId'] ?? '',
-                              name: recipes[index]['name'] ?? '',
-                              description: recipes[index]['description'] ?? '',
-                              imagePath:
-                                  recipes[index]['photo'] ?? 'assets/emptyPlate.jpg',
-                              prepTime: recipes[index]['preptime'] ?? 0,
-                              cookTime: recipes[index]['cooktime'] ?? 0,
-                              cuisine: recipes[index]['cuisine'] ?? '',
-                              spiceLevel: recipes[index]['spicelevel'] ?? 0,
-                              course: recipes[index]['course'] ?? '',
-                              servings: recipes[index]['servings'] ?? 0,
-                              steps: steps,
-                              appliances: List<String>.from(
-                                  recipes[index]['appliances']),
-                              ingredients: List<Map<String, dynamic>>.from(
-                                  recipes[index]['ingredients']),
-                            );
-                          },
-                        );
-                      },
+          : _isGridView
+              ? SingleChildScrollView(
+                  child: _buildGridView(),
+                )
+              : SingleChildScrollView(
+                  child: Padding(
+                    key: ValueKey('Home'),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        //SizedBox(height: 24),
+                        //    Text(
+                        //   _generatedText,
+                        //   style: TextStyle(fontSize: 18),
+                        //   textAlign: TextAlign.center,
+                        // ),
+                        // SizedBox(height: 16),
+                        // Text(_generatedText), // LLM
+                        // SizedBox(height: 20),
+                        // ElevatedButton(
+                        //   onPressed: _loadContent,
+                        //   child: Text('Fetch Content'),
+                        // ),
+                        SizedBox(height: 24),
+                        _buildCarousel('Mains', _filterRecipesByCourse('Main')),
+                        _buildCarousel(
+                            'Breakfast', _filterRecipesByCourse('Breakfast')),
+                        _buildCarousel(
+                            'Appetizer', _filterRecipesByCourse('Appetizer')),
+                        _buildCarousel(
+                            'Dessert', _filterRecipesByCourse('Dessert')),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
     );
   }
 }
