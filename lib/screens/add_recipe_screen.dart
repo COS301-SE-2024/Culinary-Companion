@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+//import 'package:flutter_application_1/widgets/scan_recipe_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../widgets/number_spinner.dart';
+import '../widgets/scan_recipe_screen.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -507,88 +509,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
         controller: _tabController,
         children: [
           // Scan Recipe Screen
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // //const SizedBox(height: 20),
-                // const Padding(
-                //   padding: EdgeInsets.only(left: 32.0),
-                //   child: Row(
-                //     children: [
-                //       Text(
-                //         'Scan Recipe:',
-                //         style: TextStyle(
-                //             fontSize: 24, fontWeight: FontWeight.bold),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                const Icon(Icons.camera_alt, size: 100),
-                const Text(
-                  'Drag & Drop Recipe Here',
-                  style: TextStyle(fontSize: 18),
-                ),
-                const SizedBox(height: 8),
-                OutlinedButton(
-                  onPressed: () {},
-                  child: Text(
-                    'Browse Files',
-                    style: TextStyle(color: textColor),
-                  ),
-                ),
-                const SizedBox(height: 150),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      key: Key('recipe_button'),
-                      onPressed: () {
-                        // Add functionality to format the scanned recipe
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFDC945F),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 20),
-                      ),
-                      child: const Text(
-                        'Format Recipe',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    ElevatedButton(
-                      //key: Key('recipe_button'),
-                      onPressed: () {
-                        // Add functionality to analyze the scanned recipe
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.brightness == Brightness.light
-                            ? Colors.white
-                            : Color(0xFF1F4539),
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 20),
-                        side: const BorderSide(
-                            color: Color(0xFFDC945F), width: 2),
-                      ),
-                      child: const Text(
-                        'Analyze Recipe',
-                        style: TextStyle(
-                          color: Color(0xFFDC945F),
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+          ScanRecipe(),
           // Text Input Screen
           Center(
             child: Column(
