@@ -513,8 +513,13 @@ class _RecipeCardState extends State<RecipeCard> {
                 ),
               ),
               Container(
-                width: screenWidth * 0.2, // Set width to 20% of screen width
-                child: ChatWidget(), // Add the ChatWidget here
+                width: screenWidth * 0.2,
+                child: ChatWidget(
+                  recipeName: widget.name,
+                  recipeDescription: widget.description,
+                  ingredients: widget.ingredients,
+                  steps: widget.steps,
+                ),
               ),
             ],
           ),
