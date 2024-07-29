@@ -89,12 +89,6 @@ class _MainScreenState extends State<MainScreen> {
         return AddRecipeScreen();
       case '/inventory-screen':
         return InventoryScreen();
-      // case '/shopping-list':
-      //   return ShoppingListScreen();
-      // case '/pantry-list':
-      //   return PantryScreen();
-      // case '/appliances':
-      //   return AppliancesScreen();
       case '/saved-recipes':
         return SavedRecipesScreen();
       case '/profile':
