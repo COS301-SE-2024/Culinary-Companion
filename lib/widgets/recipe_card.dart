@@ -923,6 +923,302 @@ class _RecipeCardState extends State<RecipeCard> {
                                                   .height *
                                               0.01,
                                         ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.center,
+                                                  children: [
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          'Prep Time:',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.006,
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                            left: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.006,
+                                                          ),
+                                                          child: Text(
+                                                            '${widget.prepTime} mins',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.008,
+                                                    ), // Add spacing between elements
+                                                    Container(
+                                                      height: MediaQuery.of(
+                                                                  context)
+                                                              .size
+                                                              .width *
+                                                          0.03, // Set a fixed height for the vertical divider
+                                                      child:
+                                                          const VerticalDivider(
+                                                        width: 20,
+                                                        thickness: 1.8,
+                                                        indent: 20,
+                                                        endIndent: 0,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.008,
+                                                    ), // Add spacing between elements
+                                                    Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          'Cook Time:',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.006,
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                            left: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.006,
+                                                          ),
+                                                          child: Text(
+                                                            '${widget.cookTime} mins',
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 12,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.008,
+                                            ), // Add spacing between elements
+                                            Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.03, // Set a fixed height for the vertical divider
+                                              child: const VerticalDivider(
+                                                width: 20,
+                                                thickness: 1.8,
+                                                indent: 20,
+                                                endIndent: 0,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.008,
+                                            ), // Add spacing between elements
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Total Time:',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.006,
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.only(
+                                                    left: MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.006,
+                                                  ),
+                                                  child: Text(
+                                                    '${widget.prepTime + widget.cookTime} mins',
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.01), // Adjust height to 1% of screen height
+                                        Text('Cuisine: ${widget.cuisine}'),
+                                        Text(
+                                            'Spice Level: ${widget.spiceLevel}'),
+                                        Text('Course: ${widget.course}'),
+                                        Text('Servings: ${widget.servings}'),
+                                        SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.02), // Adjust height to 2% of screen height
+                                        Text('Ingredients:',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.01), // Adjust height to 1% of screen height
+                                        ...widget.ingredients
+                                            .asMap()
+                                            .entries
+                                            .map((entry) {
+                                          int idx = entry.key;
+                                          Map<String, dynamic> ingredient =
+                                              entry.value;
+                                          bool isInPantry = _pantryIngredients
+                                              .containsKey(ingredient['name']);
+                                          double availableQuantity = isInPantry
+                                              ? (_pantryIngredients[
+                                                          ingredient['name']]
+                                                      ?['quantity'] ??
+                                                  0.0)
+                                              : 0.0;
+                                          bool isInShoppingList = _shoppingList
+                                              .containsKey(ingredient['name']);
+
+                                          return CheckableItem(
+                                            title:
+                                                '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
+                                            requiredQuantity:
+                                                ingredient['quantity'],
+                                            requiredUnit:
+                                                ingredient['measurement_unit'],
+                                            onChanged: (bool? value) {
+                                              setState(() {
+                                                _ingredientChecked[idx] =
+                                                    value ?? false;
+                                              });
+                                            },
+                                            isInPantry: isInPantry,
+                                            availableQuantity:
+                                                availableQuantity,
+                                            isChecked:
+                                                _ingredientChecked[idx] ?? true,
+                                            isInShoppingList: isInShoppingList,
+                                          );
+                                        }),
+                                        if (widget.ingredients.every(
+                                            (ingredient) =>
+                                                _pantryIngredients.containsKey(
+                                                    ingredient['name']) &&
+                                                _pantryIngredients[ingredient[
+                                                        'name']]!['quantity'] >=
+                                                    ingredient['quantity']))
+                                          ElevatedButton(
+                                            onPressed:
+                                                _removeIngredientsFromPantry,
+                                            child: Text(
+                                                'Remove ingredients from pantry'),
+                                          ),
+                                        SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.02), // Adjust height to 2% of screen height
+                                        Text('Appliances:',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                        SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.01), // Adjust height to 1% of screen height
+                                        ...widget.appliances.map(
+                                            (appliance) => Text(appliance)),
+                                        //               ],
+                                        //             ),
+                                        //           ),
+                                        //         ],
+                                        //       ),
+                                        //     ),
+                                        //   ),
                                         // Add more widgets here if needed
                                       ],
                                     ),
@@ -1069,302 +1365,302 @@ class _RecipeCardState extends State<RecipeCard> {
   //                       //                             .size
   //                       //                             .height *
   //                       //                         0.01), // Adjust height to 1% of screen height
-  //                       //                 Row(
-  //                       //                   mainAxisAlignment:
-  //                       //                       MainAxisAlignment.center,
-  //                       //                   crossAxisAlignment:
-  //                       //                       CrossAxisAlignment.center,
-  //                       //                   children: [
-  //                       //                     Column(
-  //                       //                       children: [
-  //                       //                         Row(
-  //                       //                           mainAxisAlignment:
-  //                       //                               MainAxisAlignment.center,
-  //                       //                           crossAxisAlignment:
-  //                       //                               CrossAxisAlignment.center,
-  //                       //                           children: [
-  //                       //                             Column(
-  //                       //                               mainAxisAlignment:
-  //                       //                                   MainAxisAlignment
-  //                       //                                       .center,
-  //                       //                               crossAxisAlignment:
-  //                       //                                   CrossAxisAlignment
-  //                       //                                       .start,
-  //                       //                               children: [
-  //                       //                                 Text(
-  //                       //                                   'Prep Time:',
-  //                       //                                   style: TextStyle(
-  //                       //                                     color: Colors.white,
-  //                       //                                     fontSize:
-  //                       //                                         fontSizeTimes,
-  //                       //                                     fontWeight:
-  //                       //                                         FontWeight.bold,
-  //                       //                                   ),
-  //                       //                                 ),
-  //                       //                                 SizedBox(
-  //                       //                                   height: MediaQuery.of(
-  //                       //                                               context)
-  //                       //                                           .size
-  //                       //                                           .width *
-  //                       //                                       0.006,
-  //                       //                                 ),
-  //                       //                                 Padding(
-  //                       //                                   padding:
-  //                       //                                       EdgeInsets.only(
-  //                       //                                     left: MediaQuery.of(
-  //                       //                                                 context)
-  //                       //                                             .size
-  //                       //                                             .width *
-  //                       //                                         0.006,
-  //                       //                                   ),
-  //                       //                                   child: Text(
-  //                       //                                     '${widget.prepTime} mins',
-  //                       //                                     style: TextStyle(
-  //                       //                                       color: Colors.white,
-  //                       //                                       fontSize:
-  //                       //                                           fontSizeTimes,
-  //                       //                                     ),
-  //                       //                                   ),
-  //                       //                                 ),
-  //                       //                               ],
-  //                       //                             ),
-  //                       //                             SizedBox(
-  //                       //                               height:
-  //                       //                                   MediaQuery.of(context)
-  //                       //                                           .size
-  //                       //                                           .width *
-  //                       //                                       0.008,
-  //                       //                             ), // Add spacing between elements
-  //                       //                             Container(
-  //                       //                               height: MediaQuery.of(
-  //                       //                                           context)
-  //                       //                                       .size
-  //                       //                                       .width *
-  //                       //                                   0.03, // Set a fixed height for the vertical divider
-  //                       //                               child:
-  //                       //                                   const VerticalDivider(
-  //                       //                                 width: 20,
-  //                       //                                 thickness: 1.8,
-  //                       //                                 indent: 20,
-  //                       //                                 endIndent: 0,
-  //                       //                                 color: Colors.white,
-  //                       //                               ),
-  //                       //                             ),
-  //                       //                             SizedBox(
-  //                       //                               height:
-  //                       //                                   MediaQuery.of(context)
-  //                       //                                           .size
-  //                       //                                           .width *
-  //                       //                                       0.008,
-  //                       //                             ), // Add spacing between elements
-  //                       //                             Column(
-  //                       //                               mainAxisAlignment:
-  //                       //                                   MainAxisAlignment
-  //                       //                                       .center,
-  //                       //                               crossAxisAlignment:
-  //                       //                                   CrossAxisAlignment
-  //                       //                                       .start,
-  //                       //                               children: [
-  //                       //                                 Text(
-  //                       //                                   'Cook Time:',
-  //                       //                                   style: TextStyle(
-  //                       //                                     color: Colors.white,
-  //                       //                                     fontSize:
-  //                       //                                         fontSizeTimes,
-  //                       //                                     fontWeight:
-  //                       //                                         FontWeight.bold,
-  //                       //                                   ),
-  //                       //                                 ),
-  //                       //                                 SizedBox(
-  //                       //                                   height: MediaQuery.of(
-  //                       //                                               context)
-  //                       //                                           .size
-  //                       //                                           .width *
-  //                       //                                       0.006,
-  //                       //                                 ),
-  //                       //                                 Padding(
-  //                       //                                   padding:
-  //                       //                                       EdgeInsets.only(
-  //                       //                                     left: MediaQuery.of(
-  //                       //                                                 context)
-  //                       //                                             .size
-  //                       //                                             .width *
-  //                       //                                         0.006,
-  //                       //                                   ),
-  //                       //                                   child: Text(
-  //                       //                                     '${widget.cookTime} mins',
-  //                       //                                     style: TextStyle(
-  //                       //                                       color: Colors.white,
-  //                       //                                       fontSize:
-  //                       //                                           fontSizeTimes,
-  //                       //                                     ),
-  //                       //                                   ),
-  //                       //                                 ),
-  //                       //                               ],
-  //                       //                             ),
-  //                       //                           ],
-  //                       //                         ),
-  //                       //                       ],
-  //                       //                     ),
-  //                       //                     SizedBox(
-  //                       //                       height: MediaQuery.of(context)
-  //                       //                               .size
-  //                       //                               .width *
-  //                       //                           0.008,
-  //                       //                     ), // Add spacing between elements
-  //                       //                     Container(
-  //                       //                       height: MediaQuery.of(context)
-  //                       //                               .size
-  //                       //                               .width *
-  //                       //                           0.03, // Set a fixed height for the vertical divider
-  //                       //                       child: const VerticalDivider(
-  //                       //                         width: 20,
-  //                       //                         thickness: 1.8,
-  //                       //                         indent: 20,
-  //                       //                         endIndent: 0,
-  //                       //                         color: Colors.white,
-  //                       //                       ),
-  //                       //                     ),
-  //                       //                     SizedBox(
-  //                       //                       height: MediaQuery.of(context)
-  //                       //                               .size
-  //                       //                               .width *
-  //                       //                           0.008,
-  //                       //                     ), // Add spacing between elements
-  //                       //                     Column(
-  //                       //                       mainAxisAlignment:
-  //                       //                           MainAxisAlignment.center,
-  //                       //                       crossAxisAlignment:
-  //                       //                           CrossAxisAlignment.start,
-  //                       //                       children: [
-  //                       //                         Text(
-  //                       //                           'Total Time:',
-  //                       //                           style: TextStyle(
-  //                       //                             color: Colors.white,
-  //                       //                             fontSize: fontSizeTimes,
-  //                       //                             fontWeight: FontWeight.bold,
-  //                       //                           ),
-  //                       //                         ),
-  //                       //                         SizedBox(
-  //                       //                           height: MediaQuery.of(context)
-  //                       //                                   .size
-  //                       //                                   .width *
-  //                       //                               0.006,
-  //                       //                         ),
-  //                       //                         Padding(
-  //                       //                           padding: EdgeInsets.only(
-  //                       //                             left: MediaQuery.of(context)
-  //                       //                                     .size
-  //                       //                                     .width *
-  //                       //                                 0.006,
-  //                       //                           ),
-  //                       //                           child: Text(
-  //                       //                             '${widget.prepTime + widget.cookTime} mins',
-  //                       //                             style: TextStyle(
-  //                       //                               color: Colors.white,
-  //                       //                               fontSize: fontSizeTimes,
-  //                       //                             ),
-  //                       //                           ),
-  //                       //                         ),
-  //                       //                       ],
-  //                       //                     ),
-  //                       //                   ],
-  //                       //                 ),
-  //                       //                 SizedBox(
-  //                       //                     height: MediaQuery.of(context)
-  //                       //                             .size
-  //                       //                             .height *
-  //                       //                         0.01), // Adjust height to 1% of screen height
-  //                       //                 Text('Cuisine: ${widget.cuisine}'),
-  //                       //                 Text('Spice Level: ${widget.spiceLevel}'),
-  //                       //                 Text('Course: ${widget.course}'),
-  //                       //                 Text('Servings: ${widget.servings}'),
-  //                       //                 SizedBox(
-  //                       //                     height: MediaQuery.of(context)
-  //                       //                             .size
-  //                       //                             .height *
-  //                       //                         0.02), // Adjust height to 2% of screen height
-  //                       //                 Text('Ingredients:',
-  //                       //                     style: TextStyle(
-  //                       //                         fontWeight: FontWeight.bold)),
-  //                       //                 SizedBox(
-  //                       //                     height: MediaQuery.of(context)
-  //                       //                             .size
-  //                       //                             .height *
-  //                       //                         0.01), // Adjust height to 1% of screen height
-  //                       //                 ...widget.ingredients
-  //                       //                     .asMap()
-  //                       //                     .entries
-  //                       //                     .map((entry) {
-  //                       //                   int idx = entry.key;
-  //                       //                   Map<String, dynamic> ingredient =
-  //                       //                       entry.value;
-  //                       //                   bool isInPantry = _pantryIngredients
-  //                       //                       .containsKey(ingredient['name']);
-  //                       //                   double availableQuantity = isInPantry
-  //                       //                       ? (_pantryIngredients[
-  //                       //                                   ingredient['name']]
-  //                       //                               ?['quantity'] ??
-  //                       //                           0.0)
-  //                       //                       : 0.0;
-  //                       //                   bool isInShoppingList = _shoppingList
-  //                       //                       .containsKey(ingredient['name']);
+  //                 Row(
+  //                   mainAxisAlignment:
+  //                       MainAxisAlignment.center,
+  //                   crossAxisAlignment:
+  //                       CrossAxisAlignment.center,
+  //                   children: [
+  //                     Column(
+  //                       children: [
+  //                         Row(
+  //                           mainAxisAlignment:
+  //                               MainAxisAlignment.center,
+  //                           crossAxisAlignment:
+  //                               CrossAxisAlignment.center,
+  //                           children: [
+  //                             Column(
+  //                               mainAxisAlignment:
+  //                                   MainAxisAlignment
+  //                                       .center,
+  //                               crossAxisAlignment:
+  //                                   CrossAxisAlignment
+  //                                       .start,
+  //                               children: [
+  //                                 Text(
+  //                                   'Prep Time:',
+  //                                   style: TextStyle(
+  //                                     color: Colors.white,
+  //                                     fontSize:
+  //                                         fontSizeTimes,
+  //                                     fontWeight:
+  //                                         FontWeight.bold,
+  //                                   ),
+  //                                 ),
+  //                                 SizedBox(
+  //                                   height: MediaQuery.of(
+  //                                               context)
+  //                                           .size
+  //                                           .width *
+  //                                       0.006,
+  //                                 ),
+  //                                 Padding(
+  //                                   padding:
+  //                                       EdgeInsets.only(
+  //                                     left: MediaQuery.of(
+  //                                                 context)
+  //                                             .size
+  //                                             .width *
+  //                                         0.006,
+  //                                   ),
+  //                                   child: Text(
+  //                                     '${widget.prepTime} mins',
+  //                                     style: TextStyle(
+  //                                       color: Colors.white,
+  //                                       fontSize:
+  //                                           fontSizeTimes,
+  //                                     ),
+  //                                   ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                             SizedBox(
+  //                               height:
+  //                                   MediaQuery.of(context)
+  //                                           .size
+  //                                           .width *
+  //                                       0.008,
+  //                             ), // Add spacing between elements
+  //                             Container(
+  //                               height: MediaQuery.of(
+  //                                           context)
+  //                                       .size
+  //                                       .width *
+  //                                   0.03, // Set a fixed height for the vertical divider
+  //                               child:
+  //                                   const VerticalDivider(
+  //                                 width: 20,
+  //                                 thickness: 1.8,
+  //                                 indent: 20,
+  //                                 endIndent: 0,
+  //                                 color: Colors.white,
+  //                               ),
+  //                             ),
+  //                             SizedBox(
+  //                               height:
+  //                                   MediaQuery.of(context)
+  //                                           .size
+  //                                           .width *
+  //                                       0.008,
+  //                             ), // Add spacing between elements
+  //                             Column(
+  //                               mainAxisAlignment:
+  //                                   MainAxisAlignment
+  //                                       .center,
+  //                               crossAxisAlignment:
+  //                                   CrossAxisAlignment
+  //                                       .start,
+  //                               children: [
+  //                                 Text(
+  //                                   'Cook Time:',
+  //                                   style: TextStyle(
+  //                                     color: Colors.white,
+  //                                     fontSize:
+  //                                         fontSizeTimes,
+  //                                     fontWeight:
+  //                                         FontWeight.bold,
+  //                                   ),
+  //                                 ),
+  //                                 SizedBox(
+  //                                   height: MediaQuery.of(
+  //                                               context)
+  //                                           .size
+  //                                           .width *
+  //                                       0.006,
+  //                                 ),
+  //                                 Padding(
+  //                                   padding:
+  //                                       EdgeInsets.only(
+  //                                     left: MediaQuery.of(
+  //                                                 context)
+  //                                             .size
+  //                                             .width *
+  //                                         0.006,
+  //                                   ),
+  //                                   child: Text(
+  //                                     '${widget.cookTime} mins',
+  //                                     style: TextStyle(
+  //                                       color: Colors.white,
+  //                                       fontSize:
+  //                                           fontSizeTimes,
+  //                                     ),
+  //                                   ),
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ],
+  //                     ),
+  //                     SizedBox(
+  //                       height: MediaQuery.of(context)
+  //                               .size
+  //                               .width *
+  //                           0.008,
+  //                     ), // Add spacing between elements
+  //                     Container(
+  //                       height: MediaQuery.of(context)
+  //                               .size
+  //                               .width *
+  //                           0.03, // Set a fixed height for the vertical divider
+  //                       child: const VerticalDivider(
+  //                         width: 20,
+  //                         thickness: 1.8,
+  //                         indent: 20,
+  //                         endIndent: 0,
+  //                         color: Colors.white,
+  //                       ),
+  //                     ),
+  //                     SizedBox(
+  //                       height: MediaQuery.of(context)
+  //                               .size
+  //                               .width *
+  //                           0.008,
+  //                     ), // Add spacing between elements
+  //                     Column(
+  //                       mainAxisAlignment:
+  //                           MainAxisAlignment.center,
+  //                       crossAxisAlignment:
+  //                           CrossAxisAlignment.start,
+  //                       children: [
+  //                         Text(
+  //                           'Total Time:',
+  //                           style: TextStyle(
+  //                             color: Colors.white,
+  //                             fontSize: fontSizeTimes,
+  //                             fontWeight: FontWeight.bold,
+  //                           ),
+  //                         ),
+  //                         SizedBox(
+  //                           height: MediaQuery.of(context)
+  //                                   .size
+  //                                   .width *
+  //                               0.006,
+  //                         ),
+  //                         Padding(
+  //                           padding: EdgeInsets.only(
+  //                             left: MediaQuery.of(context)
+  //                                     .size
+  //                                     .width *
+  //                                 0.006,
+  //                           ),
+  //                           child: Text(
+  //                             '${widget.prepTime + widget.cookTime} mins',
+  //                             style: TextStyle(
+  //                               color: Colors.white,
+  //                               fontSize: fontSizeTimes,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 SizedBox(
+  //                     height: MediaQuery.of(context)
+  //                             .size
+  //                             .height *
+  //                         0.01), // Adjust height to 1% of screen height
+  //                 Text('Cuisine: ${widget.cuisine}'),
+  //                 Text('Spice Level: ${widget.spiceLevel}'),
+  //                 Text('Course: ${widget.course}'),
+  //                 Text('Servings: ${widget.servings}'),
+  //                 SizedBox(
+  //                     height: MediaQuery.of(context)
+  //                             .size
+  //                             .height *
+  //                         0.02), // Adjust height to 2% of screen height
+  //                 Text('Ingredients:',
+  //                     style: TextStyle(
+  //                         fontWeight: FontWeight.bold)),
+  //                 SizedBox(
+  //                     height: MediaQuery.of(context)
+  //                             .size
+  //                             .height *
+  //                         0.01), // Adjust height to 1% of screen height
+  //                 ...widget.ingredients
+  //                     .asMap()
+  //                     .entries
+  //                     .map((entry) {
+  //                   int idx = entry.key;
+  //                   Map<String, dynamic> ingredient =
+  //                       entry.value;
+  //                   bool isInPantry = _pantryIngredients
+  //                       .containsKey(ingredient['name']);
+  //                   double availableQuantity = isInPantry
+  //                       ? (_pantryIngredients[
+  //                                   ingredient['name']]
+  //                               ?['quantity'] ??
+  //                           0.0)
+  //                       : 0.0;
+  //                   bool isInShoppingList = _shoppingList
+  //                       .containsKey(ingredient['name']);
 
-  //                       //                   return CheckableItem(
-  //                       //                     title:
-  //                       //                         '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-  //                       //                     requiredQuantity:
-  //                       //                         ingredient['quantity'],
-  //                       //                     requiredUnit:
-  //                       //                         ingredient['measurement_unit'],
-  //                       //                     onChanged: (bool? value) {
-  //                       //                       setState(() {
-  //                       //                         _ingredientChecked[idx] =
-  //                       //                             value ?? false;
-  //                       //                       });
-  //                       //                     },
-  //                       //                     isInPantry: isInPantry,
-  //                       //                     availableQuantity: availableQuantity,
-  //                       //                     isChecked:
-  //                       //                         _ingredientChecked[idx] ?? true,
-  //                       //                     isInShoppingList: isInShoppingList,
-  //                       //                   );
-  //                       //                 }),
-  //                       //                 if (widget.ingredients.every(
-  //                       //                     (ingredient) =>
-  //                       //                         _pantryIngredients.containsKey(
-  //                       //                             ingredient['name']) &&
-  //                       //                         _pantryIngredients[ingredient[
-  //                       //                                 'name']]!['quantity'] >=
-  //                       //                             ingredient['quantity']))
-  //                       //                   ElevatedButton(
-  //                       //                     onPressed:
-  //                       //                         _removeIngredientsFromPantry,
-  //                       //                     child: Text(
-  //                       //                         'Remove ingredients from pantry'),
-  //                       //                   ),
-  //                       //                 SizedBox(
-  //                       //                     height: MediaQuery.of(context)
-  //                       //                             .size
-  //                       //                             .height *
-  //                       //                         0.02), // Adjust height to 2% of screen height
-  //                       //                 Text('Appliances:',
-  //                       //                     style: TextStyle(
-  //                       //                         fontWeight: FontWeight.bold)),
-  //                       //                 SizedBox(
-  //                       //                     height: MediaQuery.of(context)
-  //                       //                             .size
-  //                       //                             .height *
-  //                       //                         0.01), // Adjust height to 1% of screen height
-  //                       //                 ...widget.appliances
-  //                       //                     .map((appliance) => Text(appliance)),
-  //                       //               ],
-  //                       //             ),
-  //                       //           ),
-  //                       //         ],
-  //                       //       ),
-  //                       //     ),
-  //                       //   ),
+  //                   return CheckableItem(
+  //                     title:
+  //                         '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
+  //                     requiredQuantity:
+  //                         ingredient['quantity'],
+  //                     requiredUnit:
+  //                         ingredient['measurement_unit'],
+  //                     onChanged: (bool? value) {
+  //                       setState(() {
+  //                         _ingredientChecked[idx] =
+  //                             value ?? false;
+  //                       });
+  //                     },
+  //                     isInPantry: isInPantry,
+  //                     availableQuantity: availableQuantity,
+  //                     isChecked:
+  //                         _ingredientChecked[idx] ?? true,
+  //                     isInShoppingList: isInShoppingList,
+  //                   );
+  //                 }),
+  //                 if (widget.ingredients.every(
+  //                     (ingredient) =>
+  //                         _pantryIngredients.containsKey(
+  //                             ingredient['name']) &&
+  //                         _pantryIngredients[ingredient[
+  //                                 'name']]!['quantity'] >=
+  //                             ingredient['quantity']))
+  //                   ElevatedButton(
+  //                     onPressed:
+  //                         _removeIngredientsFromPantry,
+  //                     child: Text(
+  //                         'Remove ingredients from pantry'),
+  //                   ),
+  //                 SizedBox(
+  //                     height: MediaQuery.of(context)
+  //                             .size
+  //                             .height *
+  //                         0.02), // Adjust height to 2% of screen height
+  //                 Text('Appliances:',
+  //                     style: TextStyle(
+  //                         fontWeight: FontWeight.bold)),
+  //                 SizedBox(
+  //                     height: MediaQuery.of(context)
+  //                             .size
+  //                             .height *
+  //                         0.01), // Adjust height to 1% of screen height
+  //                 ...widget.appliances
+  //                     .map((appliance) => Text(appliance)),
+  //               ],
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   ),
   //                       //   // Instructions Tab
   //                       //   SingleChildScrollView(
   //                       //     child: Column(
