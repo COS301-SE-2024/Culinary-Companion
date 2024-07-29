@@ -1753,6 +1753,39 @@ class CheckableItem extends StatefulWidget {
 
 class _CheckableItemState extends State<CheckableItem> {
   bool _isAdded = false;
+  //bool _isSubstituted = true;
+  bool _isSubstituted = false;
+
+  void _showSubstitutesDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Here are a list of substitutes for ${widget.title}'),
+          content: Container(
+            width: double.maxFinite, // Make the container as wide as the dialog
+            child: ListView(
+              shrinkWrap: true,
+              children: List.generate(
+                5, // Number of mock substitute items
+                (index) => ListTile(
+                  title: Text('Substitute ${index + 1}'),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1775,9 +1808,27 @@ class _CheckableItemState extends State<CheckableItem> {
                 width: 24.0, // to keep alignment when checkbox is missing
               ),
             Flexible(
-              child: Text(
-                widget.title,
-                overflow: TextOverflow.ellipsis,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.title,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: _isSubstituted
+                          ? Color.fromARGB(255, 221, 107, 72)
+                          : Colors.white,
+                      fontWeight:
+                          _isSubstituted ? FontWeight.bold : FontWeight.normal,
+                    ),
+                  ),
+                  if (_isSubstituted)
+                    IconButton(
+                      icon: Icon(Icons.swap_horiz,
+                          color: Color.fromARGB(255, 221, 107, 72)),
+                      onPressed: _showSubstitutesDialog,
+                    ),
+                ],
               ),
             ),
           ],
@@ -1812,13 +1863,27 @@ class _CheckableItemState extends State<CheckableItem> {
             ),
           )
         else if (widget.isInShoppingList || _isAdded)
-          TextButton(
-            onPressed: null,
-            child: Text('In Shopping List'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.green,
+          Padding(
+            padding: EdgeInsets.only(left: 27, top: 0),
+            child: TextButton(
+              onPressed: null,
+              child: Text('In Shopping List'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.green,
+              ),
             ),
-          ),
+          )
+        else if (isSufficient)
+          Padding(
+            padding: EdgeInsets.only(left: 27, top: 0),
+            child: TextButton(
+              onPressed: null,
+              child: Text('In Pantry List'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.green,
+              ),
+            ),
+          )
       ],
     );
   }
