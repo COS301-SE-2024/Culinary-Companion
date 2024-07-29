@@ -915,6 +915,8 @@ class _RecipeCardState extends State<RecipeCard> {
                                   0.01, // Adjust height
                             ),
                             TabBar(
+                              labelColor: Colors.white,
+                              indicatorColor: Colors.white,
                               tabs: [
                                 Tab(text: 'Details'),
                                 Tab(text: 'Instructions'),
@@ -1846,7 +1848,7 @@ class _CheckableItemState extends State<CheckableItem> {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: 'Add ',
+                      text: '+ ',
                       style: TextStyle(color: Colors.grey),
                     ),
                     TextSpan(
