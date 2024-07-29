@@ -887,10 +887,6 @@ class _RecipeCardState extends State<RecipeCard> {
                                   0.01, // Adjust height
                             ),
                             TabBar(
-                              // indicator: BoxDecoration(
-                              //     borderRadius: BorderRadius.circular(20),
-                              //     color: Color(0xFFDC945F)),
-                              // indicatorSize: TabBarIndicatorSize.tab,
                               tabs: [
                                 Tab(text: 'Details'),
                                 Tab(text: 'Instructions'),
@@ -912,7 +908,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                         ),
                                         SizedBox(
                                             height:
-                                                8.0), // Add spacing between title and description
+                                                6.0), // Add spacing between title and description
                                         Text(
                                           widget.description,
                                           style: TextStyle(fontSize: 16),
@@ -1212,20 +1208,39 @@ class _RecipeCardState extends State<RecipeCard> {
                                                 0.01), // Adjust height to 1% of screen height
                                         ...widget.appliances.map(
                                             (appliance) => Text(appliance)),
-                                        //               ],
-                                        //             ),
-                                        //           ),
-                                        //         ],
-                                        //       ),
-                                        //     ),
-                                        //   ),
-                                        // Add more widgets here if needed
                                       ],
                                     ),
                                   ),
                                   // Content for the second tab
-                                  Center(
-                                    child: Text('Instructions content here'),
+                                  SingleChildScrollView(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Instructions:',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold)),
+                                        SizedBox(height: 8.0),
+                                        ...widget.steps.expand((step) {
+                                          return step
+                                              .split('<')
+                                              .map((subStep) => Padding(
+                                                    padding: EdgeInsets.only(
+                                                      bottom:
+                                                          8.0, // Space between each step
+                                                    ),
+                                                    child: Text(
+                                                      '${widget.steps.indexOf(step) + 1}. $subStep',
+                                                      style: TextStyle(
+                                                          fontSize:
+                                                              16), // Style for each step
+                                                    ),
+                                                  ));
+                                        }).toList(),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),
@@ -1246,495 +1261,6 @@ class _RecipeCardState extends State<RecipeCard> {
       _fetchShoppingList();
     });
   }
-
-  // void _showMobileRecipeDetails() {
-  //   final theme = Theme.of(context);
-  //   double screenWidth = MediaQuery.of(context).size.width;
-  //   double screenHeight = MediaQuery.of(context).size.height;
-
-  //   double fontSizeTitle = screenWidth * 0.05;
-  //   double fontSizeDescription = screenWidth * 0.01;
-  //   double fontSizeTimes = screenWidth * 0.008;
-
-  //   final clickColor =
-  //       theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return Dialog(
-  //         backgroundColor: clickColor, // Change background color to green
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius:
-  //               BorderRadius.circular(0), // No border radius for full screen
-  //         ),
-  //         child: Container(
-  //           width: screenWidth,
-  //           height: screenHeight,
-  //           padding: EdgeInsets.all(0), // No padding
-  //           child: DefaultTabController(
-  //             length: 2,
-  //             child: Column(
-  //               children: [
-  //                 Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: [
-  //                     Row(
-  //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                       children: [
-  //                         IconButton(
-  //                           icon: Icon(Icons.arrow_back),
-  //                           iconSize: screenWidth *
-  //                               0.05, // Adjust icon size to 2% of screen width
-  //                           color: Colors.white,
-  //                           onPressed: () {
-  //                             Navigator.of(context).pop();
-  //                             _fetchShoppingList(); // Refresh shopping list when dialog is closed
-  //                           },
-  //                         ),
-  //                         IconButton(
-  //                           icon: Icon(
-  //                             _isFavorite
-  //                                 ? Icons.favorite
-  //                                 : Icons.favorite_border,
-  //                             color: _isFavorite ? Colors.red : Colors.white,
-  //                           ),
-  //                           iconSize: screenWidth * 0.05,
-  //                           onPressed: _toggleFavorite,
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 SizedBox(
-  //                     height: MediaQuery.of(context).size.height *
-  //                         0.01), // Adjust height to 1% of screen height
-  //                 Flexible(
-  //                   child: Text(
-  //                     widget.name,
-  //                     style: TextStyle(
-  //                       fontSize: fontSizeTitle,
-  //                       fontWeight: FontWeight.bold,
-  //                     ),
-  //                     maxLines: 2,
-  //                     overflow: TextOverflow.ellipsis,
-  //                   ),
-  //                 ),
-  //                 TabBar(
-  //                   tabs: [
-  //                     Tab(text: 'Details'),
-  //                     Tab(text: 'Instructions'),
-  //                   ],
-  //                 ),
-  //                 Expanded(
-  //                   child: TabBarView(
-  //                     children: [
-  //                       // Recipe Details Tab
-  //                       //   SingleChildScrollView(
-  //                       //     child: Padding(
-  //                       //       padding: EdgeInsets.only(
-  //                       //           top: MediaQuery.of(context).size.height * 0.04),
-  //                       //       child: Column(
-  //                       //         children: [
-  //                       //           Container(
-  //                       //             width: screenWidth *
-  //                       //                 0.2, // 20% of screen width for the image
-  //                       //             height: MediaQuery.of(context).size.height *
-  //                       //                 0.5, // 50% of screen height for the image
-  //                       //             decoration: BoxDecoration(
-  //                       //               borderRadius: BorderRadius.circular(
-  //                       //                   screenWidth *
-  //                       //                       0.005), // 0.5% of screen width for rounded corners
-  //                       //               image: DecorationImage(
-  //                       //                 image: NetworkImage(widget.imagePath),
-  //                       //                 fit: BoxFit.cover,
-  //                       //               ),
-  //                       //             ),
-  //                       //           ),
-  //                       //           SizedBox(
-  //                       //             width: screenWidth *
-  //                       //                 0.05, // 5% of screen width for spacing
-  //                       //           ),
-  //                       //           Expanded(
-  //                       //             child: Column(
-  //                       //               crossAxisAlignment:
-  //                       //                   CrossAxisAlignment.start,
-  //                       //               children: [
-  //                       //                 Text(widget.description),
-  //                       //                 SizedBox(
-  //                       //                     height: MediaQuery.of(context)
-  //                       //                             .size
-  //                       //                             .height *
-  //                       //                         0.01), // Adjust height to 1% of screen height
-  //                 Row(
-  //                   mainAxisAlignment:
-  //                       MainAxisAlignment.center,
-  //                   crossAxisAlignment:
-  //                       CrossAxisAlignment.center,
-  //                   children: [
-  //                     Column(
-  //                       children: [
-  //                         Row(
-  //                           mainAxisAlignment:
-  //                               MainAxisAlignment.center,
-  //                           crossAxisAlignment:
-  //                               CrossAxisAlignment.center,
-  //                           children: [
-  //                             Column(
-  //                               mainAxisAlignment:
-  //                                   MainAxisAlignment
-  //                                       .center,
-  //                               crossAxisAlignment:
-  //                                   CrossAxisAlignment
-  //                                       .start,
-  //                               children: [
-  //                                 Text(
-  //                                   'Prep Time:',
-  //                                   style: TextStyle(
-  //                                     color: Colors.white,
-  //                                     fontSize:
-  //                                         fontSizeTimes,
-  //                                     fontWeight:
-  //                                         FontWeight.bold,
-  //                                   ),
-  //                                 ),
-  //                                 SizedBox(
-  //                                   height: MediaQuery.of(
-  //                                               context)
-  //                                           .size
-  //                                           .width *
-  //                                       0.006,
-  //                                 ),
-  //                                 Padding(
-  //                                   padding:
-  //                                       EdgeInsets.only(
-  //                                     left: MediaQuery.of(
-  //                                                 context)
-  //                                             .size
-  //                                             .width *
-  //                                         0.006,
-  //                                   ),
-  //                                   child: Text(
-  //                                     '${widget.prepTime} mins',
-  //                                     style: TextStyle(
-  //                                       color: Colors.white,
-  //                                       fontSize:
-  //                                           fontSizeTimes,
-  //                                     ),
-  //                                   ),
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                             SizedBox(
-  //                               height:
-  //                                   MediaQuery.of(context)
-  //                                           .size
-  //                                           .width *
-  //                                       0.008,
-  //                             ), // Add spacing between elements
-  //                             Container(
-  //                               height: MediaQuery.of(
-  //                                           context)
-  //                                       .size
-  //                                       .width *
-  //                                   0.03, // Set a fixed height for the vertical divider
-  //                               child:
-  //                                   const VerticalDivider(
-  //                                 width: 20,
-  //                                 thickness: 1.8,
-  //                                 indent: 20,
-  //                                 endIndent: 0,
-  //                                 color: Colors.white,
-  //                               ),
-  //                             ),
-  //                             SizedBox(
-  //                               height:
-  //                                   MediaQuery.of(context)
-  //                                           .size
-  //                                           .width *
-  //                                       0.008,
-  //                             ), // Add spacing between elements
-  //                             Column(
-  //                               mainAxisAlignment:
-  //                                   MainAxisAlignment
-  //                                       .center,
-  //                               crossAxisAlignment:
-  //                                   CrossAxisAlignment
-  //                                       .start,
-  //                               children: [
-  //                                 Text(
-  //                                   'Cook Time:',
-  //                                   style: TextStyle(
-  //                                     color: Colors.white,
-  //                                     fontSize:
-  //                                         fontSizeTimes,
-  //                                     fontWeight:
-  //                                         FontWeight.bold,
-  //                                   ),
-  //                                 ),
-  //                                 SizedBox(
-  //                                   height: MediaQuery.of(
-  //                                               context)
-  //                                           .size
-  //                                           .width *
-  //                                       0.006,
-  //                                 ),
-  //                                 Padding(
-  //                                   padding:
-  //                                       EdgeInsets.only(
-  //                                     left: MediaQuery.of(
-  //                                                 context)
-  //                                             .size
-  //                                             .width *
-  //                                         0.006,
-  //                                   ),
-  //                                   child: Text(
-  //                                     '${widget.cookTime} mins',
-  //                                     style: TextStyle(
-  //                                       color: Colors.white,
-  //                                       fontSize:
-  //                                           fontSizeTimes,
-  //                                     ),
-  //                                   ),
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ],
-  //                     ),
-  //                     SizedBox(
-  //                       height: MediaQuery.of(context)
-  //                               .size
-  //                               .width *
-  //                           0.008,
-  //                     ), // Add spacing between elements
-  //                     Container(
-  //                       height: MediaQuery.of(context)
-  //                               .size
-  //                               .width *
-  //                           0.03, // Set a fixed height for the vertical divider
-  //                       child: const VerticalDivider(
-  //                         width: 20,
-  //                         thickness: 1.8,
-  //                         indent: 20,
-  //                         endIndent: 0,
-  //                         color: Colors.white,
-  //                       ),
-  //                     ),
-  //                     SizedBox(
-  //                       height: MediaQuery.of(context)
-  //                               .size
-  //                               .width *
-  //                           0.008,
-  //                     ), // Add spacing between elements
-  //                     Column(
-  //                       mainAxisAlignment:
-  //                           MainAxisAlignment.center,
-  //                       crossAxisAlignment:
-  //                           CrossAxisAlignment.start,
-  //                       children: [
-  //                         Text(
-  //                           'Total Time:',
-  //                           style: TextStyle(
-  //                             color: Colors.white,
-  //                             fontSize: fontSizeTimes,
-  //                             fontWeight: FontWeight.bold,
-  //                           ),
-  //                         ),
-  //                         SizedBox(
-  //                           height: MediaQuery.of(context)
-  //                                   .size
-  //                                   .width *
-  //                               0.006,
-  //                         ),
-  //                         Padding(
-  //                           padding: EdgeInsets.only(
-  //                             left: MediaQuery.of(context)
-  //                                     .size
-  //                                     .width *
-  //                                 0.006,
-  //                           ),
-  //                           child: Text(
-  //                             '${widget.prepTime + widget.cookTime} mins',
-  //                             style: TextStyle(
-  //                               color: Colors.white,
-  //                               fontSize: fontSizeTimes,
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 SizedBox(
-  //                     height: MediaQuery.of(context)
-  //                             .size
-  //                             .height *
-  //                         0.01), // Adjust height to 1% of screen height
-  //                 Text('Cuisine: ${widget.cuisine}'),
-  //                 Text('Spice Level: ${widget.spiceLevel}'),
-  //                 Text('Course: ${widget.course}'),
-  //                 Text('Servings: ${widget.servings}'),
-  //                 SizedBox(
-  //                     height: MediaQuery.of(context)
-  //                             .size
-  //                             .height *
-  //                         0.02), // Adjust height to 2% of screen height
-  //                 Text('Ingredients:',
-  //                     style: TextStyle(
-  //                         fontWeight: FontWeight.bold)),
-  //                 SizedBox(
-  //                     height: MediaQuery.of(context)
-  //                             .size
-  //                             .height *
-  //                         0.01), // Adjust height to 1% of screen height
-  //                 ...widget.ingredients
-  //                     .asMap()
-  //                     .entries
-  //                     .map((entry) {
-  //                   int idx = entry.key;
-  //                   Map<String, dynamic> ingredient =
-  //                       entry.value;
-  //                   bool isInPantry = _pantryIngredients
-  //                       .containsKey(ingredient['name']);
-  //                   double availableQuantity = isInPantry
-  //                       ? (_pantryIngredients[
-  //                                   ingredient['name']]
-  //                               ?['quantity'] ??
-  //                           0.0)
-  //                       : 0.0;
-  //                   bool isInShoppingList = _shoppingList
-  //                       .containsKey(ingredient['name']);
-
-  //                   return CheckableItem(
-  //                     title:
-  //                         '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-  //                     requiredQuantity:
-  //                         ingredient['quantity'],
-  //                     requiredUnit:
-  //                         ingredient['measurement_unit'],
-  //                     onChanged: (bool? value) {
-  //                       setState(() {
-  //                         _ingredientChecked[idx] =
-  //                             value ?? false;
-  //                       });
-  //                     },
-  //                     isInPantry: isInPantry,
-  //                     availableQuantity: availableQuantity,
-  //                     isChecked:
-  //                         _ingredientChecked[idx] ?? true,
-  //                     isInShoppingList: isInShoppingList,
-  //                   );
-  //                 }),
-  //                 if (widget.ingredients.every(
-  //                     (ingredient) =>
-  //                         _pantryIngredients.containsKey(
-  //                             ingredient['name']) &&
-  //                         _pantryIngredients[ingredient[
-  //                                 'name']]!['quantity'] >=
-  //                             ingredient['quantity']))
-  //                   ElevatedButton(
-  //                     onPressed:
-  //                         _removeIngredientsFromPantry,
-  //                     child: Text(
-  //                         'Remove ingredients from pantry'),
-  //                   ),
-  //                 SizedBox(
-  //                     height: MediaQuery.of(context)
-  //                             .size
-  //                             .height *
-  //                         0.02), // Adjust height to 2% of screen height
-  //                 Text('Appliances:',
-  //                     style: TextStyle(
-  //                         fontWeight: FontWeight.bold)),
-  //                 SizedBox(
-  //                     height: MediaQuery.of(context)
-  //                             .size
-  //                             .height *
-  //                         0.01), // Adjust height to 1% of screen height
-  //                 ...widget.appliances
-  //                     .map((appliance) => Text(appliance)),
-  //               ],
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   ),
-  //                       //   // Instructions Tab
-  //                       //   SingleChildScrollView(
-  //                       //     child: Column(
-  //                       //       //crossAxisAlignment: CrossAxisAlignment.start,
-  //                       //       children: [
-  //                       //         Container(
-  //                       //           width: screenWidth *
-  //                       //               0.2, // 20% of screen width for the image
-  //                       //           height: MediaQuery.of(context).size.height *
-  //                       //               0.5, // 50% of screen height for the image
-  //                       //           decoration: BoxDecoration(
-  //                       //             borderRadius: BorderRadius.circular(screenWidth *
-  //                       //                 0.005), // 0.5% of screen width for rounded corners
-  //                       //             image: DecorationImage(
-  //                       //               image: NetworkImage(widget.imagePath),
-  //                       //               fit: BoxFit.cover,
-  //                       //             ),
-  //                       //           ),
-  //                       //         ),
-  //                       //         SizedBox(
-  //                       //           width: screenWidth *
-  //                       //               0.05, // 5% of screen width for spacing
-  //                       //         ),
-  //                       //         Expanded(
-  //                       //           child: Column(
-  //                       //             crossAxisAlignment: CrossAxisAlignment.start,
-  //                       //             children: [
-  //                       //               Text('Instructions:',
-  //                       //                   style: TextStyle(
-  //                       //                       fontWeight: FontWeight.bold)),
-  //                       //               SizedBox(
-  //                       //                   height: MediaQuery.of(context)
-  //                       //                           .size
-  //                       //                           .height *
-  //                       //                       0.01), // Adjust height to 1% of screen height
-  //                       //               Column(
-  //                       //                 crossAxisAlignment:
-  //                       //                     CrossAxisAlignment.start,
-  //                       //                 children: widget.steps.expand((step) {
-  //                       //                   return step
-  //                       //                       .split('<')
-  //                       //                       .map((subStep) => Padding(
-  //                       //                             padding: EdgeInsets.only(
-  //                       //                               bottom:
-  //                       //                                   MediaQuery.of(context)
-  //                       //                                           .size
-  //                       //                                           .height *
-  //                       //                                       0.01,
-  //                       //                             ),
-  //                       //                             child: Text(
-  //                       //                                 '${widget.steps.indexOf(step) + 1}. $subStep'),
-  //                       //                           ));
-  //                       //                 }).toList(),
-  //                       //               ),
-  //                       //             ],
-  //                       //           ),
-  //                       //         ),
-  //                       //       ],
-  //                       //     ),
-  //                       //   ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   ).then((_) {
-  //     // This will be called when the dialog is dismissed
-  //     _fetchShoppingList();
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
