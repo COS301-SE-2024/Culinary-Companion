@@ -7,6 +7,7 @@ import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import '../gemini_service.dart'; 
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -19,6 +20,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   List<MultiSelectItem<String>> _applianceItems = [];
   List<String> _selectedAppliances = [];
   final List<TextEditingController> _ingredientControllers = [];
+  final TextEditingController _pastedRecipeController = TextEditingController();
+
 
   // Add this line inside your class
   List<String> measurementUnits = [
@@ -154,6 +157,45 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
       throw Exception('Error fetching cuisines: $e');
     }
   }
+
+//   Future<void> _formatAndSubmitPastedRecipe(String recipeText) async {
+//      print('here 2');
+//   final formattedRecipe = await fetchFormattedRecipe(recipeText);
+  
+//   // Assuming the formattedRecipe is a JSON string with the fields needed for _submitRecipe
+//   // Parse the JSON formatted recipe
+//   final Map<String, dynamic> recipeData = json.decode(formattedRecipe);
+
+//   // Update the form fields with the formatted recipe data
+//   _nameController.text = recipeData['name'];
+//   _descriptionController.text = recipeData['description'];
+//   _cookingTimeController.text = recipeData['cookTime'].toString();
+//   _prepTimeController.text = recipeData['prepTime'].toString();
+//   _servingAmountController.text = recipeData['servingAmount'].toString();
+//   _selectedCuisine = recipeData['cuisine'];
+//   _selectedCourse = recipeData['course'];
+//   _spiceLevel = recipeData['spiceLevel'];
+//   _ingredients.clear();
+//   for (var ingredient in recipeData['ingredients']) {
+//     _ingredients.add({
+//       'name': ingredient['name'],
+//       'quantity': ingredient['quantity'].toString(),
+//       'unit': ingredient['unit'],
+//     });
+//     _ingredientControllers.add(TextEditingController(text: ingredient['name']));
+//   }
+//   _methods.clear();
+//   for (var method in recipeData['methods']) {
+//     _methods.add(method);
+//   }
+//   _selectedAppliances = List<String>.from(recipeData['appliances'].map((appliance) => appliance['name']));
+
+//   // Finally, call _submitRecipe to add the recipe to the database
+//   await _submitRecipe();
+// }
+
+
+
 
   Future<void> _fetchIngredientNames() async {
     try {
@@ -601,86 +643,61 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                 ),
                 const SizedBox(height: 40),
                 Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32.0),
-                    child: TextField(
-                      keyboardType: TextInputType.multiline,
-                      maxLines: null,
-                      expands: true,
-                      textAlign: TextAlign.left,
-                      decoration: InputDecoration(
-                        hintText: 'Paste your recipe here...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                              color: Colors
-                                  .grey), // Optional: customize the border color
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                              color: Colors
-                                  .transparent), // Optional: customize the border color
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide(
-                              color: Colors
-                                  .transparent), // Optional: customize the border color on focus
-                        ),
-                        contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
-                      ),
-                    ),
-                  ),
-                ),
+  child: Padding(
+    padding: EdgeInsets.symmetric(horizontal: 32.0),
+    child: TextField(
+      controller: _pastedRecipeController, // Add this line
+      keyboardType: TextInputType.multiline,
+      maxLines: null,
+      expands: true,
+      textAlign: TextAlign.left,
+      decoration: InputDecoration(
+        hintText: 'Paste your recipe here...',
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(
+              color: Colors.grey), // Optional: customize the border color
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(
+              color: Colors.transparent), // Optional: customize the border color
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          borderSide: BorderSide(
+              color: Colors.transparent), // Optional: customize the border color on focus
+        ),
+        contentPadding: EdgeInsets.fromLTRB(12, 12, 0, 0),
+      ),
+    ),
+  ),
+),
+
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      //key: Key('recipe_button'),
-                      onPressed: () {
-                        // Add functionality to format the pasted recipe
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFDC945F), // Set the background color
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 20),
-                      ),
-                      child: const Text(
-                        'Format Recipe',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    ElevatedButton(
-                      //key: Key('recipe_button'),
-                      onPressed: () {
-                        // Add functionality to analyze the pasted recipe
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: theme.brightness == Brightness.light
-                            ? Colors.white
-                            : Color(0xFF1F4539), // Set the background color
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40, vertical: 20),
-                        side: const BorderSide(
-                            color: Color(0xFFDC945F), width: 2),
-                      ),
-                      child: const Text(
-                        'Analyze Recipe',
-                        style: TextStyle(
-                          color: Color(0xFFDC945F),
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
+  onPressed: () async {
+    // Get the pasted recipe text from the text field
+    String recipeText = _pastedRecipeController.text;
+    //await _formatAndSubmitPastedRecipe(recipeText);
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFFDC945F), // Set the background color
+    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+  ),
+  child: const Text(
+    'Add Recipe',
+    style: TextStyle(
+      color: Colors.white,
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
                   ],
                 ),
               ],
