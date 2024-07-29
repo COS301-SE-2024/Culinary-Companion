@@ -106,7 +106,7 @@ Future<String> fetchIngredientSubstitution(String recipeId) async {
   final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   suggest a substitution for $substitute. 
-  Adjust the recipe keeping the same formatting with the substituted ingredient.""";
+  Adjust the recipe keeping the same formatting with the substituted ingredient. Please make any fractions into decimal values.""";
   
   final finalPrompt = initialPrompt + formatting;
 
@@ -117,6 +117,8 @@ Future<String> fetchIngredientSubstitution(String recipeId) async {
   // Ensure response is not null and print the text content
   if (response != null && response.text != null) {
     String jsonString = response.text!;
+
+    print(jsonString);
     
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
@@ -125,10 +127,30 @@ Future<String> fetchIngredientSubstitution(String recipeId) async {
     List<String> lines = jsonString.split('\n');
     
     // Check if there are more than two lines before removing the first and last lines
+    // if (lines.length > 2) {
+    //   lines.removeAt(0); // Remove the first line
+    //   lines.removeAt(lines.length - 1); // Remove blank line
+    //   lines.removeAt(lines.length - 1); // Remove the last line
+    // } else {
+    //   print("The JSON string does not have enough lines to remove the first and last lines.");
+    // }
+
+    // Check if there are more than two lines before removing the first and last lines
     if (lines.length > 2) {
-      lines.removeAt(0); // Remove the first line
-      lines.removeAt(lines.length - 1); // Remove blank line
-      lines.removeAt(lines.length - 1); // Remove the last line
+      // Check if the first line is "``` json"
+      if (lines[0] == "```json") {
+        lines.removeAt(0); // Remove the first line
+      }
+
+      // Check if the last line is a blank line and remove it
+      if (lines.last.isEmpty) {
+        lines.removeAt(lines.length - 1); // Remove the blank line
+      }
+
+      // Check if the new last line is "```" and remove it
+      if (lines.last == "```") {
+        lines.removeAt(lines.length - 1); // Remove the last line
+      }
     } else {
       print("The JSON string does not have enough lines to remove the first and last lines.");
     }
@@ -255,21 +277,21 @@ Future<String> fetchDietaryConstraints(String recipeId) async {
   }
 
   final prompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
-with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
-analyze the recipe and identify which of the following dietary constraints the recipe belongs to:
-Vegan, Gluten Free, Dairy Free, Nut Free, Low Carb, Low Fat, Low Sodium, Paleo, Keto, Whole30, Pescatarian, 
-Lacto Vegetarian, Ovo Vegetarian, Lacto-Ovo Vegetarian, Halal, Kosher, FODMAP, Sugar Free, Low Sugar, Organic, 
-Raw Food, Diabetic, Low Cholesterol, Soy Free, Corn Free, Nightshade Free, Shellfish Free, Egg Free, Peanut Free, 
-MSG Free, Artificial Colour Free, Artificial Flavour Free, Artificial Preservative Free, Non-GMO, None.
-Just list the categories in JSON format with the following structure:
-{
-  "constraint1": "value1",
-  "constraint2": "value2",
-  "constraint3": "value3",
-  "constraint4": "value4",
-  "constraint5": "value5"
-}
-Ensure that the response is valid JSON and contains only the JSON structure without any additional text or explanation.""";
+    with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
+    analyze the recipe and identify which of the following dietary constraints the recipe belongs to:
+    Vegan, Gluten Free, Dairy Free, Nut Free, Low Carb, Low Fat, Low Sodium, Paleo, Keto, Whole30, Pescatarian, 
+    Lacto Vegetarian, Ovo Vegetarian, Lacto-Ovo Vegetarian, Halal, Kosher, FODMAP, Sugar Free, Low Sugar, Organic, 
+    Raw Food, Diabetic, Low Cholesterol, Soy Free, Corn Free, Nightshade Free, Shellfish Free, Egg Free, Peanut Free, 
+    MSG Free, Artificial Colour Free, Artificial Flavour Free, Artificial Preservative Free, Non-GMO, None.
+    Just list the categories in JSON format with the following structure:
+    {
+      "constraint1": "value1",
+      "constraint2": "value2",
+      "constraint3": "value3",
+      "constraint4": "value4",
+      "constraint5": "value5"
+    }
+    Ensure that the response is valid JSON and contains only the JSON structure without any additional text or explanation.""";
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
   final content = [Content.text(prompt)];
