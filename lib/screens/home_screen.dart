@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // fetchKeywords
     // fetchIngredientSubstitution
     // fetchDietaryConstraints
-    final content = await fetchKeywords("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
+    final content = await fetchDietaryConstraints("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
     setState(() {
       _generatedText = content;
     });

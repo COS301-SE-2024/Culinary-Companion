@@ -327,36 +327,84 @@ Future<String> fetchDietaryConstraints(String recipeId) async {
   final content = [Content.text(prompt)];
   final response = await model.generateContent(content);
 
-  if (response != null && response.text != null) {
-    String responseText = response.text!;
+//   if (response != null && response.text != null) {
+//     String responseText = response.text!;
 
-    // Debugging: Print raw response text
-    print("Raw response text:");
-    print(responseText);
+//     // Debugging: Print raw response text
+//     print("Raw response text:");
+//     print(responseText);
 
-    // Clean the response text
-    responseText = responseText.trim();
+//     // Clean the response text
+//     responseText = responseText.trim();
 
-    // Ensure valid JSON format
-    responseText = responseText.replaceAll(RegExp(r'[^\{]*\{'), '{'); // Remove leading text before the JSON
-    responseText = responseText.replaceAll(RegExp(r'\}[^\}]*$'), '}'); // Remove trailing text after the JSON
+//     // Ensure valid JSON format
+//     responseText = responseText.replaceAll(RegExp(r'[^\{]*\{'), '{'); // Remove leading text before the JSON
+//     responseText = responseText.replaceAll(RegExp(r'\}[^\}]*$'), '}'); // Remove trailing text after the JSON
 
-    // Debugging: Print cleaned response text
-    print("Cleaned response text:");
-    print(responseText);
+//     // Debugging: Print cleaned response text
+//     print("Cleaned response text:");
+//     print(responseText);
 
-    // Attempt to parse the JSON response
+//     // Attempt to parse the JSON response
+//     try {
+//       final Map<String, dynamic> jsonResponse = jsonDecode(responseText);
+//       // Convert JSON to a pretty-printed string for better readability
+//       String prettyJsonString = JsonEncoder.withIndent('  ').convert(jsonResponse);
+//       print('Parsed JSON: $prettyJsonString');
+//       return prettyJsonString;
+//     } catch (e) {
+//       print('Failed to parse JSON: $e');
+//       return 'Failed to parse JSON response';
+//     }
+//   } else {
+//     return 'No response text';
+//   }
+// }
+if (response != null && response.text != null) {
+    String jsonString = response.text!;
+
+    print(jsonString);
+    
+    // Correct the JSON format by replacing single quotes with double quotes
+    jsonString = jsonString.replaceAll("'", '"');
+
+    // Split the JSON string by lines
+    List<String> lines = jsonString.split('\n');
+    
+    // Check if there are more than two lines before removing the first and last lines
+    if (lines.length > 2) {
+      // Check if the first line is "``` json"
+      if (lines[0] == "```json") {
+        lines.removeAt(0); // Remove the first line
+      }
+
+      // Check if the last line is a blank line and remove it
+      if (lines.last.isEmpty) {
+        lines.removeAt(lines.length - 1); // Remove the blank line
+      }
+
+      // Check if the new last line is "```" and remove it
+      if (lines.last == "```") {
+        lines.removeAt(lines.length - 1); // Remove the last line
+      }
+    } else {
+      print("The JSON string does not have enough lines to remove the first and last lines.");
+    }
+    
+    // Join the lines back together
+    jsonString = lines.join('\n');
+    
+    // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
-      final Map<String, dynamic> jsonResponse = jsonDecode(responseText);
-      // Convert JSON to a pretty-printed string for better readability
-      String prettyJsonString = JsonEncoder.withIndent('  ').convert(jsonResponse);
-      print('Parsed JSON: $prettyJsonString');
-      return prettyJsonString;
+      final jsonMap = jsonDecode(jsonString);
+      print('Parsed JSON: $jsonMap');
     } catch (e) {
       print('Failed to parse JSON: $e');
-      return 'Failed to parse JSON response';
     }
+
+    return jsonString;
   } else {
     return 'No response text';
   }
 }
+
