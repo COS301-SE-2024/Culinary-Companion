@@ -904,15 +904,30 @@ class _RecipeCardState extends State<RecipeCard> {
                                       children: [
                                         Text(
                                           "Description:",
-                                          style: TextStyle(fontSize: 16),
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            decoration: TextDecoration
+                                                .underline, // Add underline
+                                            decorationColor: Colors
+                                                .white, // Optionally set the color of the underline
+                                            decorationThickness:
+                                                2.0, // Optionally set the thickness of the underline
+                                          ),
                                         ),
+
                                         SizedBox(
                                             height:
                                                 6.0), // Add spacing between title and description
-                                        Text(
-                                          widget.description,
-                                          style: TextStyle(fontSize: 16),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              left:
+                                                  16.0), // Adjust the left padding as needed
+                                          child: Text(
+                                            widget.description,
+                                            style: TextStyle(fontSize: 16),
+                                          ),
                                         ),
+
                                         SizedBox(
                                           height: MediaQuery.of(context)
                                                   .size
@@ -945,7 +960,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           'Prep Time:',
                                                           style: TextStyle(
                                                             color: Colors.white,
-                                                            fontSize: 12,
+                                                            fontSize: 14,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -971,7 +986,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.white,
-                                                              fontSize: 12,
+                                                              fontSize: 14,
                                                             ),
                                                           ),
                                                         ),
@@ -1018,7 +1033,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           'Cook Time:',
                                                           style: TextStyle(
                                                             color: Colors.white,
-                                                            fontSize: 12,
+                                                            fontSize: 14,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -1044,7 +1059,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.white,
-                                                              fontSize: 12,
+                                                              fontSize: 14,
                                                             ),
                                                           ),
                                                         ),
@@ -1089,7 +1104,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                   'Total Time:',
                                                   style: TextStyle(
                                                     color: Colors.white,
-                                                    fontSize: 12,
+                                                    fontSize: 14,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
@@ -1110,7 +1125,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     '${widget.prepTime + widget.cookTime} mins',
                                                     style: TextStyle(
                                                       color: Colors.white,
-                                                      fontSize: 12,
+                                                      fontSize: 14,
                                                     ),
                                                   ),
                                                 ),
@@ -1122,20 +1137,59 @@ class _RecipeCardState extends State<RecipeCard> {
                                             height: MediaQuery.of(context)
                                                     .size
                                                     .height *
-                                                0.01), // Adjust height to 1% of screen height
-                                        Text('Cuisine: ${widget.cuisine}'),
-                                        Text(
-                                            'Spice Level: ${widget.spiceLevel}'),
-                                        Text('Course: ${widget.course}'),
-                                        Text('Servings: ${widget.servings}'),
+                                                0.01),
+                                        // Adjust height to 1% of screen height
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left:
+                                                      16.0), // Adjust padding as needed
+                                              child: Text(
+                                                  'Cuisine: ${widget.cuisine}'),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left:
+                                                      16.0), // Adjust padding as needed
+                                              child: Text(
+                                                  'Spice Level: ${widget.spiceLevel}'),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left:
+                                                      16.0), // Adjust padding as needed
+                                              child: Text(
+                                                  'Course: ${widget.course}'),
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  left:
+                                                      16.0), // Adjust padding as needed
+                                              child: Text(
+                                                  'Servings: ${widget.servings}'),
+                                            ),
+                                          ],
+                                        ),
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
                                                     .height *
                                                 0.02), // Adjust height to 2% of screen height
-                                        Text('Ingredients:',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
+                                        Text(
+                                          "Ingredients:",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            decoration: TextDecoration
+                                                .underline, // Add underline
+                                            decorationColor: Colors
+                                                .white, // Optionally set the color of the underline
+                                            decorationThickness:
+                                                2.0, // Optionally set the thickness of the underline
+                                          ),
+                                        ),
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
@@ -1198,9 +1252,18 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     .size
                                                     .height *
                                                 0.02), // Adjust height to 2% of screen height
-                                        Text('Appliances:',
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
+                                        Text(
+                                          "Appliances:",
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            decoration: TextDecoration
+                                                .underline, // Add underline
+                                            decorationColor: Colors
+                                                .white, // Optionally set the color of the underline
+                                            decorationThickness:
+                                                2.0, // Optionally set the thickness of the underline
+                                          ),
+                                        ),
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
