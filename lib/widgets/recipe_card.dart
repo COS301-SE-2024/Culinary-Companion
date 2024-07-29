@@ -831,25 +831,53 @@ class _RecipeCardState extends State<RecipeCard> {
                   Positioned(
                     top: 20.0, // Adjust position as necessary
                     left: 10.0, // Adjust position as necessary
-                    child: IconButton(
-                      icon: Icon(Icons.arrow_back, color: Colors.white),
-                      iconSize: screenWidth * 0.05, // Adjust icon size
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        _fetchShoppingList(); // Refresh shopping list when dialog is closed
-                      },
+                    child: Container(
+                      width: screenWidth *
+                          0.1, // Adjust width of the circular background
+                      height: screenWidth *
+                          0.1, // Adjust height of the circular background
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black
+                            .withOpacity(0.5), // Background color of the circle
+                      ),
+                      child: Center(
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_back, color: Colors.white),
+                          iconSize: screenWidth * 0.05, // Adjust icon size
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            _fetchShoppingList(); // Refresh shopping list when dialog is closed
+                          },
+                        ),
+                      ),
                     ),
                   ),
                   Positioned(
                     top: 20.0, // Adjust position as necessary
                     right: 10.0, // Adjust position as necessary
-                    child: IconButton(
-                      icon: Icon(
-                        _isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: _isFavorite ? Colors.red : Colors.white,
+                    child: Container(
+                      width: screenWidth *
+                          0.1, // Adjust width of the circular background
+                      height: screenWidth *
+                          0.1, // Adjust height of the circular background
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.black
+                            .withOpacity(0.5), // Background color of the circle
                       ),
-                      iconSize: screenWidth * 0.05, // Adjust icon size
-                      onPressed: _toggleFavorite,
+                      child: Center(
+                        child: IconButton(
+                          icon: Icon(
+                            _isFavorite
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: _isFavorite ? Colors.red : Colors.white,
+                          ),
+                          iconSize: screenWidth * 0.05, // Adjust icon size
+                          onPressed: _toggleFavorite,
+                        ),
+                      ),
                     ),
                   ),
                   Positioned(
@@ -906,12 +934,9 @@ class _RecipeCardState extends State<RecipeCard> {
                                           "Description:",
                                           style: TextStyle(
                                             fontSize: 16,
-                                            decoration: TextDecoration
-                                                .underline, // Add underline
-                                            decorationColor: Colors
-                                                .white, // Optionally set the color of the underline
-                                            decorationThickness:
-                                                2.0, // Optionally set the thickness of the underline
+                                            color: Color(0xFFDC945F),
+                                            fontWeight: FontWeight
+                                                .bold, // Optionally set the thickness of the underline
                                           ),
                                         ),
 
@@ -929,10 +954,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                         ),
 
                                         SizedBox(
-                                          height: MediaQuery.of(context)
-                                                  .size
-                                                  .height *
-                                              0.01,
+                                          height: 15.0,
                                         ),
                                         Row(
                                           mainAxisAlignment:
@@ -993,20 +1015,15 @@ class _RecipeCardState extends State<RecipeCard> {
                                                       ],
                                                     ),
                                                     SizedBox(
-                                                      height:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.008,
-                                                    ), // Add spacing between elements
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.008), // Add spacing
                                                     Container(
-                                                      height: MediaQuery.of(
-                                                                  context)
-                                                              .size
-                                                              .width *
-                                                          0.03, // Set a fixed height for the vertical divider
-                                                      child:
-                                                          const VerticalDivider(
+                                                      height:
+                                                          40, // Set a fixed height for the vertical divider
+                                                      child: VerticalDivider(
                                                         width: 20,
                                                         thickness: 1.8,
                                                         indent: 20,
@@ -1015,12 +1032,12 @@ class _RecipeCardState extends State<RecipeCard> {
                                                       ),
                                                     ),
                                                     SizedBox(
-                                                      height:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.008,
-                                                    ), // Add spacing between elements
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.008), // Add spacing
+                                                    // Add spacing between elements
                                                     Column(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
@@ -1070,17 +1087,14 @@ class _RecipeCardState extends State<RecipeCard> {
                                               ],
                                             ),
                                             SizedBox(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.008,
-                                            ), // Add spacing between elements
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.008), // Add spacing
                                             Container(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.03, // Set a fixed height for the vertical divider
-                                              child: const VerticalDivider(
+                                              height:
+                                                  40, // Set a fixed height for the vertical divider
+                                              child: VerticalDivider(
                                                 width: 20,
                                                 thickness: 1.8,
                                                 indent: 20,
@@ -1089,11 +1103,11 @@ class _RecipeCardState extends State<RecipeCard> {
                                               ),
                                             ),
                                             SizedBox(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.008,
-                                            ), // Add spacing between elements
+                                                width: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.008), // Add spacing
+                                            // Add spacing between elements// Add spacing between elements
                                             Column(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
@@ -1133,12 +1147,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                             ),
                                           ],
                                         ),
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.01),
-                                        // Adjust height to 1% of screen height
+                                        SizedBox(height: 15.0),
                                         Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -1182,12 +1191,8 @@ class _RecipeCardState extends State<RecipeCard> {
                                           "Ingredients:",
                                           style: TextStyle(
                                             fontSize: 16,
-                                            decoration: TextDecoration
-                                                .underline, // Add underline
-                                            decorationColor: Colors
-                                                .white, // Optionally set the color of the underline
-                                            decorationThickness:
-                                                2.0, // Optionally set the thickness of the underline
+                                            color: Color(0xFFDC945F),
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         SizedBox(
@@ -1256,21 +1261,26 @@ class _RecipeCardState extends State<RecipeCard> {
                                           "Appliances:",
                                           style: TextStyle(
                                             fontSize: 16,
-                                            decoration: TextDecoration
-                                                .underline, // Add underline
-                                            decorationColor: Colors
-                                                .white, // Optionally set the color of the underline
-                                            decorationThickness:
-                                                2.0, // Optionally set the thickness of the underline
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(
+                                                0xFFDC945F), // Optionally set the thickness of the underline
                                           ),
                                         ),
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
                                                     .height *
-                                                0.01), // Adjust height to 1% of screen height
-                                        ...widget.appliances.map(
-                                            (appliance) => Text(appliance)),
+                                                0.01),
+                                        ...widget.appliances
+                                            .map(
+                                              (appliance) => Padding(
+                                                padding: EdgeInsets.only(
+                                                    left:
+                                                        16.0), // Add 16 pixels of padding to the left
+                                                child: Text(appliance),
+                                              ),
+                                            )
+                                            .toList()
                                       ],
                                     ),
                                   ),
@@ -1281,26 +1291,63 @@ class _RecipeCardState extends State<RecipeCard> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text('Instructions:',
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold)),
+                                        Text(
+                                          'Instructions:',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFFDC945F)),
+                                        ),
                                         SizedBox(height: 8.0),
                                         ...widget.steps.expand((step) {
-                                          return step
-                                              .split('<')
-                                              .map((subStep) => Padding(
-                                                    padding: EdgeInsets.only(
-                                                      bottom:
-                                                          8.0, // Space between each step
+                                          return step.split('<').map((subStep) {
+                                            return Padding(
+                                              padding: EdgeInsets.only(
+                                                  bottom:
+                                                      8.0), // Space between each step
+                                              child: Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        24.0, // Diameter of the circle
+                                                    height:
+                                                        24.0, // Diameter of the circle
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Color.fromARGB(
+                                                          115,
+                                                          220,
+                                                          147,
+                                                          95), // Color of the circle
                                                     ),
+                                                    alignment: Alignment.center,
                                                     child: Text(
-                                                      '${widget.steps.indexOf(step) + 1}. $subStep',
+                                                      '${widget.steps.indexOf(step) + 1}',
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Colors
+                                                            .white, // Color of the number
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                      width:
+                                                          8.0), // Adjust this value to control the indent
+                                                  Expanded(
+                                                    child: Text(
+                                                      subStep,
                                                       style: TextStyle(
                                                           fontSize:
                                                               16), // Style for each step
                                                     ),
-                                                  ));
+                                                  ),
+                                                  SizedBox(height: 8.0),
+                                                ],
+                                              ),
+                                            );
+                                          }).toList();
                                         }).toList(),
                                       ],
                                     ),
@@ -1711,14 +1758,58 @@ class _CheckableItemState extends State<CheckableItem> {
   Widget build(BuildContext context) {
     bool isSufficient = widget.isInPantry &&
         widget.availableQuantity >= widget.requiredQuantity;
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (isSufficient)
-          Checkbox(
-            value: widget.isChecked,
-            onChanged: widget.onChanged,
-            activeColor: Color(0XFFDC945F),
-            checkColor: Colors.white,
+        Row(
+          children: [
+            if (isSufficient)
+              Checkbox(
+                value: widget.isChecked,
+                onChanged: widget.onChanged,
+                activeColor: Color(0XFFDC945F),
+                checkColor: Colors.white,
+              )
+            else
+              SizedBox(
+                width: 24.0, // to keep alignment when checkbox is missing
+              ),
+            Flexible(
+              child: Text(
+                widget.title,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        if (!isSufficient && !(widget.isInShoppingList || _isAdded))
+          Padding(
+            padding: EdgeInsets.only(left: 27),
+            child: TextButton(
+              onPressed: () => _addToShoppingList(
+                widget.title,
+                widget.requiredQuantity - widget.availableQuantity,
+                widget.requiredUnit,
+              ),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Add ',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    TextSpan(
+                      text: '${widget.title.split(" (")[0]}',
+                      style: TextStyle(color: Color(0xFF89AA4A)),
+                    ),
+                    TextSpan(
+                      text: ' to shopping list',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           )
         else if (widget.isInShoppingList || _isAdded)
           TextButton(
@@ -1727,25 +1818,7 @@ class _CheckableItemState extends State<CheckableItem> {
             style: TextButton.styleFrom(
               foregroundColor: Colors.green,
             ),
-          )
-        else
-          TextButton(
-            onPressed: () => _addToShoppingList(
-              widget.title,
-              widget.requiredQuantity - widget.availableQuantity,
-              widget.requiredUnit,
-            ),
-            child: Text('Add rest to shopping list'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.green,
-            ),
           ),
-        Flexible(
-          child: Text(
-            widget.title,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
       ],
     );
   }
