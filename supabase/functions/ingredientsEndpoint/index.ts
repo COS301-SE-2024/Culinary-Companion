@@ -99,7 +99,8 @@ Deno.serve(async (req) => {
                 return editPantryItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
             case 'addRecipeKeywords':
                 return addRecipeKeywords(recipeid, keywords, corsHeaders);
-                
+            case 'getRecipeId':
+                return getRecipeId(recipeData.name, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -1618,7 +1619,41 @@ async function addRecipeKeywords(recipeid: string, keywords: string, corsHeaders
     });
 }
 
+async function getRecipeId(recipeName: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure recipeName is provided
+        if (!recipeName) {
+            throw new Error('Recipe name is required');
+        }
 
+        // Fetch recipe ID based on the recipe name
+        const { data: recipeData, error: recipeError } = await supabase
+            .from('recipe')
+            .select('recipeid')
+            .eq('name', recipeName)
+            .single();
+
+        if (recipeError) {
+            throw new Error(`Error fetching recipe ID: ${recipeError.message}`);
+        }
+
+        if (!recipeData) {
+            throw new Error(`Recipe not found for name: ${recipeName}`);
+        }
+
+        const recipeId = recipeData.recipeid;
+
+        return new Response(JSON.stringify({ recipeId }, null, 2), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
 
 /* To invoke locally:
 
