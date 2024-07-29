@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
@@ -27,7 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // fetchKeywords
     // fetchIngredientSubstitution
     // fetchDietaryConstraints
-    final content = await fetchIngredientSubstitution("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
+    final content = await fetchKeywords("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
     setState(() {
       _generatedText = content;
     });
