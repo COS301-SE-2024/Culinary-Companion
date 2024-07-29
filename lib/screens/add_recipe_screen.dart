@@ -8,6 +8,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
+import '../gemini_service.dart'; // LLM
+
 class AddRecipeScreen extends StatefulWidget {
   @override
   _AddRecipeScreenState createState() => _AddRecipeScreenState();
@@ -334,6 +336,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
           duration: Duration(seconds: 3), // Adjust the duration here
         ),
       );
+
+      
 
       // Clear all form inputs
       _nameController.clear();

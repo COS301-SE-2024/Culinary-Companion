@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, keywords } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -97,6 +97,9 @@ Deno.serve(async (req) => {
                 return editShoppingListItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
             case 'editPantryItem':
                 return editPantryItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
+            case 'addRecipeKeywords':
+                return addRecipeKeywords(recipeid, keywords, corsHeaders);
+                
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -1586,6 +1589,35 @@ async function removeUserFavorite(userId: string, recipeid: string, corsHeaders:
         });
     }
 }
+
+async function addRecipeKeywords(recipeid: string, keywords: string, corsHeaders: HeadersInit) {
+    if (!recipeid) {
+        console.error('Failed to retrieve recipe ID.');
+        return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    const { error: recipeKeywordError } = await supabase
+        .from('recipe')
+        .update({ keywords })
+        .eq('recipeid', recipeid);
+
+    if (recipeKeywordError) {
+        console.error('Error updating recipe keywords:', recipeKeywordError);
+        return new Response(JSON.stringify({ error: recipeKeywordError.message }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    return new Response(JSON.stringify({ success: 'Recipe keywords updated successfully' }), {
+        status: 200,
+        headers: corsHeaders,
+    });
+}
+
 
 
 /* To invoke locally:
