@@ -887,6 +887,10 @@ class _RecipeCardState extends State<RecipeCard> {
                                   0.01, // Adjust height
                             ),
                             TabBar(
+                              // indicator: BoxDecoration(
+                              //     borderRadius: BorderRadius.circular(20),
+                              //     color: Color(0xFFDC945F)),
+                              // indicatorSize: TabBarIndicatorSize.tab,
                               tabs: [
                                 Tab(text: 'Details'),
                                 Tab(text: 'Instructions'),
@@ -895,7 +899,38 @@ class _RecipeCardState extends State<RecipeCard> {
                             Expanded(
                               child: TabBarView(
                                 children: [
-                                  // Add your tab content here
+                                  SingleChildScrollView(
+                                    padding: EdgeInsets.all(
+                                        16.0), // Add padding around the scrollable area
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "Description:",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        SizedBox(
+                                            height:
+                                                8.0), // Add spacing between title and description
+                                        Text(
+                                          widget.description,
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                        SizedBox(
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .height *
+                                              0.01,
+                                        ),
+                                        // Add more widgets here if needed
+                                      ],
+                                    ),
+                                  ),
+                                  // Content for the second tab
+                                  Center(
+                                    child: Text('Instructions content here'),
+                                  ),
                                 ],
                               ),
                             ),
