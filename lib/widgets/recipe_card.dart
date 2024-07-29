@@ -262,6 +262,7 @@ class _RecipeCardState extends State<RecipeCard> {
   void _showRecipeDetails() {
     final theme = Theme.of(context);
     double screenWidth = MediaQuery.of(context).size.width;
+
     double fontSizeTitle = screenWidth * 0.015;
     double fontSizeDescription = screenWidth * 0.01;
     double fontSizeTimes = screenWidth * 0.008;
@@ -759,283 +760,641 @@ class _RecipeCardState extends State<RecipeCard> {
     });
   }
 
-  // void _showRecipeDetails() {
-  //   final theme = Theme.of(context);
+  void _showMobileRecipeDetails() {
+    final theme = Theme.of(context);
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
 
-  //   final clickColor = theme.brightness == Brightness.light
-  //       ? Colors.white
-  //       : Color.fromARGB(255, 25, 58, 48);
+    double dialogHeight =
+        screenHeight * 0.8; // 80% of screen height for the dialog
+    double imageHeight =
+        dialogHeight * 0.5; // 50% of dialog height for the image
+    double contentHeight =
+        dialogHeight * 0.5; // 50% of dialog height for the content
+
+    double fontSizeTitle = screenWidth * 0.05;
+
+    final clickColor =
+        theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor:
+              Colors.transparent, // Set background color to transparent
+          child: Container(
+            width: screenWidth * 0.8, // 80% of screen width for the dialog
+            height: dialogHeight, // 80% of screen height for the dialog
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: imageHeight, // 50% of dialog height for the image
+                    child: ClipRRect(
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(20)),
+                      child: Image.network(
+                        widget
+                            .imagePath, // Replace with your background image path
+                        fit: BoxFit.cover, // Adjust fit as necessary
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: imageHeight,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color.fromARGB(0, 0, 0, 0),
+                            Color.fromARGB(179, 0, 0, 0),
+                          ],
+                        ),
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(20)),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 20.0, // Adjust position as necessary
+                    left: 10.0, // Adjust position as necessary
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      iconSize: screenWidth * 0.05, // Adjust icon size
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        _fetchShoppingList(); // Refresh shopping list when dialog is closed
+                      },
+                    ),
+                  ),
+                  Positioned(
+                    top: 20.0, // Adjust position as necessary
+                    right: 10.0, // Adjust position as necessary
+                    child: IconButton(
+                      icon: Icon(
+                        _isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: _isFavorite ? Colors.red : Colors.white,
+                      ),
+                      iconSize: screenWidth * 0.05, // Adjust icon size
+                      onPressed: _toggleFavorite,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: contentHeight +
+                        10, // Adjust position to be at the bottom of the image
+                    left: 20.0,
+                    child: Text(
+                      widget.name,
+                      style: TextStyle(
+                        fontSize: fontSizeTitle,
+                        fontWeight: FontWeight.bold,
+                        color: Colors
+                            .white, // Ensure the text is visible on the image
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Positioned(
+                    top: imageHeight, // Position at the bottom of the image
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      width: screenWidth * 0.8,
+                      height:
+                          contentHeight, // 50% of dialog height for the content
+                      color: clickColor,
+                      child: DefaultTabController(
+                        length: 2,
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: MediaQuery.of(context).size.height *
+                                  0.01, // Adjust height
+                            ),
+                            TabBar(
+                              tabs: [
+                                Tab(text: 'Details'),
+                                Tab(text: 'Instructions'),
+                              ],
+                            ),
+                            Expanded(
+                              child: TabBarView(
+                                children: [
+                                  // Add your tab content here
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    ).then((_) {
+      // This will be called when the dialog is dismissed
+      _fetchShoppingList();
+    });
+  }
+
+  // void _showMobileRecipeDetails() {
+  //   final theme = Theme.of(context);
+  //   double screenWidth = MediaQuery.of(context).size.width;
+  //   double screenHeight = MediaQuery.of(context).size.height;
+
+  //   double fontSizeTitle = screenWidth * 0.05;
+  //   double fontSizeDescription = screenWidth * 0.01;
+  //   double fontSizeTimes = screenWidth * 0.008;
+
+  //   final clickColor =
+  //       theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
   //   showDialog(
   //     context: context,
   //     builder: (BuildContext context) {
-  //       final double screenWidth = MediaQuery.of(context).size.width;
-  //       final bool showImage =
-  //           screenWidth > 1359; // Adjust the threshold as needed
-
   //       return Dialog(
   //         backgroundColor: clickColor, // Change background color to green
   //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(screenWidth * 0.01),
+  //           borderRadius:
+  //               BorderRadius.circular(0), // No border radius for full screen
   //         ),
   //         child: Container(
-  //           width: screenWidth * 0.6, // Set width to 60% of screen width
-  //           height: MediaQuery.of(context).size.height *
-  //               0.8, // Set height to 80% of screen height
-  //           padding: EdgeInsets.only(
-  //             top: MediaQuery.of(context).size.height *
-  //                 0.04, // Adjust top padding to 4% of screen height
-  //             left: screenWidth *
-  //                 0.05, // Adjust left padding to 5% of screen width
-  //             right: screenWidth *
-  //                 0.05, // Adjust right padding to 5% of screen width
-  //           ),
-  //           child: Column(
-  //             children: [
-  //               Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                 children: [
-  //                   Flexible(
-  //                     child: Text(
-  //                       widget.name,
-  //                       style: TextStyle(
-  //                         fontSize: screenWidth *
-  //                             0.02, // Adjust font size to 2% of screen width
-  //                         fontWeight: FontWeight.bold,
-  //                       ),
-  //                       maxLines: 2,
-  //                       overflow: TextOverflow.ellipsis,
-  //                     ),
-  //                   ),
-  //                   Row(
-  //                     children: [
-  //                       IconButton(
-  //                         icon: Icon(
-  //                           _isFavorite
-  //                               ? Icons.favorite
-  //                               : Icons.favorite_border,
-  //                           color: _isFavorite ? Colors.red : Colors.grey,
+  //           width: screenWidth,
+  //           height: screenHeight,
+  //           padding: EdgeInsets.all(0), // No padding
+  //           child: DefaultTabController(
+  //             length: 2,
+  //             child: Column(
+  //               children: [
+  //                 Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     Row(
+  //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                       children: [
+  //                         IconButton(
+  //                           icon: Icon(Icons.arrow_back),
+  //                           iconSize: screenWidth *
+  //                               0.05, // Adjust icon size to 2% of screen width
+  //                           color: Colors.white,
+  //                           onPressed: () {
+  //                             Navigator.of(context).pop();
+  //                             _fetchShoppingList(); // Refresh shopping list when dialog is closed
+  //                           },
   //                         ),
-  //                         onPressed: _toggleFavorite,
-  //                       ),
-  //                       IconButton(
-  //                         icon: Icon(Icons.close),
-  //                         iconSize: screenWidth *
-  //                             0.02, // Adjust icon size to 2% of screen width
-  //                         onPressed: () {
-  //                           Navigator.of(context).pop();
-  //                           _fetchShoppingList(); // Refresh shopping list when dialog is closed
-  //                         },
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ],
-  //               ),
-  //               SizedBox(
-  //                   height: MediaQuery.of(context).size.height *
-  //                       0.01), // Adjust height to 1% of screen height
-  //               Expanded(
-  //                 child: SingleChildScrollView(
-  //                   child: Row(
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       Expanded(
-  //                         child: Column(
-  //                           crossAxisAlignment: CrossAxisAlignment.start,
-  //                           children: [
-  //                             Text(widget.description),
-  //                             SizedBox(
-  //                                 height: MediaQuery.of(context).size.height *
-  //                                     0.01), // Adjust height to 1% of screen height
-  //                             Row(
-  //                               children: [
-  //                                 Column(
-  //                                   crossAxisAlignment:
-  //                                       CrossAxisAlignment.center,
-  //                                   children: [
-  //                                     Text(
-  //                                       'Prep Time:',
-  //                                       style: TextStyle(
-  //                                           fontWeight: FontWeight.bold),
-  //                                     ),
-  //                                     Text('${widget.prepTime} mins'),
-  //                                   ],
-  //                                 ),
-  //                                 SizedBox(
-  //                                     width: screenWidth *
-  //                                         0.02), // 2% of screen width
-  //                                 VerticalDivider(
-  //                                   color: Colors
-  //                                       .black, // Customize the color as needed
-  //                                   thickness:
-  //                                       1, // Customize the thickness as needed
-  //                                   width: 1,
-  //                                 ),
-  //                                 SizedBox(
-  //                                     width: screenWidth *
-  //                                         0.02), // 2% of screen width
-  //                                 Column(
-  //                                   crossAxisAlignment:
-  //                                       CrossAxisAlignment.center,
-  //                                   children: [
-  //                                     Text(
-  //                                       'Cook Time:',
-  //                                       style: TextStyle(
-  //                                           fontWeight: FontWeight.bold),
-  //                                     ),
-  //                                     Text('${widget.cookTime} mins'),
-  //                                   ],
-  //                                 ),
-  //                                 SizedBox(
-  //                                     width: screenWidth *
-  //                                         0.02), // 2% of screen width
-  //                                 VerticalDivider(
-  //                                   color: Colors
-  //                                       .black, // Customize the color as needed
-  //                                   thickness:
-  //                                       1, // Customize the thickness as needed
-  //                                   width: 1,
-  //                                 ),
-  //                                 SizedBox(
-  //                                     width: screenWidth *
-  //                                         0.02), // 2% of screen width
-  //                                 Column(
-  //                                   crossAxisAlignment:
-  //                                       CrossAxisAlignment.center,
-  //                                   children: [
-  //                                     Text(
-  //                                       'Total Time:',
-  //                                       style: TextStyle(
-  //                                           fontWeight: FontWeight.bold),
-  //                                     ),
-  //                                     Text(
-  //                                         '${widget.prepTime + widget.cookTime} mins'),
-  //                                   ],
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                             SizedBox(
-  //                                 height: MediaQuery.of(context).size.height *
-  //                                     0.01), // Adjust height to 1% of screen height
-  //                             Text('Cuisine: ${widget.cuisine}'),
-  //                             Text('Spice Level: ${widget.spiceLevel}'),
-  //                             Text('Course: ${widget.course}'),
-  //                             Text('Servings: ${widget.servings}'),
-  //                             SizedBox(
-  //                                 height: MediaQuery.of(context).size.height *
-  //                                     0.02), // Adjust height to 2% of screen height
-  //                             Text('Ingredients:',
-  //                                 style:
-  //                                     TextStyle(fontWeight: FontWeight.bold)),
-  //                             SizedBox(
-  //                                 height: MediaQuery.of(context).size.height *
-  //                                     0.01), // Adjust height to 1% of screen height
-  //                             ...widget.ingredients
-  //                                 .asMap()
-  //                                 .entries
-  //                                 .map((entry) {
-  //                               int idx = entry.key;
-  //                               Map<String, dynamic> ingredient = entry.value;
-  //                               bool isInPantry = _pantryIngredients
-  //                                   .containsKey(ingredient['name']);
-  //                               double availableQuantity = isInPantry
-  //                                   ? (_pantryIngredients[ingredient['name']]
-  //                                           ?['quantity'] ??
-  //                                       0.0)
-  //                                   : 0.0;
-  //                               bool isInShoppingList = _shoppingList
-  //                                   .containsKey(ingredient['name']);
-
-  //                               return CheckableItem(
-  //                                 title:
-  //                                     '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-  //                                 requiredQuantity: ingredient['quantity'],
-  //                                 requiredUnit: ingredient['measurement_unit'],
-  //                                 onChanged: (bool? value) {
-  //                                   setState(() {
-  //                                     _ingredientChecked[idx] = value ?? false;
-  //                                   });
-  //                                 },
-  //                                 isInPantry: isInPantry,
-  //                                 availableQuantity: availableQuantity,
-  //                                 isChecked: _ingredientChecked[idx] ?? true,
-  //                                 isInShoppingList: isInShoppingList,
-  //                               );
-  //                             }),
-  //                             if (widget.ingredients.every((ingredient) =>
-  //                                 _pantryIngredients
-  //                                     .containsKey(ingredient['name']) &&
-  //                                 _pantryIngredients[ingredient['name']]![
-  //                                         'quantity'] >=
-  //                                     ingredient['quantity']))
-  //                               ElevatedButton(
-  //                                 onPressed: _removeIngredientsFromPantry,
-  //                                 child: Text('Remove ingredients from pantry'),
-  //                               ),
-
-  //                             SizedBox(
-  //                                 height: MediaQuery.of(context).size.height *
-  //                                     0.02), // Adjust height to 2% of screen height
-  //                             Text('Appliances:',
-  //                                 style:
-  //                                     TextStyle(fontWeight: FontWeight.bold)),
-  //                             SizedBox(
-  //                                 height: MediaQuery.of(context).size.height *
-  //                                     0.01), // Adjust height to 1% of screen height
-  //                             ...widget.appliances
-  //                                 .map((appliance) => Text(appliance)),
-  //                             SizedBox(
-  //                                 height: MediaQuery.of(context).size.height *
-  //                                     0.02), // Adjust height to 2% of screen height
-  //                             Text('Instructions:',
-  //                                 style:
-  //                                     TextStyle(fontWeight: FontWeight.bold)),
-  //                             SizedBox(
-  //                                 height: MediaQuery.of(context).size.height *
-  //                                     0.01), // Adjust height to 1% of screen height
-  //                             Column(
-  //                               crossAxisAlignment: CrossAxisAlignment.start,
-  //                               children: widget.steps.expand((step) {
-  //                                 return step
-  //                                     .split('<')
-  //                                     .map((subStep) => Padding(
-  //                                           padding: EdgeInsets.only(
-  //                                             bottom: MediaQuery.of(context)
-  //                                                     .size
-  //                                                     .height *
-  //                                                 0.01,
-  //                                           ),
-  //                                           child: Text(
-  //                                               '${widget.steps.indexOf(step) + 1}. $subStep'),
-  //                                         ));
-  //                               }).toList(),
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                       if (showImage) ...[
-  //                         SizedBox(
-  //                             width: screenWidth *
-  //                                 0.05), // 5% of screen width for spacing
-  //                         Container(
-  //                           width: screenWidth *
-  //                               0.2, // 20% of screen width for the image
-  //                           height: MediaQuery.of(context).size.height *
-  //                               0.5, // 50% of screen height for the image
-  //                           decoration: BoxDecoration(
-  //                             borderRadius: BorderRadius.circular(screenWidth *
-  //                                 0.005), // 0.5% of screen width for rounded corners
-  //                             image: DecorationImage(
-  //                               image: NetworkImage(widget.imagePath),
-  //                               fit: BoxFit.cover,
-  //                             ),
+  //                         IconButton(
+  //                           icon: Icon(
+  //                             _isFavorite
+  //                                 ? Icons.favorite
+  //                                 : Icons.favorite_border,
+  //                             color: _isFavorite ? Colors.red : Colors.white,
   //                           ),
+  //                           iconSize: screenWidth * 0.05,
+  //                           onPressed: _toggleFavorite,
   //                         ),
   //                       ],
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 SizedBox(
+  //                     height: MediaQuery.of(context).size.height *
+  //                         0.01), // Adjust height to 1% of screen height
+  //                 Flexible(
+  //                   child: Text(
+  //                     widget.name,
+  //                     style: TextStyle(
+  //                       fontSize: fontSizeTitle,
+  //                       fontWeight: FontWeight.bold,
+  //                     ),
+  //                     maxLines: 2,
+  //                     overflow: TextOverflow.ellipsis,
+  //                   ),
+  //                 ),
+  //                 TabBar(
+  //                   tabs: [
+  //                     Tab(text: 'Details'),
+  //                     Tab(text: 'Instructions'),
+  //                   ],
+  //                 ),
+  //                 Expanded(
+  //                   child: TabBarView(
+  //                     children: [
+  //                       // Recipe Details Tab
+  //                       //   SingleChildScrollView(
+  //                       //     child: Padding(
+  //                       //       padding: EdgeInsets.only(
+  //                       //           top: MediaQuery.of(context).size.height * 0.04),
+  //                       //       child: Column(
+  //                       //         children: [
+  //                       //           Container(
+  //                       //             width: screenWidth *
+  //                       //                 0.2, // 20% of screen width for the image
+  //                       //             height: MediaQuery.of(context).size.height *
+  //                       //                 0.5, // 50% of screen height for the image
+  //                       //             decoration: BoxDecoration(
+  //                       //               borderRadius: BorderRadius.circular(
+  //                       //                   screenWidth *
+  //                       //                       0.005), // 0.5% of screen width for rounded corners
+  //                       //               image: DecorationImage(
+  //                       //                 image: NetworkImage(widget.imagePath),
+  //                       //                 fit: BoxFit.cover,
+  //                       //               ),
+  //                       //             ),
+  //                       //           ),
+  //                       //           SizedBox(
+  //                       //             width: screenWidth *
+  //                       //                 0.05, // 5% of screen width for spacing
+  //                       //           ),
+  //                       //           Expanded(
+  //                       //             child: Column(
+  //                       //               crossAxisAlignment:
+  //                       //                   CrossAxisAlignment.start,
+  //                       //               children: [
+  //                       //                 Text(widget.description),
+  //                       //                 SizedBox(
+  //                       //                     height: MediaQuery.of(context)
+  //                       //                             .size
+  //                       //                             .height *
+  //                       //                         0.01), // Adjust height to 1% of screen height
+  //                       //                 Row(
+  //                       //                   mainAxisAlignment:
+  //                       //                       MainAxisAlignment.center,
+  //                       //                   crossAxisAlignment:
+  //                       //                       CrossAxisAlignment.center,
+  //                       //                   children: [
+  //                       //                     Column(
+  //                       //                       children: [
+  //                       //                         Row(
+  //                       //                           mainAxisAlignment:
+  //                       //                               MainAxisAlignment.center,
+  //                       //                           crossAxisAlignment:
+  //                       //                               CrossAxisAlignment.center,
+  //                       //                           children: [
+  //                       //                             Column(
+  //                       //                               mainAxisAlignment:
+  //                       //                                   MainAxisAlignment
+  //                       //                                       .center,
+  //                       //                               crossAxisAlignment:
+  //                       //                                   CrossAxisAlignment
+  //                       //                                       .start,
+  //                       //                               children: [
+  //                       //                                 Text(
+  //                       //                                   'Prep Time:',
+  //                       //                                   style: TextStyle(
+  //                       //                                     color: Colors.white,
+  //                       //                                     fontSize:
+  //                       //                                         fontSizeTimes,
+  //                       //                                     fontWeight:
+  //                       //                                         FontWeight.bold,
+  //                       //                                   ),
+  //                       //                                 ),
+  //                       //                                 SizedBox(
+  //                       //                                   height: MediaQuery.of(
+  //                       //                                               context)
+  //                       //                                           .size
+  //                       //                                           .width *
+  //                       //                                       0.006,
+  //                       //                                 ),
+  //                       //                                 Padding(
+  //                       //                                   padding:
+  //                       //                                       EdgeInsets.only(
+  //                       //                                     left: MediaQuery.of(
+  //                       //                                                 context)
+  //                       //                                             .size
+  //                       //                                             .width *
+  //                       //                                         0.006,
+  //                       //                                   ),
+  //                       //                                   child: Text(
+  //                       //                                     '${widget.prepTime} mins',
+  //                       //                                     style: TextStyle(
+  //                       //                                       color: Colors.white,
+  //                       //                                       fontSize:
+  //                       //                                           fontSizeTimes,
+  //                       //                                     ),
+  //                       //                                   ),
+  //                       //                                 ),
+  //                       //                               ],
+  //                       //                             ),
+  //                       //                             SizedBox(
+  //                       //                               height:
+  //                       //                                   MediaQuery.of(context)
+  //                       //                                           .size
+  //                       //                                           .width *
+  //                       //                                       0.008,
+  //                       //                             ), // Add spacing between elements
+  //                       //                             Container(
+  //                       //                               height: MediaQuery.of(
+  //                       //                                           context)
+  //                       //                                       .size
+  //                       //                                       .width *
+  //                       //                                   0.03, // Set a fixed height for the vertical divider
+  //                       //                               child:
+  //                       //                                   const VerticalDivider(
+  //                       //                                 width: 20,
+  //                       //                                 thickness: 1.8,
+  //                       //                                 indent: 20,
+  //                       //                                 endIndent: 0,
+  //                       //                                 color: Colors.white,
+  //                       //                               ),
+  //                       //                             ),
+  //                       //                             SizedBox(
+  //                       //                               height:
+  //                       //                                   MediaQuery.of(context)
+  //                       //                                           .size
+  //                       //                                           .width *
+  //                       //                                       0.008,
+  //                       //                             ), // Add spacing between elements
+  //                       //                             Column(
+  //                       //                               mainAxisAlignment:
+  //                       //                                   MainAxisAlignment
+  //                       //                                       .center,
+  //                       //                               crossAxisAlignment:
+  //                       //                                   CrossAxisAlignment
+  //                       //                                       .start,
+  //                       //                               children: [
+  //                       //                                 Text(
+  //                       //                                   'Cook Time:',
+  //                       //                                   style: TextStyle(
+  //                       //                                     color: Colors.white,
+  //                       //                                     fontSize:
+  //                       //                                         fontSizeTimes,
+  //                       //                                     fontWeight:
+  //                       //                                         FontWeight.bold,
+  //                       //                                   ),
+  //                       //                                 ),
+  //                       //                                 SizedBox(
+  //                       //                                   height: MediaQuery.of(
+  //                       //                                               context)
+  //                       //                                           .size
+  //                       //                                           .width *
+  //                       //                                       0.006,
+  //                       //                                 ),
+  //                       //                                 Padding(
+  //                       //                                   padding:
+  //                       //                                       EdgeInsets.only(
+  //                       //                                     left: MediaQuery.of(
+  //                       //                                                 context)
+  //                       //                                             .size
+  //                       //                                             .width *
+  //                       //                                         0.006,
+  //                       //                                   ),
+  //                       //                                   child: Text(
+  //                       //                                     '${widget.cookTime} mins',
+  //                       //                                     style: TextStyle(
+  //                       //                                       color: Colors.white,
+  //                       //                                       fontSize:
+  //                       //                                           fontSizeTimes,
+  //                       //                                     ),
+  //                       //                                   ),
+  //                       //                                 ),
+  //                       //                               ],
+  //                       //                             ),
+  //                       //                           ],
+  //                       //                         ),
+  //                       //                       ],
+  //                       //                     ),
+  //                       //                     SizedBox(
+  //                       //                       height: MediaQuery.of(context)
+  //                       //                               .size
+  //                       //                               .width *
+  //                       //                           0.008,
+  //                       //                     ), // Add spacing between elements
+  //                       //                     Container(
+  //                       //                       height: MediaQuery.of(context)
+  //                       //                               .size
+  //                       //                               .width *
+  //                       //                           0.03, // Set a fixed height for the vertical divider
+  //                       //                       child: const VerticalDivider(
+  //                       //                         width: 20,
+  //                       //                         thickness: 1.8,
+  //                       //                         indent: 20,
+  //                       //                         endIndent: 0,
+  //                       //                         color: Colors.white,
+  //                       //                       ),
+  //                       //                     ),
+  //                       //                     SizedBox(
+  //                       //                       height: MediaQuery.of(context)
+  //                       //                               .size
+  //                       //                               .width *
+  //                       //                           0.008,
+  //                       //                     ), // Add spacing between elements
+  //                       //                     Column(
+  //                       //                       mainAxisAlignment:
+  //                       //                           MainAxisAlignment.center,
+  //                       //                       crossAxisAlignment:
+  //                       //                           CrossAxisAlignment.start,
+  //                       //                       children: [
+  //                       //                         Text(
+  //                       //                           'Total Time:',
+  //                       //                           style: TextStyle(
+  //                       //                             color: Colors.white,
+  //                       //                             fontSize: fontSizeTimes,
+  //                       //                             fontWeight: FontWeight.bold,
+  //                       //                           ),
+  //                       //                         ),
+  //                       //                         SizedBox(
+  //                       //                           height: MediaQuery.of(context)
+  //                       //                                   .size
+  //                       //                                   .width *
+  //                       //                               0.006,
+  //                       //                         ),
+  //                       //                         Padding(
+  //                       //                           padding: EdgeInsets.only(
+  //                       //                             left: MediaQuery.of(context)
+  //                       //                                     .size
+  //                       //                                     .width *
+  //                       //                                 0.006,
+  //                       //                           ),
+  //                       //                           child: Text(
+  //                       //                             '${widget.prepTime + widget.cookTime} mins',
+  //                       //                             style: TextStyle(
+  //                       //                               color: Colors.white,
+  //                       //                               fontSize: fontSizeTimes,
+  //                       //                             ),
+  //                       //                           ),
+  //                       //                         ),
+  //                       //                       ],
+  //                       //                     ),
+  //                       //                   ],
+  //                       //                 ),
+  //                       //                 SizedBox(
+  //                       //                     height: MediaQuery.of(context)
+  //                       //                             .size
+  //                       //                             .height *
+  //                       //                         0.01), // Adjust height to 1% of screen height
+  //                       //                 Text('Cuisine: ${widget.cuisine}'),
+  //                       //                 Text('Spice Level: ${widget.spiceLevel}'),
+  //                       //                 Text('Course: ${widget.course}'),
+  //                       //                 Text('Servings: ${widget.servings}'),
+  //                       //                 SizedBox(
+  //                       //                     height: MediaQuery.of(context)
+  //                       //                             .size
+  //                       //                             .height *
+  //                       //                         0.02), // Adjust height to 2% of screen height
+  //                       //                 Text('Ingredients:',
+  //                       //                     style: TextStyle(
+  //                       //                         fontWeight: FontWeight.bold)),
+  //                       //                 SizedBox(
+  //                       //                     height: MediaQuery.of(context)
+  //                       //                             .size
+  //                       //                             .height *
+  //                       //                         0.01), // Adjust height to 1% of screen height
+  //                       //                 ...widget.ingredients
+  //                       //                     .asMap()
+  //                       //                     .entries
+  //                       //                     .map((entry) {
+  //                       //                   int idx = entry.key;
+  //                       //                   Map<String, dynamic> ingredient =
+  //                       //                       entry.value;
+  //                       //                   bool isInPantry = _pantryIngredients
+  //                       //                       .containsKey(ingredient['name']);
+  //                       //                   double availableQuantity = isInPantry
+  //                       //                       ? (_pantryIngredients[
+  //                       //                                   ingredient['name']]
+  //                       //                               ?['quantity'] ??
+  //                       //                           0.0)
+  //                       //                       : 0.0;
+  //                       //                   bool isInShoppingList = _shoppingList
+  //                       //                       .containsKey(ingredient['name']);
+
+  //                       //                   return CheckableItem(
+  //                       //                     title:
+  //                       //                         '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
+  //                       //                     requiredQuantity:
+  //                       //                         ingredient['quantity'],
+  //                       //                     requiredUnit:
+  //                       //                         ingredient['measurement_unit'],
+  //                       //                     onChanged: (bool? value) {
+  //                       //                       setState(() {
+  //                       //                         _ingredientChecked[idx] =
+  //                       //                             value ?? false;
+  //                       //                       });
+  //                       //                     },
+  //                       //                     isInPantry: isInPantry,
+  //                       //                     availableQuantity: availableQuantity,
+  //                       //                     isChecked:
+  //                       //                         _ingredientChecked[idx] ?? true,
+  //                       //                     isInShoppingList: isInShoppingList,
+  //                       //                   );
+  //                       //                 }),
+  //                       //                 if (widget.ingredients.every(
+  //                       //                     (ingredient) =>
+  //                       //                         _pantryIngredients.containsKey(
+  //                       //                             ingredient['name']) &&
+  //                       //                         _pantryIngredients[ingredient[
+  //                       //                                 'name']]!['quantity'] >=
+  //                       //                             ingredient['quantity']))
+  //                       //                   ElevatedButton(
+  //                       //                     onPressed:
+  //                       //                         _removeIngredientsFromPantry,
+  //                       //                     child: Text(
+  //                       //                         'Remove ingredients from pantry'),
+  //                       //                   ),
+  //                       //                 SizedBox(
+  //                       //                     height: MediaQuery.of(context)
+  //                       //                             .size
+  //                       //                             .height *
+  //                       //                         0.02), // Adjust height to 2% of screen height
+  //                       //                 Text('Appliances:',
+  //                       //                     style: TextStyle(
+  //                       //                         fontWeight: FontWeight.bold)),
+  //                       //                 SizedBox(
+  //                       //                     height: MediaQuery.of(context)
+  //                       //                             .size
+  //                       //                             .height *
+  //                       //                         0.01), // Adjust height to 1% of screen height
+  //                       //                 ...widget.appliances
+  //                       //                     .map((appliance) => Text(appliance)),
+  //                       //               ],
+  //                       //             ),
+  //                       //           ),
+  //                       //         ],
+  //                       //       ),
+  //                       //     ),
+  //                       //   ),
+  //                       //   // Instructions Tab
+  //                       //   SingleChildScrollView(
+  //                       //     child: Column(
+  //                       //       //crossAxisAlignment: CrossAxisAlignment.start,
+  //                       //       children: [
+  //                       //         Container(
+  //                       //           width: screenWidth *
+  //                       //               0.2, // 20% of screen width for the image
+  //                       //           height: MediaQuery.of(context).size.height *
+  //                       //               0.5, // 50% of screen height for the image
+  //                       //           decoration: BoxDecoration(
+  //                       //             borderRadius: BorderRadius.circular(screenWidth *
+  //                       //                 0.005), // 0.5% of screen width for rounded corners
+  //                       //             image: DecorationImage(
+  //                       //               image: NetworkImage(widget.imagePath),
+  //                       //               fit: BoxFit.cover,
+  //                       //             ),
+  //                       //           ),
+  //                       //         ),
+  //                       //         SizedBox(
+  //                       //           width: screenWidth *
+  //                       //               0.05, // 5% of screen width for spacing
+  //                       //         ),
+  //                       //         Expanded(
+  //                       //           child: Column(
+  //                       //             crossAxisAlignment: CrossAxisAlignment.start,
+  //                       //             children: [
+  //                       //               Text('Instructions:',
+  //                       //                   style: TextStyle(
+  //                       //                       fontWeight: FontWeight.bold)),
+  //                       //               SizedBox(
+  //                       //                   height: MediaQuery.of(context)
+  //                       //                           .size
+  //                       //                           .height *
+  //                       //                       0.01), // Adjust height to 1% of screen height
+  //                       //               Column(
+  //                       //                 crossAxisAlignment:
+  //                       //                     CrossAxisAlignment.start,
+  //                       //                 children: widget.steps.expand((step) {
+  //                       //                   return step
+  //                       //                       .split('<')
+  //                       //                       .map((subStep) => Padding(
+  //                       //                             padding: EdgeInsets.only(
+  //                       //                               bottom:
+  //                       //                                   MediaQuery.of(context)
+  //                       //                                           .size
+  //                       //                                           .height *
+  //                       //                                       0.01,
+  //                       //                             ),
+  //                       //                             child: Text(
+  //                       //                                 '${widget.steps.indexOf(step) + 1}. $subStep'),
+  //                       //                           ));
+  //                       //                 }).toList(),
+  //                       //               ),
+  //                       //             ],
+  //                       //           ),
+  //                       //         ),
+  //                       //       ],
+  //                       //     ),
+  //                       //   ),
   //                     ],
   //                   ),
   //                 ),
-  //               ),
-  //             ],
+  //               ],
+  //             ),
   //           ),
   //         ),
   //       );
@@ -1059,8 +1418,17 @@ class _RecipeCardState extends State<RecipeCard> {
         : Color.fromARGB(15, 0, 0, 0).withOpacity(0.5);
 
     bool enableHover = screenWidth >= 1029;
+
+    void _handleTap() {
+      if (screenWidth < 450) {
+        _showMobileRecipeDetails();
+      } else {
+        _showRecipeDetails();
+      }
+    }
+
     return GestureDetector(
-      onTap: _showRecipeDetails,
+      onTap: _handleTap,
       child: MouseRegion(
         onEnter: enableHover ? (_) => _onHover(true) : null,
         onExit: enableHover ? (_) => _onHover(false) : null,
