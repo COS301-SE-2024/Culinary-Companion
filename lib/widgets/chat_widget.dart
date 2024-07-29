@@ -3,6 +3,18 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ChatWidget extends StatefulWidget {
+  final String recipeName;
+  final String recipeDescription;
+  final List<Map<String, dynamic>> ingredients;
+  final List<String> steps;
+
+  ChatWidget({
+    required this.recipeName,
+    required this.recipeDescription,
+    required this.ingredients,
+    required this.steps,
+  });
+
   @override
   _ChatWidgetState createState() => _ChatWidgetState();
 }
@@ -33,7 +45,17 @@ class _ChatWidgetState extends State<ChatWidget> {
       setState(() {
         _messages.add({"sender": "You", "text": _controller.text});
       });
-      var content = [Content.text(_controller.text)];
+
+      var content = [
+        Content.text(
+          "Recipe Name: ${widget.recipeName}\n"
+          "Description: ${widget.recipeDescription}\n"
+          "Ingredients: ${widget.ingredients.map((e) => '${e['quantity']} ${e['measurement_unit']} of ${e['name']}').join(', ')}\n"
+          "Steps: ${widget.steps.join('. ')}\n"
+          "Question: ${_controller.text}"
+        )
+      ];
+
       var response = await model.generateContent(content);
       setState(() {
         _messages.add({"sender": "Chef Tess", "text": response.text ?? 'No response text'});
