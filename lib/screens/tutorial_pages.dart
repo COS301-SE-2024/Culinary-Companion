@@ -81,17 +81,17 @@ class _TutorialPagesState extends State<TutorialPages>
 
     return isMobile
         ? MobileTutorial(
-            // pageController: _pageController,
-            // pages: _pages,
-            // currentPage: _currentPage,
-            // backgroundColor: _backgroundColor,
-            // goToHome: _goToHome,
-            // onPageChanged: (int page) {
-            //   setState(() {
-            //     _currentPage = page;
-            //   });
-            //   _animationController.forward(from: 0);
-            // },
+            pageController: _pageController,
+            pages: _pages,
+            currentPage: _currentPage,
+            backgroundColor: _backgroundColor,
+            goToHome: _goToHome,
+            onPageChanged: (int page) {
+              setState(() {
+                _currentPage = page;
+              });
+              _animationController.forward(from: 0);
+            },
             )
         : DesktopTutorial(
             pageController: _pageController,
