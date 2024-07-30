@@ -119,12 +119,12 @@ flutter:
     - assets/logo_1.png
     - assets/logo_2.png
     - assets/emptyPlate.jpg
-    - assets/welcome_animation.png
-    # - assets/pantry_image.png
-    # - assets/shopping_list_image.png
-    # - assets/appliance_image.png
-    # - assets/add_recipe_image.png
-    # - assets/discover_image.png
+    - assets/welcome.png
+    - assets/pantry.png
+    - assets/shopping.png
+    - assets/appliances.png
+    - assets/recipes.png
+    - assets/savour.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
