@@ -213,8 +213,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           selected: tempIngredientOption == option,
                           onSelected: (isSelected) {
                             setState(() {
-                              tempIngredientOption =
-                                  isSelected ? option : null;
+                              tempIngredientOption = isSelected ? option : null;
                             });
                           },
                         );
@@ -269,15 +268,17 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-   Widget _buildFilterChips() {
+  Widget _buildFilterChips() {
     List<Widget> chips = [];
 
     if (selectedDietaryOptions.isNotEmpty) {
-      chips.addAll(selectedDietaryOptions.map((option) => Chip(label: Text(option))));
+      chips.addAll(
+          selectedDietaryOptions.map((option) => Chip(label: Text(option))));
     }
 
     if (selectedCourseTypeOptions.isNotEmpty) {
-      chips.addAll(selectedCourseTypeOptions.map((option) => Chip(label: Text(option))));
+      chips.addAll(
+          selectedCourseTypeOptions.map((option) => Chip(label: Text(option))));
     }
 
     if (selectedSpiceLevel != null) {
@@ -289,7 +290,8 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     if (selectedDietaryOptions.isNotEmpty) {
-      chips.addAll(selectedDietaryOptions.map((option) => Chip(label: Text(option))));
+      chips.addAll(
+          selectedDietaryOptions.map((option) => Chip(label: Text(option))));
     }
 
     return Wrap(
@@ -308,36 +310,41 @@ class _SearchScreenState extends State<SearchScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.filter_alt_rounded),
-            onPressed: _openFilterModal,
-          ),
-        ],
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: _searchController,
-              cursorColor: textColor,
-              decoration: InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: textColor),
-                  borderRadius: BorderRadius.circular(20),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    cursorColor: textColor,
+                    decoration: InputDecoration(
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: textColor),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: textColor),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      labelText: 'Search',
+                      labelStyle: TextStyle(color: textColor),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: () => _performSearch(_searchController.text),
+                      ),
+                    ),
+                  ),
                 ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(color: textColor),
-                  borderRadius: BorderRadius.circular(20),
+                IconButton(
+                  icon: Icon(Icons.filter_alt_rounded),
+                  color: textColor,
+                  onPressed: _openFilterModal,
                 ),
-                labelText: 'Search',
-                labelStyle: TextStyle(color: textColor),
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.search),
-                  onPressed: () => _performSearch(_searchController.text),
-                ),
-              ),
+              ],
             ),
             SizedBox(height: 10),
             _buildFilterChips(),
