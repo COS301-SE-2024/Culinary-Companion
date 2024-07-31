@@ -70,7 +70,7 @@ Future<void> _fetchUserId() async {
 
 void _updateIngredientCounts() {
   int inPantry = 0;
-  int needed = 0;
+  //int needed = 0;
 
   for (var ingredient in widget.ingredients) {
     String name = ingredient['name'];
@@ -81,10 +81,10 @@ void _updateIngredientCounts() {
       if (availableQuantity >= requiredQuantity) {
         inPantry++;
       } else {
-        needed++;
+        //needed++;
       }
     } else {
-      needed++;
+      //needed++;
     }
   }
 
