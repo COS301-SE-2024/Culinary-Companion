@@ -11,6 +11,10 @@ class _SearchScreenState extends State<SearchScreen> {
   TextEditingController _searchController = TextEditingController();
   List<String> _searchResults = [];
 
+  final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
+
+  List<String> cuisineType = [];
+
   List<String> dietaryOptions = [
     'Vegan',
     'Vegetarian',
@@ -23,11 +27,21 @@ class _SearchScreenState extends State<SearchScreen> {
     'Low Calorie',
     'Low Carb',
     'Low Sugar'
-  ]; //Change these so it is fetched from database
+  ]; //Change these so it is fetched from database!!!
 
-  final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
+  List<String> ingredientOptions = [
+    'Need 1 Extra Ingredient',
+    'Mostly in My Pantry',
+    'All Ingredients Available'
+  ]; //double check these options!!
 
-  List<String> cuisineType = [];
+  List<String> spiceLevelOptions = [
+    'None',
+    'Mild',
+    'Medium',
+    'Hot',
+    'Extra Hot'
+  ];
 
   @override
   void initState() {
@@ -68,12 +82,14 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  Set<String> selectedDietaryOptions = {};
   Set<String> selectedCourseTypeOptions = {};
   Set<String> selectedCuisineType = {};
+  Set<String> selectedDietaryOptions = {};
+  String? selectedSpiceLevel;
+  String? selectedIngredientOption;
 
   void _performSearch(String query) {
-    // Replace this with the actual search logic
+    // Replace this with the actual search logic!!!
     setState(() {
       _searchResults = ['Recipe 1', 'Recipe 2', 'Recipe 3']
           .where((recipe) => recipe.toLowerCase().contains(query.toLowerCase()))
@@ -100,7 +116,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     Text('Filter',
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 10),
+                    SizedBox(height: 15),
                     Text('Dietary Constraints:',
                         style: TextStyle(fontSize: 16)),
                     Wrap(
@@ -119,7 +135,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 15),
                     Text('Course Type:', style: TextStyle(fontSize: 16)),
                     Wrap(
                       spacing: 8.0,
@@ -137,7 +153,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 15),
                     Text('Cuisine Type:', style: TextStyle(fontSize: 16)),
                     Wrap(
                       spacing: 8.0,
@@ -155,7 +171,40 @@ class _SearchScreenState extends State<SearchScreen> {
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
+                    Text('Spice Level:', style: TextStyle(fontSize: 16)),
+                    Wrap(
+                      spacing: 8.0,
+                      children: spiceLevelOptions.map((option) {
+                        return ChoiceChip(
+                          label: Text(option),
+                          selected: selectedSpiceLevel == option,
+                          onSelected: (isSelected) {
+                            setState(() {
+                              selectedSpiceLevel = isSelected ? option : null;
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    SizedBox(height: 15),
+                    Text('Ingredients:', style: TextStyle(fontSize: 16)),
+                    Wrap(
+                      spacing: 8.0,
+                      children: ingredientOptions.map((option) {
+                        return ChoiceChip(
+                          label: Text(option),
+                          selected: selectedIngredientOption == option,
+                          onSelected: (isSelected) {
+                            setState(() {
+                              selectedIngredientOption =
+                                  isSelected ? option : null;
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    SizedBox(height: 25),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -165,6 +214,8 @@ class _SearchScreenState extends State<SearchScreen> {
                               selectedDietaryOptions.clear();
                               selectedCourseTypeOptions.clear();
                               selectedCuisineType.clear();
+                              selectedSpiceLevel = null;
+                              selectedIngredientOption = null;
                             });
                           },
                           child: Text(
