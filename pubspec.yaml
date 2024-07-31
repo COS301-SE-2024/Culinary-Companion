@@ -46,6 +46,8 @@ dependencies:
   google_generative_ai: ^0.4.3
   flutter_dotenv: ^5.1.0
   google_fonts: ^6.2.1
+  flutter_svg: ^1.0.3
+  animate_do: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -118,6 +120,12 @@ flutter:
     - assets/logo_1.png
     - assets/logo_2.png
     - assets/emptyPlate.jpg
+    - assets/welcome.png
+    - assets/pantry.png
+    - assets/shopping.png
+    - assets/appliances.png
+    - assets/recipes.png
+    - assets/savour.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
