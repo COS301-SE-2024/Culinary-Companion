@@ -48,7 +48,7 @@ class _RecipeCardState extends State<RecipeCard> {
   Map<String, Map<String, dynamic>> _shoppingList = {};
   String? userId;
   int _ingredientsInPantry = 0; //number of ingredients that I have
-  int _ingredientsNeeded = 0; //number of ingredients I still need to buy
+ // int _ingredientsNeeded = 0; //number of ingredients I still need to buy
 
 
   @override
@@ -90,7 +90,7 @@ void _updateIngredientCounts() {
 
   setState(() {
     _ingredientsInPantry = inPantry;
-    _ingredientsNeeded = needed;
+    //_ingredientsNeeded = needed;
   });
 }
 
