@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -97,7 +97,9 @@ Deno.serve(async (req) => {
                 return editShoppingListItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
             case 'editPantryItem':
                 return editPantryItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
-            default:
+            case 'searchRecipes':
+                return searchRecipes(searchTerm,corsHeaders);
+                default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
                     headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -110,6 +112,44 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+async function searchRecipes(searchTerm: string, corsHeaders: HeadersInit) {
+    if (!searchTerm) {
+        return new Response(JSON.stringify({ error: 'Search term is required' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    try {
+        // Perform the search on multiple fields using `ilike` for case-insensitive matching
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('recipeid, name, description')
+            .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,course.ilike.%${searchTerm}%,cuisine.ilike.%${searchTerm}%,keywords.ilike.%${searchTerm}%`);
+
+        if (recipesError) {
+            console.error('Error searching for recipes:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        // Return the list of matching recipes with only the necessary fields
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in searchRecipes function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 // Get all the ingredients and their attributes
 async function getAllIngredients(corsHeaders: HeadersInit) {
