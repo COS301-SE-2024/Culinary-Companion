@@ -29,15 +29,15 @@ class _ChatWidgetState extends State<ChatWidget> {
   final List<Map<String, String>> _messages = [];
   late final GenerativeModel model;
 
-  //String? _cuisine;
   int? _spiceLevel;
   List<String>? _dietaryConstraints;
-  
+  List<String> _suggestedPrompts = [];
 
   @override
   void initState() {
     super.initState();
     _initializeChat();
+    _generateSuggestedPrompts();
   }
 
   Future<void> _initializeChat() async {
@@ -49,7 +49,6 @@ class _ChatWidgetState extends State<ChatWidget> {
     }
     model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
 
-    // Fetch user details
     await _fetchUserDetails();
   }
 
@@ -66,10 +65,8 @@ class _ChatWidgetState extends State<ChatWidget> {
         final data = json.decode(response.body);
         if (data.isNotEmpty) {
           setState(() {
-           // _cuisine = data[0]['cuisine'];
             _spiceLevel = data[0]['spicelevel'];
             _dietaryConstraints = List<String>.from(data[0]['dietaryConstraints']);
-            print('$_dietaryConstraints');
           });
         }
       } else {
@@ -80,10 +77,22 @@ class _ChatWidgetState extends State<ChatWidget> {
     }
   }
 
-  void _sendMessage() async {
-    if (_controller.text.isNotEmpty) {
+  void _generateSuggestedPrompts() {
+    _suggestedPrompts = [
+      "How can I make this recipe spicier?",
+      "What can I substitute for an ingredient I don't have?",
+      "Can I make this recipe vegan?",
+      "What are some tips for cooking this dish?",
+      "Explain step 1 of the recipe more clearly"
+    ];
+  }
+
+  void _sendMessage({String? message}) async {
+    String text = message ?? _controller.text;
+
+    if (text.isNotEmpty) {
       setState(() {
-        _messages.add({"sender": "You", "text": _controller.text});
+        _messages.add({"sender": "You", "text": text});
       });
 
       var content = [
@@ -92,10 +101,9 @@ class _ChatWidgetState extends State<ChatWidget> {
           "Description: ${widget.recipeDescription}\n"
           "Ingredients: ${widget.ingredients.map((e) => '${e['quantity']} ${e['measurement_unit']} of ${e['name']}').join(', ')}\n"
           "Steps: ${widget.steps.join('. ')}\n"
-          //"Cuisine: $_cuisine\n"
           "Spice Level: $_spiceLevel\n"
           "Dietary Restrictions: ${_dietaryConstraints?.join(', ')}\n"
-          "Question: ${_controller.text}"
+          "Question: $text"
         )
       ];
 
@@ -150,6 +158,20 @@ class _ChatWidgetState extends State<ChatWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (_suggestedPrompts.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Wrap(
+                spacing: 6.0,
+                runSpacing: 6.0,
+                children: _suggestedPrompts.map((prompt) {
+                  return ActionChip(
+                    label: Text(prompt),
+                    onPressed: () => _sendMessage(message: prompt),
+                  );
+                }).toList(),
+              ),
+            ),
           Expanded(
             child: ListView.builder(
               padding: EdgeInsets.all(10),
@@ -175,7 +197,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                 ),
                 IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: _sendMessage,
+                  onPressed: () => _sendMessage(),
                 ),
               ],
             ),
