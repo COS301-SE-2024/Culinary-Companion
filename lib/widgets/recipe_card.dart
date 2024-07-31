@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_function_literals_in_foreach_calls
+
 import 'chat_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -133,6 +135,8 @@ class _RecipeCardState extends State<RecipeCard> {
                   'measurementUnit': unit
                 };
                 // Update the state to reflect that the ingredient is in the shopping list
+                // ignore: duplicate_ignore
+                // ignore: avoid_function_literals_in_foreach_calls
                 widget.ingredients.forEach((ingredient) {
                   if (ingredient['name'] == name) {
                     widget.ingredients[widget.ingredients.indexOf(ingredient)]
