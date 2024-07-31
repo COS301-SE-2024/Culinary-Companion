@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'screens/landing_screen.dart'; // Import the new landing screen
 import 'screens/login_screen.dart'; // Import the new login screen
 import 'screens/signup_screen.dart'; // Import the new signup screen
+import 'screens/tutorial_pages.dart';
 import 'screens/confirm_details.dart'; //Import the confirm details, a.k.a Signup 2 page
 import 'screens/main.dart'; // Import the main screen
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -83,6 +84,7 @@ class CulinaryCompanionApp extends StatelessWidget {
             ), // Add the signup screen route
         '/home': (context) => MainScreen(), // Rename the home route
         '/confirm': (context) => ConfirmDetailsScreen(),
+        '/tutorial': (context) => TutorialPages(),
       },
     );
   }
