@@ -49,8 +49,7 @@ class _RecipeCardState extends State<RecipeCard> {
   Map<String, Map<String, dynamic>> _shoppingList = {};
   String? userId;
   int _ingredientsInPantry = 0; //number of ingredients that I have
- // int _ingredientsNeeded = 0; //number of ingredients I still need to buy
-
+  // int _ingredientsNeeded = 0; //number of ingredients I still need to buy
 
   @override
   void initState() {
@@ -60,8 +59,7 @@ class _RecipeCardState extends State<RecipeCard> {
     _fetchPantryIngredients();
     _fetchUserId();
     //_updateIngredientCounts();
-}
-
+  }
 
   Future<void> _fetchUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -70,51 +68,86 @@ class _RecipeCardState extends State<RecipeCard> {
     });
   }
 
-void _updateIngredientCounts() {
-  int inPantry = 0;
-  //int needed = 0;
+  void _updateIngredientCounts() {
+    int inPantry = 0;
+    //int needed = 0;
 
-  for (var ingredient in widget.ingredients) {
-    String name = ingredient['name'];
-    double requiredQuantity = ingredient['quantity'];
+    for (var ingredient in widget.ingredients) {
+      String name = ingredient['name'];
+      double requiredQuantity = ingredient['quantity'];
 
-    if (_pantryIngredients.containsKey(name)) {
-      double availableQuantity = _pantryIngredients[name]!['quantity'];
-      if (availableQuantity >= requiredQuantity) {
-        inPantry++;
+      if (_pantryIngredients.containsKey(name)) {
+        double availableQuantity = _pantryIngredients[name]!['quantity'];
+        if (availableQuantity >= requiredQuantity) {
+          inPantry++;
+        } else {
+          //needed++;
+        }
       } else {
         //needed++;
       }
-    } else {
-      //needed++;
     }
+
+    setState(() {
+      _ingredientsInPantry = inPantry;
+      //_ingredientsNeeded = needed;
+    });
   }
 
-  setState(() {
-    _ingredientsInPantry = inPantry;
-    //_ingredientsNeeded = needed;
-  });
-}
+  Future<void> _addAllToShoppingList() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
 
-Future<void> _addAllToShoppingList() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? userId = prefs.getString('userId');
+    for (var ingredient in widget.ingredients) {
+      String name = ingredient['name'];
+      double requiredQuantity = ingredient['quantity'];
+      String unit = ingredient['measurement_unit'];
 
-  for (var ingredient in widget.ingredients) {
-    String name = ingredient['name'];
-    double requiredQuantity = ingredient['quantity'];
-    String unit = ingredient['measurement_unit'];
+      // Check if the ingredient is already in the shopping list
+      if (_shoppingList.containsKey(name)) {
+        continue; // Skip adding if the ingredient is already in the shopping list
+      }
 
-    // Check if the ingredient is already in the shopping list
-    if (_shoppingList.containsKey(name)) {
-      continue; // Skip adding if the ingredient is already in the shopping list
-    }
+      if (_pantryIngredients.containsKey(name)) {
+        double availableQuantity = _pantryIngredients[name]!['quantity'];
+        if (availableQuantity < requiredQuantity) {
+          double remainingQuantity = requiredQuantity - availableQuantity;
 
-    if (_pantryIngredients.containsKey(name)) {
-      double availableQuantity = _pantryIngredients[name]!['quantity'];
-      if (availableQuantity < requiredQuantity) {
-        double remainingQuantity = requiredQuantity - availableQuantity;
+          final url = Uri.parse(
+              'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+          final headers = {"Content-Type": "application/json"};
+          final body = jsonEncode({
+            "action": "addToShoppingList",
+            "userId": userId,
+            "ingredientName": name,
+            "quantity": remainingQuantity,
+            "measurementUnit": unit
+          });
 
+          try {
+            final response = await http.post(url, headers: headers, body: body);
+            if (response.statusCode == 200) {
+              setState(() {
+                _shoppingList[name] = {
+                  'quantity': remainingQuantity,
+                  'measurementUnit': unit
+                };
+                // Update the state to reflect that the ingredient is in the shopping list
+                widget.ingredients.forEach((ingredient) {
+                  if (ingredient['name'] == name) {
+                    widget.ingredients[widget.ingredients.indexOf(ingredient)]
+                        ['isInShoppingList'] = true;
+                  }
+                });
+              });
+            } else {
+              print('Failed to add $name to shopping list: ${response.body}');
+            }
+          } catch (error) {
+            print('Error adding $name to shopping list: $error');
+          }
+        }
+      } else {
         final url = Uri.parse(
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
         final headers = {"Content-Type": "application/json"};
@@ -122,7 +155,7 @@ Future<void> _addAllToShoppingList() async {
           "action": "addToShoppingList",
           "userId": userId,
           "ingredientName": name,
-          "quantity": remainingQuantity,
+          "quantity": requiredQuantity,
           "measurementUnit": unit
         });
 
@@ -131,13 +164,14 @@ Future<void> _addAllToShoppingList() async {
           if (response.statusCode == 200) {
             setState(() {
               _shoppingList[name] = {
-                'quantity': remainingQuantity,
+                'quantity': requiredQuantity,
                 'measurementUnit': unit
               };
               // Update the state to reflect that the ingredient is in the shopping list
               widget.ingredients.forEach((ingredient) {
                 if (ingredient['name'] == name) {
-                  widget.ingredients[widget.ingredients.indexOf(ingredient)]['isInShoppingList'] = true;
+                  widget.ingredients[widget.ingredients.indexOf(ingredient)]
+                      ['isInShoppingList'] = true;
                 }
               });
             });
@@ -148,53 +182,14 @@ Future<void> _addAllToShoppingList() async {
           print('Error adding $name to shopping list: $error');
         }
       }
-    } else {
-      final url = Uri.parse(
-          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-      final headers = {"Content-Type": "application/json"};
-      final body = jsonEncode({
-        "action": "addToShoppingList",
-        "userId": userId,
-        "ingredientName": name,
-        "quantity": requiredQuantity,
-        "measurementUnit": unit
-      });
-
-      try {
-        final response = await http.post(url, headers: headers, body: body);
-        if (response.statusCode == 200) {
-          setState(() {
-            _shoppingList[name] = {
-              'quantity': requiredQuantity,
-              'measurementUnit': unit
-            };
-            // Update the state to reflect that the ingredient is in the shopping list
-            widget.ingredients.forEach((ingredient) {
-              if (ingredient['name'] == name) {
-                widget.ingredients[widget.ingredients.indexOf(ingredient)]['isInShoppingList'] = true;
-              }
-            });
-          });
-        } else {
-          print('Failed to add $name to shopping list: ${response.body}');
-        }
-      } catch (error) {
-        print('Error adding $name to shopping list: $error');
-      }
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Added all needed ingredients to shopping list'),
+      ),
+    );
   }
-
-
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('Added all needed ingredients to shopping list'),
-    ),
-  );
-}
-
-
-
 
   void _fetchShoppingList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1015,12 +1010,13 @@ Future<void> _addAllToShoppingList() async {
   }
 
   void _showRecipeDetails() {
-
-    int neededIngredientCount = widget.ingredients.where((ingredient) =>
-  (!_pantryIngredients.containsKey(ingredient['name']) ||
-   _pantryIngredients[ingredient['name']]!['quantity'] < ingredient['quantity']) &&
-  !_shoppingList.containsKey(ingredient['name'])
-).length;
+    int neededIngredientCount = widget.ingredients
+        .where((ingredient) =>
+            (!_pantryIngredients.containsKey(ingredient['name']) ||
+                _pantryIngredients[ingredient['name']]!['quantity'] <
+                    ingredient['quantity']) &&
+            !_shoppingList.containsKey(ingredient['name']))
+        .length;
     final theme = Theme.of(context);
 
     final clickColor = theme.brightness == Brightness.light
@@ -1233,19 +1229,23 @@ Future<void> _addAllToShoppingList() async {
                                   child: Text('Remove ingredients from pantry'),
                                 ),
                               if (widget.ingredients.any((ingredient) =>
-    (!_pantryIngredients.containsKey(ingredient['name']) ||
-    _pantryIngredients[ingredient['name']]!['quantity'] <
-        ingredient['quantity']) && (neededIngredientCount> 1) &&
-    !_shoppingList.containsKey(ingredient['name'])))
-  ElevatedButton(
-    onPressed: _addAllToShoppingList,
-    child: Text('Add All Ingredients'),
-  ),
-  if (neededIngredientCount == 1)
-  ElevatedButton(
-    onPressed: _suggestSubstitution,
-    child: Text('Suggest Substitution'),
-  ),
+                                  (!_pantryIngredients
+                                          .containsKey(ingredient['name']) ||
+                                      _pantryIngredients[ingredient['name']]![
+                                              'quantity'] <
+                                          ingredient['quantity']) &&
+                                  (neededIngredientCount > 1) &&
+                                  !_shoppingList
+                                      .containsKey(ingredient['name'])))
+                                ElevatedButton(
+                                  onPressed: _addAllToShoppingList,
+                                  child: Text('Add All Ingredients'),
+                                ),
+                              if (neededIngredientCount == 1)
+                                ElevatedButton(
+                                  onPressed: _suggestSubstitution,
+                                  child: Text('Suggest Substitution'),
+                                ),
 
                               SizedBox(
                                   height: MediaQuery.of(context).size.height *
@@ -1369,39 +1369,42 @@ Future<void> _addAllToShoppingList() async {
                 ),
               ),
             if (!_hovered)
-  Positioned(
-    left: 10,
-    bottom: 10,
-    child: Container(
-      width: MediaQuery.of(context).size.width / 8, // Half the width of the recipe card
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.name,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: fontSizeTitle,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 5), // Add some spacing between name and counts
-          Text(
-            'You have $_ingredientsInPantry/${widget.ingredients.length} ingredients for this recipe\n',
-           // 'Needed: $_ingredientsNeeded',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: fontSizeTitle * 0.8, // Smaller font size for the counts
-              fontWeight: FontWeight.normal,
-            ),
-          ),
-        ],
-      ),
-    ),
-  ),
-
+              Positioned(
+                left: 10,
+                bottom: 10,
+                child: Container(
+                  width: MediaQuery.of(context).size.width /
+                      8, // Half the width of the recipe card
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: fontSizeTitle,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(
+                          height:
+                              5), // Add some spacing between name and counts
+                      Text(
+                        'You have $_ingredientsInPantry/${widget.ingredients.length} ingredients for this recipe\n',
+                        // 'Needed: $_ingredientsNeeded',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: fontSizeTitle *
+                              0.8, // Smaller font size for the counts
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             if (_hovered)
               Positioned.fill(
                 child: Container(
@@ -1679,8 +1682,7 @@ Future<void> _addAllToShoppingList() async {
     );
   }
 
-  void _suggestSubstitution() {
-  }
+  void _suggestSubstitution() {}
 }
 
 // ignore: must_be_immutable
@@ -1905,5 +1907,4 @@ class _CheckableItemState extends State<CheckableItem> {
       widget.isInShoppingList = true;
     });
   }
-  
 }
