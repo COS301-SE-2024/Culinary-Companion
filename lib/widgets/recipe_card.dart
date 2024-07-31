@@ -48,6 +48,9 @@ class _RecipeCardState extends State<RecipeCard> {
   Map<String, Map<String, dynamic>> _pantryIngredients = {};
   Map<String, Map<String, dynamic>> _shoppingList = {};
   String? userId;
+  int _ingredientsInPantry = 0; //number of ingredients that I have
+ // int _ingredientsNeeded = 0; //number of ingredients I still need to buy
+
 
   @override
   void initState() {
@@ -56,7 +59,9 @@ class _RecipeCardState extends State<RecipeCard> {
     _fetchShoppingList();
     _fetchPantryIngredients();
     _fetchUserId();
-  }
+    //_updateIngredientCounts();
+}
+
 
   Future<void> _fetchUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -64,6 +69,32 @@ class _RecipeCardState extends State<RecipeCard> {
       userId = prefs.getString('userId');
     });
   }
+
+void _updateIngredientCounts() {
+  int inPantry = 0;
+  //int needed = 0;
+
+  for (var ingredient in widget.ingredients) {
+    String name = ingredient['name'];
+    double requiredQuantity = ingredient['quantity'];
+
+    if (_pantryIngredients.containsKey(name)) {
+      double availableQuantity = _pantryIngredients[name]!['quantity'];
+      if (availableQuantity >= requiredQuantity) {
+        inPantry++;
+      } else {
+        //needed++;
+      }
+    } else {
+      //needed++;
+    }
+  }
+
+  setState(() {
+    _ingredientsInPantry = inPantry;
+    //_ingredientsNeeded = needed;
+  });
+}
 
   void _fetchShoppingList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -101,6 +132,7 @@ class _RecipeCardState extends State<RecipeCard> {
     } catch (error) {
       print('Error: $error');
     }
+    _updateIngredientCounts();
   }
 
   Future<void> _removeIngredientsFromPantry() async {
@@ -202,6 +234,7 @@ class _RecipeCardState extends State<RecipeCard> {
     } catch (error) {
       print('Error: $error');
     }
+    _updateIngredientCounts();
   }
 
   void _onHover(bool hovering) {
@@ -1216,24 +1249,39 @@ class _RecipeCardState extends State<RecipeCard> {
                 ),
               ),
             if (!_hovered)
-              Positioned(
-                left: 10,
-                bottom: 10,
-                child: Container(
-                  width: MediaQuery.of(context).size.width /
-                      8, // Half the width of the recipe card
-                  child: Text(
-                    widget.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: fontSizeTitle,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
+  Positioned(
+    left: 10,
+    bottom: 10,
+    child: Container(
+      width: MediaQuery.of(context).size.width / 8, // Half the width of the recipe card
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            widget.name,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: fontSizeTitle,
+              fontWeight: FontWeight.bold,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: 5), // Add some spacing between name and counts
+          Text(
+            'You have $_ingredientsInPantry/${widget.ingredients.length} ingredients for this recipe\n',
+           // 'Needed: $_ingredientsNeeded',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: fontSizeTitle * 0.8, // Smaller font size for the counts
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ],
+      ),
+    ),
+  ),
+
             if (_hovered)
               Positioned.fill(
                 child: Container(
