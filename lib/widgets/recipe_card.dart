@@ -782,16 +782,14 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     .size
                                                     .height *
                                                 0.01),
-                                        ...widget.appliances
-                                            .map(
-                                              (appliance) => Padding(
-                                                padding: EdgeInsets.only(
-                                                    left:
-                                                        16.0), // Add 16 pixels of padding to the left
-                                                child: Text(appliance),
-                                              ),
-                                            )
-                                            .toList()
+                                        ...widget.appliances.map(
+                                          (appliance) => Padding(
+                                            padding: EdgeInsets.only(
+                                                left:
+                                                    16.0), // Add 16 pixels of padding to the left
+                                            child: Text(appliance),
+                                          ),
+                                        )
                                       ],
                                     ),
                                   ),
@@ -859,7 +857,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                               ),
                                             );
                                           }).toList();
-                                        }).toList(),
+                                        })
                                       ],
                                     ),
                                   ),
@@ -1137,7 +1135,6 @@ class _RecipeCardState extends State<RecipeCard> {
                           ),
                         ),
                       ),
-
                     ],
                   ),
                 ),
@@ -1152,7 +1149,6 @@ class _RecipeCardState extends State<RecipeCard> {
                   ),
                 ),
               ],
-
             ),
           ),
         );
@@ -1177,7 +1173,7 @@ class _RecipeCardState extends State<RecipeCard> {
 
     bool enableHover = screenWidth >= 1029;
 
-    void _handleTap() {
+    void handleTap() {
       if (screenWidth < 450) {
         _showMobileRecipeDetails();
       } else {
@@ -1186,7 +1182,7 @@ class _RecipeCardState extends State<RecipeCard> {
     }
 
     return GestureDetector(
-      onTap: _handleTap,
+      onTap: handleTap,
       child: MouseRegion(
         onEnter: enableHover ? (_) => _onHover(true) : null,
         onExit: enableHover ? (_) => _onHover(false) : null,
