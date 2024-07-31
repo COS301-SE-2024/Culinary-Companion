@@ -3,7 +3,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatWidget extends StatefulWidget {
   final String recipeName;
@@ -65,7 +65,7 @@ class _ChatWidgetState extends State<ChatWidget> {
         final data = json.decode(response.body);
         if (data.isNotEmpty) {
           setState(() {
-            _spiceLevel = data[0]['spicelevel'];
+            _spiceLevel = data[0]['spicelevel'];//users prefered spice level from 0 to 5
             _dietaryConstraints = List<String>.from(data[0]['dietaryConstraints']);
           });
         }
@@ -77,7 +77,7 @@ class _ChatWidgetState extends State<ChatWidget> {
     }
   }
 
-  void _generateSuggestedPrompts() {
+  void _generateSuggestedPrompts() { 
     _suggestedPrompts = [
       "How can I make this recipe spicier?",
       "What can I substitute for an ingredient I don't have?",
@@ -96,7 +96,7 @@ class _ChatWidgetState extends State<ChatWidget> {
       });
 
       var content = [
-        Content.text(
+        Content.text(//send the recipe details and users preferences for context
           "Recipe Name: ${widget.recipeName}\n"
           "Description: ${widget.recipeDescription}\n"
           "Ingredients: ${widget.ingredients.map((e) => '${e['quantity']} ${e['measurement_unit']} of ${e['name']}').join(', ')}\n"
@@ -164,7 +164,7 @@ class _ChatWidgetState extends State<ChatWidget> {
               child: Wrap(
                 spacing: 6.0,
                 runSpacing: 6.0,
-                children: _suggestedPrompts.map((prompt) {
+                children: _suggestedPrompts.map((prompt) { 
                   return ActionChip(
                     label: Text(prompt),
                     onPressed: () => _sendMessage(message: prompt),
