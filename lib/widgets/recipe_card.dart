@@ -46,6 +46,7 @@ class _RecipeCardState extends State<RecipeCard> {
   //Map<String, bool> _pantryIngredients = {};
   Map<String, Map<String, dynamic>> _pantryIngredients = {};
   Map<String, Map<String, dynamic>> _shoppingList = {};
+  String? userId;
 
   @override
   void initState() {
@@ -53,7 +54,15 @@ class _RecipeCardState extends State<RecipeCard> {
     _checkIfFavorite();
     _fetchShoppingList();
     _fetchPantryIngredients();
-  }
+    _fetchUserId();
+}
+
+Future<void> _fetchUserId() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  setState(() {
+    userId = prefs.getString('userId');
+  });
+}
 
   void _fetchShoppingList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -519,6 +528,7 @@ class _RecipeCardState extends State<RecipeCard> {
                   recipeDescription: widget.description,
                   ingredients: widget.ingredients,
                   steps: widget.steps,
+                  userId: userId!,
                 ),
               ),
             ],
