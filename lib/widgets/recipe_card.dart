@@ -184,7 +184,7 @@ Future<void> _addAllToShoppingList() async {
     }
   }
 
-  
+
 
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -1015,6 +1015,12 @@ Future<void> _addAllToShoppingList() async {
   }
 
   void _showRecipeDetails() {
+
+    int neededIngredientCount = widget.ingredients.where((ingredient) =>
+  (!_pantryIngredients.containsKey(ingredient['name']) ||
+   _pantryIngredients[ingredient['name']]!['quantity'] < ingredient['quantity']) &&
+  !_shoppingList.containsKey(ingredient['name'])
+).length;
     final theme = Theme.of(context);
 
     final clickColor = theme.brightness == Brightness.light
@@ -1229,11 +1235,16 @@ Future<void> _addAllToShoppingList() async {
                               if (widget.ingredients.any((ingredient) =>
     (!_pantryIngredients.containsKey(ingredient['name']) ||
     _pantryIngredients[ingredient['name']]!['quantity'] <
-        ingredient['quantity']) &&
+        ingredient['quantity']) && (neededIngredientCount> 1) &&
     !_shoppingList.containsKey(ingredient['name'])))
   ElevatedButton(
     onPressed: _addAllToShoppingList,
     child: Text('Add All Ingredients'),
+  ),
+  if (neededIngredientCount == 1)
+  ElevatedButton(
+    onPressed: _suggestSubstitution,
+    child: Text('Suggest Substitution'),
   ),
 
                               SizedBox(
@@ -1666,6 +1677,9 @@ Future<void> _addAllToShoppingList() async {
         ),
       ),
     );
+  }
+
+  void _suggestSubstitution() {
   }
 }
 
