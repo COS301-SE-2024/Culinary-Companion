@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatWidget extends StatefulWidget {
   final String recipeName;
   final String recipeDescription;
   final List<Map<String, dynamic>> ingredients;
   final List<String> steps;
+  final String userId;
 
   ChatWidget({
     required this.recipeName,
     required this.recipeDescription,
     required this.ingredients,
     required this.steps,
+    required this.userId,
   });
 
   @override
@@ -23,6 +28,11 @@ class _ChatWidgetState extends State<ChatWidget> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, String>> _messages = [];
   late final GenerativeModel model;
+
+  //String? _cuisine;
+  int? _spiceLevel;
+  List<String>? _dietaryConstraints;
+  
 
   @override
   void initState() {
@@ -38,6 +48,36 @@ class _ChatWidgetState extends State<ChatWidget> {
       return;
     }
     model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+
+    // Fetch user details
+    await _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    final String url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'action': 'getUserDetails', 'userId': widget.userId}),
+      );
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data.isNotEmpty) {
+          setState(() {
+           // _cuisine = data[0]['cuisine'];
+            _spiceLevel = data[0]['spicelevel'];
+            _dietaryConstraints = List<String>.from(data[0]['dietaryConstraints']);
+            print('$_dietaryConstraints');
+          });
+        }
+      } else {
+        print('Failed to fetch user details');
+      }
+    } catch (e) {
+      print('Error fetching user details: $e');
+    }
   }
 
   void _sendMessage() async {
@@ -52,6 +92,9 @@ class _ChatWidgetState extends State<ChatWidget> {
           "Description: ${widget.recipeDescription}\n"
           "Ingredients: ${widget.ingredients.map((e) => '${e['quantity']} ${e['measurement_unit']} of ${e['name']}').join(', ')}\n"
           "Steps: ${widget.steps.join('. ')}\n"
+          //"Cuisine: $_cuisine\n"
+          "Spice Level: $_spiceLevel\n"
+          "Dietary Restrictions: ${_dietaryConstraints?.join(', ')}\n"
           "Question: ${_controller.text}"
         )
       ];
