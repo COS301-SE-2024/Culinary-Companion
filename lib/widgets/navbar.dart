@@ -401,6 +401,20 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       //   },
                       // ),
                       ListTile(
+                        key: ValueKey('SearchRecipe'),
+                        leading: Icon(Icons.search),
+                        title: isCompact
+                            ? null
+                            : const Text(
+                                'Search Recipes'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/search');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
+                      ListTile(
                         key: ValueKey('Favourites'),
                         leading: Icon(Icons.favorite),
                         title: isCompact

@@ -91,9 +91,9 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  Set<String> selectedCourseTypeOptions = {};
-  Set<String> selectedCuisineType = {};
-  Set<String> selectedDietaryOptions = {};
+  List<String> selectedCourseTypeOptions = [];
+  List<String> selectedCuisineType = [];
+  List<String> selectedDietaryOptions = [];
   String? selectedSpiceLevel;
   String? selectedIngredientOption;
 
@@ -110,6 +110,13 @@ class _SearchScreenState extends State<SearchScreen> {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
+    // Temporary variables to hold selections within the modal
+    List<String> tempDietaryOptions = List.from(selectedDietaryOptions);
+    List<String> tempCourseOptions = List.from(selectedCourseTypeOptions);
+    List<String> tempCuisineOptions = List.from(selectedCuisineType);
+    String? tempSpiceLevel = selectedSpiceLevel;
+    String? tempIngredientOption = selectedIngredientOption;
 
     showModalBottomSheet(
       context: context,
@@ -133,12 +140,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: dietaryOptions.map((option) {
                         return ChoiceChip(
                           label: Text(option),
-                          selected: selectedDietaryOptions.contains(option),
+                          selected: tempDietaryOptions.contains(option),
                           onSelected: (isSelected) {
                             setState(() {
                               isSelected
-                                  ? selectedDietaryOptions.add(option)
-                                  : selectedDietaryOptions.remove(option);
+                                  ? tempDietaryOptions.add(option)
+                                  : tempDietaryOptions.remove(option);
                             });
                           },
                         );
@@ -151,12 +158,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: _courses.map((option) {
                         return ChoiceChip(
                           label: Text(option),
-                          selected: selectedCourseTypeOptions.contains(option),
+                          selected: tempCourseOptions.contains(option),
                           onSelected: (isSelected) {
                             setState(() {
                               isSelected
-                                  ? selectedCourseTypeOptions.add(option)
-                                  : selectedCourseTypeOptions.remove(option);
+                                  ? tempCourseOptions.add(option)
+                                  : tempCourseOptions.remove(option);
                             });
                           },
                         );
@@ -169,12 +176,12 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: cuisineType.map((option) {
                         return ChoiceChip(
                           label: Text(option),
-                          selected: selectedCuisineType.contains(option),
+                          selected: tempCuisineOptions.contains(option),
                           onSelected: (isSelected) {
                             setState(() {
                               isSelected
-                                  ? selectedCuisineType.add(option)
-                                  : selectedCuisineType.remove(option);
+                                  ? tempCuisineOptions.add(option)
+                                  : tempCuisineOptions.remove(option);
                             });
                           },
                         );
@@ -187,10 +194,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: spiceLevelOptions.map((option) {
                         return ChoiceChip(
                           label: Text(option),
-                          selected: selectedSpiceLevel == option,
+                          selected: tempSpiceLevel == option,
                           onSelected: (isSelected) {
                             setState(() {
-                              selectedSpiceLevel = isSelected ? option : null;
+                              tempSpiceLevel = isSelected ? option : null;
                             });
                           },
                         );
@@ -203,10 +210,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: ingredientOptions.map((option) {
                         return ChoiceChip(
                           label: Text(option),
-                          selected: selectedIngredientOption == option,
+                          selected: tempIngredientOption == option,
                           onSelected: (isSelected) {
                             setState(() {
-                              selectedIngredientOption =
+                              tempIngredientOption =
                                   isSelected ? option : null;
                             });
                           },
@@ -220,11 +227,11 @@ class _SearchScreenState extends State<SearchScreen> {
                         TextButton(
                           onPressed: () {
                             setState(() {
-                              selectedDietaryOptions.clear();
-                              selectedCourseTypeOptions.clear();
-                              selectedCuisineType.clear();
-                              selectedSpiceLevel = null;
-                              selectedIngredientOption = null;
+                              tempDietaryOptions.clear();
+                              tempCourseOptions.clear();
+                              tempCuisineOptions.clear();
+                              tempSpiceLevel = null;
+                              tempIngredientOption = null;
                             });
                           },
                           child: Text(
@@ -239,6 +246,14 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                           onPressed: () {
                             // Perform filtering logic here
+                            // Update the main state with the selections
+                            setState(() {
+                              selectedDietaryOptions = tempDietaryOptions;
+                              selectedCourseTypeOptions = tempCourseOptions;
+                              selectedCuisineType = tempCuisineOptions;
+                              selectedSpiceLevel = tempSpiceLevel;
+                              selectedIngredientOption = tempIngredientOption;
+                            });
                             Navigator.pop(context);
                           },
                         ),
@@ -251,6 +266,35 @@ class _SearchScreenState extends State<SearchScreen> {
           },
         );
       },
+    );
+  }
+
+   Widget _buildFilterChips() {
+    List<Widget> chips = [];
+
+    if (selectedDietaryOptions.isNotEmpty) {
+      chips.addAll(selectedDietaryOptions.map((option) => Chip(label: Text(option))));
+    }
+
+    if (selectedCourseTypeOptions.isNotEmpty) {
+      chips.addAll(selectedCourseTypeOptions.map((option) => Chip(label: Text(option))));
+    }
+
+    if (selectedSpiceLevel != null) {
+      chips.add(Chip(label: Text(selectedSpiceLevel!)));
+    }
+
+    if (selectedIngredientOption != null) {
+      chips.add(Chip(label: Text(selectedIngredientOption!)));
+    }
+
+    if (selectedDietaryOptions.isNotEmpty) {
+      chips.addAll(selectedDietaryOptions.map((option) => Chip(label: Text(option))));
+    }
+
+    return Wrap(
+      spacing: 8.0,
+      children: chips,
     );
   }
 
@@ -295,6 +339,8 @@ class _SearchScreenState extends State<SearchScreen> {
                 ),
               ),
             ),
+            SizedBox(height: 10),
+            _buildFilterChips(),
             SizedBox(height: 20),
             CarouselSlider(
               options: CarouselOptions(
