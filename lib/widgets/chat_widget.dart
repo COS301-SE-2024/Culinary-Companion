@@ -39,14 +39,20 @@ class _ChatWidgetState extends State<ChatWidget> {
     _initializeChat();
     _generateSuggestedPrompts();
   }
+  String _decodeApiKey(String encodedKey) {
+  List<int> bytes = base64.decode(encodedKey);
+  return utf8.decode(bytes);
+}
 
   Future<void> _initializeChat() async {
     await dotenv.load();
-    final apiKey = dotenv.env['API_KEY'] ?? '';
-    if (apiKey.isEmpty) {
-      print('No API_KEY environment variable');
-      return;
-    }
+  final encodedApiKey = dotenv.env['ENCODED_API_KEY'] ?? '';
+  if (encodedApiKey.isEmpty) {
+    print('No ENCODED_API_KEY environment variable');
+    return;
+  }
+
+  final apiKey = _decodeApiKey(encodedApiKey);
     model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
 
     await _fetchUserDetails();
@@ -109,7 +115,7 @@ class _ChatWidgetState extends State<ChatWidget> {
 
       var response = await model.generateContent(content);
       setState(() {
-        _messages.add({"sender": "Chef Tess", "text": response.text ?? 'No response text'});
+        _messages.add({"sender": "Onions Insight", "text": response.text ?? 'No response text'});
       });
       _controller.clear();
     }

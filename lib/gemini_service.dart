@@ -1,23 +1,19 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
+import 'dart:convert';
 
-String decryptApiKey(String encryptedApiKey, String encryptionKey) {
-  final key = encrypt.Key.fromUtf8(encryptionKey);
-  final iv = encrypt.IV.fromLength(16);
-  final encrypter = encrypt.Encrypter(encrypt.AES(key));
-  final decrypted = encrypter.decrypt64(encryptedApiKey, iv: iv);
-  return decrypted;
+String _decodeApiKey(String encodedKey) {
+  List<int> bytes = base64.decode(encodedKey);
+  return utf8.decode(bytes);
 }
 
 Future<String> fetchContentBackpack() async {
-  final encryptedApiKey = dotenv.env['ENCRYPTED_API_KEY'] ?? '';
-  final encryptionKey = dotenv.env['ENCRYPTION_KEY'] ?? '';
-  if (encryptedApiKey.isEmpty || encryptionKey.isEmpty) {
-    return 'Missing API_KEY environment variable';
+  final encodedApiKey = dotenv.env['ENCODED_API_KEY'] ?? '';
+  if (encodedApiKey.isEmpty) {
+    return 'No ENCODED_API_KEY environment variable';
   }
 
-  final apiKey = decryptApiKey(encryptedApiKey, encryptionKey);
+  final apiKey = _decodeApiKey(encodedApiKey);
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
   final content = [Content.text('Write a story about a magic backpack.')];
@@ -28,13 +24,12 @@ Future<String> fetchContentBackpack() async {
 
 
 Future<String> fetchContentHorse() async {
-  final encryptedApiKey = dotenv.env['ENCRYPTED_API_KEY'] ?? '';
-  final encryptionKey = dotenv.env['ENCRYPTION_KEY'] ?? '';
-  if (encryptedApiKey.isEmpty || encryptionKey.isEmpty) {
-    return 'Missing API_KEY environment variable';
+  final encodedApiKey = dotenv.env['ENCODED_API_KEY'] ?? '';
+  if (encodedApiKey.isEmpty) {
+    return 'No ENCODED_API_KEY environment variable';
   }
 
-    final apiKey = decryptApiKey(encryptedApiKey, encryptionKey);
+  final apiKey = _decodeApiKey(encodedApiKey);
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
   final content = [Content.text('Write a story about a horse.')];
