@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -10,6 +11,14 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController _searchController = TextEditingController();
   List<String> _searchResults = [];
+
+  List<String> _recipeList = [
+    'Recipe 1',
+    'Recipe 2',
+    'Recipe 3',
+    'Recipe 4',
+    'Recipe 5'
+  ]; //Get these from the database!!!
 
   final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
 
@@ -247,11 +256,17 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
         actions: [
           IconButton(
-            icon: Icon(Icons.filter_list),
+            icon: Icon(Icons.filter_alt_rounded),
             onPressed: _openFilterModal,
           ),
         ],
@@ -262,13 +277,50 @@ class _SearchScreenState extends State<SearchScreen> {
           children: [
             TextField(
               controller: _searchController,
+              cursorColor: textColor,
               decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: textColor),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: textColor),
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 labelText: 'Search',
+                labelStyle: TextStyle(color: textColor),
                 suffixIcon: IconButton(
                   icon: Icon(Icons.search),
                   onPressed: () => _performSearch(_searchController.text),
                 ),
               ),
+            ),
+            SizedBox(height: 20),
+            CarouselSlider(
+              options: CarouselOptions(
+                height: 200.0,
+                autoPlay: true,
+                enlargeCenterPage: true,
+              ),
+              items: _recipeList.map((recipe) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.symmetric(horizontal: 5.0),
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                      ),
+                      child: Center(
+                        child: Text(
+                          recipe,
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              }).toList(),
             ),
             Expanded(
               child: ListView.builder(
