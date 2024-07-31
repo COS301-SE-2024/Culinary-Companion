@@ -277,7 +277,6 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
   //   });
   // }
 
-  // ignore: unused_element
   void _handleSignup() {
     if (_formKey.currentState!.validate()) {
       int spiceLevel = getSpiceLevelNumber(_spiceLevel);
@@ -295,7 +294,8 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
             _userId!, restriction); // Call to add dietary constraints
       }
       // Navigate to home page or handle signup
-      Navigator.pushReplacementNamed(context, '/home');
+      // Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/tutorial');
     }
   }
 
@@ -490,9 +490,9 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                     _buildDietaryConstraintsMultiSelect(),
                     const SizedBox(height: 50),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/tutorial');
-                      },
+                      onPressed:
+                        // Navigator.pushReplacementNamed(context, '/tutorial');
+                        _handleSignup,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFDC945F),
                         foregroundColor: Colors.white,
