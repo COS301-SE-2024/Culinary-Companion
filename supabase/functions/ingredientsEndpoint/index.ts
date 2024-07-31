@@ -122,10 +122,9 @@ async function searchRecipes(searchTerm: string, corsHeaders: HeadersInit) {
     }
 
     try {
-        // Perform the search on multiple fields using `ilike` for case-insensitive matching
         const { data: recipes, error: recipesError } = await supabase
             .from('recipe')
-            .select('recipeid, name, description')
+            .select('recipeid, name, description') //return list of recipes 
             .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,course.ilike.%${searchTerm}%,cuisine.ilike.%${searchTerm}%,keywords.ilike.%${searchTerm}%`);
 
         if (recipesError) {
@@ -135,8 +134,6 @@ async function searchRecipes(searchTerm: string, corsHeaders: HeadersInit) {
                 headers: corsHeaders,
             });
         }
-
-        // Return the list of matching recipes with only the necessary fields
         return new Response(JSON.stringify(recipes), {
             status: 200,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
