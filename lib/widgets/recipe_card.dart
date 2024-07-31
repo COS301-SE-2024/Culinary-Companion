@@ -96,6 +96,106 @@ void _updateIngredientCounts() {
   });
 }
 
+Future<void> _addAllToShoppingList() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? userId = prefs.getString('userId');
+
+  for (var ingredient in widget.ingredients) {
+    String name = ingredient['name'];
+    double requiredQuantity = ingredient['quantity'];
+    String unit = ingredient['measurement_unit'];
+
+    // Check if the ingredient is already in the shopping list
+    if (_shoppingList.containsKey(name)) {
+      continue; // Skip adding if the ingredient is already in the shopping list
+    }
+
+    if (_pantryIngredients.containsKey(name)) {
+      double availableQuantity = _pantryIngredients[name]!['quantity'];
+      if (availableQuantity < requiredQuantity) {
+        double remainingQuantity = requiredQuantity - availableQuantity;
+
+        final url = Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+        final headers = {"Content-Type": "application/json"};
+        final body = jsonEncode({
+          "action": "addToShoppingList",
+          "userId": userId,
+          "ingredientName": name,
+          "quantity": remainingQuantity,
+          "measurementUnit": unit
+        });
+
+        try {
+          final response = await http.post(url, headers: headers, body: body);
+          if (response.statusCode == 200) {
+            setState(() {
+              _shoppingList[name] = {
+                'quantity': remainingQuantity,
+                'measurementUnit': unit
+              };
+              // Update the state to reflect that the ingredient is in the shopping list
+              widget.ingredients.forEach((ingredient) {
+                if (ingredient['name'] == name) {
+                  widget.ingredients[widget.ingredients.indexOf(ingredient)]['isInShoppingList'] = true;
+                }
+              });
+            });
+          } else {
+            print('Failed to add $name to shopping list: ${response.body}');
+          }
+        } catch (error) {
+          print('Error adding $name to shopping list: $error');
+        }
+      }
+    } else {
+      final url = Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+      final headers = {"Content-Type": "application/json"};
+      final body = jsonEncode({
+        "action": "addToShoppingList",
+        "userId": userId,
+        "ingredientName": name,
+        "quantity": requiredQuantity,
+        "measurementUnit": unit
+      });
+
+      try {
+        final response = await http.post(url, headers: headers, body: body);
+        if (response.statusCode == 200) {
+          setState(() {
+            _shoppingList[name] = {
+              'quantity': requiredQuantity,
+              'measurementUnit': unit
+            };
+            // Update the state to reflect that the ingredient is in the shopping list
+            widget.ingredients.forEach((ingredient) {
+              if (ingredient['name'] == name) {
+                widget.ingredients[widget.ingredients.indexOf(ingredient)]['isInShoppingList'] = true;
+              }
+            });
+          });
+        } else {
+          print('Failed to add $name to shopping list: ${response.body}');
+        }
+      } catch (error) {
+        print('Error adding $name to shopping list: $error');
+      }
+    }
+  }
+
+  
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text('Added all needed ingredients to shopping list'),
+    ),
+  );
+}
+
+
+
+
   void _fetchShoppingList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
@@ -1126,6 +1226,15 @@ void _updateIngredientCounts() {
                                   onPressed: _removeIngredientsFromPantry,
                                   child: Text('Remove ingredients from pantry'),
                                 ),
+                              if (widget.ingredients.any((ingredient) =>
+    (!_pantryIngredients.containsKey(ingredient['name']) ||
+    _pantryIngredients[ingredient['name']]!['quantity'] <
+        ingredient['quantity']) &&
+    !_shoppingList.containsKey(ingredient['name'])))
+  ElevatedButton(
+    onPressed: _addAllToShoppingList,
+    child: Text('Add All Ingredients'),
+  ),
 
                               SizedBox(
                                   height: MediaQuery.of(context).size.height *
@@ -1782,4 +1891,5 @@ class _CheckableItemState extends State<CheckableItem> {
       widget.isInShoppingList = true;
     });
   }
+  
 }
