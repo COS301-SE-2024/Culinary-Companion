@@ -42,12 +42,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                           currentRoute == '/scan-recipe'),
                       _buildNavItem(context, 'Inventory', '/inventory-screen',
                           currentRoute == '/inventory-screen'),
-                      // _buildNavItem(context, 'Shopping List', '/shopping-list',
-                      //     currentRoute == '/shopping-list'),
-                      // _buildNavItem(context, 'Pantry', '/pantry-list',
-                      //     currentRoute == '/pantry-list'),
-                      // _buildNavItem(context, 'Appliances', '/appliances',
-                      //     currentRoute == '/appliances'),
+                      _buildNavItem(context, 'Search Recipes', '/search',
+                          currentRoute == '/search'),
                       _buildNavItem(context, 'Favorite Recipes',
                           '/saved-recipes', currentRoute == '/saved-recipes'),
                       _buildNavItem(context, 'Profile', '/profile',
@@ -404,6 +400,20 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       //     _toggleExpanded();
                       //   },
                       // ),
+                      ListTile(
+                        key: ValueKey('SearchRecipe'),
+                        leading: Icon(Icons.search),
+                        title: isCompact
+                            ? null
+                            : const Text(
+                                'Search Recipes'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/search');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
                       ListTile(
                         key: ValueKey('Favourites'),
                         leading: Icon(Icons.favorite),
