@@ -486,7 +486,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               physics: NeverScrollableScrollPhysics(),
               itemCount: recipes.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
+                crossAxisCount: 4,
                 crossAxisSpacing: crossAxisSpacing,
                 mainAxisSpacing: mainAxisSpacing,
                 childAspectRatio: aspectRatio,

@@ -131,106 +131,167 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCarousel(
       String title, List<Map<String, dynamic>> filteredRecipes) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            double screenWidth = MediaQuery.of(context).size.width;
-            double calculatedFontSize = screenWidth * 0.018;
-            double calculatedPadding = screenWidth * 0.001;
+    return Padding(
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).size.width * 0.03),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double screenWidth = MediaQuery.of(context).size.width;
+              double calculatedPadding = screenWidth * 0.001;
+              double calculatedLeftPadding = screenWidth * 0.01;
 
-            return Padding(
-              padding: EdgeInsets.only(
-                  left: calculatedPadding,
-                  top: calculatedPadding,
-                  bottom: calculatedPadding),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: calculatedFontSize,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _isGridView = true;
-                        _selectedCategory = title;
-                      });
-                    },
-                    child: Text(
-                      'View All',
+              // Define font sizes based on screen width
+              double titleFontSize;
+              double viewAllFontSize;
+
+              if (screenWidth > 1334) {
+                titleFontSize = 30.0;
+                viewAllFontSize = 16.0;
+              } else if (screenWidth > 820) {
+                titleFontSize = 24.0;
+                viewAllFontSize = 14.0;
+              } else if (screenWidth < 375) {
+                titleFontSize = 18.0;
+                viewAllFontSize = 11.0;
+              } else {
+                titleFontSize =
+                    16.0; // default size for widths between 375 and 980
+                viewAllFontSize = 10.0;
+              }
+
+              return Padding(
+                padding: EdgeInsets.only(
+                    left: calculatedLeftPadding,
+                    top: calculatedPadding,
+                    bottom: calculatedPadding),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      title,
                       style: TextStyle(
-                        fontSize: calculatedFontSize / 1.3,
-                        decoration: TextDecoration.underline,
+                        fontSize: titleFontSize,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-        LayoutBuilder(
-          builder: (context, constraints) {
-            double viewportWidth = constraints.maxWidth;
-            double itemWidth = viewportWidth / 4 -
-                16; // Divide the width by 4 and subtract padding
-            double itemHeight =
-                itemWidth * 320 / 276; // Maintain the aspect ratio
-
-            return CarouselSlider(
-              options: CarouselOptions(
-                height: itemHeight,
-                enlargeCenterPage: false,
-                enableInfiniteScroll: true,
-                viewportFraction: itemWidth / viewportWidth,
-                initialPage: 0,
-                scrollPhysics: BouncingScrollPhysics(),
-              ),
-              items: filteredRecipes.map((recipe) {
-                List<String> steps = [];
-                if (recipe['steps'] != null) {
-                  steps = (recipe['steps'] as String).split('<');
-                }
-
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    width: itemWidth, // Set the item width dynamically
-                    child: RecipeCard(
-                      recipeID: recipe['recipeId'] ?? '',
-                      name: recipe['name'] ?? '',
-                      description: recipe['description'] ?? '',
-                      imagePath: recipe['photo'] ?? 'assets/emptyPlate.jpg',
-                      prepTime: recipe['preptime'] ?? 0,
-                      cookTime: recipe['cooktime'] ?? 0,
-                      cuisine: recipe['cuisine'] ?? '',
-                      spiceLevel: recipe['spicelevel'] ?? 0,
-                      course: recipe['course'] ?? '',
-                      servings: recipe['servings'] ?? 0,
-                      steps: steps,
-                      appliances: List<String>.from(recipe['appliances']),
-                      ingredients: List<Map<String, dynamic>>.from(
-                          recipe['ingredients']),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _isGridView = true;
+                          _selectedCategory = title;
+                        });
+                      },
+                      child: Text(
+                        'View All',
+                        style: TextStyle(
+                          fontSize: viewAllFontSize,
+                          color: Color(0xFFD9D9D9),
+                          decoration: TextDecoration.underline,
+                          decorationColor: Color(0xFFD9D9D9),
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              }).toList(),
-            );
-          },
-        ),
-      ],
+                  ],
+                ),
+              );
+            },
+          ),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double screenWidth = MediaQuery.of(context).size.width;
+              double paddingg;
+
+              if (screenWidth > 600) {
+                paddingg = 8.0;
+              } else {
+                paddingg = 5.0;
+              }
+
+              double viewportWidth = constraints.maxWidth;
+              double itemWidth = viewportWidth / 4 -
+                  16; // Divide the width by 4 and subtract padding
+              double itemHeight =
+                  itemWidth * 320 / 250; // Maintain the aspect ratio
+
+              return CarouselSlider(
+                options: CarouselOptions(
+                  height: itemHeight,
+                  enlargeCenterPage: false,
+                  enableInfiniteScroll: true,
+                  viewportFraction: itemWidth / viewportWidth,
+                  initialPage: 0,
+                  scrollPhysics: BouncingScrollPhysics(),
+                ),
+                items: filteredRecipes.map((recipe) {
+                  List<String> steps = [];
+                  if (recipe['steps'] != null) {
+                    steps = (recipe['steps'] as String).split('<');
+                  }
+
+                  return Padding(
+                    padding: EdgeInsets.all(paddingg),
+                    child: Container(
+                      width: itemWidth, // Set the item width dynamically
+                      child: RecipeCard(
+                        recipeID: recipe['recipeId'] ?? '',
+                        name: recipe['name'] ?? '',
+                        description: recipe['description'] ?? '',
+                        imagePath: recipe['photo'] ?? 'assets/emptyPlate.jpg',
+                        prepTime: recipe['preptime'] ?? 0,
+                        cookTime: recipe['cooktime'] ?? 0,
+                        cuisine: recipe['cuisine'] ?? '',
+                        spiceLevel: recipe['spicelevel'] ?? 0,
+                        course: recipe['course'] ?? '',
+                        servings: recipe['servings'] ?? 0,
+                        steps: steps,
+                        appliances: List<String>.from(recipe['appliances']),
+                        ingredients: List<Map<String, dynamic>>.from(
+                            recipe['ingredients']),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildGridView() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double titleFontSize;
+    double backArrow;
+    String category;
+
+    if (screenWidth > 1334) {
+      titleFontSize = 30.0;
+      backArrow = 30;
+    } else if (screenWidth > 820) {
+      titleFontSize = 24.0;
+      backArrow = 24;
+    } else if (screenWidth < 375) {
+      titleFontSize = 18.0;
+      backArrow = 18;
+    } else {
+      titleFontSize = 16.0;
+      backArrow = 16; // default size for widths between 375 and 980
+    }
+
+    if (_selectedCategory == 'Mains') {
+      _selectedCategory = 'Main';
+      category = 'Mains';
+    } else {
+      category = _selectedCategory;
+    }
+
     List<Map<String, dynamic>> filteredRecipes =
         _filterRecipesByCourse(_selectedCategory);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -245,13 +306,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     _selectedCategory = '';
                   });
                 },
-                child: Icon(Icons.arrow_back, size: 30),
+                child: Icon(Icons.arrow_back, size: backArrow),
               ),
               SizedBox(width: 10),
               Text(
-                _selectedCategory,
+                category,
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: titleFontSize,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -261,7 +322,7 @@ class _HomeScreenState extends State<HomeScreen> {
         LayoutBuilder(
           builder: (context, constraints) {
             double width = constraints.maxWidth;
-            double itemWidth = 276;
+            double itemWidth = 250;
             double itemHeight = 320;
             double aspectRatio = itemWidth / itemHeight;
             double crossAxisSpacing = width * 0.01;
@@ -354,7 +415,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text('Fetch Content'),
                         ),
                         SizedBox(height: 24),
-                        _buildCarousel('Main', _filterRecipesByCourse('Main')),
+                        _buildCarousel('Mains', _filterRecipesByCourse('Main')),
                         _buildCarousel(
                             'Breakfast', _filterRecipesByCourse('Breakfast')),
                         _buildCarousel(
