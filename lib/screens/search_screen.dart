@@ -195,169 +195,243 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
+void _performFilter() async {
+  setState(() {
+    _isLoading = true;
+  });
+
+  Filters filters = Filters(
+    course: selectedCourseTypeOptions,
+    spiceLevel: selectedSpiceLevel != null ? int.tryParse(selectedSpiceLevel!) : null,
+    cuisine: selectedCuisineType,
+    dietaryOptions: selectedDietaryOptions,
+    ingredientOption: selectedIngredientOption,
+  );
+
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final headers = <String, String>{'Content-Type': 'application/json'};
+  final body = jsonEncode({
+    'action': 'filterRecipes',
+    'filters': filters.toJson(),
+  });
+
+  try {
+    final response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
+      setState(() {
+        recipes.clear(); // Clear current recipes
+      });
+
+      // Fetch details for each recipe ID
+      for (var recipe in fetchedRecipeIds) {
+        final String recipeId = recipe['recipeid'];
+        await fetchRecipeDetails(recipeId);
+      }
+    } else {
+      print('Failed to load filtered recipes: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error fetching filtered recipes: $error');
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+
+
 
 
   void _openFilterModal() {
-    final theme = Theme.of(context);
-    final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+  final theme = Theme.of(context);
+  final bool isLightTheme = theme.brightness == Brightness.light;
+  final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
-    // Temporary variables to hold selections within the modal
-    List<String> tempDietaryOptions = List.from(selectedDietaryOptions);
-    List<String> tempCourseOptions = List.from(selectedCourseTypeOptions);
-    List<String> tempCuisineOptions = List.from(selectedCuisineType);
-    String? tempSpiceLevel = selectedSpiceLevel;
-    String? tempIngredientOption = selectedIngredientOption;
+  // Temporary variables to hold selections within the modal
+  List<String> tempDietaryOptions = List.from(selectedDietaryOptions);
+  List<String> tempCourseOptions = List.from(selectedCourseTypeOptions);
+  List<String> tempCuisineOptions = List.from(selectedCuisineType);
+  int? tempSpiceLevel = selectedSpiceLevel != null ? _spiceLevelToInt(selectedSpiceLevel!) : null;
+  String? tempIngredientOption = selectedIngredientOption;
 
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Padding(
-              padding: EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Filter',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 15),
-                    Text('Dietary Constraints:',
-                        style: TextStyle(fontSize: 16)),
-                    Wrap(
-                      spacing: 8.0,
-                      children: dietaryOptions.map((option) {
-                        return ChoiceChip(
-                          label: Text(option),
-                          selected: tempDietaryOptions.contains(option),
-                          onSelected: (isSelected) {
-                            setState(() {
-                              isSelected
-                                  ? tempDietaryOptions.add(option)
-                                  : tempDietaryOptions.remove(option);
-                            });
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 15),
-                    Text('Course Type:', style: TextStyle(fontSize: 16)),
-                    Wrap(
-                      spacing: 8.0,
-                      children: _courses.map((option) {
-                        return ChoiceChip(
-                          label: Text(option),
-                          selected: tempCourseOptions.contains(option),
-                          onSelected: (isSelected) {
-                            setState(() {
-                              isSelected
-                                  ? tempCourseOptions.add(option)
-                                  : tempCourseOptions.remove(option);
-                            });
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 15),
-                    Text('Cuisine Type:', style: TextStyle(fontSize: 16)),
-                    Wrap(
-                      spacing: 8.0,
-                      children: cuisineType.map((option) {
-                        return ChoiceChip(
-                          label: Text(option),
-                          selected: tempCuisineOptions.contains(option),
-                          onSelected: (isSelected) {
-                            setState(() {
-                              isSelected
-                                  ? tempCuisineOptions.add(option)
-                                  : tempCuisineOptions.remove(option);
-                            });
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 15),
-                    Text('Spice Level:', style: TextStyle(fontSize: 16)),
-                    Wrap(
-                      spacing: 8.0,
-                      children: spiceLevelOptions.map((option) {
-                        return ChoiceChip(
-                          label: Text(option),
-                          selected: tempSpiceLevel == option,
-                          onSelected: (isSelected) {
-                            setState(() {
-                              tempSpiceLevel = isSelected ? option : null;
-                            });
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 15),
-                    Text('Ingredients:', style: TextStyle(fontSize: 16)),
-                    Wrap(
-                      spacing: 8.0,
-                      children: ingredientOptions.map((option) {
-                        return ChoiceChip(
-                          label: Text(option),
-                          selected: tempIngredientOption == option,
-                          onSelected: (isSelected) {
-                            setState(() {
-                              tempIngredientOption = isSelected ? option : null;
-                            });
-                          },
-                        );
-                      }).toList(),
-                    ),
-                    SizedBox(height: 25),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              tempDietaryOptions.clear();
-                              tempCourseOptions.clear();
-                              tempCuisineOptions.clear();
-                              tempSpiceLevel = null;
-                              tempIngredientOption = null;
-                            });
-                          },
-                          child: Text(
-                            'RESET',
-                            style: TextStyle(color: textColor),
-                          ),
-                        ),
-                        ElevatedButton(
-                          child: Text(
-                            'APPLY',
-                            style: TextStyle(color: textColor),
-                          ),
-                          onPressed: () {
-                            // Perform filtering logic here
-                            // Update the main state with the selections
-                            setState(() {
-                              selectedDietaryOptions = tempDietaryOptions;
-                              selectedCourseTypeOptions = tempCourseOptions;
-                              selectedCuisineType = tempCuisineOptions;
-                              selectedSpiceLevel = tempSpiceLevel;
-                              selectedIngredientOption = tempIngredientOption;
-                            });
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+  showModalBottomSheet(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return Padding(
+            padding: EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Filter', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 15),
+                  Text('Dietary Constraints:', style: TextStyle(fontSize: 16)),
+                  Wrap(
+                    spacing: 8.0,
+                    children: dietaryOptions.map((option) {
+                      return ChoiceChip(
+                        label: Text(option),
+                        selected: tempDietaryOptions.contains(option),
+                        onSelected: (isSelected) {
+                          setState(() {
+                            isSelected ? tempDietaryOptions.add(option) : tempDietaryOptions.remove(option);
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 15),
+                  Text('Course Type:', style: TextStyle(fontSize: 16)),
+                  Wrap(
+                    spacing: 8.0,
+                    children: _courses.map((option) {
+                      return ChoiceChip(
+                        label: Text(option),
+                        selected: tempCourseOptions.contains(option),
+                        onSelected: (isSelected) {
+                          setState(() {
+                            isSelected ? tempCourseOptions.add(option) : tempCourseOptions.remove(option);
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 15),
+                  Text('Cuisine Type:', style: TextStyle(fontSize: 16)),
+                  Wrap(
+                    spacing: 8.0,
+                    children: cuisineType.map((option) {
+                      return ChoiceChip(
+                        label: Text(option),
+                        selected: tempCuisineOptions.contains(option),
+                        onSelected: (isSelected) {
+                          setState(() {
+                            isSelected ? tempCuisineOptions.add(option) : tempCuisineOptions.remove(option);
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 15),
+                  Text('Spice Level:', style: TextStyle(fontSize: 16)),
+                  Wrap(
+                    spacing: 8.0,
+                    children: spiceLevelOptions.map((option) {
+                      return ChoiceChip(
+                        label: Text(option),
+                        selected: tempSpiceLevel == _spiceLevelToInt(option),
+                        onSelected: (isSelected) {
+                          setState(() {
+                            tempSpiceLevel = isSelected ? _spiceLevelToInt(option) : null;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 15),
+                  Text('Ingredients:', style: TextStyle(fontSize: 16)),
+                  Wrap(
+                    spacing: 8.0,
+                    children: ingredientOptions.map((option) {
+                      return ChoiceChip(
+                        label: Text(option),
+                        selected: tempIngredientOption == option,
+                        onSelected: (isSelected) {
+                          setState(() {
+                            tempIngredientOption = isSelected ? option : null;
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 25),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            tempDietaryOptions.clear();
+                            tempCourseOptions.clear();
+                            tempCuisineOptions.clear();
+                            tempSpiceLevel = null;
+                            tempIngredientOption = null;
+                          });
+                        },
+                        child: Text('RESET', style: TextStyle(color: textColor)),
+                      ),
+                      ElevatedButton(
+                        child: Text('APPLY', style: TextStyle(color: textColor)),
+                        onPressed: () {
+                          // Update the main state with the selections
+                          setState(() {
+                            selectedDietaryOptions = tempDietaryOptions;
+                            selectedCourseTypeOptions = tempCourseOptions;
+                            selectedCuisineType = tempCuisineOptions;
+                            selectedSpiceLevel = tempSpiceLevel != null ? tempSpiceLevel.toString() : null;
+                            selectedIngredientOption = tempIngredientOption;
+                          });
+
+                          // Call the filter function
+                          _performFilter();
+
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            );
-          },
-        );
-      },
-    );
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+// Helper function to convert spice level string to int
+int? _spiceLevelToInt(String? spiceLevel) {
+  if (spiceLevel == null) return null;
+  switch (spiceLevel) {
+    case 'None':
+      return 1;
+    case 'Mild':
+      return 2;
+    case 'Medium':
+      return 3;
+    case 'Hot':
+      return 4;
+    case 'Extra Hot':
+      return 5;
+    default:
+      return null;
   }
+}
+
+String _intToSpiceLevel(int? spiceLevel) {
+  if (spiceLevel == null) return '';
+  switch (spiceLevel) {
+    case 1:
+      return 'None';
+    case 2:
+      return 'Mild';
+    case 3:
+      return 'Medium';
+    case 4:
+      return 'Hot';
+    case 5:
+      return 'Extra Hot';
+    default:
+      return '';
+  }
+}
+
+
 
   Widget _buildFilterChips() {
     List<Widget> chips = [];
@@ -372,9 +446,9 @@ class _SearchScreenState extends State<SearchScreen> {
           selectedCourseTypeOptions.map((option) => Chip(label: Text(option))));
     }
 
-    if (selectedSpiceLevel != null) {
-      chips.add(Chip(label: Text(selectedSpiceLevel!)));
-    }
+   if (selectedSpiceLevel != null) {
+    chips.add(Chip(label: Text(_intToSpiceLevel(int.parse(selectedSpiceLevel!)))));
+  }
 
     if (selectedIngredientOption != null) {
       chips.add(Chip(label: Text(selectedIngredientOption!)));
@@ -596,7 +670,30 @@ Widget build(BuildContext context) {
     ),
   );
 }
+}
 
+class Filters {
+  List<String>? course;
+  int? spiceLevel;
+  List<String>? cuisine;
+  List<String>? dietaryOptions;
+  String? ingredientOption;
 
+  Filters({
+    this.course,
+    this.spiceLevel,
+    this.cuisine,
+    this.dietaryOptions,
+    this.ingredientOption,
+  });
 
+  Map<String, dynamic> toJson() {
+    return {
+      'course': course,
+      'spiceLevel': spiceLevel,
+      'cuisine': cuisine,
+      'dietaryOptions': dietaryOptions,
+      'ingredientOption': ingredientOption,
+    };
+  }
 }
