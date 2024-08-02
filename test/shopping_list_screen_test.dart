@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/widgets/help_shopping.dart';
 import 'package:flutter_test/flutter_test.dart';
 // import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:mockito/annotations.dart';
@@ -29,6 +30,29 @@ void main() {
     expect(find.text('Shopping List'), findsOneWidget);
     expect(find.byIcon(Icons.help), findsOneWidget);
   });
+
+    testWidgets('Add button is present', (WidgetTester tester) async {
+    await pumpShoppingListScreen(tester);
+
+    expect(find.byIcon(Icons.add), findsOneWidget);
+  });
+
+  testWidgets('Empty state message is shown when shopping list is empty', (WidgetTester tester) async {
+    await pumpShoppingListScreen(tester);
+
+    expect(find.text("No ingredients have been added. Click the plus icon to add your first ingredient!"), findsOneWidget);
+  });
+
+  testWidgets('Help menu opens when help icon is tapped', (WidgetTester tester) async {
+    await pumpShoppingListScreen(tester);
+
+    await tester.tap(find.byIcon(Icons.help));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HelpMenu), findsOneWidget);
+  });
+
+
 
   // testWidgets('Add item button shows dialog', (WidgetTester tester) async {
   //   await pumpShoppingListScreen(tester);
