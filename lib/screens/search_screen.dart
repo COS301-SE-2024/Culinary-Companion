@@ -493,101 +493,110 @@ Widget build(BuildContext context) {
       automaticallyImplyLeading: false,
       backgroundColor: Colors.transparent,
     ),
-    body: _isLoading
-        ? Center(
-            child: Lottie.asset('assets/loading.json'),
-          )
-        : SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          cursorColor: textColor,
-                          decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: textColor),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: textColor),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            labelText: 'Search',
-                            labelStyle: TextStyle(color: textColor),
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.search),
-                              onPressed: () => _performSearch(_searchController.text),
-                            ),
+    body: Stack(
+      children: [
+        // Main content
+        SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        cursorColor: textColor,
+                        decoration: InputDecoration(
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: textColor),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: textColor),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          labelText: 'Search',
+                          labelStyle: TextStyle(color: textColor),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.search),
+                            onPressed: () => _performSearch(_searchController.text),
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.filter_alt_rounded),
-                        color: textColor,
-                        onPressed: _openFilterModal,
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.filter_alt_rounded),
+                      color: textColor,
+                      onPressed: _openFilterModal,
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                _buildFilterChips(),
+                SizedBox(height: 20),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    double width = constraints.maxWidth;
+                    double crossAxisSpacing = width * 0.01;
+                    double mainAxisSpacing = width * 0.02;
+                    double itemWidth = 276;
+                    double itemHeight = 320;
+                    double aspectRatio = itemWidth / itemHeight;
+
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: recipes.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 4, // Number of columns
+                        crossAxisSpacing: crossAxisSpacing,
+                        mainAxisSpacing: mainAxisSpacing,
+                        childAspectRatio: aspectRatio,
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  _buildFilterChips(),
-                  SizedBox(height: 20),
-                  LayoutBuilder(
-  builder: (context, constraints) {
-    double width = constraints.maxWidth;
-    double crossAxisSpacing = width * 0.01;
-    double mainAxisSpacing = width * 0.02;
-    double itemWidth = 276;
-    double itemHeight = 320;
-    double aspectRatio = itemWidth / itemHeight;
+                      itemBuilder: (context, index) {
+                        List<String> steps = [];
+                        if (recipes[index]['steps'] != null) {
+                          steps = (recipes[index]['steps'] as String).split(',');
+                        }
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
-      itemCount: recipes.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4, // Number of columns
-        crossAxisSpacing: crossAxisSpacing,
-        mainAxisSpacing: mainAxisSpacing,
-        childAspectRatio: aspectRatio,
-      ),
-      itemBuilder: (context, index) {
-        List<String> steps = [];
-        if (recipes[index]['steps'] != null) {
-          steps = (recipes[index]['steps'] as String).split(',');
-        }
-
-        return RecipeCard(
-          recipeID: recipes[index]['recipeId'] ?? '',
-          name: recipes[index]['name'] ?? '',
-          description: recipes[index]['description'] ?? '',
-          imagePath: recipes[index]['photo'] ?? 'assets/emptyPlate.jpg',
-          prepTime: recipes[index]['preptime'] ?? 0,
-          cookTime: recipes[index]['cooktime'] ?? 0,
-          cuisine: recipes[index]['cuisine'] ?? '',
-          spiceLevel: recipes[index]['spicelevel'] ?? 0,
-          course: recipes[index]['course'] ?? '',
-          servings: recipes[index]['servings'] ?? 0,
-          steps: steps,
-          appliances: List<String>.from(recipes[index]['appliances']),
-          ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
-        );
-      },
-    );
-  },
-),
-
-                ],
-              ),
+                        return RecipeCard(
+                          recipeID: recipes[index]['recipeId'] ?? '',
+                          name: recipes[index]['name'] ?? '',
+                          description: recipes[index]['description'] ?? '',
+                          imagePath: recipes[index]['photo'] ?? 'assets/emptyPlate.jpg',
+                          prepTime: recipes[index]['preptime'] ?? 0,
+                          cookTime: recipes[index]['cooktime'] ?? 0,
+                          cuisine: recipes[index]['cuisine'] ?? '',
+                          spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                          course: recipes[index]['course'] ?? '',
+                          servings: recipes[index]['servings'] ?? 0,
+                          steps: steps,
+                          appliances: List<String>.from(recipes[index]['appliances']),
+                          ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
           ),
+        ),
+        // Loading overlay
+        if (_isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: Center(
+              child: Lottie.asset('assets/loading.json'),
+            ),
+          ),
+      ],
+    ),
   );
 }
+
 
 
 }
