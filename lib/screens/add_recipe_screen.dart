@@ -4,8 +4,6 @@ import '../widgets/help_add_recipe.dart';
 import '../widgets/scan_recipe_screen.dart';
 import '../widgets/paste_recipe_screen.dart';
 
-import '../gemini_service.dart'; // LLM
-
 class AddRecipeScreen extends StatefulWidget {
   @override
   _AddRecipeScreenState createState() => _AddRecipeScreenState();
@@ -22,7 +20,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
   }
 
   late TabController _tabController;
-  
+
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
       builder: (context) => HelpMenu(

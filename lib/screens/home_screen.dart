@@ -8,7 +8,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/help_home.dart';
 
-import '../gemini_service.dart'; // LLM
+// import '../gemini_service.dart'; // LLM
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -21,16 +21,16 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isGridView = false;
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
-  String _generatedText = '';  // LLM
+  // String _generatedText = '';  // LLM
 
   Future<void> _loadContent() async {  // LLM
     // fetchKeywords
     // fetchIngredientSubstitution
     // fetchDietaryConstraints
-    final content = await fetchIngredientSubstitution("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
-    setState(() {
-      _generatedText = content;
-    });
+    // final content = await fetchKeywords("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
+    // setState(() {
+    //   _generatedText = content;
+    // });
   }
 
   @override
@@ -407,13 +407,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         //   style: TextStyle(fontSize: 18),
                         //   textAlign: TextAlign.center,
                         // ),
-                        SizedBox(height: 16),
-                        Text(_generatedText), // LLM
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _loadContent,
-                          child: Text('Fetch Content'),
-                        ),
+                        // SizedBox(height: 16),
+                        // Text(_generatedText), // LLM
+                        // SizedBox(height: 20),
+                        // ElevatedButton(
+                        //   onPressed: _loadContent,
+                        //   child: Text('Fetch Content'),
+                        // ),
                         SizedBox(height: 24),
                         _buildCarousel('Mains', _filterRecipesByCourse('Main')),
                         _buildCarousel(
