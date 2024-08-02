@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -97,7 +97,9 @@ Deno.serve(async (req) => {
                 return editShoppingListItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
             case 'editPantryItem':
                 return editPantryItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
-            default:
+            case 'searchRecipes':
+                return searchRecipes(searchTerm,corsHeaders);
+                default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
                     headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -110,6 +112,41 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+async function searchRecipes(searchTerm: string, corsHeaders: HeadersInit) {
+    if (!searchTerm) {
+        return new Response(JSON.stringify({ error: 'Search term is required' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('recipeid, name, description') //return list of recipes 
+            .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,course.ilike.%${searchTerm}%,cuisine.ilike.%${searchTerm}%,keywords.ilike.%${searchTerm}%`);
+
+        if (recipesError) {
+            console.error('Error searching for recipes:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in searchRecipes function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 // Get all the ingredients and their attributes
 async function getAllIngredients(corsHeaders: HeadersInit) {
@@ -443,7 +480,7 @@ async function addToShoppingList(userId: string, ingredientName: string, quantit
     };
 
     try {
-        if (!userId || !ingredientName || !quantity || !measurementUnit) {
+        if (!userId || !ingredientName || quantity == null || !measurementUnit) {
             throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
         }
 
@@ -470,27 +507,67 @@ async function addToShoppingList(userId: string, ingredientName: string, quantit
             });
         }
 
-        // Insert the ingredient into the shopping list
-        const { error: shoppingListError } = await supabase
+        // Check if the ingredient is already in the shopping list
+        const { data: shoppingItem, error: shoppingError } = await supabase
             .from('shoppinglist')
-            .insert({
-                userid: userId,
-                ingredientid: ingredientId,
-                quantity: quantity,
-                measurmentunit: measurementUnit
-            });
+            .select('quantity')
+            .eq('userid', userId)
+            .eq('ingredientid', ingredientId)
+            .single();
 
-        if (shoppingListError) {
-            return new Response(JSON.stringify({ error: shoppingListError.message }), {
+        if (shoppingError && shoppingError.code !== 'PGRST116') { // PGRST116 indicates no rows returned
+            return new Response(JSON.stringify({ error: shoppingError.message }), {
                 status: 400,
                 headers: corsHeaders,
             });
         }
 
-        return new Response(JSON.stringify({ success: true }), {
-            status: 200,
-            headers: corsHeaders,
-        });
+        if (shoppingItem) {
+            // If the item exists, update the quantity
+            const newQuantity = shoppingItem.quantity + quantity;
+            const { error: updateError } = await supabase
+                .from('shoppinglist')
+                .update({
+                    quantity: newQuantity,
+                    measurmentunit: measurementUnit // Assuming measurement unit remains the same
+                })
+                .eq('userid', userId)
+                .eq('ingredientid', ingredientId);
+
+            if (updateError) {
+                return new Response(JSON.stringify({ error: updateError.message }), {
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            return new Response(JSON.stringify({ success: true, newQuantity }), {
+                status: 200,
+                headers: corsHeaders,
+            });
+        } else {
+            // If the item does not exist, insert it
+            const { error: shoppingListError } = await supabase
+                .from('shoppinglist')
+                .insert({
+                    userid: userId,
+                    ingredientid: ingredientId,
+                    quantity: quantity, // Default quantity, adjust as needed
+                    measurmentunit: measurementUnit // Default measurement unit, adjust as needed
+                });
+
+            if (shoppingListError) {
+                return new Response(JSON.stringify({ error: shoppingListError.message }), {
+                    status: 400,
+                    headers: corsHeaders,
+                });
+            }
+
+            return new Response(JSON.stringify({ success: true }), {
+                status: 200,
+                headers: corsHeaders,
+            });
+        }
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
@@ -499,9 +576,10 @@ async function addToShoppingList(userId: string, ingredientName: string, quantit
     }
 }
 
+
 async function editShoppingListItem(userId: string, ingredientName: string, quantity: number, measurementUnit: string, corsHeaders: HeadersInit) {
     try {
-        if (!userId || !ingredientName || quantity === undefined || !measurementUnit) {
+        if (!userId || !ingredientName || !quantity || !measurementUnit) {
             throw new Error('User ID, ingredient name, quantity, and measurement unit are required');
         }
 

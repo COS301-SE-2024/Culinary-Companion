@@ -4,6 +4,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'help_pantry.dart';
+import 'package:lottie/lottie.dart';
 
 Color shade(BuildContext context) {
   final theme = Theme.of(context);
@@ -31,6 +32,7 @@ class _PantryScreenState extends State<PantryScreen>{
   String? _userId;
   OverlayEntry? _helpMenuOverlay;
   //String measurementUnit = ''; 
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -39,10 +41,16 @@ class _PantryScreenState extends State<PantryScreen>{
   }
 
   Future<void> _initializeData() async {
+    setState(() {
+    _isLoading = true;
+  });
     await _loadUserId();
-    _fetchIngredientNames();
-    _loadDontShowAgainPreference();
-    _fetchPantryList();
+    await _fetchIngredientNames();
+     _loadDontShowAgainPreference();
+    await _fetchPantryList();
+    setState(() {
+    _isLoading = false;
+  });
   }
 
   final Map<String, List<String>> _pantryList = {};
@@ -282,7 +290,9 @@ class _PantryScreenState extends State<PantryScreen>{
           ),
         ],
       ),
-      body: Padding(
+      body: _isLoading
+    ? Center(child: Lottie.asset('assets/loading.json'))
+    : Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: Row(
           children: <Widget>[
@@ -340,6 +350,7 @@ class _PantryScreenState extends State<PantryScreen>{
           ],
         ),
       ),
+
     );
   }
 // Helper method to build a category header
@@ -389,7 +400,7 @@ Widget _buildCategoryHeader(String title) {
           style: TextStyle(
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1D2C1F),
+            color: Color.fromARGB(255, 255, 255, 255),
           ),
         ),
       ],
