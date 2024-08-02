@@ -145,7 +145,7 @@ async function filterRecipes(filters :Filters, corsHeaders: HeadersInit) {
 
         // Apply dietary options filter
         if (filters.dietaryOptions && filters.dietaryOptions.length > 0) {
-            query.contains('dietaryOptions', filters.dietaryOptions);
+            query.in('dietaryOptions', filters.dietaryOptions);
         }
 
         // // Apply ingredient options filter (custom logic as needed)
