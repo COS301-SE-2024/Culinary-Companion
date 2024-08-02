@@ -27,7 +27,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List<String> cuisineType = [];
 
   List<String> dietaryOptions = [
-    'Vegan',
+     'Vegan'
     'Vegetarian',
     'Gluten-Free',
     'Lactose-Free',
@@ -47,22 +47,47 @@ class _SearchScreenState extends State<SearchScreen> {
   ]; //double check these options!!
 
   List<String> spiceLevelOptions = [
-    'None',
+    'None', //1
     'Mild',
     'Medium',
     'Hot',
-    'Extra Hot'
+    'Extra Hot' //5
   ];
 
   @override
   void initState() {
     super.initState();
     _initializeData();
+    
   }
 
   Future<void> _initializeData() async {
     await _loadCuisines();
+    await _loadDietaryConstraints();
     //fetchRecipes();
+  }
+
+  Future<void> _loadDietaryConstraints() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(Uri.parse(url),
+          body: json.encode({'action': 'getDietaryConstraints'}));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          dietaryOptions = data.map<String>((constraint) {
+            return constraint['name'].toString();
+          }).toList();
+        });
+        //print('here');
+      } else {
+        throw Exception('Failed to load dietary constraints');
+      }
+    } catch (e) {
+      throw Exception('Error fetching dietary constraints: $e');
+    }
   }
 
   Future<void> _loadCuisines() async {
