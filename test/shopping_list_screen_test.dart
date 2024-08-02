@@ -52,6 +52,15 @@ void main() {
     expect(find.byType(HelpMenu), findsOneWidget);
   });
 
+    testWidgets('Add item dialog opens when add button is tapped', (WidgetTester tester) async {
+    await pumpShoppingListScreen(tester);
+
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Add Item to Shopping List'), findsOneWidget);
+  });
+
 
 
   // testWidgets('Add item button shows dialog', (WidgetTester tester) async {
