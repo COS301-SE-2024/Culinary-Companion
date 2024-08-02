@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:lottie/lottie.dart';
+import '../widgets/recipe_card.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -60,6 +62,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _initializeData() async {
     await _loadCuisines();
+    //fetchRecipes();
   }
 
   Future<void> _loadCuisines() async {
@@ -91,20 +94,108 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
+  List<Map<String, dynamic>> recipes = [];
+  bool _isLoading = false;
+
+  Future<void> fetchRecipes() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final body = jsonEncode({'action': 'getUserFavourites', 'userId':'dcd8108f-acc2-4be8-aef6-69d5763f8b5b'});
+
+    try {
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> fetchedRecipes = jsonDecode(response.body);
+
+        for (var recipe in fetchedRecipes) {
+          final String recipeId = recipe['recipeid'];
+          await fetchRecipeDetails(recipeId);
+        }
+      } else {
+        print('Failed to load recipes: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching recipes: $error');
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> fetchRecipeDetails(String recipeId) async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final body = jsonEncode({'action': 'getRecipe', 'recipeid': recipeId});
+
+    try {
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
+
+        setState(() {
+          recipes.add(fetchedRecipe);
+        });
+      } else {
+        print('Failed to load recipe details: ${response.statusCode}');
+      }
+    } catch (error) {
+      //print('Error fetching recipe details: $error');
+    }
+  }
+
   List<String> selectedCourseTypeOptions = [];
   List<String> selectedCuisineType = [];
   List<String> selectedDietaryOptions = [];
   String? selectedSpiceLevel;
   String? selectedIngredientOption;
 
-  void _performSearch(String query) {
-    // Replace this with the actual search logic!!!
+  void _performSearch(String query) async {
+  if (query.isEmpty) return;
+
+  setState(() {
+    _isLoading = true;
+  });
+
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final headers = <String, String>{'Content-Type': 'application/json'};
+  final body = jsonEncode({'action': 'searchRecipes', 'searchTerm': query});
+
+  try {
+    final response =
+        await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
+      setState(() {
+        recipes.clear(); // Clear current recipes
+      });
+
+      // Fetch details for each recipe ID
+      for (var recipe in fetchedRecipeIds) {
+        final String recipeId = recipe['recipeid'];
+        await fetchRecipeDetails(recipeId);
+      }
+    } else {
+      print('Failed to load search results: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error fetching search results: $error');
+  } finally {
     setState(() {
-      _searchResults = ['Recipe 1', 'Recipe 2', 'Recipe 3']
-          .where((recipe) => recipe.toLowerCase().contains(query.toLowerCase()))
-          .toList();
+      _isLoading = false;
     });
   }
+}
+
+
 
   void _openFilterModal() {
     final theme = Theme.of(context);
@@ -300,94 +391,203 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+  // @override
+  // Widget build(BuildContext context) {
+  //   final theme = Theme.of(context);
+  //   final bool isLightTheme = theme.brightness == Brightness.light;
+  //   final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    cursorColor: textColor,
-                    decoration: InputDecoration(
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: textColor),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(color: textColor),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      labelText: 'Search',
-                      labelStyle: TextStyle(color: textColor),
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: () => _performSearch(_searchController.text),
-                      ),
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.filter_alt_rounded),
-                  color: textColor,
-                  onPressed: _openFilterModal,
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            _buildFilterChips(),
-            SizedBox(height: 20),
-            CarouselSlider(
-              options: CarouselOptions(
-                height: 200.0,
-                autoPlay: true,
-                enlargeCenterPage: true,
-              ),
-              items: _recipeList.map((recipe) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      margin: EdgeInsets.symmetric(horizontal: 5.0),
-                      decoration: BoxDecoration(
-                        color: Colors.amber,
-                      ),
-                      child: Center(
-                        child: Text(
-                          recipe,
-                          style: TextStyle(fontSize: 16.0),
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       automaticallyImplyLeading: false,
+  //       backgroundColor: Colors.transparent,
+  //     ),
+  //     body: Padding(
+  //       padding: EdgeInsets.all(16.0),
+  //       child: Column(
+  //         children: [
+  //           Row(
+  //             children: [
+  //               Expanded(
+  //                 child: TextField(
+  //                   controller: _searchController,
+  //                   cursorColor: textColor,
+  //                   decoration: InputDecoration(
+  //                     focusedBorder: OutlineInputBorder(
+  //                       borderSide: BorderSide(color: textColor),
+  //                       borderRadius: BorderRadius.circular(20),
+  //                     ),
+  //                     border: OutlineInputBorder(
+  //                       borderSide: BorderSide(color: textColor),
+  //                       borderRadius: BorderRadius.circular(20),
+  //                     ),
+  //                     labelText: 'Search',
+  //                     labelStyle: TextStyle(color: textColor),
+  //                     suffixIcon: IconButton(
+  //                       icon: Icon(Icons.search),
+  //                       onPressed: () => _performSearch(_searchController.text),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ),
+  //               IconButton(
+  //                 icon: Icon(Icons.filter_alt_rounded),
+  //                 color: textColor,
+  //                 onPressed: _openFilterModal,
+  //               ),
+  //             ],
+  //           ),
+  //           SizedBox(height: 10),
+  //           _buildFilterChips(),
+  //           SizedBox(height: 20),
+  //           CarouselSlider(
+  //             options: CarouselOptions(
+  //               height: 200.0,
+  //               autoPlay: true,
+  //               enlargeCenterPage: true,
+  //             ),
+  //             items: _recipeList.map((recipe) {
+  //               return Builder(
+  //                 builder: (BuildContext context) {
+  //                   return Container(
+  //                     width: MediaQuery.of(context).size.width,
+  //                     margin: EdgeInsets.symmetric(horizontal: 5.0),
+  //                     decoration: BoxDecoration(
+  //                       color: Colors.amber,
+  //                     ),
+  //                     child: Center(
+  //                       child: Text(
+  //                         recipe,
+  //                         style: TextStyle(fontSize: 16.0),
+  //                       ),
+  //                     ),
+  //                   );
+  //                 },
+  //               );
+  //             }).toList(),
+  //           ),
+  //           Expanded(
+  //             child: ListView.builder(
+  //               itemCount: _searchResults.length,
+  //               itemBuilder: (context, index) {
+  //                 return ListTile(
+  //                   title: Text(_searchResults[index]),
+  //                 );
+  //               },
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
+ @override
+Widget build(BuildContext context) {
+  final theme = Theme.of(context);
+  final bool isLightTheme = theme.brightness == Brightness.light;
+  final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
+  return Scaffold(
+    appBar: AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+    ),
+    body: _isLoading
+        ? Center(
+            child: Lottie.asset('assets/loading.json'),
+          )
+        : SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _searchController,
+                          cursorColor: textColor,
+                          decoration: InputDecoration(
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: textColor),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: textColor),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            labelText: 'Search',
+                            labelStyle: TextStyle(color: textColor),
+                            suffixIcon: IconButton(
+                              icon: Icon(Icons.search),
+                              onPressed: () => _performSearch(_searchController.text),
+                            ),
+                          ),
                         ),
                       ),
-                    );
-                  },
-                );
-              }).toList(),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _searchResults.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(_searchResults[index]),
-                  );
-                },
+                      IconButton(
+                        icon: Icon(Icons.filter_alt_rounded),
+                        color: textColor,
+                        onPressed: _openFilterModal,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  _buildFilterChips(),
+                  SizedBox(height: 20),
+                  LayoutBuilder(
+  builder: (context, constraints) {
+    double width = constraints.maxWidth;
+    double crossAxisSpacing = width * 0.01;
+    double mainAxisSpacing = width * 0.02;
+    double itemWidth = 276;
+    double itemHeight = 320;
+    double aspectRatio = itemWidth / itemHeight;
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: recipes.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4, // Number of columns
+        crossAxisSpacing: crossAxisSpacing,
+        mainAxisSpacing: mainAxisSpacing,
+        childAspectRatio: aspectRatio,
+      ),
+      itemBuilder: (context, index) {
+        List<String> steps = [];
+        if (recipes[index]['steps'] != null) {
+          steps = (recipes[index]['steps'] as String).split(',');
+        }
+
+        return RecipeCard(
+          recipeID: recipes[index]['recipeId'] ?? '',
+          name: recipes[index]['name'] ?? '',
+          description: recipes[index]['description'] ?? '',
+          imagePath: recipes[index]['photo'] ?? 'assets/emptyPlate.jpg',
+          prepTime: recipes[index]['preptime'] ?? 0,
+          cookTime: recipes[index]['cooktime'] ?? 0,
+          cuisine: recipes[index]['cuisine'] ?? '',
+          spiceLevel: recipes[index]['spicelevel'] ?? 0,
+          course: recipes[index]['course'] ?? '',
+          servings: recipes[index]['servings'] ?? 0,
+          steps: steps,
+          appliances: List<String>.from(recipes[index]['appliances']),
+          ingredients: List<Map<String, dynamic>>.from(recipes[index]['ingredients']),
+        );
+      },
+    );
+  },
+),
+
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
+          ),
+  );
+}
+
+
 }
