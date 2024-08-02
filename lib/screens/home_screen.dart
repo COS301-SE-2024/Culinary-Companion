@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   OverlayEntry? _helpMenuOverlay;
   // String _generatedText = '';  // LLM
 
-  Future<void> _loadContent() async {  // LLM
+  // Future<void> _loadContent() async {  // LLM
     // fetchKeywords
     // fetchIngredientSubstitution
     // fetchDietaryConstraints
@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // setState(() {
     //   _generatedText = content;
     // });
-  }
+  // }
 
   @override
   void initState() {
