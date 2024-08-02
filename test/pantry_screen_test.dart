@@ -52,6 +52,16 @@ void main() {
 
     expect(find.text('Add Item to Pantry List'), findsOneWidget);
   });
+
+    testWidgets('Help menu opens when help icon is tapped', (WidgetTester tester) async {
+    await pumpPantryScreen(tester);
+
+    await tester.tap(find.byIcon(Icons.help));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(HelpMenu), findsOneWidget);
+  });
+
 ///////////////////////////////
   //   testWidgets('Category headers are displayed correctly', (WidgetTester tester) async {
   //   // Mock the HTTP responses
