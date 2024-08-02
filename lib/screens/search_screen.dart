@@ -436,9 +436,9 @@ String _intToSpiceLevel(int? spiceLevel) {
   Widget _buildFilterChips() {
     List<Widget> chips = [];
 
-    if (selectedDietaryOptions.isNotEmpty) {
+    if (selectedCuisineType.isNotEmpty) {
       chips.addAll(
-          selectedDietaryOptions.map((option) => Chip(label: Text(option))));
+          selectedCuisineType.map((option) => Chip(label: Text(option))));
     }
 
     if (selectedCourseTypeOptions.isNotEmpty) {
