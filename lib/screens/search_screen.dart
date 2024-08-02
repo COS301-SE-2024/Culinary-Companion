@@ -12,15 +12,15 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController _searchController = TextEditingController();
-  List<String> _searchResults = [];
+  //List<String> _searchResults = [];
 
-  List<String> _recipeList = [
-    'Recipe 1',
-    'Recipe 2',
-    'Recipe 3',
-    'Recipe 4',
-    'Recipe 5'
-  ]; //Get these from the database!!!
+  // List<String> _recipeList = [
+  //   'Recipe 1',
+  //   'Recipe 2',
+  //   'Recipe 3',
+  //   'Recipe 4',
+  //   'Recipe 5'
+  // ]; //Get these from the database!!!
 
   final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
 
@@ -97,34 +97,6 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Map<String, dynamic>> recipes = [];
   bool _isLoading = false;
 
-  Future<void> fetchRecipes() async {
-    final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    final body = jsonEncode({'action': 'getUserFavourites', 'userId':'dcd8108f-acc2-4be8-aef6-69d5763f8b5b'});
-
-    try {
-      final response =
-          await http.post(Uri.parse(url), headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        final List<dynamic> fetchedRecipes = jsonDecode(response.body);
-
-        for (var recipe in fetchedRecipes) {
-          final String recipeId = recipe['recipeid'];
-          await fetchRecipeDetails(recipeId);
-        }
-      } else {
-        print('Failed to load recipes: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching recipes: $error');
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
 
   Future<void> fetchRecipeDetails(String recipeId) async {
     final url =
@@ -175,12 +147,12 @@ class _SearchScreenState extends State<SearchScreen> {
     if (response.statusCode == 200) {
       final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
       setState(() {
-        recipes.clear(); // Clear current recipes
+        recipes.clear(); //clear recipes 
       });
 
-      // Fetch details for each recipe ID
+     
       for (var recipe in fetchedRecipeIds) {
-        final String recipeId = recipe['recipeid'];
+        final String recipeId = recipe['recipeid']; //fetch rec details for each rec
         await fetchRecipeDetails(recipeId);
       }
     } else {
@@ -221,12 +193,12 @@ void _performFilter() async {
     if (response.statusCode == 200) {
       final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
       setState(() {
-        recipes.clear(); // Clear current recipes
+        recipes.clear(); //clear the current recipes 
       });
 
-      // Fetch details for each recipe ID
+      
       for (var recipe in fetchedRecipeIds) {
-        final String recipeId = recipe['recipeid'];
+        final String recipeId = recipe['recipeid']; //fetch recpe details for each recipe
         await fetchRecipeDetails(recipeId);
       }
     } else {
@@ -240,9 +212,6 @@ void _performFilter() async {
     });
   }
 }
-
-
-
 
   void _openFilterModal() {
   final theme = Theme.of(context);
