@@ -625,7 +625,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           'Prep Time:',
                                                           style: TextStyle(
                                                             color: Colors.white,
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -651,7 +651,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.white,
-                                                              fontSize: 14,
+                                                              fontSize: 12,
                                                             ),
                                                           ),
                                                         ),
@@ -693,7 +693,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           'Cook Time:',
                                                           style: TextStyle(
                                                             color: Colors.white,
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -719,7 +719,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.white,
-                                                              fontSize: 14,
+                                                              fontSize: 12,
                                                             ),
                                                           ),
                                                         ),
@@ -761,7 +761,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                   'Total Time:',
                                                   style: TextStyle(
                                                     color: Colors.white,
-                                                    fontSize: 14,
+                                                    fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
@@ -782,7 +782,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     '${widget.prepTime + widget.cookTime} mins',
                                                     style: TextStyle(
                                                       color: Colors.white,
-                                                      fontSize: 14,
+                                                      fontSize: 12,
                                                     ),
                                                   ),
                                                 ),
