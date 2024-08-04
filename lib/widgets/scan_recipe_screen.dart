@@ -42,7 +42,7 @@ class _ScanRecipeState extends State<ScanRecipe> {
           OutlinedButton(
             onPressed: _pickImage,
             style: ElevatedButton.styleFrom(
-              backgroundColor: isLightTheme ? Colors.white : Color(0xFF1F4539),
+              backgroundColor: Colors.transparent,
               padding: EdgeInsets.symmetric(
                 horizontal: screenWidth *
                     0.1, // Adjust the horizontal padding based on screen width
@@ -88,16 +88,15 @@ class _ScanRecipeState extends State<ScanRecipe> {
                   // Add functionality to analyze the scanned recipe
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      isLightTheme ? Colors.white : const Color(0xFF1F4539),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth *
-                        0.08, // Adjust the horizontal padding based on screen width
-                    vertical: screenWidth *
-                        0.04, // Adjust the vertical padding based on screen width
-                  ),
-                  side: const BorderSide(color: Color(0xFFDC945F), width: 2),
-                ),
+                    backgroundColor: Colors.transparent,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth *
+                          0.08, // Adjust the horizontal padding based on screen width
+                      vertical: screenWidth *
+                          0.04, // Adjust the vertical padding based on screen width
+                    ),
+                    side: const BorderSide(color: Color(0xFFDC945F), width: 2),
+                    elevation: 0),
                 child: Text(
                   'Analyze Recipe',
                   style: TextStyle(
