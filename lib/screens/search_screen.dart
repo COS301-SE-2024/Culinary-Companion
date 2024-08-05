@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+//import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
@@ -248,7 +248,7 @@ void _performFilter() async {
   List<String> tempCourseOptions = List.from(selectedCourseTypeOptions);
   List<String> tempCuisineOptions = List.from(selectedCuisineType);
   int? tempSpiceLevel = selectedSpiceLevel != null ? _spiceLevelToInt(selectedSpiceLevel!) : null;
-  String? tempIngredientOption = selectedIngredientOption;
+  //String? tempIngredientOption = selectedIngredientOption;
 
   showModalBottomSheet(
     context: context,
@@ -353,7 +353,7 @@ void _performFilter() async {
                             tempCourseOptions.clear();
                             tempCuisineOptions.clear();
                             tempSpiceLevel = null;
-                            tempIngredientOption = null;
+                            //tempIngredientOption = null;
                           });
                         },
                         child: Text('RESET', style: TextStyle(color: textColor)),
@@ -366,8 +366,8 @@ void _performFilter() async {
                             selectedDietaryOptions = tempDietaryOptions;
                             selectedCourseTypeOptions = tempCourseOptions;
                             selectedCuisineType = tempCuisineOptions;
-                            selectedSpiceLevel = tempSpiceLevel != null ? tempSpiceLevel.toString() : null;
-                            selectedIngredientOption = tempIngredientOption;
+                            selectedSpiceLevel = tempSpiceLevel?.toString();
+                            //selectedIngredientOption = tempIngredientOption;
                           });
 
                           // Call the filter function
