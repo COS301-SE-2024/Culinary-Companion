@@ -40,11 +40,11 @@ class _SearchScreenState extends State<SearchScreen> {
     'Low Sugar'
   ]; //Change these so it is fetched from database!!!
 
-  List<String> ingredientOptions = [
-    'Need 1 Extra Ingredient',
-    'Mostly in My Pantry',
-    'All Ingredients Available'
-  ]; //double check these options!!
+  // List<String> ingredientOptions = [
+  //   'Need 1 Extra Ingredient',
+  //   'Mostly in My Pantry',
+  //   'All Ingredients Available'
+  // ]; //double check these options!!
 
   List<String> spiceLevelOptions = [
     'None', //1
@@ -326,22 +326,22 @@ void _performFilter() async {
                       );
                     }).toList(),
                   ),
-                  SizedBox(height: 15),
-                  Text('Ingredients:', style: TextStyle(fontSize: 16)),
-                  Wrap(
-                    spacing: 8.0,
-                    children: ingredientOptions.map((option) {
-                      return ChoiceChip(
-                        label: Text(option),
-                        selected: tempIngredientOption == option,
-                        onSelected: (isSelected) {
-                          setState(() {
-                            tempIngredientOption = isSelected ? option : null;
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
+                  // SizedBox(height: 15),
+                  // Text('Ingredients:', style: TextStyle(fontSize: 16)),
+                  // Wrap(
+                  //   spacing: 8.0,
+                  //   children: ingredientOptions.map((option) {
+                  //     return ChoiceChip(
+                  //       label: Text(option),
+                  //       selected: tempIngredientOption == option,
+                  //       onSelected: (isSelected) {
+                  //         setState(() {
+                  //           tempIngredientOption = isSelected ? option : null;
+                  //         });
+                  //       },
+                  //     );
+                  //   }).toList(),
+                  // ),
                   SizedBox(height: 25),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
