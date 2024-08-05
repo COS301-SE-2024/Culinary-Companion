@@ -50,9 +50,10 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   await _fetchIngredientNames();
   _loadDontShowAgainPreference();
   await _fetchShoppingList();
+  if(mounted){
   setState(() {
     _isLoading = false;
-  });
+  });}
 }
 
 
