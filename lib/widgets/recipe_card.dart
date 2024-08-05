@@ -1718,7 +1718,7 @@ class CheckableItem extends StatefulWidget {
 class _CheckableItemState extends State<CheckableItem> {
   bool _isAdded = false;
   //bool _isSubstituted = true;
-  bool _isSubstituted = false;
+  //bool _isSubstituted = false;
 
   void _showSubstitutesDialog() {
     showDialog(
@@ -1779,19 +1779,14 @@ class _CheckableItemState extends State<CheckableItem> {
                     widget.title,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: _isSubstituted
-                          ? Color.fromARGB(255, 221, 107, 72)
-                          : Colors.white,
-                      fontWeight:
-                          _isSubstituted ? FontWeight.bold : FontWeight.normal,
+                      color: Colors.white,
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
-                  if (_isSubstituted)
-                    IconButton(
-                      icon: Icon(Icons.swap_horiz,
-                          color: Color.fromARGB(255, 221, 107, 72)),
-                      onPressed: _showSubstitutesDialog,
-                    ),
+                  IconButton(
+                    icon: Icon(Icons.swap_horiz, color: Colors.white),
+                    onPressed: _showSubstitutesDialog,
+                  ),
                 ],
               ),
             ),
