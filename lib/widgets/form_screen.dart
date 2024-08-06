@@ -380,6 +380,52 @@ class _RecipeFormState extends State<RecipeForm>
       } else {
         print('Failed to add keywords');
       }
+
+      final dietaryConstraintsJsonString = await fetchDietaryConstraints(recipeId);
+print(dietaryConstraintsJsonString);
+
+Map<String, dynamic> dietaryConstraints;
+try {
+  dietaryConstraints = json.decode(dietaryConstraintsJsonString);
+} catch (e) {
+  print('Failed to parse dietary constraints: $e');
+  return;
+}
+
+// print("dietaryConstraints");
+// print(dietaryConstraints);
+  // Filter dietary constraints that are "yes" or "true"
+  final filteredConstraints = dietaryConstraints.entries
+      .where((entry) => entry.value.toLowerCase() == 'yes' || entry.value.toLowerCase() == 'true')
+      .map((entry) => entry.key)
+      .toList();
+
+  // print("filteredConstraints");
+  // print(filteredConstraints);
+  // Convert the filtered constraints to a comma-separated string
+  final constraintsString = filteredConstraints.join(',');
+
+  print("constraintsString");
+  print(constraintsString);
+
+  final addDietaryConstraintsResponse = await http.post(
+    Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: json.encode({
+      'action': 'addRecipeDietaryConstraints',
+      'recipeid': recipeId,
+      'dietaryConstraints': constraintsString,
+    }),
+  );
+
+  if (addDietaryConstraintsResponse.statusCode == 200) {
+    print('Dietary constraints added successfully');
+  } else {
+    print('Failed to add dietary constraints');
+  }
+
     } else {
       print('Failed to retrieve recipe ID');
     }

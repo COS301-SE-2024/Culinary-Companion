@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm, filters, keywords } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm, filters, keywords, dietaryConstraints } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -108,11 +108,13 @@ Deno.serve(async (req) => {
             case 'searchRecipes':
                 return searchRecipes(searchTerm,corsHeaders);
             case 'filterRecipes':
-                    return filterRecipes(filters,corsHeaders);
-                case 'addRecipeKeywords':
+                return filterRecipes(filters,corsHeaders);
+            case 'addRecipeKeywords':
                 return addRecipeKeywords(recipeid, keywords, corsHeaders);
             case 'getRecipeId':
                 return getRecipeId(recipeData.name, corsHeaders);
+            case 'addRecipeDietaryConstraints':
+                return addRecipeDietaryConstraints(recipeid, dietaryConstraints, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -1758,6 +1760,44 @@ async function getRecipeId(recipeName: string, corsHeaders: HeadersInit) {
         });
     }
 }
+
+async function addRecipeDietaryConstraints(recipeid: string, dietaryConstraints:  string, corsHeaders: HeadersInit) {
+    if (!recipeid) {
+        console.error('Failed to retrieve recipe ID.');
+        return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    // Ensure dietaryConstraints is a valid JSON string
+    if (typeof dietaryConstraints !== 'string') {
+        console.error('Invalid dietary constraints format.');
+        return new Response(JSON.stringify({ error: 'Invalid dietary constraints format' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    const { error: dietaryConstraintError } = await supabase
+        .from('recipe')
+        .update({ dietaryOptions: dietaryConstraints })  // Adjust the column name if needed
+        .eq('recipeid', recipeid);
+
+    if (dietaryConstraintError) {
+        console.error('Error updating recipe dietary constraints:', dietaryConstraintError);
+        return new Response(JSON.stringify({ error: dietaryConstraintError.message }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    return new Response(JSON.stringify({ success: 'Recipe dietary constraints updated successfully' }), {
+        status: 200,
+        headers: corsHeaders,
+    });
+}
+
 
 /* To invoke locally:
 
