@@ -1035,6 +1035,43 @@ class _RecipeCardState extends State<RecipeCard> {
     });
   }
 
+  void _showAlteredRecipe(String substitute, String substitutedIngredient) async {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Loading altered recipe...'),
+        content: CircularProgressIndicator(),
+      );
+    },
+  );
+
+  String jsonString = await fetchIngredientSubstitutionRecipe(widget.recipeID, substitute, substitutedIngredient);
+
+  Navigator.of(context).pop(); // Close the loading dialog
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Altered Recipe'),
+        content: SingleChildScrollView(
+          child: Text(jsonString),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
   void _showRecipeDetails() {
     int neededIngredientCount = widget.ingredients
         .where((ingredient) =>
@@ -1781,71 +1818,37 @@ class _CheckableItemState extends State<CheckableItem> {
   // }
 
   void _showSubstitutesDialog() async {
-    // Show a loading dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Loading substitutions...'),
-          content: CircularProgressIndicator(),
-        );
-      },
-    );
-
-    // Fetch the substitutions
-    String jsonString = await fetchIngredientSubstitutions(widget.recipeID, widget.title);
-
-    // Parse the JSON string
-    Map<String, dynamic> substitutions;
-    try {
-      substitutions = jsonDecode(jsonString);
-    } catch (e) {
-      Navigator.of(context).pop(); // Close the loading dialog
-      // Show an error dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to fetch substitutions.'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the error dialog
-                },
-                child: Text('Close'),
-              ),
-            ],
-          );
-        },
+  // Show a loading dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Loading substitutions...'),
+        content: CircularProgressIndicator(),
       );
-      return;
-    }
+    },
+  );
 
-    // Close the loading dialog
-    Navigator.of(context).pop();
+  // Fetch the substitutions
+  String jsonString = await fetchIngredientSubstitutions(widget.recipeID, widget.title);
 
-    // Show the substitutions dialog
+  // Parse the JSON string
+  Map<String, dynamic> substitutions;
+  try {
+    substitutions = jsonDecode(jsonString);
+  } catch (e) {
+    Navigator.of(context).pop(); // Close the loading dialog
+    // Show an error dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Here are a list of substitutes for ${widget.title}'),
-          content: Container(
-            width: double.maxFinite, // Make the container as wide as the dialog
-            child: ListView(
-              shrinkWrap: true,
-              children: substitutions.entries.map((entry) {
-                return ListTile(
-                  title: Text(entry.value),
-                );
-              }).toList(),
-            ),
-          ),
+          title: Text('Error'),
+          content: Text('Failed to fetch substitutions.'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Close the error dialog
               },
               child: Text('Close'),
             ),
@@ -1853,7 +1856,89 @@ class _CheckableItemState extends State<CheckableItem> {
         );
       },
     );
+    return;
+  }
+
+  // Close the loading dialog
+  Navigator.of(context).pop();
+
+  // Show the substitutions dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Here are a list of substitutes for ${widget.title}'),
+        content: Container(
+          width: double.maxFinite, // Make the container as wide as the dialog
+          child: ListView(
+            shrinkWrap: true,
+            children: substitutions.entries.map((entry) {
+              return ListTile(
+                title: Text(entry.value),
+                onTap: () {
+                  Navigator.of(context).pop(); // Close the substitutions dialog
+                  _generateAlteredRecipe(entry.value, widget.title); // Generate the altered recipe
+                },
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
 }
+
+Future<void> _generateAlteredRecipe(String substitute, String substitutedIngredient) async {
+  // Show a loading dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Generating altered recipe...'),
+        content: CircularProgressIndicator(),
+      );
+    },
+  );
+
+  // Fetch the altered recipe
+  String jsonString = await fetchIngredientSubstitutionRecipe(widget.recipeID, substitute, substitutedIngredient);
+
+  // Close the loading dialog
+  Navigator.of(context).pop();
+
+  // Handle the altered recipe
+  // You might want to parse the JSON and show the altered recipe in a new dialog or update the UI
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Altered Recipe'),
+        content: SingleChildScrollView(
+          child: Text(jsonString), 
+          // the json string as is, is shown now,
+          // change it to show the recipe card 
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
 
   @override
