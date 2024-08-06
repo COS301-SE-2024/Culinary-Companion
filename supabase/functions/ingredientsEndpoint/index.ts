@@ -17,6 +17,14 @@ interface RecipeData {
     appliances: { name: string }[];
     photo:string;
   }
+
+  interface Filters {
+    course?: string[];
+    spiceLevel?: number;
+    cuisine?: string[]; 
+    dietaryOptions?: string[];
+    ingredientOption?: string; 
+  }
   
 
 // Create the Supabase Client
@@ -40,7 +48,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm, filters } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -99,6 +107,8 @@ Deno.serve(async (req) => {
                 return editPantryItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
             case 'searchRecipes':
                 return searchRecipes(searchTerm,corsHeaders);
+            case 'filterRecipes':
+                    return filterRecipes(filters,corsHeaders);
                 default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -112,6 +122,61 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+
+async function filterRecipes(filters :Filters, corsHeaders: HeadersInit) {
+    try {
+        const query = supabase.from('recipe').select('recipeid');
+
+        // Apply course filter
+        if (filters.course && filters.course.length > 0) {
+            query.in('course', filters.course);
+        }
+
+        // Apply spice level filter
+        if (filters.spiceLevel !== undefined && filters.spiceLevel !== null) {
+            query.eq('spicelevel', filters.spiceLevel);
+        }
+
+        // Apply cuisine filter
+        if (filters.cuisine && filters.cuisine.length > 0) {
+            query.in('cuisine', filters.cuisine);
+        }
+
+        // Apply dietary options filter
+        if (filters.dietaryOptions && filters.dietaryOptions.length > 0) {
+            query.in('dietaryOptions', filters.dietaryOptions);
+        }
+
+        // // Apply ingredient options filter (custom logic as needed)
+        // if (filters.ingredientOption) {
+        //     // Custom filter logic for ingredientOption
+        //     // This will depend on how ingredients are stored and should be filtered
+        // }
+
+        const { data: recipes, error: recipesError } = await query;
+
+        if (recipesError) {
+            console.error('Error fetching filtered recipes:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in filterRecipes function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 async function searchRecipes(searchTerm: string, corsHeaders: HeadersInit) {
     if (!searchTerm) {
@@ -146,6 +211,8 @@ async function searchRecipes(searchTerm: string, corsHeaders: HeadersInit) {
         });
     }
 }
+
+
 
 
 // Get all the ingredients and their attributes
