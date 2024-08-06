@@ -65,9 +65,11 @@ class _RecipeCardState extends State<RecipeCard> {
 
   Future<void> _fetchUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userId = prefs.getString('userId');
-    });
+    if (mounted) {
+      setState(() {
+        userId = prefs.getString('userId');
+      });
+    }
   }
 
   void _updateIngredientCounts() {
@@ -89,11 +91,12 @@ class _RecipeCardState extends State<RecipeCard> {
         //needed++;
       }
     }
-
-    setState(() {
-      _ingredientsInPantry = inPantry;
-      //_ingredientsNeeded = needed;
-    });
+    if (mounted) {
+      setState(() {
+        _ingredientsInPantry = inPantry;
+        //_ingredientsNeeded = needed;
+      });
+    }
   }
 
   Future<void> _addAllToShoppingList() async {
@@ -129,21 +132,23 @@ class _RecipeCardState extends State<RecipeCard> {
           try {
             final response = await http.post(url, headers: headers, body: body);
             if (response.statusCode == 200) {
-              setState(() {
-                _shoppingList[name] = {
-                  'quantity': remainingQuantity,
-                  'measurementUnit': unit
-                };
-                // Update the state to reflect that the ingredient is in the shopping list
-                // ignore: duplicate_ignore
-                // ignore: avoid_function_literals_in_foreach_calls
-                widget.ingredients.forEach((ingredient) {
-                  if (ingredient['name'] == name) {
-                    widget.ingredients[widget.ingredients.indexOf(ingredient)]
-                        ['isInShoppingList'] = true;
-                  }
+              if (mounted) {
+                setState(() {
+                  _shoppingList[name] = {
+                    'quantity': remainingQuantity,
+                    'measurementUnit': unit
+                  };
+                  // Update the state to reflect that the ingredient is in the shopping list
+                  // ignore: duplicate_ignore
+                  // ignore: avoid_function_literals_in_foreach_calls
+                  widget.ingredients.forEach((ingredient) {
+                    if (ingredient['name'] == name) {
+                      widget.ingredients[widget.ingredients.indexOf(ingredient)]
+                          ['isInShoppingList'] = true;
+                    }
+                  });
                 });
-              });
+              }
             } else {
               print('Failed to add $name to shopping list: ${response.body}');
             }
@@ -166,19 +171,21 @@ class _RecipeCardState extends State<RecipeCard> {
         try {
           final response = await http.post(url, headers: headers, body: body);
           if (response.statusCode == 200) {
-            setState(() {
-              _shoppingList[name] = {
-                'quantity': requiredQuantity,
-                'measurementUnit': unit
-              };
-              // Update the state to reflect that the ingredient is in the shopping list
-              widget.ingredients.forEach((ingredient) {
-                if (ingredient['name'] == name) {
-                  widget.ingredients[widget.ingredients.indexOf(ingredient)]
-                      ['isInShoppingList'] = true;
-                }
+            if (mounted) {
+              setState(() {
+                _shoppingList[name] = {
+                  'quantity': requiredQuantity,
+                  'measurementUnit': unit
+                };
+                // Update the state to reflect that the ingredient is in the shopping list
+                widget.ingredients.forEach((ingredient) {
+                  if (ingredient['name'] == name) {
+                    widget.ingredients[widget.ingredients.indexOf(ingredient)]
+                        ['isInShoppingList'] = true;
+                  }
+                });
               });
-            });
+            }
           } else {
             print('Failed to add $name to shopping list: ${response.body}');
           }
@@ -217,14 +224,16 @@ class _RecipeCardState extends State<RecipeCard> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> shoppingList = data['shoppingList'];
-        setState(() {
-          for (var item in shoppingList) {
-            _shoppingList[item['ingredientName']] = {
-              'quantity': item['quantity'],
-              'measurementUnit': item['measurmentunit']
-            };
-          }
-        });
+        if (mounted) {
+          setState(() {
+            for (var item in shoppingList) {
+              _shoppingList[item['ingredientName']] = {
+                'quantity': item['quantity'],
+                'measurementUnit': item['measurmentunit']
+              };
+            }
+          });
+        }
       } else {
         print('Failed to fetch shopping list: ${response.reasonPhrase}');
       }
@@ -269,13 +278,15 @@ class _RecipeCardState extends State<RecipeCard> {
         );
 
         if (response.statusCode == 200) {
-          setState(() {
-            if (newQuantity <= 0) {
-              _pantryIngredients.remove(item);
-            } else {
-              _pantryIngredients[item]!['quantity'] = newQuantity;
-            }
-          });
+          if (mounted) {
+            setState(() {
+              if (newQuantity <= 0) {
+                _pantryIngredients.remove(item);
+              } else {
+                _pantryIngredients[item]!['quantity'] = newQuantity;
+              }
+            });
+          }
           print('Successfully updated $item in pantry');
         } else {
           allIngredientsRemoved = false;
@@ -319,14 +330,16 @@ class _RecipeCardState extends State<RecipeCard> {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final List<dynamic> pantryIngredients = data['availableIngredients'];
-        setState(() {
-          for (var ingredient in pantryIngredients) {
-            _pantryIngredients[ingredient['name']] = {
-              'quantity': ingredient['quantity'],
-              'measurementUnit': ingredient['measurmentunit']
-            };
-          }
-        });
+        if (mounted) {
+          setState(() {
+            for (var ingredient in pantryIngredients) {
+              _pantryIngredients[ingredient['name']] = {
+                'quantity': ingredient['quantity'],
+                'measurementUnit': ingredient['measurmentunit']
+              };
+            }
+          });
+        }
       } else {
         //print('Failed to fetch pantry ingredients: ${response.reasonPhrase}');
       }
@@ -337,9 +350,11 @@ class _RecipeCardState extends State<RecipeCard> {
   }
 
   void _onHover(bool hovering) {
-    setState(() {
-      _hovered = hovering;
-    });
+    if (mounted) {
+      setState(() {
+        _hovered = hovering;
+      });
+    }
   }
 
   void _checkIfFavorite() async {
@@ -358,9 +373,11 @@ class _RecipeCardState extends State<RecipeCard> {
         final List<dynamic> favoriteRecipes = jsonDecode(response.body);
         final isFavorite =
             favoriteRecipes.any((recipe) => recipe['recipeid'] == recipeId);
-        setState(() {
-          _isFavorite = isFavorite;
-        });
+        if (mounted) {
+          setState(() {
+            _isFavorite = isFavorite;
+          });
+        }
       } else {
         //print('Failed to get favorite status: ${response.reasonPhrase}');
       }
@@ -370,9 +387,10 @@ class _RecipeCardState extends State<RecipeCard> {
   }
 
   void _toggleFavorite() async {
+    if(mounted){
     setState(() {
       _isFavorite = !_isFavorite;
-    });
+    });}
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
@@ -625,7 +643,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           'Prep Time:',
                                                           style: TextStyle(
                                                             color: Colors.white,
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -651,7 +669,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.white,
-                                                              fontSize: 14,
+                                                              fontSize: 12,
                                                             ),
                                                           ),
                                                         ),
@@ -693,7 +711,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           'Cook Time:',
                                                           style: TextStyle(
                                                             color: Colors.white,
-                                                            fontSize: 14,
+                                                            fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
                                                           ),
@@ -719,7 +737,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                             style: TextStyle(
                                                               color:
                                                                   Colors.white,
-                                                              fontSize: 14,
+                                                              fontSize: 12,
                                                             ),
                                                           ),
                                                         ),
@@ -761,7 +779,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                   'Total Time:',
                                                   style: TextStyle(
                                                     color: Colors.white,
-                                                    fontSize: 14,
+                                                    fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),
@@ -782,7 +800,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     '${widget.prepTime + widget.cookTime} mins',
                                                     style: TextStyle(
                                                       color: Colors.white,
-                                                      fontSize: 14,
+                                                      fontSize: 12,
                                                     ),
                                                   ),
                                                 ),
@@ -869,10 +887,11 @@ class _RecipeCardState extends State<RecipeCard> {
                                             requiredUnit:
                                                 ingredient['measurement_unit'],
                                             onChanged: (bool? value) {
+                                              if(mounted){
                                               setState(() {
                                                 _ingredientChecked[idx] =
                                                     value ?? false;
-                                              });
+                                              });}
                                             },
                                             isInPantry: isInPantry,
                                             availableQuantity:
@@ -1212,9 +1231,11 @@ class _RecipeCardState extends State<RecipeCard> {
                                   requiredQuantity: ingredient['quantity'],
                                   requiredUnit: ingredient['measurement_unit'],
                                   onChanged: (bool? value) {
+                                    if(mounted){
                                     setState(() {
                                       _ingredientChecked[idx] = value ?? false;
                                     });
+                                    }
                                   },
                                   isInPantry: isInPantry,
                                   availableQuantity: availableQuantity,
@@ -1718,7 +1739,7 @@ class CheckableItem extends StatefulWidget {
 class _CheckableItemState extends State<CheckableItem> {
   bool _isAdded = false;
   //bool _isSubstituted = true;
-  bool _isSubstituted = false;
+  //bool _isSubstituted = false;
 
   void _showSubstitutesDialog() {
     showDialog(
@@ -1779,19 +1800,14 @@ class _CheckableItemState extends State<CheckableItem> {
                     widget.title,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: _isSubstituted
-                          ? Color.fromARGB(255, 221, 107, 72)
-                          : Colors.white,
-                      fontWeight:
-                          _isSubstituted ? FontWeight.bold : FontWeight.normal,
+                      color: Colors.white,
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
-                  if (_isSubstituted)
-                    IconButton(
-                      icon: Icon(Icons.swap_horiz,
-                          color: Color.fromARGB(255, 221, 107, 72)),
-                      onPressed: _showSubstitutesDialog,
-                    ),
+                  IconButton(
+                    icon: Icon(Icons.swap_horiz, color: Colors.white),
+                    onPressed: _showSubstitutesDialog,
+                  ),
                 ],
               ),
             ),
@@ -1877,10 +1893,11 @@ class _CheckableItemState extends State<CheckableItem> {
     try {
       final response = await http.post(url, headers: headers, body: body);
       if (response.statusCode == 200) {
+        if(mounted){
         setState(() {
           _isAdded = true;
           _updateShoppingList(ingredientName, remainingQuantity, unit);
-        });
+        });}
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Added remaining $ingredientName to shopping list'),
@@ -1907,8 +1924,9 @@ class _CheckableItemState extends State<CheckableItem> {
 
   void _updateShoppingList(
       String ingredientName, double quantity, String measurementUnit) {
+        if(mounted){
     setState(() {
       widget.isInShoppingList = true;
-    });
+    });}
   }
 }

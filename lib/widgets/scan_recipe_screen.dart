@@ -11,7 +11,8 @@ class _ScanRecipeState extends State<ScanRecipe> {
   XFile? _image;
 
   Future<void> _pickImage() async {
-    final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedImage =
+        await _picker.pickImage(source: ImageSource.gallery);
     setState(() {
       _image = pickedImage;
     });
@@ -23,6 +24,7 @@ class _ScanRecipeState extends State<ScanRecipe> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
@@ -40,8 +42,12 @@ class _ScanRecipeState extends State<ScanRecipe> {
           OutlinedButton(
             onPressed: _pickImage,
             style: ElevatedButton.styleFrom(
-              backgroundColor: isLightTheme ? Colors.white : Color(0xFF1F4539),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              backgroundColor: Colors.transparent,
+              padding: EdgeInsets.symmetric(
+                horizontal: screenWidth *
+                    0.1, // Adjust the horizontal padding based on screen width
+                vertical: 20,
+              ),
             ),
             child: Text(
               'Browse Files',
@@ -59,14 +65,19 @@ class _ScanRecipeState extends State<ScanRecipe> {
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFDC945F),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth *
+                        0.08, // Adjust the horizontal padding based on screen width
+                    vertical: screenWidth *
+                        0.04, // Adjust the vertical padding based on screen width
+                  ),
                 ),
-                child: const Text(
+                child: Text(
                   'Format Recipe',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: screenWidth *
+                        0.045, // Adjust the font size based on screen width
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -77,18 +88,21 @@ class _ScanRecipeState extends State<ScanRecipe> {
                   // Add functionality to analyze the scanned recipe
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.brightness == Brightness.light
-                      ? Colors.white
-                      : Color(0xFF1F4539),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                  side: const BorderSide(color: Color(0xFFDC945F), width: 2),
-                ),
-                child: const Text(
+                    backgroundColor: Colors.transparent,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth *
+                          0.08, // Adjust the horizontal padding based on screen width
+                      vertical: screenWidth *
+                          0.04, // Adjust the vertical padding based on screen width
+                    ),
+                    side: const BorderSide(color: Color(0xFFDC945F), width: 2),
+                    elevation: 0),
+                child: Text(
                   'Analyze Recipe',
                   style: TextStyle(
-                    color: Color(0xFFDC945F),
-                    fontSize: 18,
+                    color: const Color(0xFFDC945F),
+                    fontSize: screenWidth *
+                        0.045, // Adjust the font size based on screen width
                     fontWeight: FontWeight.bold,
                   ),
                 ),

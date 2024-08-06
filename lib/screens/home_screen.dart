@@ -83,10 +83,11 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (error) {
       print('Error fetching recipes: $error');
     }
-
+if(mounted){
     setState(() {
       _isLoading = false;
     });
+}
   }
 
   Future<void> fetchRecipeDetails(String recipeId) async {

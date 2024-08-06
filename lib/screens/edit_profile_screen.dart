@@ -90,10 +90,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         await supabase
             .from('userProfile')
             .update({'profilephoto': imageUrl}).eq('userid', _userId!);
-
-        setState(() {
-          imageUrl = imageUrl;
-        });
+        if (mounted) {
+          setState(() {
+            imageUrl = imageUrl;
+          });
+        }
         //print('User profile photo updated successfully.');
       } else {
         print('Error uploading image: $response');
@@ -105,7 +106,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _initializeData() async {
     try {
-     
       await _loadUserId();
       await _fetchUserDetails(); // Fetch user details on init
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
@@ -187,7 +187,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         print('Failed to load user details: ${response.statusCode}');
         setState(() {
           _isLoading = false;
-         // _errorMessage = 'Failed to load user details';
+          // _errorMessage = 'Failed to load user details';
         });
       }
     } catch (error) {
@@ -575,7 +575,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       }
 
       //print('Profile updated successfully');
-      Navigator.pop(context,true);
+      Navigator.pop(context, true);
 
       // You can navigate to another screen or show a success message here
     } catch (error) {
@@ -627,7 +627,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(8)),
               border: Border.all(
-                color: textColor, // Change this color to the desired border color
+                color:
+                    textColor, // Change this color to the desired border color
                 width: 1, // Change the width as needed
               ),
             ),
@@ -653,9 +654,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           backgroundColor: isLightTheme ? Colors.white : Color(0xFF20493C),
         ),
         body: Center(
-          child: Lottie.asset(
-            'assets/loading.json'
-          ),
+          child: Lottie.asset('assets/loading.json'),
         ),
       );
     }
