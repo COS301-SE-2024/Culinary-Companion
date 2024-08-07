@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
-import 'package:carousel_slider/carousel_slider.dart';
+import 'package:carousel_slider/carousel_slider.dart' as carousel;
 import '../widgets/recipe_card.dart';
 import '../widgets/help_home.dart';
 
@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final carouselController = carousel.CarouselController();
   List<Map<String, dynamic>> recipes = [];
   bool _isLoading = true;
   bool _isGridView = false;
@@ -217,8 +218,8 @@ if(mounted){
               double itemHeight =
                   itemWidth * 320 / 250; // Maintain the aspect ratio
 
-              return CarouselSlider(
-                options: CarouselOptions(
+              return carousel.CarouselSlider(
+                options: carousel.CarouselOptions(
                   height: itemHeight,
                   enlargeCenterPage: false,
                   enableInfiniteScroll: true,
