@@ -11,6 +11,7 @@ class ChatWidget extends StatefulWidget {
   final List<Map<String, dynamic>> ingredients;
   final List<String> steps;
   final String userId;
+  final String course;
 
   ChatWidget({
     required this.recipeName,
@@ -18,6 +19,7 @@ class ChatWidget extends StatefulWidget {
     required this.ingredients,
     required this.steps,
     required this.userId,
+    required this.course,
   });
 
   @override
@@ -37,7 +39,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   void initState() {
     super.initState();
     _initializeChat();
-    _generateSuggestedPrompts();
+    //_generateSuggestedPrompts();
   }
 
   Future<void> _initializeChat() async {
@@ -67,6 +69,8 @@ class _ChatWidgetState extends State<ChatWidget> {
           setState(() {
             _spiceLevel = data[0]['spicelevel'];//users prefered spice level from 0 to 5
             _dietaryConstraints = List<String>.from(data[0]['dietaryConstraints']);
+            // print('$_dietaryConstraints');
+             _generateSuggestedPrompts();
           });
         }
       } else {
@@ -77,15 +81,35 @@ class _ChatWidgetState extends State<ChatWidget> {
     }
   }
 
-  void _generateSuggestedPrompts() { 
-    _suggestedPrompts = [
-      "How can I make this recipe spicier?",
-      "What can I substitute for an ingredient I don't have?",
-      "Can I make this recipe vegan?",
-      "What are some tips for cooking this dish?",
-      "Explain step 1 of the recipe more clearly"
-    ];
+  void _generateSuggestedPrompts() {
+   
+  if (_dietaryConstraints != null && _dietaryConstraints!.isNotEmpty) {
+    // Limit to a maximum of 2 dietary constraints
+    for (int i = 0; i < _dietaryConstraints!.length && i < 2; i++) {
+      _suggestedPrompts.add("Can I make this recipe ${_dietaryConstraints![i]}?");
+    }
   }
+
+  if (_spiceLevel != null && !widget.course.toLowerCase().contains('dessert')) {
+    if (_spiceLevel! > 3) {
+      _suggestedPrompts.add("How can I make this recipe spicier?");
+    } else {
+      _suggestedPrompts.add("How can I tone down the spiciness of this recipe?");
+    }
+  }
+  //print('${widget.recipeDescription}');
+  if (widget.course.toLowerCase().contains('dessert')) {
+    _suggestedPrompts.add("Can I make this dessert healthier?");
+  }
+
+  _suggestedPrompts.addAll([
+    //"How can I make this recipe spicier?",
+   // "What can I substitute for an ingredient I don't have?",
+    "What are some tips for cooking this dish?",
+    "Explain step 1 of the recipe more clearly",
+  ]);
+}
+
 
   void _sendMessage({String? message}) async {
     String text = message ?? _controller.text;

@@ -365,7 +365,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           SizedBox(height: 10),
           Row(
             children:
-                ['None', 'Mild', 'Medium', 'Hot', 'Very Hot'].map((level) {
+                ['None', 'Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) {
               return Expanded(
                 child: RadioListTile<String>(
                   title: Text(level),
