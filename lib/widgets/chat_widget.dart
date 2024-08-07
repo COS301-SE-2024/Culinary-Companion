@@ -84,8 +84,9 @@ class _ChatWidgetState extends State<ChatWidget> {
   void _generateSuggestedPrompts() {
    
   if (_dietaryConstraints != null && _dietaryConstraints!.isNotEmpty) {
-    for (String constraint in _dietaryConstraints!) {
-      _suggestedPrompts.add("Can I make this recipe $constraint?");
+    // Limit to a maximum of 2 dietary constraints
+    for (int i = 0; i < _dietaryConstraints!.length && i < 2; i++) {
+      _suggestedPrompts.add("Can I make this recipe ${_dietaryConstraints![i]}?");
     }
   }
 
