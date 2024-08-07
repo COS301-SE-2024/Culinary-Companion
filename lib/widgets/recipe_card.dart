@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../gemini_service.dart'; // LLM
 //import 'package:lottie/lottie.dart';
 
+// ignore: must_be_immutable
 class RecipeCard extends StatefulWidget {
   String recipeID;
   String name;
@@ -1183,6 +1184,7 @@ class _RecipeCardState extends State<RecipeCard> {
       context: context,
       builder: (BuildContext context) {
         final double screenWidth = MediaQuery.of(context).size.width;
+        // ignore: unused_local_variable
         final bool showImage =
             screenWidth > 1359; // Adjust the threshold as needed
 
