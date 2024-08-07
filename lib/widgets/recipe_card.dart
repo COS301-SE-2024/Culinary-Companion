@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:your_project_name/path_to_tab_controller.dart';  // Import your tab controller file here
 import '../gemini_service.dart'; // LLM
+//import 'package:lottie/lottie.dart';
 
 class RecipeCard extends StatefulWidget {
    String recipeID;
@@ -94,33 +95,33 @@ class _RecipeCardState extends State<RecipeCard> {
   //if (mounted) {
     setState(() {
       //print('Altered Recipe: $alteredRecipe');
-      print('Altered Ingredients: ${alteredRecipe['ingredients']}');
+     // print('Altered Ingredients: ${alteredRecipe['ingredients']}');
 
       widget.name = alteredRecipe['title'];
-      print('gets here 1');
+      //print('gets here 1');
       widget.description = alteredRecipe['description'];
-      print('gets here 2');
-      widget.imagePath = widget.imagePath;  // Assuming the imagePath doesn't change
-      print('gets here 3');
-      widget.prepTime = widget.prepTime;    // Assuming prepTime doesn't change
-      print('gets here 4');
-      widget.cookTime = widget.cookTime;    // Assuming cookTime doesn't change
-      print('gets here 5');
+      //print('gets here 2');
+      widget.imagePath = widget.imagePath; 
+      //print('gets here 3');
+      widget.prepTime = widget.prepTime;
+      //print('gets here 4');
+      widget.cookTime = widget.cookTime;
+     // print('gets here 5');
       widget.cuisine = alteredRecipe['cuisine'];
-      print('gets here 6');
-      widget.spiceLevel = widget.spiceLevel;  // Assuming spiceLevel doesn't change
-      print('gets here 7');
-      widget.course = widget.course;          // Assuming course doesn't change
+      //print('gets here 6');
+      widget.spiceLevel = widget.spiceLevel;
+      //print('gets here 7');
+      widget.course = widget.course;     
       widget.servings = widget.servings;
-      print('gets here 9');
+      //print('gets here 9');
       widget.steps = List<String>.from(alteredRecipe['steps']);
-      print('gets here 10');
+      //print('gets here 10');
       widget.appliances = widget.appliances;  // Assuming appliances don't change
-      print('gets here 11');
+      //print('gets here 11');
 
-      // Parse ingredients correctly from the string format
+      // map ingredients 
      widget.ingredients = alteredRecipe['ingredients'].map<Map<String, dynamic>>((ingredient) {
-        print('Ingredient: $ingredient');
+        //print('Ingredient: $ingredient');
         var nameEndIndex = ingredient.lastIndexOf(' (');
         var name = ingredient.substring(0, nameEndIndex);
         var quantityAndUnit = ingredient.substring(nameEndIndex + 2, ingredient.length - 1).split(' ');
@@ -131,8 +132,8 @@ class _RecipeCardState extends State<RecipeCard> {
         };
       }).toList();
 
-      print('Parsed Ingredients: ${widget.ingredients}');
-      print('gets here 12');
+      //print('Parsed Ingredients: ${widget.ingredients}');
+      //print('gets here 12');
       _isAlteredRecipe = true;
       _showRecipeDetails();
     });
@@ -1998,7 +1999,7 @@ Future<void> _generateAlteredRecipe(String substitute, String substitutedIngredi
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text('Generating altered recipe...'),
-        content: CircularProgressIndicator(),
+        content:  CircularProgressIndicator(),
       );
     },
   );
