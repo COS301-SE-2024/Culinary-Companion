@@ -1324,6 +1324,7 @@ class _RecipeCardState extends State<RecipeCard> {
                     ingredients: widget.ingredients,
                     steps: widget.steps,
                     userId: userId!,
+                    course:widget.course,
                   ),
                 ),
               ],
