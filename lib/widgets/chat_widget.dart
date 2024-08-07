@@ -37,7 +37,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   void initState() {
     super.initState();
     _initializeChat();
-    _generateSuggestedPrompts();
+    //_generateSuggestedPrompts();
   }
 
   Future<void> _initializeChat() async {
@@ -67,6 +67,8 @@ class _ChatWidgetState extends State<ChatWidget> {
           setState(() {
             _spiceLevel = data[0]['spicelevel'];//users prefered spice level from 0 to 5
             _dietaryConstraints = List<String>.from(data[0]['dietaryConstraints']);
+             print('$_dietaryConstraints');
+             _generateSuggestedPrompts();
           });
         }
       } else {
@@ -77,15 +79,22 @@ class _ChatWidgetState extends State<ChatWidget> {
     }
   }
 
-  void _generateSuggestedPrompts() { 
-    _suggestedPrompts = [
-      "How can I make this recipe spicier?",
-      "What can I substitute for an ingredient I don't have?",
-      "Can I make this recipe vegan?",
-      "What are some tips for cooking this dish?",
-      "Explain step 1 of the recipe more clearly"
-    ];
+  void _generateSuggestedPrompts() {
+   
+  if (_dietaryConstraints != null && _dietaryConstraints!.isNotEmpty) {
+    for (String constraint in _dietaryConstraints!) {
+      _suggestedPrompts.add("Can I make this recipe $constraint?");
+    }
   }
+
+  _suggestedPrompts.addAll([
+    "How can I make this recipe spicier?",
+   // "What can I substitute for an ingredient I don't have?",
+    "What are some tips for cooking this dish?",
+    "Explain step 1 of the recipe more clearly",
+  ]);
+}
+
 
   void _sendMessage({String? message}) async {
     String text = message ?? _controller.text;
