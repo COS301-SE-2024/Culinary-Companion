@@ -300,8 +300,6 @@ Future<void> _addToPantryList(String? userId, String item) async {
   }
 }
 
-
-
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
       builder: (context) => HelpMenu(
@@ -407,6 +405,9 @@ Future<void> _addToPantryList(String? userId, String item) async {
   }
 // Helper method to build a category header
 Widget _buildCategoryHeader(String title) {
+    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    
   final Map<String, IconData> categoryIcons = {
     'Dairy': Icons.icecream,
     'Meat': Icons.kebab_dining,
@@ -452,7 +453,7 @@ Widget _buildCategoryHeader(String title) {
           style: TextStyle(
             fontSize: 20.0,
             fontWeight: FontWeight.bold,
-            color: Color.fromARGB(255, 255, 255, 255),
+            color: textColor,
           ),
         ),
       ],

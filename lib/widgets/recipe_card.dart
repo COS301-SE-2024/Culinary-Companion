@@ -1168,6 +1168,9 @@ class _RecipeCardState extends State<RecipeCard> {
 // }
 
   void _showRecipeDetails() {
+    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     int neededIngredientCount = widget.ingredients
         .where((ingredient) =>
             (!_pantryIngredients.containsKey(ingredient['name']) ||
@@ -1411,8 +1414,17 @@ class _RecipeCardState extends State<RecipeCard> {
                                           ingredient['quantity']))
                                     ElevatedButton(
                                       onPressed: _removeIngredientsFromPantry,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: textColor,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40, vertical: 20),
+                                      ),
                                       child: Text(
-                                          'Remove ingredients from pantry'),
+                                          'Remove ingredients from pantry',
+                                          style: TextStyle(
+                                              color: isLightTheme
+                                                  ? Colors.white
+                                                  : Color(0xFF1F4539))),
                                     ),
                                   if (widget.ingredients.any((ingredient) =>
                                       (!_pantryIngredients.containsKey(
@@ -1425,7 +1437,16 @@ class _RecipeCardState extends State<RecipeCard> {
                                           .containsKey(ingredient['name'])))
                                     ElevatedButton(
                                       onPressed: _addAllToShoppingList,
-                                      child: Text('Add All Ingredients'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: textColor,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40, vertical: 20),
+                                      ),
+                                      child: Text('Add All Ingredients',
+                                          style: TextStyle(
+                                              color: isLightTheme
+                                                  ? Colors.white
+                                                  : Color(0xFF1F4539))),
                                     ),
                                   SizedBox(
                                       height: MediaQuery.of(context)
@@ -2069,6 +2090,8 @@ class _CheckableItemState extends State<CheckableItem> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
     bool isSufficient = widget.isInPantry &&
         widget.availableQuantity >= widget.requiredQuantity;
     return Column(
@@ -2100,7 +2123,7 @@ class _CheckableItemState extends State<CheckableItem> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.swap_horiz, color: Colors.white),
+                    icon: Icon(Icons.swap_horiz, color: textColor),
                     onPressed: _showSubstitutesDialog,
                   ),
                 ],
