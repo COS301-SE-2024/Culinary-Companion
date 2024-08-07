@@ -92,17 +92,35 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
   }
 
   // Construct the prompt using the fetched recipe details
-  final formatting = """Return the recipe in JSON using the following structure:
+  // final formatting = """Return the recipe in JSON using the following structure:
+  // {
+  //   "title": "\$recipeTitle",
+  //   "ingredients": \$ingredients,
+  //   "steps": \$steps,
+  //   "cuisine": "\$cuisine",
+  //   "description": "\$description",
+  //   "servings": "\$servings"
+  // }
+  // title, description, cuisine and servings should be of type String.
+  // ingredients and steps should be of type List<String>.""";
+   final formatting = """Return the recipe in JSON using the following structure:
   {
-    "title": "\$recipeTitle",
-    "ingredients": \$ingredients,
-    "steps": \$steps,
+    "title": "\$title",
+    "ingredients": [
+      "ingredient1 (quantity)",
+      "ingredient2 (quantity)",
+      ...
+    ],
+    "steps": [
+      "Step 1",
+      "Step 2",
+      ...
+    ],
     "cuisine": "\$cuisine",
     "description": "\$description",
     "servings": "\$servings"
   }
-  title, description, cuisine and servings should be of type String.
-  ingredients and steps should be of type List<String>.""";
+  They should all be Strings.""";
 
   final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
