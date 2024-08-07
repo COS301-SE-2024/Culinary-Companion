@@ -13,9 +13,6 @@ class _TutorialPagesState extends State<TutorialPages>
   late AnimationController _animationController;
   int _currentPage = 0;
 
-  final Color _backgroundColor =
-      Color(0xFF21493C); // Consistent dark green background
-
   List<TutorialPage> _pages = [
     TutorialPage(
       title: "Welcome to Culinary Companion",
@@ -78,13 +75,16 @@ class _TutorialPagesState extends State<TutorialPages>
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
+    // final theme = Theme.of(context);
+    // final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color backgroundColor =  Color(0xFF283330); // Consistent dark green background
 
     return isMobile
         ? MobileTutorial(
             pageController: _pageController,
             pages: _pages,
             currentPage: _currentPage,
-            backgroundColor: _backgroundColor,
+            backgroundColor: backgroundColor,
             goToHome: _goToHome,
             onPageChanged: (int page) {
               setState(() {
@@ -92,12 +92,12 @@ class _TutorialPagesState extends State<TutorialPages>
               });
               _animationController.forward(from: 0);
             },
-            )
+          )
         : DesktopTutorial(
             pageController: _pageController,
             pages: _pages,
             currentPage: _currentPage,
-            backgroundColor: _backgroundColor,
+            backgroundColor: backgroundColor,
             goToHome: _goToHome,
             onPageChanged: (int page) {
               setState(() {
