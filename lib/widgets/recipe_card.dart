@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:your_project_name/path_to_tab_controller.dart';  // Import your tab controller file here
+import '../gemini_service.dart'; // LLM
 
 class RecipeCard extends StatefulWidget {
   final String recipeID;
@@ -899,6 +900,8 @@ class _RecipeCardState extends State<RecipeCard> {
                                             isChecked:
                                                 _ingredientChecked[idx] ?? true,
                                             isInShoppingList: isInShoppingList,
+                                            recipeID: widget.recipeID, // Pass recipeID here
+
                                           );
                                         }),
                                         if (widget.ingredients.every(
@@ -1031,6 +1034,43 @@ class _RecipeCardState extends State<RecipeCard> {
       _fetchShoppingList();
     });
   }
+
+//   void _showAlteredRecipe(String substitute, String substitutedIngredient) async {
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         title: Text('Loading altered recipe...'),
+//         content: CircularProgressIndicator(),
+//       );
+//     },
+//   );
+
+//   String jsonString = await fetchIngredientSubstitutionRecipe(widget.recipeID, substitute, substitutedIngredient);
+
+//   Navigator.of(context).pop(); // Close the loading dialog
+
+//   showDialog(
+//     context: context,
+//     builder: (BuildContext context) {
+//       return AlertDialog(
+//         title: Text('Altered Recipe'),
+//         content: SingleChildScrollView(
+//           child: Text(jsonString),
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () {
+//               Navigator.of(context).pop(); // Close the dialog
+//             },
+//             child: Text('Close'),
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
+
 
   void _showRecipeDetails() {
     int neededIngredientCount = widget.ingredients
@@ -1241,6 +1281,8 @@ class _RecipeCardState extends State<RecipeCard> {
                                   availableQuantity: availableQuantity,
                                   isChecked: _ingredientChecked[idx] ?? true,
                                   isInShoppingList: isInShoppingList,
+                                  recipeID: widget.recipeID, // Pass recipeID here
+
                                 );
                               }),
                               if (widget.ingredients.every((ingredient) =>
@@ -1266,11 +1308,11 @@ class _RecipeCardState extends State<RecipeCard> {
                                   onPressed: _addAllToShoppingList,
                                   child: Text('Add All Ingredients'),
                                 ),
-                              if (neededIngredientCount == 1)
-                                ElevatedButton(
-                                  onPressed: _suggestSubstitution,
-                                  child: Text('Suggest Substitution'),
-                                ),
+                              // if (neededIngredientCount == 1)
+                              //   ElevatedButton(
+                              //     onPressed: _suggestSubstitution,
+                              //     child: Text('Suggest Substitution'),
+                              //   ),
 
                               SizedBox(
                                   height: MediaQuery.of(context).size.height *
@@ -1707,7 +1749,7 @@ class _RecipeCardState extends State<RecipeCard> {
     );
   }
 
-  void _suggestSubstitution() {}
+  // void _suggestSubstitution() {}
 }
 
 // ignore: must_be_immutable
@@ -1720,6 +1762,8 @@ class CheckableItem extends StatefulWidget {
   final double availableQuantity;
   final bool isChecked;
   bool isInShoppingList;
+  final String recipeID; 
+
 
   CheckableItem({
     required this.title,
@@ -1730,6 +1774,7 @@ class CheckableItem extends StatefulWidget {
     required this.availableQuantity,
     required this.isChecked,
     required this.isInShoppingList,
+      required this.recipeID, 
   });
 
   @override
@@ -1741,28 +1786,69 @@ class _CheckableItemState extends State<CheckableItem> {
   //bool _isSubstituted = true;
   //bool _isSubstituted = false;
 
-  void _showSubstitutesDialog() {
+  // void _showSubstitutesDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('Here are a list of substitutes for ${widget.title}'),
+  //         content: Container(
+  //           width: double.maxFinite, // Make the container as wide as the dialog
+  //           child: ListView(
+  //             shrinkWrap: true,
+  //             children: List.generate(
+  //               5, // Number of substitute items
+  //               (index) => ListTile(
+  //                 title: Text('Substitute ${index + 1}'),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop(); // Close the dialog
+  //             },
+  //             child: Text('Close'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  void _showSubstitutesDialog() async {
+  // Show a loading dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Loading substitutions...'),
+        content: CircularProgressIndicator(),
+      );
+    },
+  );
+
+  // Fetch the substitutions
+  String jsonString = await fetchIngredientSubstitutions(widget.recipeID, widget.title);
+
+  // Parse the JSON string
+  Map<String, dynamic> substitutions;
+  try {
+    substitutions = jsonDecode(jsonString);
+  } catch (e) {
+    Navigator.of(context).pop(); // Close the loading dialog
+    // Show an error dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Here are a list of substitutes for ${widget.title}'),
-          content: Container(
-            width: double.maxFinite, // Make the container as wide as the dialog
-            child: ListView(
-              shrinkWrap: true,
-              children: List.generate(
-                5, // Number of mock substitute items
-                (index) => ListTile(
-                  title: Text('Substitute ${index + 1}'),
-                ),
-              ),
-            ),
-          ),
+          title: Text('Error'),
+          content: Text('Failed to fetch substitutions.'),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Close the error dialog
               },
               child: Text('Close'),
             ),
@@ -1770,7 +1856,90 @@ class _CheckableItemState extends State<CheckableItem> {
         );
       },
     );
+    return;
   }
+
+  // Close the loading dialog
+  Navigator.of(context).pop();
+
+  // Show the substitutions dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Here are a list of substitutes for ${widget.title}'),
+        content: Container(
+          width: double.maxFinite, // Make the container as wide as the dialog
+          child: ListView(
+            shrinkWrap: true,
+            children: substitutions.entries.map((entry) {
+              return ListTile(
+                title: Text(entry.value),
+                onTap: () {
+                  Navigator.of(context).pop(); // Close the substitutions dialog
+                  _generateAlteredRecipe(entry.value, widget.title); // Generate the altered recipe
+                },
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _generateAlteredRecipe(String substitute, String substitutedIngredient) async {
+  // Show a loading dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Generating altered recipe...'),
+        content: CircularProgressIndicator(),
+      );
+    },
+  );
+
+  // Fetch the altered recipe
+  String jsonString = await fetchIngredientSubstitutionRecipe(widget.recipeID, substitute, substitutedIngredient);
+
+  // Close the loading dialog
+  Navigator.of(context).pop();
+
+  // Handle the altered recipe
+  // You might want to parse the JSON and show the altered recipe in a new dialog or update the UI
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Altered Recipe'),
+        content: SingleChildScrollView(
+          child: Text(jsonString), 
+          // the json string as is, is shown now,
+          // change it to show the recipe card 
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
