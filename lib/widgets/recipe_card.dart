@@ -134,6 +134,7 @@ class _RecipeCardState extends State<RecipeCard> {
       print('Parsed Ingredients: ${widget.ingredients}');
       print('gets here 12');
       _isAlteredRecipe = true;
+      _showRecipeDetails();
     });
   //}
 }
@@ -155,6 +156,7 @@ void _revertToOriginalRecipe() {
       widget.appliances = List<String>.from(_originalRecipe!['appliances']);
       widget.ingredients = List<Map<String, dynamic>>.from(_originalRecipe!['ingredients']);
       _isAlteredRecipe = false;
+      _showRecipeDetails();
     });
   }
 }
