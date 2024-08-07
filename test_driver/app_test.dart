@@ -16,6 +16,7 @@ void main() {
     test('Landing Page', () async {
       await driver.waitFor(find.byValueKey('loginButton'));
       await driver.waitFor(find.byValueKey('signupButton'));
+      print("landing pass");
     });
 
     test('Login Page', () async {
@@ -23,6 +24,7 @@ void main() {
       await driver.waitFor(find.byValueKey('email'));
       await driver.waitFor(find.byValueKey('password'));
       await driver.waitFor(find.text('Login'));
+      print("login pass");
     });
 
     test('Signup Page', () async {
@@ -32,6 +34,7 @@ void main() {
       await driver.waitFor(find.byValueKey('passwordField'));
       await driver.waitFor(find.byValueKey('confirmPasswordField'));
       await driver.waitFor(find.byValueKey('signupSubmitButton'));
+      print("signup pass");
     });
 
   });

@@ -7,6 +7,7 @@ import '../widgets/number_spinner.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../gemini_service.dart'; // LLM
 
 class RecipeForm extends StatefulWidget {
   @override
@@ -320,6 +321,115 @@ class _RecipeFormState extends State<RecipeForm>
           duration: Duration(seconds: 3), // Adjust the duration here
         ),
       );
+
+      print("over here");
+      
+      final recipeIdResponse = await http.post(
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'action': 'getRecipeId',
+        'recipeData': {
+          'name': _nameController.text,
+        },
+      }),
+    );
+
+    if (recipeIdResponse.statusCode == 200) {
+      final recipeId = json.decode(recipeIdResponse.body)['recipeId'];
+
+      print("just before fetching keywords");
+
+      // Fetch keywords using fetchKeywords function
+      final keywordsJsonString = await fetchKeywords(recipeId);
+      print(keywordsJsonString);
+      Map<String, String> keywords;
+      try {
+        keywords = Map<String, String>.from(json.decode(keywordsJsonString));
+      } catch (e) {
+        print('Failed to parse keywords: $e');
+        return;
+      } 
+
+      // Convert the keywords map to a comma-separated string
+      final keywordsList = keywords.values.toList();
+      final keywordsString = keywordsList.join(',');
+
+      print("just after fetching keywords");
+
+      final addKeywordsResponse = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'action': 'addRecipeKeywords',
+          'recipeid': recipeId,
+          'keywords': keywordsString, // Ensure _keywords is defined and contains the keywords
+        }),
+      );
+
+      print("after adding keywords");
+
+      if (addKeywordsResponse.statusCode == 200) {
+        print('Keywords added successfully');
+      } else {
+        print('Failed to add keywords');
+      }
+
+      final dietaryConstraintsJsonString = await fetchDietaryConstraints(recipeId);
+print(dietaryConstraintsJsonString);
+
+Map<String, dynamic> dietaryConstraints;
+try {
+  dietaryConstraints = json.decode(dietaryConstraintsJsonString);
+} catch (e) {
+  print('Failed to parse dietary constraints: $e');
+  return;
+}
+
+// print("dietaryConstraints");
+// print(dietaryConstraints);
+  // Filter dietary constraints that are "yes" or "true"
+  final filteredConstraints = dietaryConstraints.entries
+      .where((entry) => entry.value.toLowerCase() == 'yes' || entry.value.toLowerCase() == 'true')
+      .map((entry) => entry.key)
+      .toList();
+
+  // print("filteredConstraints");
+  // print(filteredConstraints);
+  // Convert the filtered constraints to a comma-separated string
+  final constraintsString = filteredConstraints.join(',');
+
+  print("constraintsString");
+  print(constraintsString);
+
+  final addDietaryConstraintsResponse = await http.post(
+    Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: json.encode({
+      'action': 'addRecipeDietaryConstraints',
+      'recipeid': recipeId,
+      'dietaryConstraints': constraintsString,
+    }),
+  );
+
+  if (addDietaryConstraintsResponse.statusCode == 200) {
+    print('Dietary constraints added successfully');
+  } else {
+    print('Failed to add dietary constraints');
+  }
+
+    } else {
+      print('Failed to retrieve recipe ID');
+    }
+
 
       // Clear all form inputs
       _nameController.clear();

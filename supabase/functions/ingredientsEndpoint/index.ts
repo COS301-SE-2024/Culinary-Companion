@@ -1,5 +1,5 @@
 /// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
-import { privateEncrypt } from 'crypto';
+// import { privateEncrypt } from 'crypto';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.43.4'
 
 // Define the structure of the recipeData object
@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm, filters } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm, filters, keywords, dietaryConstraints } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -108,8 +108,14 @@ Deno.serve(async (req) => {
             case 'searchRecipes':
                 return searchRecipes(searchTerm,corsHeaders);
             case 'filterRecipes':
-                    return filterRecipes(filters,corsHeaders);
-                default:
+                return filterRecipes(filters,corsHeaders);
+            case 'addRecipeKeywords':
+                return addRecipeKeywords(recipeid, keywords, corsHeaders);
+            case 'getRecipeId':
+                return getRecipeId(recipeData.name, corsHeaders);
+            case 'addRecipeDietaryConstraints':
+                return addRecipeDietaryConstraints(recipeid, dietaryConstraints, corsHeaders);
+            default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
                     headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -1689,6 +1695,107 @@ async function removeUserFavorite(userId: string, recipeid: string, corsHeaders:
             headers: corsHeaders,
         });
     }
+}
+
+async function addRecipeKeywords(recipeid: string, keywords: string, corsHeaders: HeadersInit) {
+    if (!recipeid) {
+        console.error('Failed to retrieve recipe ID.');
+        return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    const { error: recipeKeywordError } = await supabase
+        .from('recipe')
+        .update({ keywords })
+        .eq('recipeid', recipeid);
+
+    if (recipeKeywordError) {
+        console.error('Error updating recipe keywords:', recipeKeywordError);
+        return new Response(JSON.stringify({ error: recipeKeywordError.message }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    return new Response(JSON.stringify({ success: 'Recipe keywords updated successfully' }), {
+        status: 200,
+        headers: corsHeaders,
+    });
+}
+
+async function getRecipeId(recipeName: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure recipeName is provided
+        if (!recipeName) {
+            throw new Error('Recipe name is required');
+        }
+
+        // Fetch recipe ID based on the recipe name
+        const { data: recipeData, error: recipeError } = await supabase
+            .from('recipe')
+            .select('recipeid')
+            .eq('name', recipeName)
+            .single();
+
+        if (recipeError) {
+            throw new Error(`Error fetching recipe ID: ${recipeError.message}`);
+        }
+
+        if (!recipeData) {
+            throw new Error(`Recipe not found for name: ${recipeName}`);
+        }
+
+        const recipeId = recipeData.recipeid;
+
+        return new Response(JSON.stringify({ recipeId }, null, 2), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function addRecipeDietaryConstraints(recipeid: string, dietaryConstraints:  string, corsHeaders: HeadersInit) {
+    if (!recipeid) {
+        console.error('Failed to retrieve recipe ID.');
+        return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    // Ensure dietaryConstraints is a valid JSON string
+    if (typeof dietaryConstraints !== 'string') {
+        console.error('Invalid dietary constraints format.');
+        return new Response(JSON.stringify({ error: 'Invalid dietary constraints format' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    const { error: dietaryConstraintError } = await supabase
+        .from('recipe')
+        .update({ dietaryOptions: dietaryConstraints })  // Adjust the column name if needed
+        .eq('recipeid', recipeid);
+
+    if (dietaryConstraintError) {
+        console.error('Error updating recipe dietary constraints:', dietaryConstraintError);
+        return new Response(JSON.stringify({ error: dietaryConstraintError.message }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    return new Response(JSON.stringify({ success: 'Recipe dietary constraints updated successfully' }), {
+        status: 200,
+        headers: corsHeaders,
+    });
 }
 
 
