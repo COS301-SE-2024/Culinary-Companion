@@ -9,19 +9,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../gemini_service.dart'; // LLM
 
 class RecipeCard extends StatefulWidget {
-  final String recipeID;
-  final String name;
-  final String description;
-  final String imagePath;
-  final int prepTime;
-  final int cookTime;
-  final String cuisine;
-  final int spiceLevel;
-  final String course;
-  final int servings;
-  final List<String> steps;
-  final List<String> appliances;
-  final List<Map<String, dynamic>> ingredients;
+   String recipeID;
+   String name;
+   String description;
+   String imagePath;
+   int prepTime;
+   int cookTime;
+   String cuisine;
+   int spiceLevel;
+   String course;
+   int servings;
+   List<String> steps;
+   List<String> appliances;
+   List<Map<String, dynamic>> ingredients;
 
   RecipeCard({
     required this.recipeID,
@@ -53,10 +53,27 @@ class _RecipeCardState extends State<RecipeCard> {
   String? userId;
   int _ingredientsInPantry = 0; //number of ingredients that I have
   // int _ingredientsNeeded = 0; //number of ingredients I still need to buy
+   Map<String, dynamic>? _originalRecipe;
+   bool _isAlteredRecipe = false;
 
   @override
   void initState() {
     super.initState();
+     _originalRecipe = {
+      'name': widget.name,
+      'description': widget.description,
+      'imagePath': widget.imagePath,
+      'prepTime': widget.prepTime,
+      'cookTime': widget.cookTime,
+      'cuisine': widget.cuisine,
+      'spiceLevel': widget.spiceLevel,
+      'course': widget.course,
+      'servings': widget.servings,
+      'steps': widget.steps,
+      'appliances': widget.appliances,
+      'ingredients': widget.ingredients,
+    };
+
     _checkIfFavorite();
     _fetchShoppingList();
     _fetchPantryIngredients();
@@ -72,6 +89,80 @@ class _RecipeCardState extends State<RecipeCard> {
       });
     }
   }
+
+  void _updateRecipe(Map<String, dynamic> alteredRecipe) {
+  //if (mounted) {
+    setState(() {
+      //print('Altered Recipe: $alteredRecipe');
+      print('Altered Ingredients: ${alteredRecipe['ingredients']}');
+
+      widget.name = alteredRecipe['title'];
+      print('gets here 1');
+      widget.description = alteredRecipe['description'];
+      print('gets here 2');
+      widget.imagePath = widget.imagePath;  // Assuming the imagePath doesn't change
+      print('gets here 3');
+      widget.prepTime = widget.prepTime;    // Assuming prepTime doesn't change
+      print('gets here 4');
+      widget.cookTime = widget.cookTime;    // Assuming cookTime doesn't change
+      print('gets here 5');
+      widget.cuisine = alteredRecipe['cuisine'];
+      print('gets here 6');
+      widget.spiceLevel = widget.spiceLevel;  // Assuming spiceLevel doesn't change
+      print('gets here 7');
+      widget.course = widget.course;          // Assuming course doesn't change
+      widget.servings = widget.servings;
+      print('gets here 9');
+      widget.steps = List<String>.from(alteredRecipe['steps']);
+      print('gets here 10');
+      widget.appliances = widget.appliances;  // Assuming appliances don't change
+      print('gets here 11');
+
+      // Parse ingredients correctly from the string format
+     widget.ingredients = alteredRecipe['ingredients'].map<Map<String, dynamic>>((ingredient) {
+        print('Ingredient: $ingredient');
+        var nameEndIndex = ingredient.lastIndexOf(' (');
+        var name = ingredient.substring(0, nameEndIndex);
+        var quantityAndUnit = ingredient.substring(nameEndIndex + 2, ingredient.length - 1).split(' ');
+        return {
+          'name': name,
+          'quantity': double.tryParse(quantityAndUnit[0]) ?? 0.0,
+          'measurement_unit': quantityAndUnit[1],
+        };
+      }).toList();
+
+      print('Parsed Ingredients: ${widget.ingredients}');
+      print('gets here 12');
+      _isAlteredRecipe = true;
+      _showRecipeDetails();
+    });
+  //}
+}
+
+
+void _revertToOriginalRecipe() {
+  if (_originalRecipe != null) {
+    setState(() {
+      widget.name = _originalRecipe!['name'];
+      widget.description = _originalRecipe!['description'];
+      widget.imagePath = _originalRecipe!['imagePath'];
+      widget.prepTime = _originalRecipe!['prepTime'];
+      widget.cookTime = _originalRecipe!['cookTime'];
+      widget.cuisine = _originalRecipe!['cuisine'];
+      widget.spiceLevel = _originalRecipe!['spiceLevel'];
+      widget.course = _originalRecipe!['course'];
+      widget.servings = _originalRecipe!['servings'];
+      widget.steps = List<String>.from(_originalRecipe!['steps']);
+      widget.appliances = List<String>.from(_originalRecipe!['appliances']);
+      widget.ingredients = List<Map<String, dynamic>>.from(_originalRecipe!['ingredients']);
+      _isAlteredRecipe = false;
+      _showRecipeDetails();
+    });
+  }
+}
+
+
+
 
   void _updateIngredientCounts() {
     int inPantry = 0;
@@ -900,7 +991,8 @@ class _RecipeCardState extends State<RecipeCard> {
                                             isChecked:
                                                 _ingredientChecked[idx] ?? true,
                                             isInShoppingList: isInShoppingList,
-                                            recipeID: widget.recipeID, // Pass recipeID here
+                                            recipeID: widget.recipeID,
+                                            onRecipeUpdate: _updateRecipe, // Pass recipeID here
 
                                           );
                                         }),
@@ -1073,312 +1165,312 @@ class _RecipeCardState extends State<RecipeCard> {
 
 
   void _showRecipeDetails() {
-    int neededIngredientCount = widget.ingredients
-        .where((ingredient) =>
-            (!_pantryIngredients.containsKey(ingredient['name']) ||
-                _pantryIngredients[ingredient['name']]!['quantity'] <
-                    ingredient['quantity']) &&
-            !_shoppingList.containsKey(ingredient['name']))
-        .length;
-    final theme = Theme.of(context);
+  int neededIngredientCount = widget.ingredients
+      .where((ingredient) =>
+          (!_pantryIngredients.containsKey(ingredient['name']) ||
+              _pantryIngredients[ingredient['name']]!['quantity'] <
+                  ingredient['quantity']) &&
+          !_shoppingList.containsKey(ingredient['name']))
+      .length;
+  final theme = Theme.of(context);
 
-    final clickColor = theme.brightness == Brightness.light
-        ? Colors.white
-        : Color.fromARGB(255, 25, 58, 48);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final double screenWidth = MediaQuery.of(context).size.width;
-        // ignore: unused_local_variable
-        final bool showImage =
-            screenWidth > 1359; // Adjust the threshold as needed
+  final clickColor = theme.brightness == Brightness.light
+      ? Colors.white
+      : Color.fromARGB(255, 25, 58, 48);
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      final double screenWidth = MediaQuery.of(context).size.width;
+      // ignore: unused_local_variable
+      final bool showImage =
+          screenWidth > 1359; // Adjust the threshold as needed
 
-        return Dialog(
-          backgroundColor: clickColor, // Change background color to green
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(screenWidth * 0.01),
+      return Dialog(
+        backgroundColor: clickColor, // Change background color to green
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(screenWidth * 0.01),
+        ),
+        child: Container(
+          width: screenWidth * 0.8, // Set width to 80% of screen width
+          height: MediaQuery.of(context).size.height *
+              0.8, // Set height to 80% of screen height
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).size.height *
+                0.04, // Adjust top padding to 4% of screen height
+            left: screenWidth *
+                0.05, // Adjust left padding to 5% of screen width
+            right: screenWidth *
+                0.05, // Adjust right padding to 5% of screen width
           ),
-          child: Container(
-            width: screenWidth * 0.8, // Set width to 80% of screen width
-            height: MediaQuery.of(context).size.height *
-                0.8, // Set height to 80% of screen height
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height *
-                  0.04, // Adjust top padding to 4% of screen height
-              left: screenWidth *
-                  0.05, // Adjust left padding to 5% of screen width
-              right: screenWidth *
-                  0.05, // Adjust right padding to 5% of screen width
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              widget.name,
-                              style: TextStyle(
-                                fontSize: screenWidth *
-                                    0.02, // Adjust font size to 2% of screen width
-                                fontWeight: FontWeight.bold,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            widget.name,
+                            style: TextStyle(
+                              fontSize: screenWidth *
+                                  0.02, // Adjust font size to 2% of screen width
+                              fontWeight: FontWeight.bold,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          Row(
-                            children: [
-                              IconButton(
-                                icon: Icon(
-                                  _isFavorite
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: _isFavorite ? Colors.red : Colors.grey,
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                _isFavorite
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: _isFavorite ? Colors.red : Colors.grey,
+                              ),
+                              onPressed: _toggleFavorite,
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.close),
+                              iconSize: screenWidth *
+                                  0.02, // Adjust icon size to 2% of screen width
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                _fetchShoppingList(); // Refresh shopping list when dialog is closed
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                        height: MediaQuery.of(context).size.height *
+                            0.01), // Adjust height to 1% of screen height
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.description),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height *
+                                    0.01), // Adjust height to 1% of screen height
+                            Row(
+                              children: [
+                                Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Prep Time:',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text('${widget.prepTime} mins'),
+                                  ],
                                 ),
-                                onPressed: _toggleFavorite,
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.close),
-                                iconSize: screenWidth *
-                                    0.02, // Adjust icon size to 2% of screen width
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  _fetchShoppingList(); // Refresh shopping list when dialog is closed
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height *
-                              0.01), // Adjust height to 1% of screen height
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(widget.description),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.01), // Adjust height to 1% of screen height
-                              Row(
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Prep Time:',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text('${widget.prepTime} mins'),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                      width: screenWidth *
-                                          0.02), // 2% of screen width
-                                  VerticalDivider(
-                                    color: Colors
-                                        .black, // Customize the color as needed
-                                    thickness:
-                                        1, // Customize the thickness as needed
-                                    width: 1,
-                                  ),
-                                  SizedBox(
-                                      width: screenWidth *
-                                          0.02), // 2% of screen width
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Cook Time:',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text('${widget.cookTime} mins'),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                      width: screenWidth *
-                                          0.02), // 2% of screen width
-                                  VerticalDivider(
-                                    color: Colors
-                                        .black, // Customize the color as needed
-                                    thickness:
-                                        1, // Customize the thickness as needed
-                                    width: 1,
-                                  ),
-                                  SizedBox(
-                                      width: screenWidth *
-                                          0.02), // 2% of screen width
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Total Time:',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      Text(
-                                          '${widget.prepTime + widget.cookTime} mins'),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.01), // Adjust height to 1% of screen height
-                              Text('Cuisine: ${widget.cuisine}'),
-                              Text('Spice Level: ${widget.spiceLevel}'),
-                              Text('Course: ${widget.course}'),
-                              Text('Servings: ${widget.servings}'),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.02), // Adjust height to 2% of screen height
-                              Text('Ingredients:',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.01), // Adjust height to 1% of screen height
-                              ...widget.ingredients
-                                  .asMap()
-                                  .entries
-                                  .map((entry) {
-                                int idx = entry.key;
-                                Map<String, dynamic> ingredient = entry.value;
-                                bool isInPantry = _pantryIngredients
-                                    .containsKey(ingredient['name']);
-                                double availableQuantity = isInPantry
-                                    ? (_pantryIngredients[ingredient['name']]
-                                            ?['quantity'] ??
-                                        0.0)
-                                    : 0.0;
-                                bool isInShoppingList = _shoppingList
-                                    .containsKey(ingredient['name']);
+                                SizedBox(
+                                    width: screenWidth *
+                                        0.02), // 2% of screen width
+                                VerticalDivider(
+                                  color: Colors
+                                      .black, // Customize the color as needed
+                                  thickness:
+                                      1, // Customize the thickness as needed
+                                  width: 1,
+                                ),
+                                SizedBox(
+                                    width: screenWidth *
+                                        0.02), // 2% of screen width
+                                Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Cook Time:',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text('${widget.cookTime} mins'),
+                                  ],
+                                ),
+                                SizedBox(
+                                    width: screenWidth *
+                                        0.02), // 2% of screen width
+                                VerticalDivider(
+                                  color: Colors
+                                      .black, // Customize the color as needed
+                                  thickness:
+                                      1, // Customize the thickness as needed
+                                  width: 1,
+                                ),
+                                SizedBox(
+                                    width: screenWidth *
+                                        0.02), // 2% of screen width
+                                Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Total Time:',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                        '${widget.prepTime + widget.cookTime} mins'),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height *
+                                    0.01), // Adjust height to 1% of screen height
+                            Text('Cuisine: ${widget.cuisine}'),
+                            Text('Spice Level: ${widget.spiceLevel}'),
+                            Text('Course: ${widget.course}'),
+                            Text('Servings: ${widget.servings}'),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height *
+                                    0.02), // Adjust height to 2% of screen height
+                            Text('Ingredients:',
+                                style:
+                                    TextStyle(fontWeight: FontWeight.bold)),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height *
+                                    0.01), // Adjust height to 1% of screen height
+                            ...widget.ingredients
+                                .asMap()
+                                .entries
+                                .map((entry) {
+                              int idx = entry.key;
+                              Map<String, dynamic> ingredient = entry.value;
+                              bool isInPantry = _pantryIngredients
+                                  .containsKey(ingredient['name']);
+                              double availableQuantity = isInPantry
+                                  ? (_pantryIngredients[ingredient['name']]
+                                          ?['quantity'] ??
+                                      0.0)
+                                  : 0.0;
+                              bool isInShoppingList = _shoppingList
+                                  .containsKey(ingredient['name']);
 
-                                return CheckableItem(
-                                  title:
-                                      '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-                                  requiredQuantity: ingredient['quantity'],
-                                  requiredUnit: ingredient['measurement_unit'],
-                                  onChanged: (bool? value) {
-                                    if(mounted){
+                              return CheckableItem(
+                                title:
+                                    '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
+                                requiredQuantity: ingredient['quantity'],
+                                requiredUnit: ingredient['measurement_unit'],
+                                onChanged: (bool? value) {
+                                  if (mounted) {
                                     setState(() {
                                       _ingredientChecked[idx] = value ?? false;
                                     });
-                                    }
-                                  },
-                                  isInPantry: isInPantry,
-                                  availableQuantity: availableQuantity,
-                                  isChecked: _ingredientChecked[idx] ?? true,
-                                  isInShoppingList: isInShoppingList,
-                                  recipeID: widget.recipeID, // Pass recipeID here
-
-                                );
-                              }),
-                              if (widget.ingredients.every((ingredient) =>
-                                  _pantryIngredients
-                                      .containsKey(ingredient['name']) &&
-                                  _pantryIngredients[ingredient['name']]![
-                                          'quantity'] >=
-                                      ingredient['quantity']))
-                                ElevatedButton(
-                                  onPressed: _removeIngredientsFromPantry,
-                                  child: Text('Remove ingredients from pantry'),
-                                ),
-                              if (widget.ingredients.any((ingredient) =>
-                                  (!_pantryIngredients
-                                          .containsKey(ingredient['name']) ||
-                                      _pantryIngredients[ingredient['name']]![
-                                              'quantity'] <
-                                          ingredient['quantity']) &&
-                                  (neededIngredientCount > 1) &&
-                                  !_shoppingList
-                                      .containsKey(ingredient['name'])))
-                                ElevatedButton(
-                                  onPressed: _addAllToShoppingList,
-                                  child: Text('Add All Ingredients'),
-                                ),
-                              // if (neededIngredientCount == 1)
-                              //   ElevatedButton(
-                              //     onPressed: _suggestSubstitution,
-                              //     child: Text('Suggest Substitution'),
-                              //   ),
-
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.02), // Adjust height to 2% of screen height
-                              Text('Appliances:',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.01), // Adjust height to 1% of screen height
-                              ...widget.appliances
-                                  .map((appliance) => Text(appliance)),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.02), // Adjust height to 2% of screen height
-                              Text('Instructions:',
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(
-                                  height: MediaQuery.of(context).size.height *
-                                      0.01), // Adjust height to 1% of screen height
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: widget.steps.expand((step) {
-                                  return step
-                                      .split('<')
-                                      .map((subStep) => Padding(
-                                            padding: EdgeInsets.only(
-                                              bottom: MediaQuery.of(context)
-                                                      .size
-                                                      .height *
-                                                  0.01,
-                                            ),
-                                            child: Text(
-                                                '${widget.steps.indexOf(step) + 1}. $subStep'),
-                                          ));
-                                }).toList(),
+                                  }
+                                },
+                                isInPantry: isInPantry,
+                                availableQuantity: availableQuantity,
+                                isChecked: _ingredientChecked[idx] ?? true,
+                                isInShoppingList: isInShoppingList,
+                                recipeID: widget.recipeID, // Pass recipeID here
+                                onRecipeUpdate: _updateRecipe,
+                              );
+                            }),
+                            if (widget.ingredients.every((ingredient) =>
+                                _pantryIngredients
+                                    .containsKey(ingredient['name']) &&
+                                _pantryIngredients[ingredient['name']]![
+                                        'quantity'] >=
+                                    ingredient['quantity']))
+                              ElevatedButton(
+                                onPressed: _removeIngredientsFromPantry,
+                                child: Text('Remove ingredients from pantry'),
                               ),
-                            ],
-                          ),
+                            if (widget.ingredients.any((ingredient) =>
+                                (!_pantryIngredients
+                                        .containsKey(ingredient['name']) ||
+                                    _pantryIngredients[ingredient['name']]![
+                                            'quantity'] <
+                                        ingredient['quantity']) &&
+                                (neededIngredientCount > 1) &&
+                                !_shoppingList
+                                    .containsKey(ingredient['name'])))
+                              ElevatedButton(
+                                onPressed: _addAllToShoppingList,
+                                child: Text('Add All Ingredients'),
+                              ),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height *
+                                    0.02), // Adjust height to 2% of screen height
+                            Text('Appliances:',
+                                style:
+                                    TextStyle(fontWeight: FontWeight.bold)),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height *
+                                    0.01), // Adjust height to 1% of screen height
+                            ...widget.appliances
+                                .map((appliance) => Text(appliance)),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height *
+                                    0.02), // Adjust height to 2% of screen height
+                            Text('Instructions:',
+                                style:
+                                    TextStyle(fontWeight: FontWeight.bold)),
+                            SizedBox(
+                                height: MediaQuery.of(context).size.height *
+                                    0.01), // Adjust height to 1% of screen height
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: widget.steps.expand((step) {
+                                return step
+                                    .split('<')
+                                    .map((subStep) => Padding(
+                                          padding: EdgeInsets.only(
+                                            bottom: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.01,
+                                          ),
+                                          child: Text(
+                                              '${widget.steps.indexOf(step) + 1}. $subStep'),
+                                        ));
+                              }).toList(),
+                            ),
+                            if (_isAlteredRecipe)
+                              ElevatedButton(
+                                onPressed: _revertToOriginalRecipe,
+                                child: Text('Revert to Original Recipe'),
+                              ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Container(
-                  width: screenWidth * 0.2,
-                  child: ChatWidget(
-                    recipeName: widget.name,
-                    recipeDescription: widget.description,
-                    ingredients: widget.ingredients,
-                    steps: widget.steps,
-                    userId: userId!,
-                    course:widget.course,
-                  ),
+              ),
+              Container(
+                width: screenWidth * 0.2,
+                child: ChatWidget(
+                  recipeName: widget.name,
+                  recipeDescription: widget.description,
+                  ingredients: widget.ingredients,
+                  steps: widget.steps,
+                  userId: userId!,
+                  course: widget.course,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        );
-      },
-    ).then((_) {
-      // This will be called when the dialog is dismissed
-      _fetchShoppingList();
-    });
-  }
+        ),
+      );
+    },
+  ).then((_) {
+    // This will be called when the dialog is dismissed
+    _fetchShoppingList();
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -1764,6 +1856,7 @@ class CheckableItem extends StatefulWidget {
   final bool isChecked;
   bool isInShoppingList;
   final String recipeID; 
+  final Function(Map<String, dynamic>) onRecipeUpdate; // Add this
 
 
   CheckableItem({
@@ -1776,6 +1869,7 @@ class CheckableItem extends StatefulWidget {
     required this.isChecked,
     required this.isInShoppingList,
       required this.recipeID, 
+      required this.onRecipeUpdate,
   });
 
   @override
@@ -1915,30 +2009,19 @@ Future<void> _generateAlteredRecipe(String substitute, String substitutedIngredi
   // Close the loading dialog
   Navigator.of(context).pop();
 
-  // Handle the altered recipe
-  // You might want to parse the JSON and show the altered recipe in a new dialog or update the UI
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Altered Recipe'),
-        content: SingleChildScrollView(
-          child: Text(jsonString), 
-          // the json string as is, is shown now,
-          // change it to show the recipe card 
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: Text('Close'),
-          ),
-        ],
-      );
-    },
-  );
+  // Parse the JSON string
+  Map<String, dynamic> alteredRecipe = jsonDecode(jsonString);
+
+  //print('hereeee $alteredRecipe');
+
+  // Update the recipe data with the altered recipe
+  widget.onRecipeUpdate(alteredRecipe);
+
+  if (mounted) {
+    setState(() {});
+  }
 }
+
 
 
 
