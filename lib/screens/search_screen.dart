@@ -64,7 +64,40 @@ class _SearchScreenState extends State<SearchScreen> {
   Future<void> _initializeData() async {
     await _loadCuisines();
     await _loadDietaryConstraints();
-    //fetchRecipes();
+    await fetchAllRecipes();
+  }
+
+  Future<void> fetchAllRecipes() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final body = jsonEncode({'action': 'getAllRecipes'});
+
+    try {
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> fetchedRecipes = jsonDecode(response.body);
+
+        // Fetch details concurrently
+        final detailFetches = fetchedRecipes.map((recipe) {
+          final String recipeId = recipe['recipeid'];
+          return fetchRecipeDetails(recipeId);
+        }).toList();
+
+        await Future.wait(detailFetches);
+      } else {
+        print('Failed to load recipes: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching recipes: $error');
+    }
+if(mounted){
+    setState(() {
+      _isLoading = false;
+    });
+}
   }
 
   Future<void> _loadDietaryConstraints() async {
