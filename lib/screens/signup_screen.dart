@@ -89,7 +89,7 @@ class _SignupScreenState extends State<SignupScreen> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png',
               fit: BoxFit.cover,
             ),
           ),

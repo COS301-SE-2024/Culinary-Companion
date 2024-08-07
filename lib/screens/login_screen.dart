@@ -70,7 +70,7 @@ Future<void> loginUser(String email, String password, String action) async {
           //Background image
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png',
               fit: BoxFit.cover,
             ),
           ),
