@@ -17,9 +17,8 @@ class HelpMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final clickColor = theme.brightness == Brightness.light
-        ? Color(0xFFEDEDED)
-        : Color(0xFF283330);
+    final clickColor =
+        theme.brightness == Brightness.light ? Color(0xFFEDEDED) : Color(0xFF283330);
 
     final fontColor = getFontColor(context);
 
@@ -135,42 +134,30 @@ class HelpMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubSectionTitle('Navigating the Search Page', fontColor),
+        _buildSubSectionTitle('Navigating the Search Recipes Page', fontColor),
         _buildParagraph(
-            'The home page is your gateway to all the delicious recipes. Here’s how you can navigate and use it effectively:',
+            'The Search Recipes page is your starting point to explore a wide variety of recipes based on specific criteria. Here’s how to make the most of it:',
             fontColor),
         _buildStep(
-            '1.1',
-            'Scroll up and down to view all available recipes. Each recipe card provides a brief overview, including the recipe name and an enticing image.',
+            '1',
+            'Use the search bar at the top to quickly find recipes by name, ingredient, cuisine type, or dietary preference.',
             fontColor),
-        // _buildStep(
-        //     '1.2',
-        //     'Hover over any of the recipes to see additional details such as the recipe name, description, prep time, cook time, cuisine, spice level, course, servings, steps, appliances, and ingredients.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.3',
-        //     'Tap on any recipe card to view detailed information about the recipe, including step-by-step instructions and a complete list of ingredients.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.4',
-        //     'In order to quickly substitute an ingredient, tap on the substitute button found next to any ingredient on the recipe card and an updated version of the recipe including all substituted ingredients will be displayed.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.5',
-        //     'Tap on the `Add all ingredients` button to add all ingredients needed for a recipe to your shopping list.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.6',
-        //     'Tap on the `Remove ingredients from pantry` button to easily remove ingredients from pantry after a recipe has been made.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.7',
-        //     'Click any of the prompts on the chatbot on the recipe card to customize a recipe according to your preferences.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.8',
-        //     'Click on the search icon at the top of the screen to quickly find recipes by name, ingredients, dietary constraints, course or cuisine type, or spice level.',
-        //     fontColor),
+        _buildStep(
+            '2',
+            'Use the filters to narrow down results based on dietary constraints, course or cuisine type, and more.',
+            fontColor),
+        _buildStep(
+            '3',
+            'Click on a recipe card to view detailed information, including ingredients, cooking instructions, and nutritional information.',
+            fontColor),
+        _buildStep(
+            '4',
+            'Tap the "Save" button on a recipe card to add it to your saved recipes for easy access later.',
+            fontColor),
+        _buildStep(
+            '5',
+            'Use the "Clear Filters" button to reset all applied filters and start a new search.',
+            fontColor),
       ],
     );
   }
