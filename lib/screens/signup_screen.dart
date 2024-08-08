@@ -89,7 +89,7 @@ class _SignupScreenState extends State<SignupScreen> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -127,6 +127,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 70,
                       child: TextFormField(
                         key: Key('emailField'),
+                        cursorColor: textColor,
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Email:',
@@ -172,6 +173,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 70,
                       child: TextFormField(
                         key: Key('passwordField'),
+                        cursorColor: textColor,
                         obscureText: true,
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
@@ -215,6 +217,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       height: 70,
                       child: TextFormField(
                         key: Key('confirmPasswordField'),
+                        cursorColor: textColor,
                         obscureText: true,
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,

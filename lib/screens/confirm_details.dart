@@ -303,13 +303,14 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
     return Scaffold(
       body: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -349,12 +350,13 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                       width: 365,
                       height: 70,
                       child: TextFormField(
+                        cursorColor: textColor,
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Username:',
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontSize: 20,
-                            color: Colors.white,
+                            color: textColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -397,9 +399,9 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Preferred spice level:',
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontSize: 20,
-                            color: Colors.white,
+                            color: textColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -447,9 +449,9 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Preferred cuisine:',
-                          labelStyle: const TextStyle(
+                          labelStyle: TextStyle(
                             fontSize: 20,
-                            color: Colors.white,
+                            color: textColor,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8.0),
@@ -491,8 +493,8 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                     const SizedBox(height: 50),
                     ElevatedButton(
                       onPressed:
-                        // Navigator.pushReplacementNamed(context, '/tutorial');
-                        _handleSignup,
+                          // Navigator.pushReplacementNamed(context, '/tutorial');
+                          _handleSignup,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFDC945F),
                         foregroundColor: Colors.white,

@@ -100,8 +100,10 @@ flutter:
     - assets/pfp.jpg
     - assets/profile.jpeg
     - assets/trash-can.png
-    - assets/Darkmode.png
+    - assets/Darkermode.png
     - assets/Lightmode.png
+    - assets/MobileDarkMode.png
+    - assets/MobileLightMode.png
     - assets/default_profile.jpeg
     - assets/logo.png
     - assets/google.png

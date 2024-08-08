@@ -130,6 +130,10 @@ if(mounted){
   }
 
     Widget _buildRecipeList(String title, List<Map<String, dynamic>> filteredRecipes) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -153,7 +157,7 @@ if(mounted){
                   'View All',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Color(0xFFD9D9D9),
+                    color: textColor,
                     decoration: TextDecoration.underline,
                   ),
                 ),
