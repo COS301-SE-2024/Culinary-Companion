@@ -148,11 +148,11 @@ class HelpMenu extends StatelessWidget {
             fontColor),
         _buildStep(
             '3',
-            'To remove a recipe from your saved list, just click the heart icon in the top right corner',
+            'To remove a recipe from your saved list, just click the heart icon in the top right corner.',
             fontColor),
         _buildStep(
             '4',
-            'If you want to add ingredients from a saved recipe to your shopping list, tap the "Add to Shopping List" button similar to the Home Page',
+            'If you want to add ingredients from a saved recipe to your shopping list, tap the "Add to Shopping List" button similar to the Home Page.',
             fontColor),
       ],
     );
