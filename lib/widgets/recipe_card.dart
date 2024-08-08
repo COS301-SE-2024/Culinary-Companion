@@ -1610,19 +1610,19 @@ class _RecipeCardState extends State<RecipeCard> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(
-                          height:
-                              5), // Add some spacing between name and counts
-                      Text(
-                        'You have $_ingredientsInPantry/${widget.ingredients.length} ingredients for this recipe\n',
-                        // 'Needed: $_ingredientsNeeded',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: fontSizeTitle *
-                              0.8, // Smaller font size for the counts
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
+                      // SizedBox(
+                      //     height:
+                      //         5), // Add some spacing between name and counts
+                      // Text(
+                      //   'You have $_ingredientsInPantry/${widget.ingredients.length} ingredients for this recipe\n',
+                      //   // 'Needed: $_ingredientsNeeded',
+                      //   style: TextStyle(
+                      //     color: Colors.white,
+                      //     fontSize: fontSizeTitle *
+                      //         0.8, // Smaller font size for the counts
+                      //     fontWeight: FontWeight.normal,
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -1882,6 +1882,19 @@ class _RecipeCardState extends State<RecipeCard> {
                           fontSize: fontSizeDescription,
                         ),
                       ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.width * 0.006,
+                      ), // Add some spacing between name and counts
+                      Text(
+                        'Pantry: $_ingredientsInPantry/${widget.ingredients.length} ingredients in your pantry',
+                        // 'Needed: $_ingredientsNeeded',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize:
+                              fontSizeDescription, // Smaller font size for the counts
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -2091,7 +2104,8 @@ class _CheckableItemState extends State<CheckableItem> {
   @override
   Widget build(BuildContext context) {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    final Color textColor =
+        isLightTheme ? Color.fromARGB(255, 19, 20, 20) : Colors.white;
     bool isSufficient = widget.isInPantry &&
         widget.availableQuantity >= widget.requiredQuantity;
     return Column(
@@ -2104,7 +2118,7 @@ class _CheckableItemState extends State<CheckableItem> {
                 value: widget.isChecked,
                 onChanged: widget.onChanged,
                 activeColor: Color(0XFFDC945F),
-                checkColor: Colors.white,
+                checkColor: textColor,
               )
             else
               SizedBox(
@@ -2118,13 +2132,14 @@ class _CheckableItemState extends State<CheckableItem> {
                     widget.title,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: Colors.white,
+                      color: textColor,
                       fontWeight: FontWeight.normal,
                     ),
                   ),
                   IconButton(
                     icon: Icon(Icons.swap_horiz, color: textColor),
                     onPressed: _showSubstitutesDialog,
+                    color: textColor,
                   ),
                 ],
               ),
