@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../screens/tutorial_pages.dart';
 
+Color getFontColor(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.brightness == Brightness.light
+      ? Color(0xFF283330)
+      : Color(0XFFEDEDED);
+}
+
 class DesktopTutorial extends StatelessWidget {
   final PageController pageController;
   final List<TutorialPage> pages;
@@ -21,6 +28,8 @@ class DesktopTutorial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontColor = getFontColor(context);
+
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Stack(
@@ -30,7 +39,7 @@ class DesktopTutorial extends StatelessWidget {
             itemCount: pages.length,
             onPageChanged: onPageChanged,
             itemBuilder: (context, index) {
-              return _buildPage(pages[index]);
+              return _buildPage(pages[index], context);
             },
           ),
           Positioned(
@@ -42,7 +51,7 @@ class DesktopTutorial extends StatelessWidget {
                 child: Text(
                   "SKIP",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: fontColor,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -63,7 +72,7 @@ class DesktopTutorial extends StatelessWidget {
                 SizedBox(height: 20),
                 currentPage == pages.length - 1
                     ? _buildGetStartedButton()
-                    : _buildNavigationButtons(),
+                    : _buildNavigationButtons(context),
               ],
             ),
           ),
@@ -72,7 +81,8 @@ class DesktopTutorial extends StatelessWidget {
     );
   }
 
-  Widget _buildPage(TutorialPage page) {
+  Widget _buildPage(TutorialPage page, BuildContext context) {
+    final fontColor = getFontColor(context);
     return SafeArea(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -94,7 +104,7 @@ class DesktopTutorial extends StatelessWidget {
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: fontColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -109,7 +119,7 @@ class DesktopTutorial extends StatelessWidget {
                 page.description,
                 style: TextStyle(
                   fontSize: 18,
-                  color: Colors.white.withOpacity(0.8),
+                  color: fontColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -131,14 +141,16 @@ class DesktopTutorial extends StatelessWidget {
         decoration: BoxDecoration(
           color: currentPage == index
               ? Color(0xFFDC945F)
-              : Colors.white.withOpacity(0.4),
+              : Colors.black.withOpacity(0.4),
           borderRadius: BorderRadius.circular(4),
         ),
       ),
     );
   }
 
-  Widget _buildNavigationButtons() {
+  Widget _buildNavigationButtons(BuildContext context) {
+    final fontColor = getFontColor(context);
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Row(
@@ -153,11 +165,11 @@ class DesktopTutorial extends StatelessWidget {
             },
             child: Row(
               children: [
-                Icon(Icons.arrow_back_ios, color: Colors.white, size: 18),
+                Icon(Icons.arrow_back_ios, color: fontColor, size: 18),
                 SizedBox(width: 8),
                 Text(
                   "PREV",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(color: fontColor, fontSize: 16),
                 ),
               ],
             ),
@@ -173,10 +185,10 @@ class DesktopTutorial extends StatelessWidget {
               children: [
                 Text(
                   "NEXT",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(color: fontColor, fontSize: 16),
                 ),
                 SizedBox(width: 8),
-                Icon(Icons.arrow_forward_ios, color: Colors.white, size: 18),
+                Icon(Icons.arrow_forward_ios, color: fontColor, size: 18),
               ],
             ),
           ),

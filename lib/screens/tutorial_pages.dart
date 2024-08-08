@@ -13,45 +13,6 @@ class _TutorialPagesState extends State<TutorialPages>
   late AnimationController _animationController;
   int _currentPage = 0;
 
-  List<TutorialPage> _pages = [
-    TutorialPage(
-      title: "Welcome to Culinary Companion",
-      description: "Embark on a delicious journey through your kitchen!",
-      // icon: Icons.restaurant_menu,
-      imagePath: 'welcome.png',
-    ),
-    TutorialPage(
-      title: "Smart Pantry",
-      description: "Effortlessly manage your ingredients and plan meals.",
-      // icon: Icons.kitchen,
-      imagePath: 'pantry.png',
-    ),
-    TutorialPage(
-      title: "Intelligent Shopping",
-      description: "Never forget an ingredient with our smart shopping list.",
-      // icon: Icons.shopping_cart,
-      imagePath: 'shopping.png',
-    ),
-    TutorialPage(
-      title: "Appliance Tracking",
-      description: "Find recipes that match your kitchen equipment.",
-      // icon: Icons.food_bank_outlined,
-      imagePath: 'appliances.png',
-    ),
-    TutorialPage(
-      title: "Recipe Creator",
-      description: "Share your culinary masterpieces with the world.",
-      // icon: Icons.create,
-      imagePath: 'recipes.png',
-    ),
-    TutorialPage(
-      title: "Discover & Savour",
-      description: "Explore, favorite, and cook with confidence!",
-      // icon: Icons.favorite,
-      imagePath: 'savour.png',
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -75,14 +36,47 @@ class _TutorialPagesState extends State<TutorialPages>
   @override
   Widget build(BuildContext context) {
     bool isMobile = MediaQuery.of(context).size.width < 600;
-    // final theme = Theme.of(context);
-    // final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color backgroundColor =  Color(0xFF283330); // Consistent dark green background
+    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final Color backgroundColor =
+        isLightTheme ? Color(0XFFEDEDED) : Color(0xFF283330);
+
+    List<TutorialPage> pages = [
+      TutorialPage(
+        title: "Welcome to Culinary Companion",
+        description: "Embark on a delicious journey through your kitchen!",
+        imagePath: isLightTheme ? 'Lwelcome.png' : 'welcome.png',
+      ),
+      TutorialPage(
+        title: "Smart Pantry",
+        description: "Effortlessly manage your ingredients and plan meals.",
+        imagePath: isLightTheme ? 'Lpantry.png' : 'pantry.png',
+      ),
+      TutorialPage(
+        title: "Intelligent Shopping",
+        description: "Never forget an ingredient with our smart shopping list.",
+        imagePath: isLightTheme ? 'Lshopping.png' : 'shopping.png',
+      ),
+      TutorialPage(
+        title: "Appliance Tracking",
+        description: "Find recipes that match your kitchen equipment.",
+        imagePath: isLightTheme ? 'Lappliances.png' : 'appliances.png',
+      ),
+      TutorialPage(
+        title: "Recipe Creator",
+        description: "Share your culinary masterpieces with the world.",
+        imagePath: isLightTheme ? 'Lrecipes.png' : 'recipes.png',
+      ),
+      TutorialPage(
+        title: "Discover & Savour",
+        description: "Explore, favorite, and cook with confidence!",
+        imagePath: isLightTheme ? 'Lsavour.png' : 'savour.png',
+      ),
+    ];
 
     return isMobile
         ? MobileTutorial(
             pageController: _pageController,
-            pages: _pages,
+            pages: pages,
             currentPage: _currentPage,
             backgroundColor: backgroundColor,
             goToHome: _goToHome,
@@ -95,7 +89,7 @@ class _TutorialPagesState extends State<TutorialPages>
           )
         : DesktopTutorial(
             pageController: _pageController,
-            pages: _pages,
+            pages: pages,
             currentPage: _currentPage,
             backgroundColor: backgroundColor,
             goToHome: _goToHome,
