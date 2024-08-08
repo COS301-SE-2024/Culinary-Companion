@@ -324,7 +324,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
               color: Color.fromARGB(143, 2, 20, 14),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  bool isCompact = constraints.maxWidth <
+                  bool isCompact = screenWidth <
                       760; // Check if screen width is less than 760
 
                   return Column(
