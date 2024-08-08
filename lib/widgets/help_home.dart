@@ -153,11 +153,23 @@ class HelpMenu extends StatelessWidget {
             fontColor),
         _buildStep(
             '1.4',
-            'Use the search bar at the top of the screen to quickly find recipes by name, ingredients, or cuisine type.',
+            'In order to quickly substitute an ingredient, tap on the substitute button found next to any ingredient on the recipe card and an updated version of the recipe including all substituted ingredients will be displayed.',
             fontColor),
         _buildStep(
             '1.5',
-            'Filter recipes based on dietary preferences, cook time, and difficulty level using the filter options available on the home page.',
+            'Tap on the `Add all ingredients` button to add all ingredients needed for a recipe to your shopping list.',
+            fontColor),
+        _buildStep(
+            '1.6',
+            'Tap on the `Remove ingredients from pantry` button to easily remove ingredients from pantry after a recipe has been made.',
+            fontColor),
+        _buildStep(
+            '1.7',
+            'Click any of the prompts on the chatbot on the recipe card to customize a recipe according to your preferences.',
+            fontColor),
+        _buildStep(
+            '1.8',
+            'Click on the search icon at the top of the screen to quickly find recipes by name, ingredients, dietary constraints, course or cuisine type, or spice level.',
             fontColor),
       ],
     );

@@ -416,7 +416,7 @@ Widget _buildCategoryHeader(String title) {
     'Spice/Herb': Icons.grass,
     'Starch': Icons.bakery_dining,
     'Vegetable': Icons.local_florist,
-    'Vegeterian': Icons.eco_outlined,
+    'Vegetarian': Icons.eco_outlined,
     'Fruit': Icons.apple,
     'Legume': Icons.grain, //scatter_plot
     'Staple': Icons.breakfast_dining,
@@ -431,7 +431,7 @@ Widget _buildCategoryHeader(String title) {
     'Spice/Herb': Colors.green,
     'Starch': Colors.orange,
     'Vegetable': Colors.green,
-    'Vegeterian': Colors.green,
+    'Vegetarian': Colors.green,
     'Fruit': Colors.red,
     'Legume': Color.fromARGB(255, 131, 106, 98),
     'Staple': const Color.fromARGB(255, 225, 195, 151),
