@@ -661,7 +661,7 @@ class _RecipeCardState extends State<RecipeCard> {
                           contentHeight, // 50% of dialog height for the content
                       color: clickColor,
                       child: DefaultTabController(
-                        length: 2,
+                        length: 3,
                         child: Column(
                           children: [
                             SizedBox(
@@ -674,6 +674,7 @@ class _RecipeCardState extends State<RecipeCard> {
                               tabs: [
                                 Tab(text: 'Details'),
                                 Tab(text: 'Instructions'),
+                                Tab(text: 'Chat Bot'),
                               ],
                             ),
                             Expanded(
@@ -1109,6 +1110,17 @@ class _RecipeCardState extends State<RecipeCard> {
                                           }).toList();
                                         })
                                       ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: screenWidth * 0.2,
+                                    child: ChatWidget(
+                                      recipeName: widget.name,
+                                      recipeDescription: widget.description,
+                                      ingredients: widget.ingredients,
+                                      steps: widget.steps,
+                                      userId: userId!,
+                                      course: widget.course,
                                     ),
                                   ),
                                 ],
