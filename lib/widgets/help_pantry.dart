@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+Color getFontColor(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.brightness == Brightness.light
+      ? const Color.fromARGB(255, 49, 49, 49)
+      : const Color.fromARGB(255, 255, 255, 255);
+}
+
 class HelpMenu extends StatelessWidget {
   final VoidCallback onClose;
 
@@ -11,8 +18,11 @@ class HelpMenu extends StatelessWidget {
     final theme = Theme.of(context);
 
     final clickColor = theme.brightness == Brightness.light
-        ? Colors.white
-        : Color.fromARGB(255, 25, 58, 48);
+        ? Color(0xFFEDEDED)
+        : Color(0xFF283330);
+
+    final fontColor = getFontColor(context);
+
     return GestureDetector(
       onTap: onClose,
       child: Container(
@@ -31,12 +41,14 @@ class HelpMenu extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset('assets/helper_chef.png', height: 80),
+                        Image.asset(theme.brightness == Brightness.light ? 'light_helper_chef.png' : 'assets/helper_chef.png', height: 80),
                         SizedBox(height: 10),
                         Text(
                           'How may I help you?',
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: fontColor),
                         ),
                         SizedBox(height: 16),
                       ],

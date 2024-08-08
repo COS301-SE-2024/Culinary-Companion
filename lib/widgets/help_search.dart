@@ -17,8 +17,9 @@ class HelpMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final clickColor =
-        theme.brightness == Brightness.light ? Color(0xFFEDEDED) : Color(0xFF283330);
+    final clickColor = theme.brightness == Brightness.light
+        ? Color(0xFFEDEDED)
+        : Color(0xFF283330);
 
     final fontColor = getFontColor(context);
 
@@ -29,7 +30,7 @@ class HelpMenu extends StatelessWidget {
         child: Center(
           child: Material(
             borderRadius: BorderRadius.circular(10),
-            color: clickColor, // Dark green background color
+            color: clickColor,
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
               width: MediaQuery.of(context).size.width * 0.8,
@@ -134,14 +135,14 @@ class HelpMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubSectionTitle('1. Navigating the Add Recipe Page', fontColor),
+        _buildSubSectionTitle('Navigating the Search Page', fontColor),
         _buildParagraph(
-            'The add recipe page is your gateway to create and share all your delicious recipes. Here’s how you can navigate and use it effectively:',
+            'The home page is your gateway to all the delicious recipes. Here’s how you can navigate and use it effectively:',
             fontColor),
-        _buildStep(
-            '1.1',
-            'Navigate to the Add My Own Recipe page and fill in the relevant fields for adding a recipe.',
-            fontColor),
+        // _buildStep(
+        //     '1.1',
+        //     'Scroll up and down to view all available recipes. Each recipe card provides a brief overview, including the recipe name and an enticing image.',
+        //     fontColor),
         // _buildStep(
         //     '1.2',
         //     'Hover over any of the recipes to see additional details such as the recipe name, description, prep time, cook time, cuisine, spice level, course, servings, steps, appliances, and ingredients.',

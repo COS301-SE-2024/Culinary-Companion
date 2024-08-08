@@ -18,8 +18,8 @@ class HelpMenu extends StatelessWidget {
     final theme = Theme.of(context);
 
     final clickColor = theme.brightness == Brightness.light
-        ? Colors.white
-        : Color(0xFF20493C);
+        ? Color(0xFFEDEDED)
+        : Color(0xFF283330);
 
     final fontColor = getFontColor(context);
 
@@ -41,7 +41,7 @@ class HelpMenu extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset('assets/helper_chef.png', height: 80),
+                        Image.asset(theme.brightness == Brightness.light ? 'light_helper_chef.png' : 'assets/helper_chef.png', height: 80),
                         SizedBox(height: 10),
                         Text(
                           'How may I help you?',
