@@ -19,7 +19,7 @@ class HelpMenu extends StatelessWidget {
 
     final clickColor = theme.brightness == Brightness.light
         ? Colors.white
-        : Color.fromARGB(255, 25, 58, 48);
+        : Color(0xFF20493C);
 
     final fontColor = getFontColor(context);
 
@@ -219,7 +219,7 @@ class HelpMenu extends StatelessWidget {
             fontColor),
         _buildFAQ(
             'Q: How do I navigate to the Home page?',
-            'A: Tap on the "Home" tab in the navbar to return to the Home page at any time.',
+            'A: Tap on the "Home" section in the navbar to return to the Home page at any time.',
             fontColor),
         _buildFAQ(
             'Q: How do I add a new recipe?',
@@ -227,15 +227,19 @@ class HelpMenu extends StatelessWidget {
             fontColor),
         _buildFAQ(
             'Q: How can I manage my shopping list?',
-            'A: Go to the "Shopping List" section by tapping on the "Shopping List" tab to view and manage your shopping items.',
+            'A: Go to the "Inventory" section to access the "Shopping List" to view and manage your shopping items.',
             fontColor),
         _buildFAQ(
             'Q: How do I keep track of items in my pantry?',
-            'A: Use the "Pantry" tab to access the "Pantry List" where you can add, edit, and remove items.',
+            'A: Go to the "Inventory" section to access the "Pantry" where you can add, edit, and remove items.',
             fontColor),
         _buildFAQ(
             'Q: Where can I manage my kitchen appliances?',
-            'A: Tap on the "Appliances" tab to view and manage your kitchen appliances.',
+            'A: Go to the "Inventory" section to access the "Appliances" tab to view and manage your kitchen appliances.',
+            fontColor),
+        _buildFAQ(
+            'Q: Where can I search for specific recipes?',
+            'A: Go to the "Search Recipes" section to be able to search for recipes by name, ingredients and filter according to your preferences.',
             fontColor),
         _buildFAQ(
             'Q: How do I view my saved recipes?',
