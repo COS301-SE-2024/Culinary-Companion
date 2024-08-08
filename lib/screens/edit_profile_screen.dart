@@ -257,39 +257,45 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   // For profile photo
   Widget _buildProfilePhoto() {
-    return GestureDetector(
-      onTap: _pickImage,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CircleAvatar(
-            radius: 60,
-            backgroundImage: imageUrl.isNotEmpty
-                ? NetworkImage(imageUrl)
-                : AssetImage('assets/pfp.jpg') as ImageProvider,
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFFDC945F),
-              ),
-              padding: EdgeInsets.all(8),
-              child: Icon(
-                Icons.edit,
-                color: Colors.white,
+    return Center(
+      child: GestureDetector(
+        onTap: _pickImage,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            CircleAvatar(
+              radius: 60,
+              backgroundImage: imageUrl.isNotEmpty
+                  ? NetworkImage(imageUrl)
+                  : AssetImage('assets/pfp.jpg') as ImageProvider,
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFDC945F),
+                ),
+                padding: EdgeInsets.all(8),
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // For username
   Widget _buildUsername() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
       child: Column(
@@ -301,7 +307,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           SizedBox(height: 10),
           TextField(
+            cursorColor: textColor,
             decoration: InputDecoration(
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Color(0xFF0B3D36)),
+                borderRadius: BorderRadius.circular(10),
+              ),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             ),
@@ -320,6 +331,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   // For cuisine drop down
   Widget _buildCuisineDropdown() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
       child: Column(
@@ -343,8 +358,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             decoration: InputDecoration(
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Color(0xFF0B3D36)),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: textColor, fontSize: 16),
           ),
         ],
       ),
@@ -353,6 +372,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   // For spice level radio buttons
   Widget _buildSpiceLevelRadio() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
       child: Column(
@@ -367,7 +389,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             children:
                 ['None', 'Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) {
               return Expanded(
-                child: RadioListTile<String>(
+                child: RadioListTile<String>(activeColor: textColor,
                   title: Text(level),
                   value: level,
                   groupValue: _spiceLevel,
@@ -651,7 +673,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       return Scaffold(
         appBar: AppBar(
           title: Text('Edit Profile', style: TextStyle(color: textColor)),
-          backgroundColor: isLightTheme ? Colors.white : Color(0xFF20493C),
+          backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
         ),
         body: Center(
           child: Lottie.asset('assets/loading.json'),
@@ -662,7 +684,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Profile', style: TextStyle(color: textColor)),
-        backgroundColor: isLightTheme ? Colors.white : Color(0xFF20493C),
+        backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
