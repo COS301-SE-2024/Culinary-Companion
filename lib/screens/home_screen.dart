@@ -23,13 +23,13 @@ class _HomeScreenState extends State<HomeScreen> {
   // String _generatedText = '';  // LLM
 
   // Future<void> _loadContent() async {  // LLM
-    // fetchKeywords
-    // fetchIngredientSubstitution
-    // fetchDietaryConstraints
-    // final content = await fetchKeywords("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
-    // setState(() {
-    //   _generatedText = content;
-    // });
+  // fetchKeywords
+  // fetchIngredientSubstitution
+  // fetchDietaryConstraints
+  // final content = await fetchKeywords("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
+  // setState(() {
+  //   _generatedText = content;
+  // });
   // }
 
   @override
@@ -82,11 +82,11 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (error) {
       print('Error fetching recipes: $error');
     }
-if(mounted){
-    setState(() {
-      _isLoading = false;
-    });
-}
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> fetchRecipeDetails(String recipeId) async {
@@ -129,11 +129,17 @@ if(mounted){
     return recipes.where((recipe) => recipe['course'] == course).toList();
   }
 
-    Widget _buildRecipeList(String title, List<Map<String, dynamic>> filteredRecipes) {
+  Widget _buildRecipeList(
+      String title, List<Map<String, dynamic>> filteredRecipes) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
-    
+
+    double screenWidth = MediaQuery.of(context).size.width;
+    double desiredCardsVisible = 4;
+    double cardWidth = (screenWidth - (16.0 * (desiredCardsVisible + 1))) /
+        desiredCardsVisible;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -166,18 +172,20 @@ if(mounted){
           ),
         ),
         SizedBox(
-          height: 350,
+          height: screenWidth * 0.3, // Keep the height consistent
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: filteredRecipes.length,
             itemBuilder: (context, index) {
               final recipe = filteredRecipes[index];
-              List<String> steps = recipe['steps'] != null ? (recipe['steps'] as String).split('<') : [];
+              List<String> steps = recipe['steps'] != null
+                  ? (recipe['steps'] as String).split('<')
+                  : [];
 
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SizedBox(
-                  width: 300,
+                  width: cardWidth, // Adjust width dynamically to fit 4 cards
                   child: RecipeCard(
                     recipeID: recipe['recipeId'] ?? '',
                     name: recipe['name'] ?? '',
@@ -191,7 +199,8 @@ if(mounted){
                     servings: recipe['servings'] ?? 0,
                     steps: steps,
                     appliances: List<String>.from(recipe['appliances']),
-                    ingredients: List<Map<String, dynamic>>.from(recipe['ingredients']),
+                    ingredients:
+                        List<Map<String, dynamic>>.from(recipe['ingredients']),
                   ),
                 ),
               );
@@ -355,10 +364,14 @@ if(mounted){
                         //   child: Text('Fetch Content'),
                         // ),
                         SizedBox(height: 24),
-                        _buildRecipeList('Mains', _filterRecipesByCourse('Main')),
-                        _buildRecipeList('Breakfast', _filterRecipesByCourse('Breakfast')),
-                        _buildRecipeList('Appetizer', _filterRecipesByCourse('Appetizer')),
-                        _buildRecipeList('Dessert', _filterRecipesByCourse('Dessert')),
+                        _buildRecipeList(
+                            'Mains', _filterRecipesByCourse('Main')),
+                        _buildRecipeList(
+                            'Breakfast', _filterRecipesByCourse('Breakfast')),
+                        _buildRecipeList(
+                            'Appetizer', _filterRecipesByCourse('Appetizer')),
+                        _buildRecipeList(
+                            'Dessert', _filterRecipesByCourse('Dessert')),
                       ],
                     ),
                   ),
