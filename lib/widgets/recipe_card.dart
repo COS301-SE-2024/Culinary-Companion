@@ -1964,39 +1964,6 @@ class CheckableItem extends StatefulWidget {
 
 class _CheckableItemState extends State<CheckableItem> {
   bool _isAdded = false;
-  //bool _isSubstituted = true;
-  //bool _isSubstituted = false;
-
-  // void _showSubstitutesDialog() {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('Here are a list of substitutes for ${widget.title}'),
-  //         content: Container(
-  //           width: double.maxFinite, // Make the container as wide as the dialog
-  //           child: ListView(
-  //             shrinkWrap: true,
-  //             children: List.generate(
-  //               5, // Number of substitute items
-  //               (index) => ListTile(
-  //                 title: Text('Substitute ${index + 1}'),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop(); // Close the dialog
-  //             },
-  //             child: Text('Close'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
 
   void _showSubstitutesDialog() async {
     // Show a loading dialog
@@ -2004,8 +1971,12 @@ class _CheckableItemState extends State<CheckableItem> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Loading substitutions...'),
+          title: Text(
+            'Loading substitutions...',
+            style: TextStyle(color: Colors.black), // Set text color to black
+          ),
           content: CircularProgressIndicator(),
+          backgroundColor: Colors.white, // Set background color to white
         );
       },
     );
@@ -2025,16 +1996,34 @@ class _CheckableItemState extends State<CheckableItem> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Error'),
-            content: Text('Failed to fetch substitutions.'),
+            title: Text(
+              'Error',
+              style: TextStyle(color: Colors.black), // Set text color to black
+            ),
+            content: Text(
+              'Failed to fetch substitutions.',
+              style: TextStyle(color: Colors.black), // Set text color to black
+            ),
             actions: [
               TextButton(
+                style: TextButton.styleFrom(
+                  side: const BorderSide(
+                    color: Color(0xFFDC945F),
+                    width: 1.5,
+                  ),
+                ),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the error dialog
+                  Navigator.of(context).pop(); // Close the dialog
                 },
-                child: Text('Close'),
+                child: Text(
+                  'Close',
+                  style: TextStyle(
+                    color: Color(0xFFDC945F),
+                  ), // Set text color to black
+                ),
               ),
             ],
+            backgroundColor: Colors.white, // Set background color to white
           );
         },
       );
@@ -2049,14 +2038,21 @@ class _CheckableItemState extends State<CheckableItem> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Here are a list of substitutes for ${widget.title}'),
+          title: Text(
+            'Here are a list of substitutes for ${widget.title}',
+            style: TextStyle(color: Colors.black), // Set text color to black
+          ),
           content: Container(
             width: double.maxFinite, // Make the container as wide as the dialog
             child: ListView(
               shrinkWrap: true,
               children: substitutions.entries.map((entry) {
                 return ListTile(
-                  title: Text(entry.value),
+                  title: Text(
+                    entry.value,
+                    style: TextStyle(
+                        color: Colors.black), // Set text color to black
+                  ),
                   onTap: () {
                     Navigator.of(context)
                         .pop(); // Close the substitutions dialog
@@ -2069,12 +2065,24 @@ class _CheckableItemState extends State<CheckableItem> {
           ),
           actions: [
             TextButton(
+              style: TextButton.styleFrom(
+                side: const BorderSide(
+                  color: Color(0xFFDC945F),
+                  width: 1.5,
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
               },
-              child: Text('Close'),
+              child: Text(
+                'Close',
+                style: TextStyle(
+                  color: Color(0xFFDC945F),
+                ), // Set text color to black
+              ),
             ),
           ],
+          backgroundColor: Colors.white, // Set background color to white
         );
       },
     );
@@ -2087,8 +2095,12 @@ class _CheckableItemState extends State<CheckableItem> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Generating altered recipe...'),
+          title: Text(
+            'Generating altered recipe...',
+            style: TextStyle(color: Colors.black), // Set text color to black
+          ),
           content: CircularProgressIndicator(),
+          backgroundColor: Colors.white, // Set background color to white
         );
       },
     );
@@ -2102,8 +2114,6 @@ class _CheckableItemState extends State<CheckableItem> {
 
     // Parse the JSON string
     Map<String, dynamic> alteredRecipe = jsonDecode(jsonString);
-
-    //print('hereeee $alteredRecipe');
 
     // Update the recipe data with the altered recipe
     widget.onRecipeUpdate(alteredRecipe);
