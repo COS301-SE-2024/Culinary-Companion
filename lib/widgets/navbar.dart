@@ -38,12 +38,12 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       _buildNavItem(context, 'Home', '/', currentRoute == '/'),
+                      _buildNavItem(context, 'Search Recipes', '/search',
+                          currentRoute == '/search'),
                       _buildNavItem(context, 'Add Recipe', '/scan-recipe',
                           currentRoute == '/scan-recipe'),
                       _buildNavItem(context, 'Inventory', '/inventory-screen',
                           currentRoute == '/inventory-screen'),
-                      _buildNavItem(context, 'Search Recipes', '/search',
-                          currentRoute == '/search'),
                       _buildNavItem(context, 'Favorite Recipes',
                           '/saved-recipes', currentRoute == '/saved-recipes'),
                       _buildNavItem(context, 'Profile', '/profile',
@@ -343,6 +343,20 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                         },
                       ),
                       ListTile(
+                        key: ValueKey('SearchRecipe'),
+                        leading: Icon(Icons.search),
+                        title: isCompact
+                            ? null
+                            : const Text(
+                                'Search Recipes'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/search');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
+                      ListTile(
                         key: ValueKey('AddRecipe'),
                         leading: Icon(Icons.add),
                         title: isCompact
@@ -366,50 +380,6 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                         onTap: () {
                           if (widget.onChange != null) {
                             widget.onChange!('/inventory-screen');
-                          }
-                          _toggleExpanded();
-                        },
-                      ),
-                      // ListTile(
-                      //   key: Key('ShoppingList'),
-                      //   title: const Text('Shopping List'),
-                      //   onTap: () {
-                      //     if (widget.onChange != null) {
-                      //       widget.onChange!('/shopping-list');
-                      //     }
-                      //     _toggleExpanded();
-                      //   },
-                      // ),
-                      // ListTile(
-                      //   key: ValueKey('Pantry'),
-                      //   title: const Text('Pantry'),
-                      //   onTap: () {
-                      //     if (widget.onChange != null) {
-                      //       widget.onChange!('/pantry-list');
-                      //     }
-                      //     _toggleExpanded();
-                      //   },
-                      // ),
-                      // ListTile(
-                      //   key: Key('Appliance'),
-                      //   title: const Text('Appliances'),
-                      //   onTap: () {
-                      //     if (widget.onChange != null) {
-                      //       widget.onChange!('/appliances');
-                      //     }
-                      //     _toggleExpanded();
-                      //   },
-                      // ),
-                      ListTile(
-                        key: ValueKey('SearchRecipe'),
-                        leading: Icon(Icons.search),
-                        title: isCompact
-                            ? null
-                            : const Text(
-                                'Search Recipes'), // Conditionally show title
-                        onTap: () {
-                          if (widget.onChange != null) {
-                            widget.onChange!('/search');
                           }
                           _toggleExpanded();
                         },

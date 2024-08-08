@@ -135,40 +135,40 @@ class HelpMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubSectionTitle('1. Navigating the Home Page', fontColor),
+        _buildSubSectionTitle('Navigating the Home Page', fontColor),
         _buildParagraph(
             'The home page is your gateway to all the delicious recipes. Here’s how you can navigate and use it effectively:',
             fontColor),
         _buildStep(
-            '1.1',
+            '1',
             'Scroll up and down to view all available recipes. Each recipe card provides a brief overview, including the recipe name and an enticing image.',
             fontColor),
         _buildStep(
-            '1.2',
+            '2',
             'Hover over any of the recipes to see additional details such as the recipe name, description, prep time, cook time, cuisine, spice level, course, servings, steps, appliances, and ingredients.',
             fontColor),
         _buildStep(
-            '1.3',
+            '3',
             'Tap on any recipe card to view detailed information about the recipe, including step-by-step instructions and a complete list of ingredients.',
             fontColor),
         _buildStep(
-            '1.4',
+            '4',
             'In order to quickly substitute an ingredient, tap on the substitute button found next to any ingredient on the recipe card and an updated version of the recipe including all substituted ingredients will be displayed.',
             fontColor),
         _buildStep(
-            '1.5',
+            '5',
             'Tap on the `Add all ingredients` button to add all ingredients needed for a recipe to your shopping list.',
             fontColor),
         _buildStep(
-            '1.6',
+            '6',
             'Tap on the `Remove ingredients from pantry` button to easily remove ingredients from pantry after a recipe has been made.',
             fontColor),
         _buildStep(
-            '1.7',
+            '7',
             'Click any of the prompts on the chatbot on the recipe card to customize a recipe according to your preferences.',
             fontColor),
         _buildStep(
-            '1.8',
+            '8',
             'Click on the search icon at the top of the screen to quickly find recipes by name, ingredients, dietary constraints, course or cuisine type, or spice level.',
             fontColor),
       ],

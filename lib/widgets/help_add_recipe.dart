@@ -17,8 +17,9 @@ class HelpMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final clickColor =
-        theme.brightness == Brightness.light ? Color(0xFFEDEDED) : Color(0xFF283330);
+    final clickColor = theme.brightness == Brightness.light
+        ? Color(0xFFEDEDED)
+        : Color(0xFF283330);
 
     final fontColor = getFontColor(context);
 
@@ -40,7 +41,11 @@ class HelpMenu extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset(theme.brightness == Brightness.light ? 'light_helper_chef.png' : 'assets/helper_chef.png', height: 80),
+                        Image.asset(
+                            theme.brightness == Brightness.light
+                                ? 'light_helper_chef.png'
+                                : 'assets/helper_chef.png',
+                            height: 80),
                         SizedBox(height: 10),
                         Text(
                           'How may I help you?',
@@ -134,42 +139,30 @@ class HelpMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubSectionTitle('1. Navigating the Add Recipe Page', fontColor),
+        _buildSubSectionTitle('Navigating the Add Recipe Page', fontColor),
         _buildParagraph(
-            'The add recipe page is your gateway to create and share all your delicious recipes. Here’s how you can navigate and use it effectively:',
+            'The add recipe page is your gateway to creating and sharing your recipes. Here’s how you can navigate and use it effectively:',
             fontColor),
         _buildStep(
-            '1.1',
-            'Navigate to the Add My Own Recipe page and fill in the relevant fields for adding a recipe.',
+            '1',
+            'Select the appropriate tab (Scan Recipe, Paste Recipe, or Add My Own Recipe) to start adding your recipe.',
             fontColor),
-        // _buildStep(
-        //     '1.2',
-        //     'Hover over any of the recipes to see additional details such as the recipe name, description, prep time, cook time, cuisine, spice level, course, servings, steps, appliances, and ingredients.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.3',
-        //     'Tap on any recipe card to view detailed information about the recipe, including step-by-step instructions and a complete list of ingredients.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.4',
-        //     'In order to quickly substitute an ingredient, tap on the substitute button found next to any ingredient on the recipe card and an updated version of the recipe including all substituted ingredients will be displayed.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.5',
-        //     'Tap on the `Add all ingredients` button to add all ingredients needed for a recipe to your shopping list.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.6',
-        //     'Tap on the `Remove ingredients from pantry` button to easily remove ingredients from pantry after a recipe has been made.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.7',
-        //     'Click any of the prompts on the chatbot on the recipe card to customize a recipe according to your preferences.',
-        //     fontColor),
-        // _buildStep(
-        //     '1.8',
-        //     'Click on the search icon at the top of the screen to quickly find recipes by name, ingredients, dietary constraints, course or cuisine type, or spice level.',
-        //     fontColor),
+        _buildStep(
+            '2',
+            'Use the "Scan Recipe" tab to scan and automatically add recipes from an image or document.',
+            fontColor),
+        _buildStep(
+            '3',
+            'Use the "Paste Recipe" tab to paste text directly if you have the recipe content ready.',
+            fontColor),
+        _buildStep(
+            '4',
+            'Use the "Add My Own Recipe" tab to manually input recipe details, including ingredients, steps, and more.',
+            fontColor),
+        _buildStep(
+            '5',
+            'After filling in all necessary fields, tap "Save" to store your recipe and share it with the community.',
+            fontColor),
       ],
     );
   }

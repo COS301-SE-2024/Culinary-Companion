@@ -139,10 +139,10 @@ class HelpMenu extends StatelessWidget {
         _buildParagraph(
             'The home page is your gateway to all the delicious recipes. Here’s how you can navigate and use it effectively:',
             fontColor),
-        // _buildStep(
-        //     '1.1',
-        //     'Scroll up and down to view all available recipes. Each recipe card provides a brief overview, including the recipe name and an enticing image.',
-        //     fontColor),
+        _buildStep(
+            '1.1',
+            'Scroll up and down to view all available recipes. Each recipe card provides a brief overview, including the recipe name and an enticing image.',
+            fontColor),
         // _buildStep(
         //     '1.2',
         //     'Hover over any of the recipes to see additional details such as the recipe name, description, prep time, cook time, cuisine, spice level, course, servings, steps, appliances, and ingredients.',
