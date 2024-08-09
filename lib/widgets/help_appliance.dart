@@ -43,7 +43,7 @@ class HelpMenu extends StatelessWidget {
                       children: [
                         Image.asset(
                             theme.brightness == Brightness.light
-                                ? 'light_helper_chef.png'
+                                ? 'assets/light_helper_chef.png'
                                 : 'assets/helper_chef.png',
                             height: 80),
                         SizedBox(height: 10),
