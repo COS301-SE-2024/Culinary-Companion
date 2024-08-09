@@ -1622,19 +1622,18 @@ class _RecipeCardState extends State<RecipeCard> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      // SizedBox(
-                      //     height:
-                      //         5), // Add some spacing between name and counts
-                      // Text(
-                      //   'You have $_ingredientsInPantry/${widget.ingredients.length} ingredients for this recipe\n',
-                      //   // 'Needed: $_ingredientsNeeded',
-                      //   style: TextStyle(
-                      //     color: Colors.white,
-                      //     fontSize: fontSizeTitle *
-                      //         0.8, // Smaller font size for the counts
-                      //     fontWeight: FontWeight.normal,
-                      //   ),
-                      // ),
+                      SizedBox(
+                          height:
+                              5), // Add some spacing between name and counts
+                      Text(
+                        'Pantry: $_ingredientsInPantry/${widget.ingredients.length} ingredients in your pantry',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: fontSizeTitle *
+                              0.8, // Smaller font size for the counts
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
                     ],
                   ),
                 ),
