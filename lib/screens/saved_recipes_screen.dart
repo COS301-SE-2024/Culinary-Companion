@@ -26,14 +26,16 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId');
-      //print('Login successful: $_userId');
-      if (_userId != null) {
-        //print('here 1');
-        fetchRecipes(); // Call fetchRecipes only if userId is loaded successfully
-      }
-    });
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+        //print('Login successful: $_userId');
+        if (_userId != null) {
+          //print('here 1');
+          fetchRecipes(); // Call fetchRecipes only if userId is loaded successfully
+        }
+      });
+    }
   }
 
   Future<void> fetchRecipes() async {
@@ -59,10 +61,11 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
     } catch (error) {
       print('Error fetching recipes: $error');
     }
-
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> fetchRecipeDetails(String recipeId) async {
@@ -77,10 +80,11 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
-
-        setState(() {
-          recipes.add(fetchedRecipe);
-        });
+        if (mounted) {
+          setState(() {
+            recipes.add(fetchedRecipe);
+          });
+        }
       } else {
         print('Failed to load recipe details: ${response.statusCode}');
       }
@@ -166,8 +170,8 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                               recipeID: recipes[index]['recipeId'] ?? '',
                               name: recipes[index]['name'] ?? '',
                               description: recipes[index]['description'] ?? '',
-                              imagePath:
-                                  recipes[index]['photo'] ?? 'assets/emptyPlate.jpg',
+                              imagePath: recipes[index]['photo'] ??
+                                  'assets/emptyPlate.jpg',
                               prepTime: recipes[index]['preptime'] ?? 0,
                               cookTime: recipes[index]['cooktime'] ?? 0,
                               cuisine: recipes[index]['cuisine'] ?? '',

@@ -68,9 +68,10 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
       if (response.statusCode == 200) {
         // If the request is successful, parse the response JSON
         final List<dynamic> data = jsonDecode(response.body);
+        if (mounted) {
         setState(() {
           _items = data.map((item) => item['name'].toString()).toList();
-        });
+        });}
       } else {
         // Handle other status codes, such as 404 or 500
         //print('Failed to fetch ingredient names: ${response.statusCode}');
@@ -98,6 +99,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
         // If the request is successful, parse the response JSON
         final Map<String, dynamic> data = jsonDecode(response.body);
         final List<dynamic> shoppingList = data['shoppingList'];
+        if (mounted) {
         setState(() {
           _shoppingList.clear();
           for (var item in shoppingList) {
@@ -106,7 +108,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
             _shoppingList.putIfAbsent(category, () => []);
             _shoppingList[category]?.add(ingredientName);
           }
-        });
+        });}
       } else {
         // Handle other status codes, such as 404 or 500
         //print('Failed to fetch shopping list: ${response.statusCode}');
@@ -134,6 +136,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
         // If the request is successful, parse the response JSON
         final Map<String, dynamic> data = jsonDecode(response.body);
         final List<dynamic> pantryList = data['availableIngredients'];
+        if (mounted) {
         setState(() {
           _pantryList.clear();
           for (var item in pantryList) {
@@ -142,7 +145,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
             _pantryList.putIfAbsent(category, () => []);
             _pantryList[category]?.add(ingredientName);
           }
-        });
+        });}
       } else {
         // Handle other status codes, such as 404 or 500
         //print('Failed to fetch pantry list: ${response.statusCode}');
@@ -193,9 +196,10 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
 
       if (response.statusCode == 200) {
         // If the request is successful, update the shopping list
+        if (mounted) {
         setState(() {
           _shoppingList[category]?.remove(ingredientName);
-        });
+        });}
       } else {
         // Handle other status codes
         print(
@@ -247,12 +251,13 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
 
       if (response.statusCode == 200) {
         // If the request is successful, update the pantry list
+        if (mounted) {
         setState(() {
           _pantryList[category]?.remove(ingredientName);
           if (_pantryList[category]?.isEmpty ?? true) {
             _pantryList.remove(category);
           }
-        });
+        });}
       } else {
         // Handle other status codes
         print('Failed to remove item from pantry list: ${response.statusCode}');
@@ -268,9 +273,10 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
 
   Future<void> _loadDontShowAgainPreference() async {
     final prefs = await SharedPreferences.getInstance();
+    if (mounted) {
     setState(() {
       _dontShowAgain = prefs.getBool('dontShowAgain') ?? false;
-    });
+    });}
   }
 
   // Future<void> _setDontShowAgainPreference(bool value) async {
@@ -280,26 +286,29 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
 
   void _addItem(String category, String item, bool type) {
     if (type) {
+      if (mounted) {
       setState(() {
         _shoppingList.putIfAbsent(category, () => []).add(item);
         _checkboxStates[item] = false;
-      });
+      });}
       _addToShoppingList(_userId, item); // Existing line for shopping list
     } else {
+      if (mounted) {
       setState(() {
         _pantryList.putIfAbsent(category, () => []).add(item);
         _checkboxStates[item] = false;
-      });
+      });}
       _addToPantryList(_userId, item); // New line for pantry list
     }
   }
 
   void _toggleCheckbox(String category, String item, bool type) {
+    if (mounted) {
     setState(() {
       final isChecked = !(_checkboxStates[item] ?? false);
       _checkboxStates[item] = isChecked;
       //_checkboxStates[item] = !(_checkboxStates[item] ?? false);
-    });
+    });}
     // if (type) {
     //   if (_dontShowAgain) {
     //     _moveItem(category, item);
@@ -773,6 +782,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
   }
 
   void _removeItem(String category, String title, bool listType) {
+    if (mounted) {
     setState(() {
       if (listType) {
         _removeFromShoppingList(category, title);
@@ -788,7 +798,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
         }
       }
       _checkboxStates.remove(title);
-    });
+    });}
   }
 
   void _showAddItemDialog(BuildContext context, String type) {

@@ -101,11 +101,13 @@ class _SearchScreenState extends State<SearchScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          dietaryOptions = data.map<String>((constraint) {
-            return constraint['name'].toString();
-          }).toList();
-        });
+        if (mounted) {
+          setState(() {
+            dietaryOptions = data.map<String>((constraint) {
+              return constraint['name'].toString();
+            }).toList();
+          });
+        }
         //print('here');
       } else {
         throw Exception('Failed to load dietary constraints');
@@ -129,12 +131,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          // Ensure the UI updates after cuisines are loaded
-          cuisineType = data.map<String>((cuisine) {
-            return cuisine['name'].toString();
-          }).toList();
-        });
+        if (mounted) {
+          setState(() {
+            // Ensure the UI updates after cuisines are loaded
+            cuisineType = data.map<String>((cuisine) {
+              return cuisine['name'].toString();
+            }).toList();
+          });
+        }
         //print(_cuisines);
       } else {
         throw Exception('Failed to load cuisines');
@@ -159,10 +163,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
-
-        setState(() {
-          recipes.add(fetchedRecipe);
-        });
+        if (mounted) {
+          setState(() {
+            recipes.add(fetchedRecipe);
+          });
+        }
       } else {
         print('Failed to load recipe details: ${response.statusCode}');
       }
@@ -179,10 +184,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
   void _performSearch(String query) async {
     if (query.isEmpty) return;
-
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
@@ -195,9 +201,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
-        setState(() {
-          recipes.clear(); //clear recipes
-        });
+        if (mounted) {
+          setState(() {
+            recipes.clear(); //clear recipes
+          });
+        }
 
         for (var recipe in fetchedRecipeIds) {
           final String recipeId =
@@ -210,16 +218,20 @@ class _SearchScreenState extends State<SearchScreen> {
     } catch (error) {
       print('Error fetching search results: $error');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   void _performFilter() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     Filters filters = Filters(
       course: selectedCourseTypeOptions,
@@ -244,9 +256,11 @@ class _SearchScreenState extends State<SearchScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
-        setState(() {
-          recipes.clear(); //clear the current recipes
-        });
+        if (mounted) {
+          setState(() {
+            recipes.clear(); //clear the current recipes
+          });
+        }
 
         for (var recipe in fetchedRecipeIds) {
           final String recipeId =
@@ -259,9 +273,11 @@ class _SearchScreenState extends State<SearchScreen> {
     } catch (error) {
       print('Error fetching filtered recipes: $error');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -303,11 +319,13 @@ class _SearchScreenState extends State<SearchScreen> {
                           label: Text(option),
                           selected: tempDietaryOptions.contains(option),
                           onSelected: (isSelected) {
-                            setState(() {
-                              isSelected
-                                  ? tempDietaryOptions.add(option)
-                                  : tempDietaryOptions.remove(option);
-                            });
+                            if (mounted) {
+                              setState(() {
+                                isSelected
+                                    ? tempDietaryOptions.add(option)
+                                    : tempDietaryOptions.remove(option);
+                              });
+                            }
                           },
                         );
                       }).toList(),
@@ -321,11 +339,13 @@ class _SearchScreenState extends State<SearchScreen> {
                           label: Text(option),
                           selected: tempCourseOptions.contains(option),
                           onSelected: (isSelected) {
-                            setState(() {
-                              isSelected
-                                  ? tempCourseOptions.add(option)
-                                  : tempCourseOptions.remove(option);
-                            });
+                            if (mounted) {
+                              setState(() {
+                                isSelected
+                                    ? tempCourseOptions.add(option)
+                                    : tempCourseOptions.remove(option);
+                              });
+                            }
                           },
                         );
                       }).toList(),
@@ -339,11 +359,13 @@ class _SearchScreenState extends State<SearchScreen> {
                           label: Text(option),
                           selected: tempCuisineOptions.contains(option),
                           onSelected: (isSelected) {
-                            setState(() {
-                              isSelected
-                                  ? tempCuisineOptions.add(option)
-                                  : tempCuisineOptions.remove(option);
-                            });
+                            if (mounted) {
+                              setState(() {
+                                isSelected
+                                    ? tempCuisineOptions.add(option)
+                                    : tempCuisineOptions.remove(option);
+                              });
+                            }
                           },
                         );
                       }).toList(),
@@ -357,10 +379,13 @@ class _SearchScreenState extends State<SearchScreen> {
                           label: Text(option),
                           selected: tempSpiceLevel == _spiceLevelToInt(option),
                           onSelected: (isSelected) {
-                            setState(() {
-                              tempSpiceLevel =
-                                  isSelected ? _spiceLevelToInt(option) : null;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                tempSpiceLevel = isSelected
+                                    ? _spiceLevelToInt(option)
+                                    : null;
+                              });
+                            }
                           },
                         );
                       }).toList(),
@@ -387,13 +412,15 @@ class _SearchScreenState extends State<SearchScreen> {
                       children: [
                         TextButton(
                           onPressed: () {
-                            setState(() {
-                              tempDietaryOptions.clear();
-                              tempCourseOptions.clear();
-                              tempCuisineOptions.clear();
-                              tempSpiceLevel = null;
-                              //tempIngredientOption = null;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                tempDietaryOptions.clear();
+                                tempCourseOptions.clear();
+                                tempCuisineOptions.clear();
+                                tempSpiceLevel = null;
+                                //tempIngredientOption = null;
+                              });
+                            }
                           },
                           child:
                               Text('RESET', style: TextStyle(color: textColor)),
@@ -403,13 +430,15 @@ class _SearchScreenState extends State<SearchScreen> {
                               Text('APPLY', style: TextStyle(color: textColor)),
                           onPressed: () {
                             // Update the main state with the selections
-                            setState(() {
-                              selectedDietaryOptions = tempDietaryOptions;
-                              selectedCourseTypeOptions = tempCourseOptions;
-                              selectedCuisineType = tempCuisineOptions;
-                              selectedSpiceLevel = tempSpiceLevel?.toString();
-                              //selectedIngredientOption = tempIngredientOption;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                selectedDietaryOptions = tempDietaryOptions;
+                                selectedCourseTypeOptions = tempCourseOptions;
+                                selectedCuisineType = tempCuisineOptions;
+                                selectedSpiceLevel = tempSpiceLevel?.toString();
+                                //selectedIngredientOption = tempIngredientOption;
+                              });
+                            }
 
                             // Call the filter function
                             _performFilter();
