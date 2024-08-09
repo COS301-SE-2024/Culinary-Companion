@@ -22,6 +22,9 @@ Color unshade(BuildContext context) {
 }
 
 class AppliancesScreen extends StatefulWidget {
+  final http.Client? client;
+
+  AppliancesScreen({Key? key, this.client}) : super(key: key);
   @override
   _AppliancesScreenState createState() => _AppliancesScreenState();
 }
@@ -255,6 +258,7 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
                 },
               ),
               ElevatedButton(
+                key: ValueKey('Appliances'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFDC945F), // Background color
                 ),
@@ -402,12 +406,7 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
                             padding: const EdgeInsets.all(
                                 0), // Remove default padding
                           ),
-                          child: const Text(
-                            '+',
-                            style: TextStyle(
-                              fontSize: 35,
-                            ),
-                          ),
+                          child: const Icon(Icons.add, size: 32.0),
                         ),
                       ),
                     ],
