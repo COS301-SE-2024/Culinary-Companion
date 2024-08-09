@@ -41,16 +41,20 @@ class _PantryScreenState extends State<PantryScreen> {
   }
 
   Future<void> _initializeData() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     await _loadUserId();
     await _fetchIngredientNames();
     _loadDontShowAgainPreference();
     await _fetchPantryList();
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   final Map<String, List<String>> _pantryList = {};
@@ -60,9 +64,11 @@ class _PantryScreenState extends State<PantryScreen> {
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId');
-    });
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+      });
+    }
   }
 
   Future<void> _fetchIngredientNames() async {
@@ -76,16 +82,18 @@ class _PantryScreenState extends State<PantryScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _items = data
-              .map((item) => {
-                    'id': item['id'].toString(),
-                    'name': item['name'].toString(),
-                    'category': item['category'].toString(),
-                    'measurementUnit': item['measurementUnit'].toString(),
-                  })
-              .toList();
-        });
+        if (mounted) {
+          setState(() {
+            _items = data
+                .map((item) => {
+                      'id': item['id'].toString(),
+                      'name': item['name'].toString(),
+                      'category': item['category'].toString(),
+                      'measurementUnit': item['measurementUnit'].toString(),
+                    })
+                .toList();
+          });
+        }
       } else {
         print('Failed to fetch ingredient names: ${response.statusCode}');
       }
@@ -109,18 +117,21 @@ class _PantryScreenState extends State<PantryScreen> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         final List<dynamic> pantryList = data['availableIngredients'];
-        setState(() {
-          _pantryList.clear();
-          for (var item in pantryList) {
-            final ingredientName = item['name'].toString();
-            final quantity = item['quantity'].toString();
-            final measurementUnit = item['measurmentunit'].toString();
-            final category = item['category'] ?? 'Other';
-            final displayText = '$ingredientName ($quantity $measurementUnit)';
-            _pantryList.putIfAbsent(category, () => []);
-            _pantryList[category]?.add(displayText);
-          }
-        });
+        if (mounted) {
+          setState(() {
+            _pantryList.clear();
+            for (var item in pantryList) {
+              final ingredientName = item['name'].toString();
+              final quantity = item['quantity'].toString();
+              final measurementUnit = item['measurmentunit'].toString();
+              final category = item['category'] ?? 'Other';
+              final displayText =
+                  '$ingredientName ($quantity $measurementUnit)';
+              _pantryList.putIfAbsent(category, () => []);
+              _pantryList[category]?.add(displayText);
+            }
+          });
+        }
       } else {
         print('Failed to fetch pantry list: ${response.statusCode}');
       }
@@ -173,16 +184,18 @@ class _PantryScreenState extends State<PantryScreen> {
       );
 
       if (response.statusCode == 200) {
-        setState(() {
-          final displayText = '$item ($quantity $measurementUnit)';
-          if (_pantryList[category] != null) {
-            final index = _pantryList[category]!
-                .indexWhere((ingredient) => ingredient.startsWith(item));
-            if (index != -1) {
-              _pantryList[category]![index] = displayText;
+        if (mounted) {
+          setState(() {
+            final displayText = '$item ($quantity $measurementUnit)';
+            if (_pantryList[category] != null) {
+              final index = _pantryList[category]!
+                  .indexWhere((ingredient) => ingredient.startsWith(item));
+              if (index != -1) {
+                _pantryList[category]![index] = displayText;
+              }
             }
-          }
-        });
+          });
+        }
         print(
             'Successfully edited $item in pantry list with quantity $quantity $measurementUnit');
       } else {
@@ -211,12 +224,14 @@ class _PantryScreenState extends State<PantryScreen> {
       );
 
       if (response.statusCode == 200) {
-        setState(() {
-          _pantryList[category]?.remove(item);
-          if (_pantryList[category]?.isEmpty ?? true) {
-            _pantryList.remove(category);
-          }
-        });
+        if (mounted) {
+          setState(() {
+            _pantryList[category]?.remove(item);
+            if (_pantryList[category]?.isEmpty ?? true) {
+              _pantryList.remove(category);
+            }
+          });
+        }
         print('Successfully removed $ingredientName from pantry list');
       } else {
         print(
@@ -232,9 +247,11 @@ class _PantryScreenState extends State<PantryScreen> {
 
   Future<void> _loadDontShowAgainPreference() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _dontShowAgain = prefs.getBool('dontShowAgain') ?? false;
-    });
+    if (mounted) {
+      setState(() {
+        _dontShowAgain = prefs.getBool('dontShowAgain') ?? false;
+      });
+    }
   }
 
   void _addItem(String category, String item, bool type, double quantity,
@@ -242,11 +259,13 @@ class _PantryScreenState extends State<PantryScreen> {
     if (type) {
       // Do nothing
     } else {
-      setState(() {
-        final displayText = '$item ($quantity $measurementUnit)';
-        _pantryList.putIfAbsent(category, () => []).add(displayText);
-        _checkboxStates[displayText] = false;
-      });
+      if (mounted) {
+        setState(() {
+          final displayText = '$item ($quantity $measurementUnit)';
+          _pantryList.putIfAbsent(category, () => []).add(displayText);
+          _checkboxStates[displayText] = false;
+        });
+      }
       _addToPantryList(
           _userId, item, quantity, measurementUnit); // New line for pantry list
     }
@@ -618,10 +637,12 @@ class _PantryScreenState extends State<PantryScreen> {
                             itemNameController.text = suggestion['name']!;
                             categoryController.text = suggestion['category']!;
                             selectedItem = suggestion['name']!;
-                            setState(() {
-                              measurementUnit = suggestion[
-                                  'measurementUnit']!; // Set measurement unit in the state
-                            });
+                            if (mounted) {
+                              setState(() {
+                                measurementUnit = suggestion[
+                                    'measurementUnit']!; // Set measurement unit in the state
+                              });
+                            }
                           },
                           validator: (value) {
                             if (value!.isEmpty) {

@@ -93,76 +93,79 @@ class _RecipeCardState extends State<RecipeCard> {
   }
 
   void _updateRecipe(Map<String, dynamic> alteredRecipe) {
-    //if (mounted) {
-    setState(() {
-      //print('Altered Recipe: $alteredRecipe');
-      // print('Altered Ingredients: ${alteredRecipe['ingredients']}');
+    if (mounted) {
+      setState(() {
+        //print('Altered Recipe: $alteredRecipe');
+        // print('Altered Ingredients: ${alteredRecipe['ingredients']}');
 
-      widget.name = alteredRecipe['title'];
-      //print('gets here 1');
-      widget.description = alteredRecipe['description'];
-      //print('gets here 2');
-      widget.imagePath = widget.imagePath;
-      //print('gets here 3');
-      widget.prepTime = widget.prepTime;
-      //print('gets here 4');
-      widget.cookTime = widget.cookTime;
-      // print('gets here 5');
-      widget.cuisine = alteredRecipe['cuisine'];
-      //print('gets here 6');
-      widget.spiceLevel = widget.spiceLevel;
-      //print('gets here 7');
-      widget.course = widget.course;
-      widget.servings = widget.servings;
-      //print('gets here 9');
-      widget.steps = List<String>.from(alteredRecipe['steps']);
-      //print('gets here 10');
-      widget.appliances = widget.appliances; // Assuming appliances don't change
-      //print('gets here 11');
+        widget.name = alteredRecipe['title'];
+        //print('gets here 1');
+        widget.description = alteredRecipe['description'];
+        //print('gets here 2');
+        widget.imagePath = widget.imagePath;
+        //print('gets here 3');
+        widget.prepTime = widget.prepTime;
+        //print('gets here 4');
+        widget.cookTime = widget.cookTime;
+        // print('gets here 5');
+        widget.cuisine = alteredRecipe['cuisine'];
+        //print('gets here 6');
+        widget.spiceLevel = widget.spiceLevel;
+        //print('gets here 7');
+        widget.course = widget.course;
+        widget.servings = widget.servings;
+        //print('gets here 9');
+        widget.steps = List<String>.from(alteredRecipe['steps']);
+        //print('gets here 10');
+        widget.appliances =
+            widget.appliances; // Assuming appliances don't change
+        //print('gets here 11');
 
-      // map ingredients
-      widget.ingredients =
-          alteredRecipe['ingredients'].map<Map<String, dynamic>>((ingredient) {
-        //print('Ingredient: $ingredient');
-        var nameEndIndex = ingredient.lastIndexOf(' (');
-        var name = ingredient.substring(0, nameEndIndex);
-        var quantityAndUnit = ingredient
-            .substring(nameEndIndex + 2, ingredient.length - 1)
-            .split(' ');
-        return {
-          'name': name,
-          'quantity': double.tryParse(quantityAndUnit[0]) ?? 0.0,
-          'measurement_unit': quantityAndUnit[1],
-        };
-      }).toList();
+        // map ingredients
+        widget.ingredients = alteredRecipe['ingredients']
+            .map<Map<String, dynamic>>((ingredient) {
+          //print('Ingredient: $ingredient');
+          var nameEndIndex = ingredient.lastIndexOf(' (');
+          var name = ingredient.substring(0, nameEndIndex);
+          var quantityAndUnit = ingredient
+              .substring(nameEndIndex + 2, ingredient.length - 1)
+              .split(' ');
+          return {
+            'name': name,
+            'quantity': double.tryParse(quantityAndUnit[0]) ?? 0.0,
+            'measurement_unit': quantityAndUnit[1],
+          };
+        }).toList();
 
-      //print('Parsed Ingredients: ${widget.ingredients}');
-      //print('gets here 12');
-      _isAlteredRecipe = true;
-      //_showRecipeDetails();
-    });
-    //}
+        //print('Parsed Ingredients: ${widget.ingredients}');
+        //print('gets here 12');
+        _isAlteredRecipe = true;
+        //_showRecipeDetails();
+      });
+    }
   }
 
   void _revertToOriginalRecipe() {
     if (_originalRecipe != null) {
-      setState(() {
-        widget.name = _originalRecipe!['name'];
-        widget.description = _originalRecipe!['description'];
-        widget.imagePath = _originalRecipe!['imagePath'];
-        widget.prepTime = _originalRecipe!['prepTime'];
-        widget.cookTime = _originalRecipe!['cookTime'];
-        widget.cuisine = _originalRecipe!['cuisine'];
-        widget.spiceLevel = _originalRecipe!['spiceLevel'];
-        widget.course = _originalRecipe!['course'];
-        widget.servings = _originalRecipe!['servings'];
-        widget.steps = List<String>.from(_originalRecipe!['steps']);
-        widget.appliances = List<String>.from(_originalRecipe!['appliances']);
-        widget.ingredients =
-            List<Map<String, dynamic>>.from(_originalRecipe!['ingredients']);
-        _isAlteredRecipe = false;
-        //_showRecipeDetails();
-      });
+      if (mounted) {
+        setState(() {
+          widget.name = _originalRecipe!['name'];
+          widget.description = _originalRecipe!['description'];
+          widget.imagePath = _originalRecipe!['imagePath'];
+          widget.prepTime = _originalRecipe!['prepTime'];
+          widget.cookTime = _originalRecipe!['cookTime'];
+          widget.cuisine = _originalRecipe!['cuisine'];
+          widget.spiceLevel = _originalRecipe!['spiceLevel'];
+          widget.course = _originalRecipe!['course'];
+          widget.servings = _originalRecipe!['servings'];
+          widget.steps = List<String>.from(_originalRecipe!['steps']);
+          widget.appliances = List<String>.from(_originalRecipe!['appliances']);
+          widget.ingredients =
+              List<Map<String, dynamic>>.from(_originalRecipe!['ingredients']);
+          _isAlteredRecipe = false;
+          //_showRecipeDetails();
+        });
+      }
     }
   }
 
@@ -1413,8 +1416,9 @@ class _RecipeCardState extends State<RecipeCard> {
                                       onRecipeUpdate:
                                           (Map<String, dynamic> alteredRecipe) {
                                         _updateRecipe(alteredRecipe);
-                                        dialogSetState(
-                                            () {}); // Update the dialog's state
+                                        if (mounted) {
+                                          dialogSetState(() {});
+                                        } // Update the dialog's state
                                       },
                                     );
                                   }),
@@ -1510,8 +1514,9 @@ class _RecipeCardState extends State<RecipeCard> {
                                     ElevatedButton(
                                       onPressed: () {
                                         _revertToOriginalRecipe();
-                                        dialogSetState(
-                                            () {}); // Update the dialog's state
+                                        if (mounted) {
+                                          dialogSetState(() {});
+                                        } // Update the dialog's state
                                       },
                                       child: Text('Revert to Original Recipe'),
                                     ),
