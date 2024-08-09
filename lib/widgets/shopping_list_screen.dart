@@ -424,7 +424,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   Widget _buildCategoryHeader(String title) {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
-
+    
     final Map<String, IconData> categoryIcons = {
       'dairy': Icons.icecream,
       'meat': Icons.kebab_dining,

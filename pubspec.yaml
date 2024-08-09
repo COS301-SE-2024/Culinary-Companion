@@ -117,6 +117,7 @@ flutter:
     - assets/pancakes.jpg
     - assets/loading.json
     - assets/helper_chef.png
+    - assets/light_helper_chef.png
     - assets/logo_1.png
     - assets/logo_2.png
     - assets/emptyPlate.jpg
