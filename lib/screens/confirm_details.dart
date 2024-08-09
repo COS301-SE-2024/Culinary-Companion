@@ -33,6 +33,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
       await _loadUserId();
       final List<String> cuisineItems = await _loadCuisines();
       final List<String> constraintItems = await _loadDietaryConstraints();
+      if (mounted) {
       setState(() {
         _cuisineOptions = cuisineItems;
         _dietaryOptions = constraintItems;
@@ -40,13 +41,14 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
             .map(
                 (constraint) => MultiSelectItem<String>(constraint, constraint))
             .toList();
-      });
+      });}
     } catch (error) {
       print('Error initializing data: $error');
+      if (mounted) {
       setState(() {
         //_isLoading = false;
         //_errorMessage = 'Error initializing data';
-      });
+      });}
     }
   }
 
@@ -74,9 +76,10 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
             items: _dietaryConstraints,
             initialValue: _selectedDietaryConstraints,
             onConfirm: (values) {
+              if (mounted) {
               setState(() {
                 _selectedDietaryConstraints = values;
-              });
+              });}
             },
             chipDisplay: MultiSelectChipDisplay.none(),
             buttonText: Text(
@@ -108,9 +111,10 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                 backgroundColor: Color(0xFFDC945F),
                 labelStyle: TextStyle(color: Color(0xFF20493C), fontSize: 16),
                 onDeleted: () {
+                  if (mounted) {
                   setState(() {
                     _selectedDietaryConstraints.remove(constraint);
-                  });
+                  });}
                 },
               );
             }).toList(),
@@ -142,10 +146,11 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
     setState(() {
       _userId = prefs.getString('userId');
       //print('Login successful: $_userId');
-    });
+    });}
   }
 
   Future<List<String>> _loadDietaryConstraints() async {
@@ -432,9 +437,10 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                           );
                         }).toList(),
                         onChanged: (newValue) {
+                          if (mounted) {
                           setState(() {
                             _spiceLevel = newValue!;
-                          });
+                          });}
                         },
                       ),
                     ),
@@ -482,9 +488,10 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                           );
                         }).toList(),
                         onChanged: (newValue) {
+                          if (mounted) {
                           setState(() {
                             _cuisine = newValue!;
-                          });
+                          });}
                         },
                       ),
                     ),

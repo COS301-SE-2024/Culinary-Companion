@@ -50,9 +50,10 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
     setState(() {
       _userId = prefs.getString('userId');
-    });
+    });}
   }
 
   Future<void> _fetchIngredientNames() async {

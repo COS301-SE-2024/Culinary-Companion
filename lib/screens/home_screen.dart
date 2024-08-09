@@ -101,10 +101,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
-
-        setState(() {
-          recipes.add(fetchedRecipe);
-        });
+        if (mounted) {
+          setState(() {
+            recipes.add(fetchedRecipe);
+          });
+        }
       } else {
         print('Failed to load recipe details: ${response.statusCode}');
       }
@@ -154,10 +155,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               GestureDetector(
                 onTap: () {
+                  if (mounted) {
                   setState(() {
                     _isGridView = true;
                     _selectedCategory = title;
-                  });
+                  });}
                 },
                 child: Text(
                   'View All',
@@ -250,10 +252,11 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               GestureDetector(
                 onTap: () {
+                  if (mounted) {
                   setState(() {
                     _isGridView = false;
                     _selectedCategory = '';
-                  });
+                  });}
                 },
                 child: Icon(Icons.arrow_back, size: backArrow),
               ),

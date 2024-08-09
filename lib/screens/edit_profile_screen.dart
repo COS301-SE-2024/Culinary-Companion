@@ -111,28 +111,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
       final List<MultiSelectItem<String>> constraintItems =
           await _loadDietaryConstraints();
-
+if (mounted) {
       setState(() {
         _cuisines = cuisineItems;
         _dietaryConstraints = constraintItems;
         //_isLoading = false;
-      });
+      });}
     } catch (error) {
       print('Error initializing data: $error');
+      if (mounted) {
       setState(() {
         //_isLoading = false;
         //_errorMessage = 'Error initializing data';
-      });
+      });}
     }
     _isLoading = false;
   }
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
     setState(() {
       _userId = prefs.getString('userId');
       //print('Login successful: $_userId');
-    });
+    });}
   }
 
   Future<void> _fetchUserDetails() async {
@@ -156,6 +158,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         List<dynamic> data = jsonDecode(response.body);
         //print('Response data: $data'); //response data
         if (data.isNotEmpty) {
+          if (mounted) {
           setState(() {
             _userDetails = data[0]; //get the first item in the list
 
@@ -175,28 +178,31 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
             //_profilePhoto =_userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
             //_isLoading = false;
-          });
+          });}
         } else {
+          if (mounted) {
           setState(() {
             _isLoading = false;
             //_errorMessage = 'No user details found';
-          });
+          });}
         }
       } else {
         // Handle error
         print('Failed to load user details: ${response.statusCode}');
+        if (mounted) {
         setState(() {
           _isLoading = false;
           // _errorMessage = 'Failed to load user details';
-        });
+        });}
       }
     } catch (error) {
       //error handling
       print('Error fetching user details: $error');
+      if (mounted) {
       setState(() {
         _isLoading = false;
         //_errorMessage = 'Error fetching user details';
-      });
+      });}
     }
   }
 
@@ -319,9 +325,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             style: TextStyle(color: Colors.white, fontSize: 16),
             controller: TextEditingController(text: _username),
             onSubmitted: (newValue) {
+              if (mounted) {
               setState(() {
                 _username = newValue;
-              });
+              });}
             },
           ),
         ],
@@ -350,10 +357,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             value: _selectedCuisine,
             items: _cuisines,
             onChanged: (value) {
+              if (mounted) {
               setState(() {
                 _selectedCuisine = value;
                 //updateUserCuisine(_userId!, value!);
-              });
+              });}
             },
             decoration: InputDecoration(
               border:
@@ -394,9 +402,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   value: level,
                   groupValue: _spiceLevel,
                   onChanged: (value) {
+                    if (mounted) {
                     setState(() {
                       _spiceLevel = value;
-                    });
+                    });}
                   },
                 ),
               );
@@ -628,9 +637,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             items: _dietaryConstraints!,
             initialValue: _selectedDietaryConstraints,
             onConfirm: (values) {
+              if (mounted) {
               setState(() {
                 _selectedDietaryConstraints = values;
-              });
+              });}
             },
             chipDisplay: MultiSelectChipDisplay(
               chipColor: Color(0xFFDC945F),
