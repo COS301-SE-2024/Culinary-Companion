@@ -1513,7 +1513,16 @@ class _RecipeCardState extends State<RecipeCard> {
                                         dialogSetState(
                                             () {}); // Update the dialog's state
                                       },
-                                      child: Text('Revert to Original Recipe'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: textColor,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40, vertical: 20),
+                                      ),
+                                      child: Text('Revert to Original Recipe',
+                                          style: TextStyle(
+                                              color: isLightTheme
+                                                  ? Colors.white
+                                                  : Color(0xFF1F4539))),
                                     ),
                                 ],
                               ),
