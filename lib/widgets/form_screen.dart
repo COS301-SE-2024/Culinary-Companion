@@ -102,9 +102,11 @@ class _RecipeFormState extends State<RecipeForm>
         _imageUrl =
             supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
         //print('here1: $_imageUrl');
-        setState(() {
-          _selectedImage = _imageUrl;
-        });
+        if (mounted) {
+          setState(() {
+            _selectedImage = _imageUrl;
+          });
+        }
         //print('here2: $_selectedImage');
       } else {
         print('Error uploading image: $response');
@@ -121,9 +123,11 @@ class _RecipeFormState extends State<RecipeForm>
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId');
-    });
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+      });
+    }
   }
 
   Future<void> _loadCuisines() async {
@@ -140,12 +144,14 @@ class _RecipeFormState extends State<RecipeForm>
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          // Ensure the UI updates after cuisines are loaded
-          _cuisines = data.map<String>((cuisine) {
-            return cuisine['name'].toString();
-          }).toList();
-        });
+        if (mounted) {
+          setState(() {
+            // Ensure the UI updates after cuisines are loaded
+            _cuisines = data.map<String>((cuisine) {
+              return cuisine['name'].toString();
+            }).toList();
+          });
+        }
         //print(_cuisines);
       } else {
         throw Exception('Failed to load cuisines');
@@ -166,14 +172,16 @@ class _RecipeFormState extends State<RecipeForm>
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _availableIngredients = data
-              .map((item) => {
-                    'name': item['name'].toString(),
-                    'measurementUnit': item['measurementUnit'].toString(),
-                  })
-              .toList();
-        });
+        if (mounted) {
+          setState(() {
+            _availableIngredients = data
+                .map((item) => {
+                      'name': item['name'].toString(),
+                      'measurementUnit': item['measurementUnit'].toString(),
+                    })
+                .toList();
+          });
+        }
       } else {
         print('Failed to fetch ingredient names: ${response.statusCode}');
       }
@@ -196,14 +204,17 @@ class _RecipeFormState extends State<RecipeForm>
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          _appliances = data.map<String>((appliance) {
-            return appliance['name'].toString();
-          }).toList();
-          _applianceItems = _appliances
-              .map((appliance) => MultiSelectItem<String>(appliance, appliance))
-              .toList();
-        });
+        if (mounted) {
+          setState(() {
+            _appliances = data.map<String>((appliance) {
+              return appliance['name'].toString();
+            }).toList();
+            _applianceItems = _appliances
+                .map((appliance) =>
+                    MultiSelectItem<String>(appliance, appliance))
+                .toList();
+          });
+        }
       } else {
         throw Exception('Failed to load appliances');
       }
@@ -240,38 +251,46 @@ class _RecipeFormState extends State<RecipeForm>
   List<Map<String, String>> _availableIngredients = [];
 
   void _addIngredientField() {
-    setState(() {
-      _ingredients.add({
-        'name': _availableIngredients.isNotEmpty
-            ? _availableIngredients[0]['name'] ?? ''
-            : '',
-        'quantity': '',
-        'unit': _availableIngredients.isNotEmpty
-            ? _availableIngredients[0]['measurementUnit'] ??
-                measurementUnits.first
-            : measurementUnits.first,
+    if (mounted) {
+      setState(() {
+        _ingredients.add({
+          'name': _availableIngredients.isNotEmpty
+              ? _availableIngredients[0]['name'] ?? ''
+              : '',
+          'quantity': '',
+          'unit': _availableIngredients.isNotEmpty
+              ? _availableIngredients[0]['measurementUnit'] ??
+                  measurementUnits.first
+              : measurementUnits.first,
+        });
+        _ingredientControllers.add(TextEditingController());
       });
-      _ingredientControllers.add(TextEditingController());
-    });
+    }
   }
 
   void _removeIngredientField(int index) {
-    setState(() {
-      _ingredients.removeAt(index);
-      _ingredientControllers.removeAt(index);
-    });
+    if (mounted) {
+      setState(() {
+        _ingredients.removeAt(index);
+        _ingredientControllers.removeAt(index);
+      });
+    }
   }
 
   void _addMethodField() {
-    setState(() {
-      _methods.add('');
-    });
+    if (mounted) {
+      setState(() {
+        _methods.add('');
+      });
+    }
   }
 
   void _removeMethodField(int index) {
-    setState(() {
-      _methods.removeAt(index);
-    });
+    if (mounted) {
+      setState(() {
+        _methods.removeAt(index);
+      });
+    }
   }
 
   Future<void> _submitRecipe() async {
@@ -323,113 +342,116 @@ class _RecipeFormState extends State<RecipeForm>
       );
 
       print("over here");
-      
+
       final recipeIdResponse = await http.post(
-      Uri.parse(
-          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
-        'action': 'getRecipeId',
-        'recipeData': {
-          'name': _nameController.text,
-        },
-      }),
-    );
-
-    if (recipeIdResponse.statusCode == 200) {
-      final recipeId = json.decode(recipeIdResponse.body)['recipeId'];
-
-      print("just before fetching keywords");
-
-      // Fetch keywords using fetchKeywords function
-      final keywordsJsonString = await fetchKeywords(recipeId);
-      print(keywordsJsonString);
-      Map<String, String> keywords;
-      try {
-        keywords = Map<String, String>.from(json.decode(keywordsJsonString));
-      } catch (e) {
-        print('Failed to parse keywords: $e');
-        return;
-      } 
-
-      // Convert the keywords map to a comma-separated string
-      final keywordsList = keywords.values.toList();
-      final keywordsString = keywordsList.join(',');
-
-      print("just after fetching keywords");
-
-      final addKeywordsResponse = await http.post(
         Uri.parse(
             'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
         headers: {
           'Content-Type': 'application/json',
         },
         body: json.encode({
-          'action': 'addRecipeKeywords',
-          'recipeid': recipeId,
-          'keywords': keywordsString, // Ensure _keywords is defined and contains the keywords
+          'action': 'getRecipeId',
+          'recipeData': {
+            'name': _nameController.text,
+          },
         }),
       );
 
-      print("after adding keywords");
+      if (recipeIdResponse.statusCode == 200) {
+        final recipeId = json.decode(recipeIdResponse.body)['recipeId'];
 
-      if (addKeywordsResponse.statusCode == 200) {
-        print('Keywords added successfully');
-      } else {
-        print('Failed to add keywords');
-      }
+        print("just before fetching keywords");
 
-      final dietaryConstraintsJsonString = await fetchDietaryConstraints(recipeId);
-print(dietaryConstraintsJsonString);
+        // Fetch keywords using fetchKeywords function
+        final keywordsJsonString = await fetchKeywords(recipeId);
+        print(keywordsJsonString);
+        Map<String, String> keywords;
+        try {
+          keywords = Map<String, String>.from(json.decode(keywordsJsonString));
+        } catch (e) {
+          print('Failed to parse keywords: $e');
+          return;
+        }
 
-Map<String, dynamic> dietaryConstraints;
-try {
-  dietaryConstraints = json.decode(dietaryConstraintsJsonString);
-} catch (e) {
-  print('Failed to parse dietary constraints: $e');
-  return;
-}
+        // Convert the keywords map to a comma-separated string
+        final keywordsList = keywords.values.toList();
+        final keywordsString = keywordsList.join(',');
+
+        print("just after fetching keywords");
+
+        final addKeywordsResponse = await http.post(
+          Uri.parse(
+              'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            'action': 'addRecipeKeywords',
+            'recipeid': recipeId,
+            'keywords':
+                keywordsString, // Ensure _keywords is defined and contains the keywords
+          }),
+        );
+
+        print("after adding keywords");
+
+        if (addKeywordsResponse.statusCode == 200) {
+          print('Keywords added successfully');
+        } else {
+          print('Failed to add keywords');
+        }
+
+        final dietaryConstraintsJsonString =
+            await fetchDietaryConstraints(recipeId);
+        print(dietaryConstraintsJsonString);
+
+        Map<String, dynamic> dietaryConstraints;
+        try {
+          dietaryConstraints = json.decode(dietaryConstraintsJsonString);
+        } catch (e) {
+          print('Failed to parse dietary constraints: $e');
+          return;
+        }
 
 // print("dietaryConstraints");
 // print(dietaryConstraints);
-  // Filter dietary constraints that are "yes" or "true"
-  final filteredConstraints = dietaryConstraints.entries
-      .where((entry) => entry.value.toLowerCase() == 'yes' || entry.value.toLowerCase() == 'true')
-      .map((entry) => entry.key)
-      .toList();
+        // Filter dietary constraints that are "yes" or "true"
+        final filteredConstraints = dietaryConstraints.entries
+            .where((entry) =>
+                entry.value.toLowerCase() == 'yes' ||
+                entry.value.toLowerCase() == 'true')
+            .map((entry) => entry.key)
+            .toList();
 
-  // print("filteredConstraints");
-  // print(filteredConstraints);
-  // Convert the filtered constraints to a comma-separated string
-  final constraintsString = filteredConstraints.join(',');
+        // print("filteredConstraints");
+        // print(filteredConstraints);
+        // Convert the filtered constraints to a comma-separated string
+        final constraintsString = filteredConstraints.join(',');
 
-  print("constraintsString");
-  print(constraintsString);
+        print("constraintsString");
+        print(constraintsString);
 
-  final addDietaryConstraintsResponse = await http.post(
-    Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: json.encode({
-      'action': 'addRecipeDietaryConstraints',
-      'recipeid': recipeId,
-      'dietaryConstraints': constraintsString,
-    }),
-  );
+        final addDietaryConstraintsResponse = await http.post(
+          Uri.parse(
+              'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: json.encode({
+            'action': 'addRecipeDietaryConstraints',
+            'recipeid': recipeId,
+            'dietaryConstraints': constraintsString,
+          }),
+        );
 
-  if (addDietaryConstraintsResponse.statusCode == 200) {
-    print('Dietary constraints added successfully');
-  } else {
-    print('Failed to add dietary constraints');
-  }
-
-    } else {
-      print('Failed to retrieve recipe ID');
-    }
-
+        if (addDietaryConstraintsResponse.statusCode == 200) {
+          print('Dietary constraints added successfully');
+        } else {
+          print('Failed to add dietary constraints');
+        }
+      } else {
+        print('Failed to retrieve recipe ID');
+      }
 
       // Clear all form inputs
       _nameController.clear();
@@ -443,8 +465,9 @@ try {
       _selectedCuisine = _cuisines.first;
       _selectedCourse = _courses.first;
       _spiceLevel = 1;
-
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     } else {
       // Failed to add recipe
       ScaffoldMessenger.of(context).showSnackBar(
@@ -515,9 +538,11 @@ try {
             items: _applianceItems,
             initialValue: _selectedAppliances,
             onConfirm: (values) {
-              setState(() {
-                _selectedAppliances = values;
-              });
+              if (mounted) {
+                setState(() {
+                  _selectedAppliances = values;
+                });
+              }
             },
             chipDisplay: MultiSelectChipDisplay(
               chipColor: Color(0xFFDC945F),
@@ -607,9 +632,11 @@ try {
                           isLightTheme ? Colors.white : Color(0xFF20493C),
                       value: _selectedCuisine,
                       onChanged: (value) {
-                        setState(() {
-                          _selectedCuisine = value!;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            _selectedCuisine = value!;
+                          });
+                        }
                       },
                       items: _cuisines.map((cuisine) {
                         return DropdownMenuItem<String>(
@@ -626,9 +653,11 @@ try {
                           isLightTheme ? Colors.white : Color(0xFF20493C),
                       value: _selectedCourse,
                       onChanged: (value) {
-                        setState(() {
-                          _selectedCourse = value!;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            _selectedCourse = value!;
+                          });
+                        }
                       },
                       items: _courses.map((course) {
                         return DropdownMenuItem<String>(
@@ -661,9 +690,11 @@ try {
                               divisions: 4,
                               label: _getSpiceLevelLabel(_spiceLevel),
                               onChanged: (value) {
-                                setState(() {
-                                  _spiceLevel = value.toInt();
-                                });
+                                if (mounted) {
+                                  setState(() {
+                                    _spiceLevel = value.toInt();
+                                  });
+                                }
                               },
                               activeColor: Color(
                                   0xFFDC945F), // Change this to the desired color for the active part of the slider
@@ -681,9 +712,12 @@ try {
                         NumberSpinner(
                           initialValue: 1,
                           onChanged: (value) {
-                            setState(() {
-                              _servingAmountController.text = value.toString();
-                            });
+                            if (mounted) {
+                              setState(() {
+                                _servingAmountController.text =
+                                    value.toString();
+                              });
+                            }
                           },
                         ),
                       ],
@@ -728,18 +762,21 @@ try {
                                   );
                                 },
                                 onSuggestionSelected: (String suggestion) {
-                                  setState(() {
-                                    _ingredients[index]['name'] = suggestion;
-                                    final selectedIngredient =
-                                        _availableIngredients.firstWhere(
-                                            (ingredient) =>
-                                                ingredient['name'] ==
-                                                suggestion);
-                                    _ingredients[index]['unit'] =
-                                        selectedIngredient['measurementUnit']!;
-                                    _ingredientControllers[index].text =
-                                        suggestion;
-                                  });
+                                  if (mounted) {
+                                    setState(() {
+                                      _ingredients[index]['name'] = suggestion;
+                                      final selectedIngredient =
+                                          _availableIngredients.firstWhere(
+                                              (ingredient) =>
+                                                  ingredient['name'] ==
+                                                  suggestion);
+                                      _ingredients[index]['unit'] =
+                                          selectedIngredient[
+                                              'measurementUnit']!;
+                                      _ingredientControllers[index].text =
+                                          suggestion;
+                                    });
+                                  }
                                 },
                                 validator: (value) {
                                   if (value!.isEmpty) {
@@ -757,9 +794,11 @@ try {
                               child: TextField(
                                 cursorColor: textColor,
                                 onChanged: (value) {
-                                  setState(() {
-                                    _ingredients[index]['quantity'] = value;
-                                  });
+                                  if (mounted) {
+                                    setState(() {
+                                      _ingredients[index]['quantity'] = value;
+                                    });
+                                  }
                                 },
                                 decoration: _buildInputDecoration('Quantity'),
                               ),
@@ -797,9 +836,11 @@ try {
                               child: TextField(
                                 cursorColor: textColor,
                                 onChanged: (value) {
-                                  setState(() {
-                                    _methods[index2] = value;
-                                  });
+                                  if (mounted) {
+                                    setState(() {
+                                      _methods[index2] = value;
+                                    });
+                                  }
                                 },
                                 decoration: _buildInputDecoration('Method'),
                               ),
@@ -844,9 +885,11 @@ try {
                       children: _preloadedImages.map((image) {
                         return GestureDetector(
                           onTap: () {
-                            setState(() {
-                              _selectedImage = image;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                _selectedImage = image;
+                              });
+                            }
                           },
                           child: Container(
                             decoration: BoxDecoration(
