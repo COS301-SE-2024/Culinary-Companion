@@ -2223,59 +2223,81 @@ class _CheckableItemState extends State<CheckableItem> {
   }
 
   void _addToShoppingList(
-      String ingredientString, double remainingQuantity, String unit) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
+    String ingredientString, double remainingQuantity, String unit) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  final String? userId = prefs.getString('userId');
 
-    // Regular expression to extract the ingredient name
-    final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
-    final match = regex.firstMatch(ingredientString);
-    final ingredientName =
-        match != null ? match.group(1) ?? ingredientString : ingredientString;
+  // Regular expression to extract the ingredient name
+  final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
+  final match = regex.firstMatch(ingredientString);
+  final ingredientName =
+      match != null ? match.group(1) ?? ingredientString : ingredientString;
 
-    final url = Uri.parse(
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({
-      "action": "addToShoppingList",
-      "userId": userId,
-      "ingredientName": ingredientName,
-      "quantity": remainingQuantity,
-      "measurementUnit": unit
-    });
+  // Call the addIngredientIfNotExists function to ensure the ingredient exists
+  final addIngredientUrl = Uri.parse(
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+  final headers = {"Content-Type": "application/json"};
+  final addIngredientBody = jsonEncode({
+    "action": "addIngredientIfNotExists",
+    "ingredientName": ingredientName,
+    "measurementUnit": unit,
+  });
 
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            _isAdded = true;
-            _updateShoppingList(ingredientName, remainingQuantity, unit);
-          });
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Added remaining $ingredientName to shopping list'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'Failed to add $ingredientName to shopping list: ${response.body}'),
-          ),
-        );
+  try {
+    final addIngredientResponse =
+        await http.post(addIngredientUrl, headers: headers, body: addIngredientBody);
+    if (addIngredientResponse.statusCode != 200) {
+      print('Failed to ensure ingredient exists: ${addIngredientResponse.body}');
+      return;
+    }
+  } catch (error) {
+    print('Error ensuring ingredient exists: $error');
+    return;
+  }
+
+  // Proceed to add the ingredient to the shopping list
+  final url = Uri.parse(
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+  final addShoppingListBody = jsonEncode({
+    "action": "addToShoppingList",
+    "userId": userId,
+    "ingredientName": ingredientName,
+    "quantity": remainingQuantity,
+    "measurementUnit": unit
+  });
+
+  try {
+    final response = await http.post(url, headers: headers, body: addShoppingListBody);
+    if (response.statusCode == 200) {
+      if (mounted) {
+        setState(() {
+          _isAdded = true;
+          _updateShoppingList(ingredientName, remainingQuantity, unit);
+        });
       }
-    } catch (error) {
-      print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Error adding $ingredientName to shopping list: $error'),
+          content: Text('Added remaining $ingredientName to shopping list'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Failed to add $ingredientName to shopping list: ${response.body}'),
         ),
       );
     }
+  } catch (error) {
+    print('Error: $error');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:
+            Text('Error adding $ingredientName to shopping list: $error'),
+      ),
+    );
   }
+}
 
   void _updateShoppingList(
       String ingredientName, double quantity, String measurementUnit) {
