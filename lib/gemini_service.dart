@@ -170,7 +170,7 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
     
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
-      final jsonMap = jsonDecode(jsonString);
+      //final jsonMap = jsonDecode(jsonString);
       //print('Parsed JSON: $jsonMap');
     } catch (e) {
       print('Failed to parse JSON: $e');
@@ -276,7 +276,7 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute) 
     
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
-      final jsonMap = jsonDecode(jsonString);
+      //final jsonMap = jsonDecode(jsonString);
       //print('Parsed JSON: $jsonMap');
     } catch (e) {
       print('Failed to parse JSON: $e');
@@ -375,7 +375,7 @@ Future<String> fetchKeywords(String recipeId) async {
     
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
-      final jsonMap = jsonDecode(jsonString);
+      //final jsonMap = jsonDecode(jsonString);
       //print('Parsed JSON: $jsonMap');
     } catch (e) {
       print('Failed to parse JSON: $e');
@@ -512,7 +512,7 @@ if (response != null && response.text != null) {
     
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
-      final jsonMap = jsonDecode(jsonString);
+      //final jsonMap = jsonDecode(jsonString);
       //print('Parsed JSON: $jsonMap');
     } catch (e) {
       print('Failed to parse JSON: $e');
