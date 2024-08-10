@@ -105,7 +105,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _initializeData() async {
     try {
-     
       await _loadUserId();
       await _fetchUserDetails(); // Fetch user details on init
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
@@ -187,7 +186,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         print('Failed to load user details: ${response.statusCode}');
         setState(() {
           _isLoading = false;
-         // _errorMessage = 'Failed to load user details';
+          // _errorMessage = 'Failed to load user details';
         });
       }
     } catch (error) {
@@ -355,32 +354,54 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget _buildSpiceLevelRadio() {
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Preferred Spice Level:',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Row(
-            children:
-                ['None', 'Mild', 'Medium', 'Hot', 'Very Hot'].map((level) {
-              return Expanded(
-                child: RadioListTile<String>(
-                  title: Text(level),
-                  value: level,
-                  groupValue: _spiceLevel,
-                  onChanged: (value) {
-                    setState(() {
-                      _spiceLevel = value;
-                    });
-                  },
-                ),
-              );
-            }).toList(),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 830;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Preferred Spice Level:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              isSmallScreen
+                  ? Column(
+                      children: ['None', 'Mild', 'Medium', 'Hot', 'Very Hot']
+                          .map((level) {
+                        return RadioListTile<String>(
+                          title: Text(level),
+                          value: level,
+                          groupValue: _spiceLevel,
+                          onChanged: (value) {
+                            setState(() {
+                              _spiceLevel = value;
+                            });
+                          },
+                        );
+                      }).toList(),
+                    )
+                  : Row(
+                      children: ['None', 'Mild', 'Medium', 'Hot', 'Very Hot']
+                          .map((level) {
+                        return Expanded(
+                          child: RadioListTile<String>(
+                            title: Text(level),
+                            value: level,
+                            groupValue: _spiceLevel,
+                            onChanged: (value) {
+                              setState(() {
+                                _spiceLevel = value;
+                              });
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -575,7 +596,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       }
 
       //print('Profile updated successfully');
-      Navigator.pop(context,true);
+      Navigator.pop(context, true);
 
       // You can navigate to another screen or show a success message here
     } catch (error) {
@@ -627,7 +648,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(8)),
               border: Border.all(
-                color: textColor, // Change this color to the desired border color
+                color:
+                    textColor, // Change this color to the desired border color
                 width: 1, // Change the width as needed
               ),
             ),
@@ -650,12 +672,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       return Scaffold(
         appBar: AppBar(
           title: Text('Edit Profile', style: TextStyle(color: textColor)),
-          backgroundColor: isLightTheme ? Colors.white : Color(0xFF20493C),
+          backgroundColor: Colors.transparent,
         ),
         body: Center(
-          child: Lottie.asset(
-            'assets/loading.json'
-          ),
+          child: Lottie.asset('assets/loading.json'),
         ),
       );
     }
@@ -663,7 +683,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Profile', style: TextStyle(color: textColor)),
-        backgroundColor: isLightTheme ? Colors.white : Color(0xFF20493C),
+        backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
