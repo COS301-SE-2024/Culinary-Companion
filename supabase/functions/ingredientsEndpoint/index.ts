@@ -115,6 +115,8 @@ Deno.serve(async (req) => {
                 return getRecipeId(recipeData.name, corsHeaders);
             case 'addRecipeDietaryConstraints':
                 return addRecipeDietaryConstraints(recipeid, dietaryConstraints, corsHeaders);
+            case 'addIngredientIfNotExists':
+                return addIngredientIfNotExists(ingredientName, measurementUnit, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -128,6 +130,92 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+async function addIngredientIfNotExists(
+    ingredientName: string,
+    measurementUnit: string,
+    corsHeaders: HeadersInit
+) {
+    if (!ingredientName || !measurementUnit) {
+        console.error('Invalid ingredient data provided.');
+        return new Response(JSON.stringify({ error: 'Invalid ingredient data provided' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    try {
+        // Check if the ingredient exists
+        const { data: existingIngredient, error: fetchError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .limit(1);
+
+        if (fetchError) {
+            console.error('Error fetching ingredient:', fetchError);
+            return new Response(JSON.stringify({ error: fetchError.message }), {
+                status: 500,
+                headers: corsHeaders,
+            });
+        }
+
+        // If the ingredient exists, return its ID
+        if (existingIngredient && existingIngredient.length > 0) {
+            return new Response(JSON.stringify({ ingredientId: existingIngredient[0].ingredientid }), {
+                status: 200,
+                headers: corsHeaders,
+            });
+        }
+
+        // Find the current maximum ingredient ID
+        const { data: maxIdResult, error: maxIdError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .order('ingredientid', { ascending: false })
+            .limit(1);
+
+        if (maxIdError) {
+            console.error('Error fetching max ingredient ID:', maxIdError);
+            return new Response(JSON.stringify({ error: maxIdError.message }), {
+                status: 500,
+                headers: corsHeaders,
+            });
+        }
+
+        const newIngredientId = (maxIdResult && maxIdResult.length > 0) ? maxIdResult[0].ingredientid + 1 : 1;
+
+        // Insert the new ingredient with the generated ID
+        const { data: newIngredient, error: insertError } = await supabase
+            .from('ingredient')
+            .insert({
+                ingredientid: newIngredientId,
+                name: ingredientName,
+                measurement_unit: measurementUnit
+            })
+            .select('ingredientid');
+
+        if (insertError) {
+            console.error('Error adding new ingredient:', insertError);
+            return new Response(JSON.stringify({ error: insertError.message }), {
+                status: 500,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ ingredientId: newIngredient[0].ingredientid }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
 
 
 async function filterRecipes(filters :Filters, corsHeaders: HeadersInit) {
