@@ -2227,13 +2227,13 @@ class _CheckableItemState extends State<CheckableItem> {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   final String? userId = prefs.getString('userId');
 
-  // Regular expression to extract the ingredient name
+  //extract ingredient name
   final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
   final match = regex.firstMatch(ingredientString);
   final ingredientName =
       match != null ? match.group(1) ?? ingredientString : ingredientString;
 
-  // Call the addIngredientIfNotExists function to ensure the ingredient exists
+  //check if the ingredient is in the db
   final addIngredientUrl = Uri.parse(
       'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
   final headers = {"Content-Type": "application/json"};
@@ -2255,7 +2255,7 @@ class _CheckableItemState extends State<CheckableItem> {
     return;
   }
 
-  // Proceed to add the ingredient to the shopping list
+  //add to shopping list
   final url = Uri.parse(
       'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
   final addShoppingListBody = jsonEncode({
