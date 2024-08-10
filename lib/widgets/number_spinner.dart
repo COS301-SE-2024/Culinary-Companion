@@ -22,33 +22,39 @@ class _NumberSpinnerState extends State<NumberSpinner> {
   }
 
   void _increment() {
-    setState(() {
-      _value++;
-      _controller.text = _value.toString();
-      widget.onChanged(_value);
-    });
+    if (mounted) {
+      setState(() {
+        _value++;
+        _controller.text = _value.toString();
+        widget.onChanged(_value);
+      });
+    }
   }
 
   void _decrement() {
-    setState(() {
-      if (_value > 1) {
-        _value--;
-        _controller.text = _value.toString();
-        widget.onChanged(_value);
-      }
-    });
+    if (mounted) {
+      setState(() {
+        if (_value > 1) {
+          _value--;
+          _controller.text = _value.toString();
+          widget.onChanged(_value);
+        }
+      });
+    }
   }
 
   void _onChanged(String text) {
-    setState(() {
-      final int? value = int.tryParse(text);
-      if (value != null && value > 0) {
-        _value = value;
-        widget.onChanged(_value);
-      } else {
-        _controller.text = _value.toString();
-      }
-    });
+    if (mounted) {
+      setState(() {
+        final int? value = int.tryParse(text);
+        if (value != null && value > 0) {
+          _value = value;
+          widget.onChanged(_value);
+        } else {
+          _controller.text = _value.toString();
+        }
+      });
+    }
   }
 
   @override

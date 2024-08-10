@@ -26,14 +26,16 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId');
-      //print('Login successful: $_userId');
-      if (_userId != null) {
-        //print('here 1');
-        fetchRecipes(); // Call fetchRecipes only if userId is loaded successfully
-      }
-    });
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+        //print('Login successful: $_userId');
+        if (_userId != null) {
+          //print('here 1');
+          fetchRecipes(); // Call fetchRecipes only if userId is loaded successfully
+        }
+      });
+    }
   }
 
   Future<void> fetchRecipes() async {
@@ -59,10 +61,11 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
     } catch (error) {
       print('Error fetching recipes: $error');
     }
-
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> fetchRecipeDetails(String recipeId) async {
@@ -77,10 +80,11 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
-
-        setState(() {
-          recipes.add(fetchedRecipe);
-        });
+        if (mounted) {
+          setState(() {
+            recipes.add(fetchedRecipe);
+          });
+        }
       } else {
         print('Failed to load recipe details: ${response.statusCode}');
       }
@@ -102,92 +106,120 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0),
-            child: IconButton(
-              icon: Icon(Icons.help),
-              onPressed: _showHelpMenu,
-              iconSize: 35,
-            ),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 20.0),
+          child: IconButton(
+            icon: Icon(Icons.help),
+            onPressed: _showHelpMenu,
+            iconSize: 35,
           ),
-        ],
-      ),
-      body: _isLoading
-          ? Center(
-              child: Lottie.asset('assets/loading.json'),
-            )
-          : SingleChildScrollView(
-              child: Padding(
-                key: ValueKey('Favourites'),
-                padding: const EdgeInsets.all(16.0),
+        ),
+      ],
+    ),
+    body: _isLoading
+        ? Center(
+            child: Lottie.asset('assets/loading.json'),
+          )
+        : recipes.isEmpty
+            ? Center(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SizedBox(height: 24),
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        double width = constraints.maxWidth;
-                        double itemWidth = 276;
-                        double itemHeight = 320;
-                        double aspectRatio = itemWidth / itemHeight;
-
-                        double crossAxisSpacing = width * 0.01;
-                        double mainAxisSpacing = width * 0.02;
-
-                        return GridView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: recipes.length,
-                          gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 4,
-                            crossAxisSpacing: crossAxisSpacing,
-                            mainAxisSpacing: mainAxisSpacing,
-                            childAspectRatio: aspectRatio,
-                          ),
-                          itemBuilder: (context, index) {
-                            // List<String> keywords =
-                            //     (recipes[index]['keywords'] as String?)
-                            //             ?.split(', ') ??
-                            //         [];
-                            List<String> steps = [];
-                            if (recipes[index]['steps'] != null) {
-                              steps = (recipes[index]['steps'] as String)
-                                  .split(',');
-                            }
-
-                            return RecipeCard(
-                              recipeID: recipes[index]['recipeId'] ?? '',
-                              name: recipes[index]['name'] ?? '',
-                              description: recipes[index]['description'] ?? '',
-                              imagePath:
-                                  recipes[index]['photo'] ?? 'assets/emptyPlate.jpg',
-                              prepTime: recipes[index]['preptime'] ?? 0,
-                              cookTime: recipes[index]['cooktime'] ?? 0,
-                              cuisine: recipes[index]['cuisine'] ?? '',
-                              spiceLevel: recipes[index]['spicelevel'] ?? 0,
-                              course: recipes[index]['course'] ?? '',
-                              servings: recipes[index]['servings'] ?? 0,
-                              steps: steps,
-                              appliances: List<String>.from(
-                                  recipes[index]['appliances']),
-                              ingredients: List<Map<String, dynamic>>.from(
-                                  recipes[index]['ingredients']),
-                            );
-                          },
-                        );
-                      },
+                    Icon(
+                      Icons.favorite_border,
+                      size: 100,
+                      color: Colors.grey,
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'No favorited recipes yet!',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Use the heart icon to add recipes to your favorites.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
                     ),
                   ],
                 ),
+              )
+            : SingleChildScrollView(
+                child: Padding(
+                  key: ValueKey('Favourites'),
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 24),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          double width = constraints.maxWidth;
+                          double itemWidth = 276;
+                          double itemHeight = 320;
+                          double aspectRatio = itemWidth / itemHeight;
+
+                          double crossAxisSpacing = width * 0.01;
+                          double mainAxisSpacing = width * 0.02;
+
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: recipes.length,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              crossAxisSpacing: crossAxisSpacing,
+                              mainAxisSpacing: mainAxisSpacing,
+                              childAspectRatio: aspectRatio,
+                            ),
+                            itemBuilder: (context, index) {
+                              List<String> steps = [];
+                              if (recipes[index]['steps'] != null) {
+                                steps = (recipes[index]['steps'] as String)
+                                    .split(',');
+                              }
+
+                              return RecipeCard(
+                                recipeID: recipes[index]['recipeId'] ?? '',
+                                name: recipes[index]['name'] ?? '',
+                                description: recipes[index]['description'] ??
+                                    '',
+                                imagePath: recipes[index]['photo'] ??
+                                    'assets/emptyPlate.jpg',
+                                prepTime: recipes[index]['preptime'] ?? 0,
+                                cookTime: recipes[index]['cooktime'] ?? 0,
+                                cuisine: recipes[index]['cuisine'] ?? '',
+                                spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                                course: recipes[index]['course'] ?? '',
+                                servings: recipes[index]['servings'] ?? 0,
+                                steps: steps,
+                                appliances: List<String>.from(
+                                    recipes[index]['appliances']),
+                                ingredients: List<Map<String, dynamic>>.from(
+                                    recipes[index]['ingredients']),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-    );
-  }
+  );
+}
+
 }

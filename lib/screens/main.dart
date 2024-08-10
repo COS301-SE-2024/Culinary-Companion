@@ -36,9 +36,10 @@ class _MainScreenState extends State<MainScreen> {
   String currentRoute = '/';
 
   void changeRoute(String newRoute) {
+    if (mounted) {
     setState(() {
       currentRoute = newRoute;
-    });
+    });}
   }
 
   @override

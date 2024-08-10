@@ -66,14 +66,16 @@ class _ChatWidgetState extends State<ChatWidget> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data.isNotEmpty) {
-          setState(() {
-            _spiceLevel =
-                data[0]['spicelevel']; //users prefered spice level from 0 to 5
-            _dietaryConstraints =
-                List<String>.from(data[0]['dietaryConstraints']);
-            // print('$_dietaryConstraints');
-            _generateSuggestedPrompts();
-          });
+          if (mounted) {
+            setState(() {
+              _spiceLevel = data[0]
+                  ['spicelevel']; //users prefered spice level from 0 to 5
+              _dietaryConstraints =
+                  List<String>.from(data[0]['dietaryConstraints']);
+              // print('$_dietaryConstraints');
+              _generateSuggestedPrompts();
+            });
+          }
         }
       } else {
         print('Failed to fetch user details');
@@ -118,9 +120,11 @@ class _ChatWidgetState extends State<ChatWidget> {
     String text = message ?? _controller.text;
 
     if (text.isNotEmpty) {
-      setState(() {
-        _messages.add({"sender": "You", "text": text});
-      });
+      if (mounted) {
+        setState(() {
+          _messages.add({"sender": "You", "text": text});
+        });
+      }
 
       var content = [
         Content.text(//send the recipe details and users preferences for context
@@ -134,12 +138,14 @@ class _ChatWidgetState extends State<ChatWidget> {
       ];
 
       var response = await model.generateContent(content);
-      setState(() {
-        _messages.add({
-          "sender": "Chef Tess",
-          "text": response.text ?? 'No response text'
+      if (mounted) {
+        setState(() {
+          _messages.add({
+            "sender": "Chef Tess",
+            "text": response.text ?? 'No response text'
+          });
         });
-      });
+      }
       _controller.clear();
     }
   }

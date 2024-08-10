@@ -276,9 +276,10 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
   bool _isExpanded = false;
 
   void _toggleExpanded() {
+    if (mounted) {
     setState(() {
       _isExpanded = !_isExpanded;
-    });
+    });}
   }
 
   @override

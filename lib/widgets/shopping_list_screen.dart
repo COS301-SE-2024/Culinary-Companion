@@ -42,9 +42,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   }
 
   Future<void> _initializeData() async {
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
     await _loadUserId();
     await _fetchIngredientNames();
     _loadDontShowAgainPreference();
@@ -63,9 +65,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId');
-    });
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+      });
+    }
   }
 
   Future<void> _fetchIngredientNames() async {
@@ -79,16 +83,18 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _items = data
-              .map((item) => {
-                    'id': item['id'].toString(),
-                    'name': item['name'].toString(),
-                    'category': item['category'].toString(),
-                    'measurementUnit': item['measurementUnit'].toString(),
-                  })
-              .toList();
-        });
+        if (mounted) {
+          setState(() {
+            _items = data
+                .map((item) => {
+                      'id': item['id'].toString(),
+                      'name': item['name'].toString(),
+                      'category': item['category'].toString(),
+                      'measurementUnit': item['measurementUnit'].toString(),
+                    })
+                .toList();
+          });
+        }
       } else {
         print('Failed to fetch ingredient names: ${response.statusCode}');
       }
@@ -112,18 +118,21 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         final List<dynamic> shoppingList = data['shoppingList'];
-        setState(() {
-          _shoppingList.clear();
-          for (var item in shoppingList) {
-            final ingredientName = item['ingredientName'].toString();
-            final category = item['category'] ?? 'Other';
-            final quantity = item['quantity'] ?? 1.0;
-            final measurementUnit = item['measurmentunit'] ?? 'unit';
-            final displayText = '$ingredientName ($quantity $measurementUnit)';
-            _shoppingList.putIfAbsent(category, () => []);
-            _shoppingList[category]?.add(displayText);
-          }
-        });
+        if (mounted) {
+          setState(() {
+            _shoppingList.clear();
+            for (var item in shoppingList) {
+              final ingredientName = item['ingredientName'].toString();
+              final category = item['category'] ?? 'Other';
+              final quantity = item['quantity'] ?? 1.0;
+              final measurementUnit = item['measurmentunit'] ?? 'unit';
+              final displayText =
+                  '$ingredientName ($quantity $measurementUnit)';
+              _shoppingList.putIfAbsent(category, () => []);
+              _shoppingList[category]?.add(displayText);
+            }
+          });
+        }
       } else {
         print('Failed to fetch shopping list: ${response.statusCode}');
       }
@@ -134,12 +143,14 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   void _addItem(
       String category, String item, double quantity, String measurementUnit) {
-    setState(() {
-      _shoppingList
-          .putIfAbsent(category, () => [])
-          .add('$item ($quantity $measurementUnit)');
-      _checkboxStates['$item ($quantity $measurementUnit)'] = false;
-    });
+    if (mounted) {
+      setState(() {
+        _shoppingList
+            .putIfAbsent(category, () => [])
+            .add('$item ($quantity $measurementUnit)');
+        _checkboxStates['$item ($quantity $measurementUnit)'] = false;
+      });
+    }
     _addToShoppingList(_userId, item, quantity,
         measurementUnit); // Pass quantity and measurementUnit
   }
@@ -189,16 +200,18 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       );
 
       if (response.statusCode == 200) {
-        setState(() {
-          final displayText = '$item ($quantity $measurementUnit)';
-          if (_shoppingList[category] != null) {
-            final index = _shoppingList[category]!
-                .indexWhere((ingredient) => ingredient.startsWith(item));
-            if (index != -1) {
-              _shoppingList[category]![index] = displayText;
+        if (mounted) {
+          setState(() {
+            final displayText = '$item ($quantity $measurementUnit)';
+            if (_shoppingList[category] != null) {
+              final index = _shoppingList[category]!
+                  .indexWhere((ingredient) => ingredient.startsWith(item));
+              if (index != -1) {
+                _shoppingList[category]![index] = displayText;
+              }
             }
-          }
-        });
+          });
+        }
         print(
             'Successfully edited $item in shopping list with quantity $quantity $measurementUnit');
       } else {
@@ -227,13 +240,15 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       );
 
       if (response.statusCode == 200) {
-        setState(() {
-          _shoppingList[category]?.remove(item);
-          if (_shoppingList[category]?.isEmpty ?? true) {
-            _shoppingList.remove(category);
-          }
-          _checkboxStates.remove(item);
-        });
+        if (mounted) {
+          setState(() {
+            _shoppingList[category]?.remove(item);
+            if (_shoppingList[category]?.isEmpty ?? true) {
+              _shoppingList.remove(category);
+            }
+            _checkboxStates.remove(item);
+          });
+        }
         print('Successfully removed $ingredientName from shopping list');
       } else {
         print(
@@ -249,22 +264,26 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
   Future<void> _loadDontShowAgainPreference() async {
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _dontShowAgain = prefs.getBool('dontShowAgain') ?? false;
-    });
+    if (mounted) {
+      setState(() {
+        _dontShowAgain = prefs.getBool('dontShowAgain') ?? false;
+      });
+    }
   }
 
   void _toggleCheckbox(String category, String item) {
-    setState(() {
-      final isChecked = !(_checkboxStates[item] ?? false);
-      _checkboxStates[item] = isChecked;
-      if (isChecked) {
-        Future.delayed(Duration(seconds: 1), () {
-          _removeFromShoppingList(category, item);
-          _addToPantryList(_userId, item); // Add to pantry
-        });
-      }
-    });
+    if (mounted) {
+      setState(() {
+        final isChecked = !(_checkboxStates[item] ?? false);
+        _checkboxStates[item] = isChecked;
+        if (isChecked) {
+          Future.delayed(Duration(seconds: 1), () {
+            _removeFromShoppingList(category, item);
+            _addToPantryList(_userId, item); // Add to pantry
+          });
+        }
+      });
+    }
   }
 
   Future<void> _addToPantryList(String? userId, String item) async {
@@ -424,7 +443,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   Widget _buildCategoryHeader(String title) {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
-    
+
     final Map<String, IconData> categoryIcons = {
       'dairy': Icons.icecream,
       'meat': Icons.kebab_dining,
@@ -591,9 +610,12 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                             itemNameController.text = suggestion['name']!;
                             categoryController.text = suggestion['category']!;
                             selectedItem = suggestion['name']!;
-                            setState(() {
-                              _measurementUnit = suggestion['measurementUnit']!;
-                            });
+                            if (mounted) {
+                              setState(() {
+                                _measurementUnit =
+                                    suggestion['measurementUnit']!;
+                              });
+                            }
                           },
                           validator: (value) {
                             if (value!.isEmpty) {

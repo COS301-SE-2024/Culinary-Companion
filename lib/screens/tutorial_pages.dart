@@ -81,9 +81,11 @@ class _TutorialPagesState extends State<TutorialPages>
             backgroundColor: backgroundColor,
             goToHome: _goToHome,
             onPageChanged: (int page) {
-              setState(() {
-                _currentPage = page;
-              });
+              if (mounted) {
+                setState(() {
+                  _currentPage = page;
+                });
+              }
               _animationController.forward(from: 0);
             },
           )
@@ -94,9 +96,11 @@ class _TutorialPagesState extends State<TutorialPages>
             backgroundColor: backgroundColor,
             goToHome: _goToHome,
             onPageChanged: (int page) {
-              setState(() {
-                _currentPage = page;
-              });
+              if (mounted) {
+                setState(() {
+                  _currentPage = page;
+                });
+              }
               _animationController.forward(from: 0);
             },
           );
