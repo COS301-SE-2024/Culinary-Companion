@@ -225,9 +225,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 buildHeader(context),
                                 SizedBox(height: screenHeight * 20 / 730),
-                                buildPreferences(),
-                                SizedBox(height: screenHeight * 20 / 730),
-                                buildMyRecipes(),
+                                //buildPreferences(),
+                                // SizedBox(height: screenHeight * 20 / 730),
+                                // buildMyRecipes(),
                               ],
                             );
                           } else {
@@ -258,117 +258,218 @@ class _ProfileScreenState extends State<ProfileScreen> {
         : Color(0xFFD9D9D9);
 
     final String username =
-        _userDetails?['username']?.toString() ?? 'Jane Doe'; //default values
+        _userDetails?['username']?.toString() ?? 'Jane Doe'; // default values
     final String profilePhoto =
         _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
-    //final String email = 'jane.doe@gmail.com'; //default
+
+    Widget preferencesWidget = buildPreferences();
 
     return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              children: [
-                SizedBox(height: 20 / 730),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(360),
-                  child: profilePhoto.startsWith('http')
-                      ? Image.network(
-                          profilePhoto,
-                          width: screenWidth * 240 / 1519, //240,
-                          height: screenHeight * 240 / 730, //240,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          profilePhoto,
-                          width: screenWidth * 240 / 1519, //240,
-                          height: screenHeight * 240 / 730, //240,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-                SizedBox(height: screenHeight * 5 / 730),
-                Text(
-                  username,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                ),
-                SizedBox(height: screenHeight * 5 / 730),
-                Row(
+      padding: const EdgeInsets.all(16.0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 738;
+
+          return isSmallScreen
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    OutlinedButton(
-                      onPressed: () async {
-                        final result = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProfileEditScreen(),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(360),
+                      child: profilePhoto.startsWith('http')
+                          ? Image.network(
+                              profilePhoto,
+                              width: screenWidth * 0.3,
+                              height: screenWidth * 0.3,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              profilePhoto,
+                              width: screenWidth * 0.3,
+                              height: screenWidth * 0.3,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                    SizedBox(height: screenHeight * 5 / 730),
+                    Text(
+                      username,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 10 / 730),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileEditScreen(),
+                                ),
+                              );
+
+                              if (result == true) {
+                                // Reload user details if the profile was updated
+                                await _fetchUserDetails();
+                              }
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: textColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              backgroundColor: const Color(0xFFDC945F),
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text(
+                              'Edit Profile',
+                              style: TextStyle(color: textColor, fontSize: 16),
+                            ),
                           ),
-                        );
+                          SizedBox(width: screenWidth * 10 / 1519),
+                          OutlinedButton(
+                            onPressed: () async {
+                              // Clear shared preferences
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.clear();
 
-                        if (result == true) {
-                          // Reload user details if the profile was updated
-                          await _fetchUserDetails();
-                        }
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: textColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        backgroundColor: const Color(0xFFDC945F),
-                        foregroundColor: Colors.white,
-                      ),
-                      child: Text(
-                        'Edit Profile',
-                        style: TextStyle(color: textColor, fontSize: 16),
+                              // Navigate to LandingScreen
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LandingScreen()),
+                                (route) => false,
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: textColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              foregroundColor: const Color(0xFFDC945F),
+                            ),
+                            child: Text(
+                              'Sign Out',
+                              style: TextStyle(color: textColor, fontSize: 16),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(width: screenWidth * 25 / 1519),
-                    OutlinedButton(
-                      onPressed: () async {
-                        // Clear shared preferences
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
-                        await prefs.clear();
-
-                        // Navigate to LandingScreen
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => LandingScreen()),
-                          (route) => false,
-                        );
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: textColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        foregroundColor: const Color(0xFFDC945F),
-                      ),
-                      child: Text(
-                        'Sign Out',
-                        style: TextStyle(color: textColor, fontSize: 16),
-                      ),
-                    ),
+                    SizedBox(height: screenHeight * 20 / 730),
+                    preferencesWidget,
                   ],
-                ),
-              ],
-            ),
-            SizedBox(width: screenWidth * 20 / 1519),
-            Column(
-              children: [
-                SizedBox(
-                    height: screenHeight * 25 / 730,
-                    width: screenWidth * 50 / 1519),
-                buildPreferences(),
-              ],
-            )
-          ],
-        ));
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(360),
+                          child: profilePhoto.startsWith('http')
+                              ? Image.network(
+                                  profilePhoto,
+                                  width: screenWidth * 240 / 1519,
+                                  height: screenWidth * 240 / 1519,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.asset(
+                                  profilePhoto,
+                                  width: screenWidth * 240 / 1519,
+                                  height: screenWidth * 240 / 1519,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                        SizedBox(height: screenHeight * 5 / 730),
+                        Text(
+                          username,
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 20 / 730),
+                        Row(
+                          children: [
+                            OutlinedButton(
+                              onPressed: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfileEditScreen(),
+                                  ),
+                                );
+
+                                if (result == true) {
+                                  // Reload user details if the profile was updated
+                                  await _fetchUserDetails();
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: textColor),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                backgroundColor: const Color(0xFFDC945F),
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text(
+                                'Edit Profile',
+                                style:
+                                    TextStyle(color: textColor, fontSize: 16),
+                              ),
+                            ),
+                            SizedBox(width: screenWidth * 10 / 1519),
+                            OutlinedButton(
+                              onPressed: () async {
+                                // Clear shared preferences
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.clear();
+
+                                // Navigate to LandingScreen
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LandingScreen()),
+                                  (route) => false,
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: textColor),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                foregroundColor: const Color(0xFFDC945F),
+                              ),
+                              child: Text(
+                                'Sign Out',
+                                style:
+                                    TextStyle(color: textColor, fontSize: 16),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: screenWidth * 20 / 1519),
+                    Expanded(child: preferencesWidget),
+                  ],
+                );
+        },
+      ),
+    );
   }
 
   Widget buildPreferences() {
@@ -386,21 +487,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final List<String> dietaryConstraints = List<String>.from(
         _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
 
+    final double containerWidth = screenWidth > 937
+        ? screenWidth * 0.6
+        : screenWidth < 738
+            ? screenWidth * 0.5
+            : screenWidth * 0.5;
+
     return Container(
-        height: screenHeight * 300 / 730,
-        width: screenWidth * 1100 / 1519,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
+      //height: screenHeight * 300 / 730,
+      width: containerWidth,
+
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.light
+            ? Color(0xFFF1F1F1)
+            : Color(0xFF2E2E2E),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
           color: theme.brightness == Brightness.light
-              ? Color(0xFFF1F1F1)
-              : Color(0xFF2E2E2E),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: theme.brightness == Brightness.light
-                ? Color(0xFFD1D1D1)
-                : Color(0xFF4E4E4E),
-          ),
+              ? Color(0xFFD1D1D1)
+              : Color(0xFF4E4E4E),
         ),
+      ),
+      child: SingleChildScrollView(
+        // Added to make the content scrollable
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -472,7 +582,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   .toList(),
             ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 
   Widget buildMyRecipes() {
