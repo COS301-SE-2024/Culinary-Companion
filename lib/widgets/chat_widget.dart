@@ -11,6 +11,7 @@ class ChatWidget extends StatefulWidget {
   final List<Map<String, dynamic>> ingredients;
   final List<String> steps;
   final String userId;
+  final String course;
 
   ChatWidget({
     required this.recipeName,
@@ -18,6 +19,7 @@ class ChatWidget extends StatefulWidget {
     required this.ingredients,
     required this.steps,
     required this.userId,
+    required this.course,
   });
 
   @override
@@ -37,7 +39,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   void initState() {
     super.initState();
     _initializeChat();
-    _generateSuggestedPrompts();
+    //_generateSuggestedPrompts();
   }
 
   Future<void> _initializeChat() async {
@@ -64,10 +66,16 @@ class _ChatWidgetState extends State<ChatWidget> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data.isNotEmpty) {
-          setState(() {
-            _spiceLevel = data[0]['spicelevel'];//users prefered spice level from 0 to 5
-            _dietaryConstraints = List<String>.from(data[0]['dietaryConstraints']);
-          });
+          if (mounted) {
+            setState(() {
+              _spiceLevel = data[0]
+                  ['spicelevel']; //users prefered spice level from 0 to 5
+              _dietaryConstraints =
+                  List<String>.from(data[0]['dietaryConstraints']);
+              // print('$_dietaryConstraints');
+              _generateSuggestedPrompts();
+            });
+          }
         }
       } else {
         print('Failed to fetch user details');
@@ -77,40 +85,67 @@ class _ChatWidgetState extends State<ChatWidget> {
     }
   }
 
-  void _generateSuggestedPrompts() { 
-    _suggestedPrompts = [
-      "How can I make this recipe spicier?",
-      "What can I substitute for an ingredient I don't have?",
-      "Can I make this recipe vegan?",
+  void _generateSuggestedPrompts() {
+    if (_dietaryConstraints != null && _dietaryConstraints!.isNotEmpty) {
+      // Limit to a maximum of 2 dietary constraints
+      for (int i = 0; i < _dietaryConstraints!.length && i < 2; i++) {
+        _suggestedPrompts
+            .add("Can I make this recipe ${_dietaryConstraints![i]}?");
+      }
+    }
+
+    if (_spiceLevel != null &&
+        !widget.course.toLowerCase().contains('dessert')) {
+      if (_spiceLevel! > 3) {
+        _suggestedPrompts.add("How can I make this recipe spicier?");
+      } else {
+        _suggestedPrompts
+            .add("How can I tone down the spiciness of this recipe?");
+      }
+    }
+    //print('${widget.recipeDescription}');
+    if (widget.course.toLowerCase().contains('dessert')) {
+      _suggestedPrompts.add("Can I make this dessert healthier?");
+    }
+
+    _suggestedPrompts.addAll([
+      //"How can I make this recipe spicier?",
+      // "What can I substitute for an ingredient I don't have?",
       "What are some tips for cooking this dish?",
-      "Explain step 1 of the recipe more clearly"
-    ];
+      "Explain step 1 of the recipe more clearly",
+    ]);
   }
 
   void _sendMessage({String? message}) async {
     String text = message ?? _controller.text;
 
     if (text.isNotEmpty) {
-      setState(() {
-        _messages.add({"sender": "You", "text": text});
-      });
+      if (mounted) {
+        setState(() {
+          _messages.add({"sender": "You", "text": text});
+        });
+      }
 
       var content = [
         Content.text(//send the recipe details and users preferences for context
-          "Recipe Name: ${widget.recipeName}\n"
-          "Description: ${widget.recipeDescription}\n"
-          "Ingredients: ${widget.ingredients.map((e) => '${e['quantity']} ${e['measurement_unit']} of ${e['name']}').join(', ')}\n"
-          "Steps: ${widget.steps.join('. ')}\n"
-          "Spice Level: $_spiceLevel\n"
-          "Dietary Restrictions: ${_dietaryConstraints?.join(', ')}\n"
-          "Question: $text"
-        )
+            "Recipe Name: ${widget.recipeName}\n"
+            "Description: ${widget.recipeDescription}\n"
+            "Ingredients: ${widget.ingredients.map((e) => '${e['quantity']} ${e['measurement_unit']} of ${e['name']}').join(', ')}\n"
+            "Steps: ${widget.steps.join('. ')}\n"
+            "Spice Level: $_spiceLevel\n"
+            "Dietary Restrictions: ${_dietaryConstraints?.join(', ')}\n"
+            "Question: $text")
       ];
 
       var response = await model.generateContent(content);
-      setState(() {
-        _messages.add({"sender": "Chef Tess", "text": response.text ?? 'No response text'});
-      });
+      if (mounted) {
+        setState(() {
+          _messages.add({
+            "sender": "Chef Tess",
+            "text": response.text ?? 'No response text'
+          });
+        });
+      }
       _controller.clear();
     }
   }
@@ -127,7 +162,8 @@ class _ChatWidgetState extends State<ChatWidget> {
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
-          crossAxisAlignment: isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment:
+              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             Text(
               sender,
@@ -139,7 +175,10 @@ class _ChatWidgetState extends State<ChatWidget> {
             SizedBox(height: 5),
             Text(
               text,
-              style: TextStyle(color: isUser ? Color.fromARGB(255, 252, 250, 250) : Colors.black),
+              style: TextStyle(
+                  color: isUser
+                      ? Color.fromARGB(255, 252, 250, 250)
+                      : Colors.black),
             ),
           ],
         ),
@@ -149,10 +188,15 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final Color backColor = isLightTheme
+        ? Color.fromARGB(255, 236, 236, 236)
+        : Color.fromARGB(179, 25, 41, 30);
+
     return Container(
       decoration: BoxDecoration(
-        color: Color.fromARGB(179, 34, 58, 42),
-        border: Border.all(color: Colors.grey),
+        color: backColor,
+        border: Border.all(color: Colors.transparent),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
@@ -164,7 +208,7 @@ class _ChatWidgetState extends State<ChatWidget> {
               child: Wrap(
                 spacing: 6.0,
                 runSpacing: 6.0,
-                children: _suggestedPrompts.map((prompt) { 
+                children: _suggestedPrompts.map((prompt) {
                   return ActionChip(
                     label: Text(prompt),
                     onPressed: () => _sendMessage(message: prompt),
@@ -178,7 +222,8 @@ class _ChatWidgetState extends State<ChatWidget> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
-                return _buildMessageBubble(message["sender"]!, message["text"]!);
+                return _buildMessageBubble(
+                    message["sender"]!, message["text"]!);
               },
             ),
           ),

@@ -30,29 +30,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
 ///////////load the user id/////////////
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId');
-      //print('Login successful: $_userId');
-    });
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+        //print('Login successful: $_userId');
+      });
+    }
     if (_userId != null) {
       await _fetchUserDetails();
       await fetchRecipes(); //Fetch user recipes after fetching user details
-      //print('hereeee 2');
     } else {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'User ID not found';
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'User ID not found';
+        });
+      }
     }
   }
 
 ///////////fetch the users profile details/////////
   Future<void> _fetchUserDetails() async {
     if (_userId == null) return;
-
-    setState(() {
-      _isLoading = true; // Show loading indicator
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true; // Show loading indicator
+      });
+    }
 
     final String url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
@@ -66,27 +70,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         if (data.isNotEmpty) {
-          setState(() {
-            _userDetails = data[0]; // Get the first item in the list
-          });
+          if (mounted) {
+            setState(() {
+              _userDetails = data[0]; // Get the first item in the list
+            });
+          }
         } else {
-          setState(() {
-            _errorMessage = 'No user details found';
-          });
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'No user details found';
+            });
+          }
         }
       } else {
-        setState(() {
-          _errorMessage = 'Failed to load user details';
-        });
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Failed to load user details';
+          });
+        }
       }
     } catch (error) {
-      setState(() {
-        _errorMessage = 'Error fetching user details';
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error fetching user details';
+        });
+      }
     } finally {
-      setState(() {
-        _isLoading = false; // Stop loading indicator
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Stop loading indicator
+        });
+      }
     }
   }
 
@@ -127,10 +141,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
-
-        setState(() {
-          recipes.add(fetchedRecipe);
-        });
+        if (mounted) {
+          setState(() {
+            recipes.add(fetchedRecipe);
+          });
+        }
       } else {
         print('Failed to load recipe details: ${response.statusCode}');
       }
@@ -170,12 +185,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
     final theme = Theme.of(context);
     //final textColor = theme.brightness == Brightness.light;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
+        title: Padding(
+          padding: EdgeInsets.only(top: 30, left: 38.0),
+          child: Text(
+            'Account',
+            style: TextStyle(
+              fontSize: 24.0, // Set the font size for h2 equivalent
+              fontWeight: FontWeight.bold, // Make the text bold
+            ),
+          ),
+        ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
@@ -191,11 +218,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            key: ValueKey('Profile'),
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.only(left: 50, right: 20.0),
             child: _isLoading
                 ? Center(
-                    // Step 3: Replace CircularProgressIndicator with Lottie widget
                     child: Lottie.asset('assets/loading.json'),
                   )
                 : _errorMessage != null
@@ -215,12 +240,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildHeader(context),
-                                const SizedBox(height: 20),
-                                buildProfileInfo(),
-                                const SizedBox(height: 20),
-                                buildPreferences(),
-                                const SizedBox(height: 20),
-                                buildMyRecipes(),
+                                SizedBox(height: screenHeight * 20 / 730),
+                                //buildPreferences(),
+                                // SizedBox(height: screenHeight * 20 / 730),
+                                // buildMyRecipes(),
                               ],
                             );
                           } else {
@@ -228,16 +251,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildHeader(context),
-                                const SizedBox(height: 20),
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildProfileInfo(),
-                                    const SizedBox(width: 32),
-                                    Expanded(child: buildPreferences()),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
+                                SizedBox(height: screenHeight * 20 / 730),
                                 buildMyRecipes(),
                               ],
                             );
@@ -251,122 +265,232 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget buildHeader(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     final theme = Theme.of(context);
     final textColor = theme.brightness == Brightness.light
         ? Color(0xFF1E1E1E)
         : Color(0xFFD9D9D9);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Account',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        IconButton(
-          onPressed: () async {
-            final result = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProfileEditScreen(),
-              ),
-            );
 
-            if (result == true) {
-              // Reload user details if the profile was updated
-              await _fetchUserDetails();
-            }
-          },
-          icon: Icon(
-            Icons.settings,
-            color: textColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildProfileInfo() {
-    final theme = Theme.of(context);
-    final textColor = theme.brightness == Brightness.light
-        ? Color(0xFF1E1E1E)
-        : Color(0xFFD9D9D9);
     final String username =
-        _userDetails?['username']?.toString() ?? 'Jane Doe'; //default values
-    //final String email = 'jane.doe@gmail.com'; //default
+        _userDetails?['username']?.toString() ?? 'Jane Doe'; // default values
     final String profilePhoto =
         _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: profilePhoto.startsWith('http') //profile photo
-              ? Image.network(
-                  profilePhoto,
-                  width: 150,
-                  height: 150,
-                  fit: BoxFit.cover,
+    Widget preferencesWidget = buildPreferences();
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 738;
+
+          return isSmallScreen
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(360),
+                      child: profilePhoto.startsWith('http')
+                          ? Image.network(
+                              profilePhoto,
+                              width: screenWidth * 0.3,
+                              height: screenWidth * 0.3,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.asset(
+                              profilePhoto,
+                              width: screenWidth * 0.3,
+                              height: screenWidth * 0.3,
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                    SizedBox(height: screenHeight * 5 / 730),
+                    Text(
+                      username,
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 10 / 730),
+                    Align(
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ProfileEditScreen(),
+                                ),
+                              );
+
+                              if (result == true) {
+                                // Reload user details if the profile was updated
+                                await _fetchUserDetails();
+                              }
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: textColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              backgroundColor: const Color(0xFFDC945F),
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text(
+                              'Edit Profile',
+                              style: TextStyle(color: textColor, fontSize: 16),
+                            ),
+                          ),
+                          SizedBox(width: screenWidth * 10 / 1519),
+                          OutlinedButton(
+                            onPressed: () async {
+                              // Clear shared preferences
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.clear();
+
+                              // Navigate to LandingScreen
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => LandingScreen()),
+                                (route) => false,
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: textColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              foregroundColor: const Color(0xFFDC945F),
+                            ),
+                            child: Text(
+                              'Sign Out',
+                              style: TextStyle(color: textColor, fontSize: 16),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 20 / 730),
+                    preferencesWidget,
+                  ],
                 )
-              : Image.asset(
-                  profilePhoto,
-                  width: 150,
-                  height: 150,
-                  fit: BoxFit.cover,
-                ),
-        ),
-        const SizedBox(height: 16),
-        Text(
-          username,
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(360),
+                          child: profilePhoto.startsWith('http')
+                              ? Image.network(
+                                  profilePhoto,
+                                  width: screenWidth * 240 / 1519,
+                                  height: screenWidth * 240 / 1519,
+                                  fit: BoxFit.cover,
+                                )
+                              : Image.asset(
+                                  profilePhoto,
+                                  width: screenWidth * 240 / 1519,
+                                  height: screenWidth * 240 / 1519,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                        SizedBox(height: screenHeight * 5 / 730),
+                        Text(
+                          username,
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: textColor,
+                          ),
+                        ),
+                        SizedBox(height: screenHeight * 20 / 730),
+                        Row(
+                          children: [
+                            OutlinedButton(
+                              onPressed: () async {
+                                final result = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ProfileEditScreen(),
+                                  ),
+                                );
 
-          ///username
-          style: TextStyle(
-            color: textColor,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        // Text(
-        //   email, //user email
-        //   style: const TextStyle(
-        //     color: Colors.grey,
-        //     fontSize: 16,
-        //   ),
-        // ),
-        const SizedBox(height: 8),
-        OutlinedButton(
-          onPressed: () async {
-            // Clear shared preferences
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            await prefs.clear();
+                                if (result == true) {
+                                  // Reload user details if the profile was updated
+                                  await _fetchUserDetails();
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: textColor),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                backgroundColor: const Color(0xFFDC945F),
+                                foregroundColor: Colors.white,
+                              ),
+                              child: Text(
+                                'Edit Profile',
+                                style:
+                                    TextStyle(color: textColor, fontSize: 16),
+                              ),
+                            ),
+                            SizedBox(width: screenWidth * 10 / 1519),
+                            OutlinedButton(
+                              onPressed: () async {
+                                // Clear shared preferences
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                await prefs.clear();
 
-            // Navigate to LandingScreen
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => LandingScreen()),
-              (route) => false,
-            );
-          },
-          style: OutlinedButton.styleFrom(
-            side: BorderSide(color: textColor),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-          ),
-          child: Text(
-            'Sign Out',
-            style: TextStyle(color: textColor),
-          ),
-        ),
-      ],
+                                // Navigate to LandingScreen
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => LandingScreen()),
+                                  (route) => false,
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side: BorderSide(color: textColor),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                foregroundColor: const Color(0xFFDC945F),
+                              ),
+                              child: Text(
+                                'Sign Out',
+                                style:
+                                    TextStyle(color: textColor, fontSize: 16),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(width: screenWidth * 20 / 1519),
+                    Expanded(child: preferencesWidget),
+                  ],
+                );
+        },
+      ),
     );
   }
 
   Widget buildPreferences() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final theme = Theme.of(context);
     final textColor = theme.brightness == Brightness.light
         ? Color(0xFF1E1E1E)
@@ -379,77 +503,103 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final List<String> dietaryConstraints = List<String>.from(
         _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Spice Level
-        Text(
-          'Spice Level',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+    final double containerWidth = screenWidth > 937
+        ? screenWidth * 0.6
+        : screenWidth < 738
+            ? screenWidth * 0.5
+            : screenWidth * 0.5;
+
+    return Container(
+      //height: screenHeight * 300 / 730,
+      width: containerWidth,
+
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.light
+            ? Color(0xFFF1F1F1)
+            : Color(0xFF2E2E2E),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.brightness == Brightness.light
+              ? Color(0xFFD1D1D1)
+              : Color(0xFF4E4E4E),
         ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 4.0,
+      ),
+      child: SingleChildScrollView(
+        // Added to make the content scrollable
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Chip(
-              label: Text(getSpiceLevelText(spiceLevel)), //spice level
-              backgroundColor: Colors.grey[700],
-              labelStyle: const TextStyle(color: Colors.white),
+            // Spice Level
+            Text(
+              'Spice Level',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        // Preferred Cuisine
-        Text(
-          'Preferred Cuisine',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 4.0,
-          children: [
-            Chip(
-              label: Text(preferredCuisine), //preferred cuisine
-              backgroundColor: Colors.grey[700],
-              labelStyle: const TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-        const SizedBox(height: 24),
-        // Dietary Constraints
-        Text(
-          'Dietary Constraints',
-          style: TextStyle(
-            color: textColor,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8.0,
-          runSpacing: 4.0,
-          children: dietaryConstraints
-              .map(
-                (constraint) => Chip(
-                  label: Text(constraint), //list of constraints
+            SizedBox(height: screenHeight * 8 / 730),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: [
+                Chip(
+                  label: Text(getSpiceLevelText(spiceLevel)), //spice level
                   backgroundColor: Colors.grey[700],
                   labelStyle: const TextStyle(color: Colors.white),
                 ),
-              )
-              .toList(),
+              ],
+            ),
+            SizedBox(height: screenHeight * 24 / 730),
+            // Preferred Cuisine
+            Text(
+              'Preferred Cuisine',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: screenHeight * 8 / 730),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: [
+                Chip(
+                  label: Text(preferredCuisine), //preferred cuisine
+                  backgroundColor: Colors.grey[700],
+                  labelStyle: const TextStyle(color: Colors.white),
+                ),
+              ],
+            ),
+            SizedBox(height: screenHeight * 24 / 730),
+            // Dietary Constraints
+            Text(
+              'Dietary Constraints',
+              style: TextStyle(
+                color: textColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: screenHeight * 8 / 730),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 4.0,
+              children: dietaryConstraints
+                  .map(
+                    (constraint) => Chip(
+                      label: Text(constraint), //list of constraints
+                      backgroundColor: Colors.grey[700],
+                      labelStyle: const TextStyle(color: Colors.white),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -466,7 +616,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'My Recipes',
           style: TextStyle(
             color: textColor,
-            fontSize: 18,
+            fontSize: 24, //18
             fontWeight: FontWeight.bold,
           ),
         ),

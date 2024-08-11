@@ -134,25 +134,29 @@ class HelpMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubSectionTitle('Navigating the Saved Recipes Page', fontColor),
+        _buildSubSectionTitle('Navigating the Search Recipes Page', fontColor),
         _buildParagraph(
-            'Here’s how you can make the most of your saved recipes:',
+            'The Search Recipes page is your starting point to explore a wide variety of recipes based on specific criteria. Here’s how to make the most of it:',
             fontColor),
         _buildStep(
             '1',
-            'Scroll through the list to view all your saved recipes. Each card provides an overview including the recipe name, description, prep time, and cook time.',
+            'Use the search bar at the top to quickly find recipes by name, ingredient, cuisine type, or dietary preference.',
             fontColor),
         _buildStep(
             '2',
-            'Tap on any recipe card to view detailed information about the recipe, including step-by-step instructions, ingredients, and appliances needed.',
+            'Use the filters to narrow down results based on dietary constraints, course or cuisine type, and more.',
             fontColor),
         _buildStep(
             '3',
-            'To remove a recipe from your saved list, just click the heart icon in the top right corner.',
+            'Click on a recipe card to view detailed information, including ingredients, cooking instructions, and nutritional information.',
             fontColor),
         _buildStep(
             '4',
-            'If you want to add ingredients from a saved recipe to your shopping list, tap the "Add to Shopping List" button similar to the Home Page.',
+            'Tap the "Save" button on a recipe card to add it to your saved recipes for easy access later.',
+            fontColor),
+        _buildStep(
+            '5',
+            'Use the "Clear Filters" button to reset all applied filters and start a new search.',
             fontColor),
       ],
     );

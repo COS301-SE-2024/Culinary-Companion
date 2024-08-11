@@ -33,10 +33,11 @@ class ConfirmationDialog extends StatelessWidget {
                   Checkbox(
                     value: localDontShowAgain,
                     onChanged: (bool? value) {
+                     //if (mounted) {
                       setState(() {
                         localDontShowAgain = value ?? false;
                         onDontShowAgainChanged(localDontShowAgain);
-                      });
+                      }); //}
                     },
                   ),
                   Text("Don't show again"),

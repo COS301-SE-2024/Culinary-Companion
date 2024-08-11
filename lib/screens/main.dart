@@ -36,9 +36,10 @@ class _MainScreenState extends State<MainScreen> {
   String currentRoute = '/';
 
   void changeRoute(String newRoute) {
+    if (mounted) {
     setState(() {
       currentRoute = newRoute;
-    });
+    });}
   }
 
   @override
@@ -83,12 +84,12 @@ class _MainScreenState extends State<MainScreen> {
     switch (route) {
       case '/':
         return HomeScreen();
+      case '/search':
+        return SearchScreen();
       case '/scan-recipe':
         return AddRecipeScreen();
       case '/inventory-screen':
         return InventoryScreen();
-      case '/search':
-        return SearchScreen();
       case '/saved-recipes':
         return SavedRecipesScreen();
       case '/profile':

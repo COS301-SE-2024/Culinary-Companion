@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import '../screens/tutorial_pages.dart';
 
+Color getFontColor(BuildContext context) {
+  final theme = Theme.of(context);
+  return theme.brightness == Brightness.light
+      ? Color(0xFF283330)
+      : Color(0XFFEDEDED);
+}
+
 class MobileTutorial extends StatelessWidget {
   final PageController pageController;
   final List<TutorialPage> pages;
@@ -21,6 +28,8 @@ class MobileTutorial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final fontColor = getFontColor(context);
+
     return Scaffold(
       backgroundColor: backgroundColor,
       body: Stack(
@@ -30,7 +39,7 @@ class MobileTutorial extends StatelessWidget {
             itemCount: pages.length,
             onPageChanged: onPageChanged,
             itemBuilder: (context, index) {
-              return _buildPage(pages[index]);
+              return _buildPage(pages[index], context);
             },
           ),
           Positioned(
@@ -42,7 +51,7 @@ class MobileTutorial extends StatelessWidget {
                 child: Text(
                   "SKIP",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: fontColor,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -63,7 +72,7 @@ class MobileTutorial extends StatelessWidget {
                 SizedBox(height: 10),
                 currentPage == pages.length - 1
                     ? _buildGetStartedButton()
-                    : _buildNavigationButtons(),
+                    : _buildNavigationButtons(context),
               ],
             ),
           ),
@@ -72,7 +81,8 @@ class MobileTutorial extends StatelessWidget {
     );
   }
 
-  Widget _buildPage(TutorialPage page) {
+  Widget _buildPage(TutorialPage page, BuildContext context) {
+    final fontColor = getFontColor(context);
     return SafeArea(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -94,7 +104,7 @@ class MobileTutorial extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: fontColor,
               ),
               textAlign: TextAlign.center,
             ),
@@ -109,7 +119,7 @@ class MobileTutorial extends StatelessWidget {
                 page.description,
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.white.withOpacity(0.8),
+                  color: fontColor,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -131,14 +141,15 @@ class MobileTutorial extends StatelessWidget {
         decoration: BoxDecoration(
           color: currentPage == index
               ? Color(0xFFDC945F)
-              : Colors.white.withOpacity(0.4),
+              : Colors.black.withOpacity(0.4),
           borderRadius: BorderRadius.circular(3),
         ),
       ),
     );
   }
 
-  Widget _buildNavigationButtons() {
+  Widget _buildNavigationButtons(BuildContext context) {
+    final fontColor = getFontColor(context);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: Row(
@@ -153,11 +164,11 @@ class MobileTutorial extends StatelessWidget {
             },
             child: Row(
               children: [
-                Icon(Icons.arrow_back_ios, color: Colors.white, size: 16),
+                Icon(Icons.arrow_back_ios, color: fontColor, size: 16),
                 SizedBox(width: 6),
                 Text(
                   "PREV",
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: fontColor, fontSize: 14),
                 ),
               ],
             ),
@@ -173,10 +184,10 @@ class MobileTutorial extends StatelessWidget {
               children: [
                 Text(
                   "NEXT",
-                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  style: TextStyle(color: fontColor, fontSize: 14),
                 ),
                 SizedBox(width: 6),
-                Icon(Icons.arrow_forward_ios, color: Colors.white, size: 16),
+                Icon(Icons.arrow_forward_ios, color: fontColor, size: 16),
               ],
             ),
           ),

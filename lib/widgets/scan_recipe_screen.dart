@@ -13,9 +13,11 @@ class _ScanRecipeState extends State<ScanRecipe> {
   Future<void> _pickImage() async {
     final XFile? pickedImage =
         await _picker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _image = pickedImage;
-    });
+    if (mounted) {
+      setState(() {
+        _image = pickedImage;
+      });
+    }
     if (_image != null) {
       // Handle the picked image as needed
       print('Image picked: ${_image!.path}');

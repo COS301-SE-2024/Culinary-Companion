@@ -5,6 +5,8 @@ class LandingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 800;
 
     return Scaffold(
       body: Stack(
@@ -12,7 +14,9 @@ class LandingScreen extends StatelessWidget {
           //Background image
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
+              isMobile
+                  ? (isLightTheme ? 'MobileLightMode.png' : 'MobileDarkMode.png')
+                  : (isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png'),
               fit: BoxFit.cover,
             ),
           ),
