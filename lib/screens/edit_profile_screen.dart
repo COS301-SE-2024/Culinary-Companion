@@ -380,9 +380,9 @@ if (mounted) {
 
   // For spice level radio buttons
   Widget _buildSpiceLevelRadio() {
-    final theme = Theme.of(context);
-    final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    //final theme = Theme.of(context);
+    //final bool isLightTheme = theme.brightness == Brightness.light;
+    //final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
       child: LayoutBuilder(
