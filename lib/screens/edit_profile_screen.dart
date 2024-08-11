@@ -90,10 +90,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         await supabase
             .from('userProfile')
             .update({'profilephoto': imageUrl}).eq('userid', _userId!);
-
-        setState(() {
-          imageUrl = imageUrl;
-        });
+        if (mounted) {
+          setState(() {
+            imageUrl = imageUrl;
+          });
+        }
         //print('User profile photo updated successfully.');
       } else {
         print('Error uploading image: $response');
@@ -110,28 +111,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
       final List<MultiSelectItem<String>> constraintItems =
           await _loadDietaryConstraints();
-
+if (mounted) {
       setState(() {
         _cuisines = cuisineItems;
         _dietaryConstraints = constraintItems;
         //_isLoading = false;
-      });
+      });}
     } catch (error) {
       print('Error initializing data: $error');
+      if (mounted) {
       setState(() {
         //_isLoading = false;
         //_errorMessage = 'Error initializing data';
-      });
+      });}
     }
     _isLoading = false;
   }
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
     setState(() {
       _userId = prefs.getString('userId');
       //print('Login successful: $_userId');
-    });
+    });}
   }
 
   Future<void> _fetchUserDetails() async {
@@ -155,6 +158,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         List<dynamic> data = jsonDecode(response.body);
         //print('Response data: $data'); //response data
         if (data.isNotEmpty) {
+          if (mounted) {
           setState(() {
             _userDetails = data[0]; //get the first item in the list
 
@@ -174,28 +178,31 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
             //_profilePhoto =_userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
             //_isLoading = false;
-          });
+          });}
         } else {
+          if (mounted) {
           setState(() {
             _isLoading = false;
             //_errorMessage = 'No user details found';
-          });
+          });}
         }
       } else {
         // Handle error
         print('Failed to load user details: ${response.statusCode}');
+        if (mounted) {
         setState(() {
           _isLoading = false;
           // _errorMessage = 'Failed to load user details';
-        });
+        });}
       }
     } catch (error) {
       //error handling
       print('Error fetching user details: $error');
+      if (mounted) {
       setState(() {
         _isLoading = false;
         //_errorMessage = 'Error fetching user details';
-      });
+      });}
     }
   }
 
@@ -256,39 +263,45 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   // For profile photo
   Widget _buildProfilePhoto() {
-    return GestureDetector(
-      onTap: _pickImage,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CircleAvatar(
-            radius: 60,
-            backgroundImage: imageUrl.isNotEmpty
-                ? NetworkImage(imageUrl)
-                : AssetImage('assets/pfp.jpg') as ImageProvider,
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Color(0xFFDC945F),
-              ),
-              padding: EdgeInsets.all(8),
-              child: Icon(
-                Icons.edit,
-                color: Colors.white,
+    return Center(
+      child: GestureDetector(
+        onTap: _pickImage,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            CircleAvatar(
+              radius: 60,
+              backgroundImage: imageUrl.isNotEmpty
+                  ? NetworkImage(imageUrl)
+                  : AssetImage('assets/pfp.jpg') as ImageProvider,
+            ),
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Color(0xFFDC945F),
+                ),
+                padding: EdgeInsets.all(8),
+                child: Icon(
+                  Icons.edit,
+                  color: Colors.white,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   // For username
   Widget _buildUsername() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
       child: Column(
@@ -300,16 +313,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
           SizedBox(height: 10),
           TextField(
+            cursorColor: textColor,
             decoration: InputDecoration(
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Color(0xFF0B3D36)),
+                borderRadius: BorderRadius.circular(10),
+              ),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
             ),
             style: TextStyle(color: Colors.white, fontSize: 16),
             controller: TextEditingController(text: _username),
             onSubmitted: (newValue) {
+              if (mounted) {
               setState(() {
                 _username = newValue;
-              });
+              });}
             },
           ),
         ],
@@ -319,6 +338,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   // For cuisine drop down
   Widget _buildCuisineDropdown() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
       child: Column(
@@ -334,16 +357,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             value: _selectedCuisine,
             items: _cuisines,
             onChanged: (value) {
+              if (mounted) {
               setState(() {
                 _selectedCuisine = value;
                 //updateUserCuisine(_userId!, value!);
-              });
+              });}
             },
             decoration: InputDecoration(
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              focusedBorder: OutlineInputBorder(
+                borderSide: const BorderSide(color: Color(0xFF0B3D36)),
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            style: TextStyle(color: Colors.white, fontSize: 16),
+            style: TextStyle(color: textColor, fontSize: 16),
           ),
         ],
       ),
@@ -352,6 +380,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   // For spice level radio buttons
   Widget _buildSpiceLevelRadio() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
       child: LayoutBuilder(
@@ -391,9 +422,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             value: level,
                             groupValue: _spiceLevel,
                             onChanged: (value) {
+                              if (mounted) {
                               setState(() {
                                 _spiceLevel = value;
-                              });
+                              });}
                             },
                           ),
                         );
@@ -627,9 +659,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             items: _dietaryConstraints!,
             initialValue: _selectedDietaryConstraints,
             onConfirm: (values) {
+              if (mounted) {
               setState(() {
                 _selectedDietaryConstraints = values;
-              });
+              });}
             },
             chipDisplay: MultiSelectChipDisplay(
               chipColor: Color(0xFFDC945F),

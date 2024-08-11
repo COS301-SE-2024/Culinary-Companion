@@ -30,28 +30,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
 ///////////load the user id/////////////
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId');
-      //print('Login successful: $_userId');
-    });
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+        //print('Login successful: $_userId');
+      });
+    }
     if (_userId != null) {
       await _fetchUserDetails();
       await fetchRecipes(); //Fetch user recipes after fetching user details
     } else {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'User ID not found';
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'User ID not found';
+        });
+      }
     }
   }
 
 ///////////fetch the users profile details/////////
   Future<void> _fetchUserDetails() async {
     if (_userId == null) return;
-
-    setState(() {
-      _isLoading = true; // Show loading indicator
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true; // Show loading indicator
+      });
+    }
 
     final String url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
@@ -65,27 +70,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         if (data.isNotEmpty) {
-          setState(() {
-            _userDetails = data[0]; // Get the first item in the list
-          });
+          if (mounted) {
+            setState(() {
+              _userDetails = data[0]; // Get the first item in the list
+            });
+          }
         } else {
-          setState(() {
-            _errorMessage = 'No user details found';
-          });
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'No user details found';
+            });
+          }
         }
       } else {
-        setState(() {
-          _errorMessage = 'Failed to load user details';
-        });
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Failed to load user details';
+          });
+        }
       }
     } catch (error) {
-      setState(() {
-        _errorMessage = 'Error fetching user details';
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error fetching user details';
+        });
+      }
     } finally {
-      setState(() {
-        _isLoading = false; // Stop loading indicator
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Stop loading indicator
+        });
+      }
     }
   }
 
@@ -126,10 +141,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
-
-        setState(() {
-          recipes.add(fetchedRecipe);
-        });
+        if (mounted) {
+          setState(() {
+            recipes.add(fetchedRecipe);
+          });
+        }
       } else {
         print('Failed to load recipe details: ${response.statusCode}');
       }

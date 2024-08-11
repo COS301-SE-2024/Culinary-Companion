@@ -1,9 +1,7 @@
 //main2.dart
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
-// import '../widgets/shopping_list_screen.dart';
-// import '../widgets/pantry_screen.dart';
-// import '../widgets/appliances_screen.dart';
+import 'search_screen.dart';
 import 'saved_recipes_screen.dart';
 import 'profile_screen.dart';
 import 'add_recipe_screen.dart';
@@ -38,9 +36,10 @@ class _MainScreenState extends State<MainScreen> {
   String currentRoute = '/';
 
   void changeRoute(String newRoute) {
+    if (mounted) {
     setState(() {
       currentRoute = newRoute;
-    });
+    });}
   }
 
   @override
@@ -85,6 +84,8 @@ class _MainScreenState extends State<MainScreen> {
     switch (route) {
       case '/':
         return HomeScreen();
+      case '/search':
+        return SearchScreen();
       case '/scan-recipe':
         return AddRecipeScreen();
       case '/inventory-screen':

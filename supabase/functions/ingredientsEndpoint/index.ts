@@ -1,5 +1,5 @@
 /// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
-import { privateEncrypt } from 'crypto';
+// import { privateEncrypt } from 'crypto';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.43.4'
 
 // Define the structure of the recipeData object
@@ -16,6 +16,14 @@ interface RecipeData {
     ingredients: { name: string, quantity: number, unit: string }[];
     appliances: { name: string }[];
     photo:string;
+  }
+
+  interface Filters {
+    course?: string[];
+    spiceLevel?: number;
+    cuisine?: string[]; 
+    dietaryOptions?: string[];
+    ingredientOption?: string; 
   }
   
 
@@ -40,7 +48,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm, filters, keywords, dietaryConstraints } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -97,6 +105,18 @@ Deno.serve(async (req) => {
                 return editShoppingListItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
             case 'editPantryItem':
                 return editPantryItem(userId, ingredientName, quantity, measurementUnit, corsHeaders);
+            case 'searchRecipes':
+                return searchRecipes(searchTerm,corsHeaders);
+            case 'filterRecipes':
+                return filterRecipes(filters,corsHeaders);
+            case 'addRecipeKeywords':
+                return addRecipeKeywords(recipeid, keywords, corsHeaders);
+            case 'getRecipeId':
+                return getRecipeId(recipeData.name, corsHeaders);
+            case 'addRecipeDietaryConstraints':
+                return addRecipeDietaryConstraints(recipeid, dietaryConstraints, corsHeaders);
+            case 'addIngredientIfNotExists':
+                return addIngredientIfNotExists(ingredientName, measurementUnit, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -110,6 +130,184 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+async function addIngredientIfNotExists(
+    ingredientName: string,
+    measurementUnit: string,
+    corsHeaders: HeadersInit
+) {
+    if (!ingredientName || !measurementUnit) {
+        console.error('Invalid ingredient data provided.');
+        return new Response(JSON.stringify({ error: 'Invalid ingredient data provided' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    try {
+        // Check if the ingredient exists
+        const { data: existingIngredient, error: fetchError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .eq('name', ingredientName)
+            .limit(1);
+
+        if (fetchError) {
+            console.error('Error fetching ingredient:', fetchError);
+            return new Response(JSON.stringify({ error: fetchError.message }), {
+                status: 500,
+                headers: corsHeaders,
+            });
+        }
+
+        // If the ingredient exists, return its ID
+        if (existingIngredient && existingIngredient.length > 0) {
+            return new Response(JSON.stringify({ ingredientId: existingIngredient[0].ingredientid }), {
+                status: 200,
+                headers: corsHeaders,
+            });
+        }
+
+        // Find the current maximum ingredient ID
+        const { data: maxIdResult, error: maxIdError } = await supabase
+            .from('ingredient')
+            .select('ingredientid')
+            .order('ingredientid', { ascending: false })
+            .limit(1);
+
+        if (maxIdError) {
+            console.error('Error fetching max ingredient ID:', maxIdError);
+            return new Response(JSON.stringify({ error: maxIdError.message }), {
+                status: 500,
+                headers: corsHeaders,
+            });
+        }
+
+        const newIngredientId = (maxIdResult && maxIdResult.length > 0) ? maxIdResult[0].ingredientid + 1 : 1;
+
+        // Insert the new ingredient with the generated ID
+        const { data: newIngredient, error: insertError } = await supabase
+            .from('ingredient')
+            .insert({
+                ingredientid: newIngredientId,
+                name: ingredientName,
+                measurement_unit: measurementUnit
+            })
+            .select('ingredientid');
+
+        if (insertError) {
+            console.error('Error adding new ingredient:', insertError);
+            return new Response(JSON.stringify({ error: insertError.message }), {
+                status: 500,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify({ ingredientId: newIngredient[0].ingredientid }), {
+            status: 200,
+            headers: corsHeaders,
+        });
+
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+
+async function filterRecipes(filters :Filters, corsHeaders: HeadersInit) {
+    try {
+        const query = supabase.from('recipe').select('recipeid');
+
+        // Apply course filter
+        if (filters.course && filters.course.length > 0) {
+            query.in('course', filters.course);
+        }
+
+        // Apply spice level filter
+        if (filters.spiceLevel !== undefined && filters.spiceLevel !== null) {
+            query.eq('spicelevel', filters.spiceLevel);
+        }
+
+        // Apply cuisine filter
+        if (filters.cuisine && filters.cuisine.length > 0) {
+            query.in('cuisine', filters.cuisine);
+        }
+
+        // Apply dietary options filter
+        if (filters.dietaryOptions && filters.dietaryOptions.length > 0) {
+            query.in('dietaryOptions', filters.dietaryOptions);
+        }
+
+        // // Apply ingredient options filter (custom logic as needed)
+        // if (filters.ingredientOption) {
+        //     // Custom filter logic for ingredientOption
+        //     // This will depend on how ingredients are stored and should be filtered
+        // }
+
+        const { data: recipes, error: recipesError } = await query;
+
+        if (recipesError) {
+            console.error('Error fetching filtered recipes:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in filterRecipes function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+
+async function searchRecipes(searchTerm: string, corsHeaders: HeadersInit) {
+    if (!searchTerm) {
+        return new Response(JSON.stringify({ error: 'Search term is required' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    try {
+        const { data: recipes, error: recipesError } = await supabase
+            .from('recipe')
+            .select('recipeid, name, description') //return list of recipes 
+            .or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%,course.ilike.%${searchTerm}%,cuisine.ilike.%${searchTerm}%,keywords.ilike.%${searchTerm}%`);
+
+        if (recipesError) {
+            console.error('Error searching for recipes:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in searchRecipes function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+
+
 
 // Get all the ingredients and their attributes
 async function getAllIngredients(corsHeaders: HeadersInit) {
@@ -1585,6 +1783,107 @@ async function removeUserFavorite(userId: string, recipeid: string, corsHeaders:
             headers: corsHeaders,
         });
     }
+}
+
+async function addRecipeKeywords(recipeid: string, keywords: string, corsHeaders: HeadersInit) {
+    if (!recipeid) {
+        console.error('Failed to retrieve recipe ID.');
+        return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    const { error: recipeKeywordError } = await supabase
+        .from('recipe')
+        .update({ keywords })
+        .eq('recipeid', recipeid);
+
+    if (recipeKeywordError) {
+        console.error('Error updating recipe keywords:', recipeKeywordError);
+        return new Response(JSON.stringify({ error: recipeKeywordError.message }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    return new Response(JSON.stringify({ success: 'Recipe keywords updated successfully' }), {
+        status: 200,
+        headers: corsHeaders,
+    });
+}
+
+async function getRecipeId(recipeName: string, corsHeaders: HeadersInit) {
+    try {
+        // Ensure recipeName is provided
+        if (!recipeName) {
+            throw new Error('Recipe name is required');
+        }
+
+        // Fetch recipe ID based on the recipe name
+        const { data: recipeData, error: recipeError } = await supabase
+            .from('recipe')
+            .select('recipeid')
+            .eq('name', recipeName)
+            .single();
+
+        if (recipeError) {
+            throw new Error(`Error fetching recipe ID: ${recipeError.message}`);
+        }
+
+        if (!recipeData) {
+            throw new Error(`Recipe not found for name: ${recipeName}`);
+        }
+
+        const recipeId = recipeData.recipeid;
+
+        return new Response(JSON.stringify({ recipeId }, null, 2), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+async function addRecipeDietaryConstraints(recipeid: string, dietaryConstraints:  string, corsHeaders: HeadersInit) {
+    if (!recipeid) {
+        console.error('Failed to retrieve recipe ID.');
+        return new Response(JSON.stringify({ error: 'Failed to retrieve recipe ID' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    // Ensure dietaryConstraints is a valid JSON string
+    if (typeof dietaryConstraints !== 'string') {
+        console.error('Invalid dietary constraints format.');
+        return new Response(JSON.stringify({ error: 'Invalid dietary constraints format' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    const { error: dietaryConstraintError } = await supabase
+        .from('recipe')
+        .update({ dietaryOptions: dietaryConstraints })  // Adjust the column name if needed
+        .eq('recipeid', recipeid);
+
+    if (dietaryConstraintError) {
+        console.error('Error updating recipe dietary constraints:', dietaryConstraintError);
+        return new Response(JSON.stringify({ error: dietaryConstraintError.message }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    return new Response(JSON.stringify({ success: 'Recipe dietary constraints updated successfully' }), {
+        status: 200,
+        headers: corsHeaders,
+    });
 }
 
 

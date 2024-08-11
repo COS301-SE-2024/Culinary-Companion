@@ -22,6 +22,9 @@ Color unshade(BuildContext context) {
 }
 
 class AppliancesScreen extends StatefulWidget {
+  final http.Client? client;
+
+  AppliancesScreen({Key? key, this.client}) : super(key: key);
   @override
   _AppliancesScreenState createState() => _AppliancesScreenState();
 }
@@ -30,7 +33,6 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
   OverlayEntry? _helpMenuOverlay;
   bool _isLoading = true;
 
-
   @override
   void initState() {
     super.initState();
@@ -38,25 +40,30 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
   }
 
   Future<void> _initializeData() async {
-  setState(() {
-    _isLoading = true;
-  });
-  await _loadUserId();
-  await _loadAppliances();
-  await _loadUserAppliances();
-  setState(() {
-    _isLoading = false;
-  });
-}
-
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
+    await _loadUserId();
+    await _loadAppliances();
+    await _loadUserAppliances();
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   String? _userId;
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userId = prefs.getString('userId');
-    });
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+      });
+    }
   }
 
   List<String> appliances =
@@ -78,11 +85,13 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          allAppliances = data.map<String>((cuisine) {
-            return cuisine['name'].toString();
-          }).toList();
-        });
+        if (mounted) {
+          setState(() {
+            allAppliances = data.map<String>((cuisine) {
+              return cuisine['name'].toString();
+            }).toList();
+          });
+        }
       } else {
         throw Exception('Failed to load appliances');
       }
@@ -106,12 +115,13 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
 
     if (response.statusCode == 200) {
       List<dynamic> appliancesJson = jsonDecode(response.body);
-
-      setState(() {
-        appliances = appliancesJson
-            .map((appliance) => appliance['applianceName'].toString())
-            .toList();
-      });
+      if (mounted) {
+        setState(() {
+          appliances = appliancesJson
+              .map((appliance) => appliance['applianceName'].toString())
+              .toList();
+        });
+      }
 
       // Print the appliances to verify
       //print(appliances);
@@ -123,9 +133,11 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
   void _addAppliance(String appliance) async {
     final success = await _addUserApplianceToDatabase(appliance);
     if (success) {
-      setState(() {
-        appliances.add(appliance);
-      });
+      if (mounted) {
+        setState(() {
+          appliances.add(appliance);
+        });
+      }
     }
   }
 
@@ -188,9 +200,11 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
   void _removeAppliance(String appliance) async {
     final success = await _removeUserApplianceFromDatabase(appliance);
     if (success) {
-      setState(() {
-        appliances.remove(appliance);
-      });
+      if (mounted) {
+        setState(() {
+          appliances.remove(appliance);
+        });
+      }
     }
   }
 
@@ -244,6 +258,7 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
                 },
               ),
               ElevatedButton(
+                key: ValueKey('Appliances'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFDC945F), // Background color
                 ),
@@ -309,102 +324,96 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
         ],
       ),
       body: _isLoading
-    ? Center(child: Lottie.asset('assets/loading.json'))
-    : Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40.0),
-        child: Row(children: <Widget>[
-          Expanded(
-            // Adjust the top padding as needed
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start, // Left-align children
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(height: 30.0),
+          ? Center(child: Lottie.asset('assets/loading.json'))
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Row(children: <Widget>[
                 Expanded(
-                  child: appliances.isEmpty
-                      ? Center(
-                          child: Text(
-                            "No appliances have been added. Click the plus icon to add your first appliance!",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
-                        key: Key('appliances_list'),
-                          itemCount: appliances.length,
-                          itemBuilder: (context, index) {
-                            final appliance = appliances[index];
-                            return Card(
-                              key: Key('appliance_item_$index'),
-                              color: index.isEven
-                                  ? shade(context)
-                                  : unshade(context),
-                              margin: EdgeInsets.symmetric(vertical: 8.0),
-                              child: ListTile(
-                                key: Key('appliance_item_$index'),
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 16.0,
-                                  vertical: 8.0,
-                                ),
-                                leading:
-                                    Icon(Icons.kitchen, color: Colors.white),
-                                title: Text(
-                                  appliance,
+                  // Adjust the top padding as needed
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start, // Left-align children
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(height: 30.0),
+                      Expanded(
+                        child: appliances.isEmpty
+                            ? Center(
+                                child: Text(
+                                  "No appliances have been added. Click the plus icon to add your first appliance!",
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
                                   ),
                                 ),
-                                trailing: IconButton(
-                                  key: Key('delete_appliance_$index'),
-                                  icon: Icon(Icons.delete_outline,
-                                      color: Colors.white),
-                                  onPressed: () {
-                                    _removeAppliance(appliance);
-                                  },
-                                ),
+                              )
+                            : ListView.builder(
+                                key: Key('appliances_list'),
+                                itemCount: appliances.length,
+                                itemBuilder: (context, index) {
+                                  final appliance = appliances[index];
+                                  return Card(
+                                    key: Key('appliance_item_$index'),
+                                    color: index.isEven
+                                        ? shade(context)
+                                        : unshade(context),
+                                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                                    child: ListTile(
+                                      key: Key('appliance_item_$index'),
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 16.0,
+                                        vertical: 8.0,
+                                      ),
+                                      leading: Icon(Icons.kitchen,
+                                          color: Colors.white),
+                                      title: Text(
+                                        appliance,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      trailing: IconButton(
+                                        key: Key('delete_appliance_$index'),
+                                        icon: Icon(Icons.delete_outline,
+                                            color: Colors.white),
+                                        onPressed: () {
+                                          _removeAppliance(appliance);
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(
+                          key: Key('add_appliance_button'),
+                          onPressed: _showAddApplianceDialog,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                                0xFFDC945F), // Button background color
+                            foregroundColor: Colors.white, // Text color
+                            fixedSize: const Size(
+                                48.0, 48.0), // Ensure the button is square
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(16), // Rounded corners
+                            ),
+                            padding: const EdgeInsets.all(
+                                0), // Remove default padding
+                          ),
+                          child: const Icon(Icons.add, size: 32.0),
                         ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    key: Key('add_appliance_button'),
-                    onPressed: _showAddApplianceDialog,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          const Color(0xFFDC945F), // Button background color
-                      foregroundColor: Colors.white, // Text color
-                      fixedSize:
-                          const Size(48.0, 48.0), // Ensure the button is square
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(16), // Rounded corners
                       ),
-                      padding:
-                          const EdgeInsets.all(0), // Remove default padding
-                    ),
-                    child: const Text(
-                      '+',
-                      style: TextStyle(
-                        fontSize: 35,
-                      ),
-                    ),
+                    ],
                   ),
                 ),
-              ],
+              ]),
             ),
-          ),
-        ]),
-      ),
-
     );
   }
 }

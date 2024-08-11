@@ -70,7 +70,7 @@ Future<void> loginUser(String email, String password, String action) async {
           //Background image
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkmode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png',
               fit: BoxFit.cover,
             ),
           ),
@@ -111,6 +111,7 @@ Future<void> loginUser(String email, String password, String action) async {
                       height: 70,
                       child: TextFormField(
                         key: ValueKey('email'),
+                        cursorColor: textColor,
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Email:',
@@ -210,6 +211,7 @@ Future<void> loginUser(String email, String password, String action) async {
                       height: 70,
                       child: TextFormField(
                         key: ValueKey('password'),
+                        cursorColor: textColor,
                         obscureText: true,
                         focusNode: passwordFocusNode,
                         onFieldSubmitted: (value) => _handleLogin(),

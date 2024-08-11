@@ -31,13 +31,13 @@
             <td class="headerValue">lcov.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntryLo">0.0&nbsp;%</td>
+            <td class="headerCovTableEntryHi">90.8&nbsp;%</td>
             <td class="headerCovTableEntry">87</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">79</td>
           </tr>
           <tr>
             <td class="headerItem">Test Date:</td>
-            <td class="headerValue">2024-07-22 12:11:50</td>
+            <td class="headerValue">2024-08-02 08:41:48</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntryHi">-</td>
@@ -66,61 +66,61 @@
 <span id="L4"><span class="lineNum">       4</span>              : class HelpMenu extends StatelessWidget {</span>
 <span id="L5"><span class="lineNum">       5</span>              :   final VoidCallback onClose;</span>
 <span id="L6"><span class="lineNum">       6</span>              : </span>
-<span id="L7"><span class="lineNum">       7</span> <span class="tlaUNC tlaBgUNC">           0 :   HelpMenu({required this.onClose});</span></span>
+<span id="L7"><span class="lineNum">       7</span> <span class="tlaGNC tlaBgGNC">           1 :   HelpMenu({required this.onClose});</span></span>
 <span id="L8"><span class="lineNum">       8</span>              : </span>
-<span id="L9"><span class="lineNum">       9</span> <span class="tlaUNC">           0 :   @override</span></span>
+<span id="L9"><span class="lineNum">       9</span> <span class="tlaGNC">           1 :   @override</span></span>
 <span id="L10"><span class="lineNum">      10</span>              :   Widget build(BuildContext context) {</span>
-<span id="L11"><span class="lineNum">      11</span> <span class="tlaUNC">           0 :     final theme = Theme.of(context);</span></span>
+<span id="L11"><span class="lineNum">      11</span> <span class="tlaGNC">           1 :     final theme = Theme.of(context);</span></span>
 <span id="L12"><span class="lineNum">      12</span>              : </span>
-<span id="L13"><span class="lineNum">      13</span> <span class="tlaUNC">           0 :     final clickColor = theme.brightness == Brightness.light</span></span>
+<span id="L13"><span class="lineNum">      13</span> <span class="tlaGNC">           2 :     final clickColor = theme.brightness == Brightness.light</span></span>
 <span id="L14"><span class="lineNum">      14</span>              :         ? Colors.white</span>
-<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC">           0 :         : Color.fromARGB(255, 25, 58, 48);</span></span>
-<span id="L16"><span class="lineNum">      16</span> <span class="tlaUNC">           0 :     return GestureDetector(</span></span>
-<span id="L17"><span class="lineNum">      17</span> <span class="tlaUNC">           0 :       onTap: onClose,</span></span>
-<span id="L18"><span class="lineNum">      18</span> <span class="tlaUNC">           0 :       child: Container(</span></span>
-<span id="L19"><span class="lineNum">      19</span> <span class="tlaUNC">           0 :         color: Color.fromARGB(121, 0, 0, 0), // Semi-transparent background</span></span>
-<span id="L20"><span class="lineNum">      20</span> <span class="tlaUNC">           0 :         child: Center(</span></span>
-<span id="L21"><span class="lineNum">      21</span> <span class="tlaUNC">           0 :           child: Material(</span></span>
-<span id="L22"><span class="lineNum">      22</span> <span class="tlaUNC">           0 :             borderRadius: BorderRadius.circular(10),</span></span>
+<span id="L15"><span class="lineNum">      15</span> <span class="tlaUNC tlaBgUNC">           0 :         : Color.fromARGB(255, 25, 58, 48);</span></span>
+<span id="L16"><span class="lineNum">      16</span> <span class="tlaGNC tlaBgGNC">           1 :     return GestureDetector(</span></span>
+<span id="L17"><span class="lineNum">      17</span> <span class="tlaGNC">           1 :       onTap: onClose,</span></span>
+<span id="L18"><span class="lineNum">      18</span> <span class="tlaGNC">           1 :       child: Container(</span></span>
+<span id="L19"><span class="lineNum">      19</span> <span class="tlaGNC">           1 :         color: Color.fromARGB(121, 0, 0, 0), // Semi-transparent background</span></span>
+<span id="L20"><span class="lineNum">      20</span> <span class="tlaGNC">           1 :         child: Center(</span></span>
+<span id="L21"><span class="lineNum">      21</span> <span class="tlaGNC">           1 :           child: Material(</span></span>
+<span id="L22"><span class="lineNum">      22</span> <span class="tlaGNC">           1 :             borderRadius: BorderRadius.circular(10),</span></span>
 <span id="L23"><span class="lineNum">      23</span>              :             color: clickColor, // Dark green background color</span>
-<span id="L24"><span class="lineNum">      24</span> <span class="tlaUNC">           0 :             child: Container(</span></span>
-<span id="L25"><span class="lineNum">      25</span> <span class="tlaUNC">           0 :               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),</span></span>
-<span id="L26"><span class="lineNum">      26</span> <span class="tlaUNC">           0 :               width: MediaQuery.of(context).size.width * 0.8,</span></span>
-<span id="L27"><span class="lineNum">      27</span> <span class="tlaUNC">           0 :               height: MediaQuery.of(context).size.height * 0.8,</span></span>
-<span id="L28"><span class="lineNum">      28</span> <span class="tlaUNC">           0 :               child: Column(</span></span>
+<span id="L24"><span class="lineNum">      24</span> <span class="tlaGNC">           1 :             child: Container(</span></span>
+<span id="L25"><span class="lineNum">      25</span> <span class="tlaGNC">           1 :               padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),</span></span>
+<span id="L26"><span class="lineNum">      26</span> <span class="tlaGNC">           4 :               width: MediaQuery.of(context).size.width * 0.8,</span></span>
+<span id="L27"><span class="lineNum">      27</span> <span class="tlaGNC">           4 :               height: MediaQuery.of(context).size.height * 0.8,</span></span>
+<span id="L28"><span class="lineNum">      28</span> <span class="tlaGNC">           1 :               child: Column(</span></span>
 <span id="L29"><span class="lineNum">      29</span>              :                 crossAxisAlignment: CrossAxisAlignment.start,</span>
-<span id="L30"><span class="lineNum">      30</span> <span class="tlaUNC">           0 :                 children: [</span></span>
-<span id="L31"><span class="lineNum">      31</span> <span class="tlaUNC">           0 :                   Center(</span></span>
-<span id="L32"><span class="lineNum">      32</span> <span class="tlaUNC">           0 :                     child: Column(</span></span>
-<span id="L33"><span class="lineNum">      33</span> <span class="tlaUNC">           0 :                       children: [</span></span>
-<span id="L34"><span class="lineNum">      34</span> <span class="tlaUNC">           0 :                         Image.asset('assets/helper_chef.png', height: 80),</span></span>
-<span id="L35"><span class="lineNum">      35</span> <span class="tlaUNC">           0 :                         SizedBox(height: 10),</span></span>
-<span id="L36"><span class="lineNum">      36</span> <span class="tlaUNC">           0 :                         Text(</span></span>
+<span id="L30"><span class="lineNum">      30</span> <span class="tlaGNC">           1 :                 children: [</span></span>
+<span id="L31"><span class="lineNum">      31</span> <span class="tlaGNC">           1 :                   Center(</span></span>
+<span id="L32"><span class="lineNum">      32</span> <span class="tlaGNC">           1 :                     child: Column(</span></span>
+<span id="L33"><span class="lineNum">      33</span> <span class="tlaGNC">           1 :                       children: [</span></span>
+<span id="L34"><span class="lineNum">      34</span> <span class="tlaGNC">           1 :                         Image.asset('assets/helper_chef.png', height: 80),</span></span>
+<span id="L35"><span class="lineNum">      35</span> <span class="tlaGNC">           1 :                         SizedBox(height: 10),</span></span>
+<span id="L36"><span class="lineNum">      36</span> <span class="tlaGNC">           1 :                         Text(</span></span>
 <span id="L37"><span class="lineNum">      37</span>              :                           'How may I help you?',</span>
-<span id="L38"><span class="lineNum">      38</span> <span class="tlaUNC">           0 :                           style: TextStyle(</span></span>
+<span id="L38"><span class="lineNum">      38</span> <span class="tlaGNC">           1 :                           style: TextStyle(</span></span>
 <span id="L39"><span class="lineNum">      39</span>              :                               fontSize: 20, fontWeight: FontWeight.bold),</span>
 <span id="L40"><span class="lineNum">      40</span>              :                         ),</span>
-<span id="L41"><span class="lineNum">      41</span> <span class="tlaUNC">           0 :                         SizedBox(height: 16),</span></span>
+<span id="L41"><span class="lineNum">      41</span> <span class="tlaGNC">           1 :                         SizedBox(height: 16),</span></span>
 <span id="L42"><span class="lineNum">      42</span>              :                       ],</span>
 <span id="L43"><span class="lineNum">      43</span>              :                     ),</span>
 <span id="L44"><span class="lineNum">      44</span>              :                   ),</span>
-<span id="L45"><span class="lineNum">      45</span> <span class="tlaUNC">           0 :                   Expanded(</span></span>
-<span id="L46"><span class="lineNum">      46</span> <span class="tlaUNC">           0 :                     child: SingleChildScrollView(</span></span>
-<span id="L47"><span class="lineNum">      47</span> <span class="tlaUNC">           0 :                       child: Column(</span></span>
+<span id="L45"><span class="lineNum">      45</span> <span class="tlaGNC">           1 :                   Expanded(</span></span>
+<span id="L46"><span class="lineNum">      46</span> <span class="tlaGNC">           1 :                     child: SingleChildScrollView(</span></span>
+<span id="L47"><span class="lineNum">      47</span> <span class="tlaGNC">           1 :                       child: Column(</span></span>
 <span id="L48"><span class="lineNum">      48</span>              :                         crossAxisAlignment: CrossAxisAlignment.start,</span>
-<span id="L49"><span class="lineNum">      49</span> <span class="tlaUNC">           0 :                         children: [</span></span>
-<span id="L50"><span class="lineNum">      50</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L49"><span class="lineNum">      49</span> <span class="tlaGNC">           1 :                         children: [</span></span>
+<span id="L50"><span class="lineNum">      50</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L51"><span class="lineNum">      51</span>              :                             'Contact Us',</span>
-<span id="L52"><span class="lineNum">      52</span> <span class="tlaUNC">           0 :                             style: TextStyle(</span></span>
+<span id="L52"><span class="lineNum">      52</span> <span class="tlaGNC">           1 :                             style: TextStyle(</span></span>
 <span id="L53"><span class="lineNum">      53</span>              :                                 fontSize: 18, fontWeight: FontWeight.bold),</span>
 <span id="L54"><span class="lineNum">      54</span>              :                           ),</span>
-<span id="L55"><span class="lineNum">      55</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L56"><span class="lineNum">      56</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L55"><span class="lineNum">      55</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L56"><span class="lineNum">      56</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L57"><span class="lineNum">      57</span>              :                             'Contact us by clicking on the link below if you encounter any issues or have any queries that could not be answered through the FAQs.',</span>
 <span id="L58"><span class="lineNum">      58</span>              :                           ),</span>
-<span id="L59"><span class="lineNum">      59</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L60"><span class="lineNum">      60</span> <span class="tlaUNC">           0 :                           InkWell(</span></span>
-<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC">           0 :                             onTap: () async {</span></span>
+<span id="L59"><span class="lineNum">      59</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L60"><span class="lineNum">      60</span> <span class="tlaGNC">           1 :                           InkWell(</span></span>
+<span id="L61"><span class="lineNum">      61</span> <span class="tlaUNC tlaBgUNC">           0 :                             onTap: () async {</span></span>
 <span id="L62"><span class="lineNum">      62</span> <span class="tlaUNC">           0 :                               final Uri emailUri = Uri(</span></span>
 <span id="L63"><span class="lineNum">      63</span>              :                                 scheme: 'mailto',</span>
 <span id="L64"><span class="lineNum">      64</span>              :                                 path: 'tecktonic.capstone@gmail.com',</span>
@@ -137,103 +137,103 @@
 <span id="L75"><span class="lineNum">      75</span>              :                                 );</span>
 <span id="L76"><span class="lineNum">      76</span>              :                               }</span>
 <span id="L77"><span class="lineNum">      77</span>              :                             },</span>
-<span id="L78"><span class="lineNum">      78</span> <span class="tlaUNC">           0 :                             child: Text(</span></span>
+<span id="L78"><span class="lineNum">      78</span> <span class="tlaGNC tlaBgGNC">           1 :                             child: Text(</span></span>
 <span id="L79"><span class="lineNum">      79</span>              :                               'tecktonic.capstone@gmail.com',</span>
-<span id="L80"><span class="lineNum">      80</span> <span class="tlaUNC">           0 :                               style: TextStyle(</span></span>
+<span id="L80"><span class="lineNum">      80</span> <span class="tlaGNC">           1 :                               style: TextStyle(</span></span>
 <span id="L81"><span class="lineNum">      81</span>              :                                 color: Colors.blue,</span>
 <span id="L82"><span class="lineNum">      82</span>              :                                 decoration: TextDecoration.underline,</span>
 <span id="L83"><span class="lineNum">      83</span>              :                               ),</span>
 <span id="L84"><span class="lineNum">      84</span>              :                             ),</span>
 <span id="L85"><span class="lineNum">      85</span>              :                           ),</span>
 <span id="L86"><span class="lineNum">      86</span>              : </span>
-<span id="L87"><span class="lineNum">      87</span> <span class="tlaUNC">           0 :                           SizedBox(height: 20),</span></span>
-<span id="L88"><span class="lineNum">      88</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L87"><span class="lineNum">      87</span> <span class="tlaGNC">           1 :                           SizedBox(height: 20),</span></span>
+<span id="L88"><span class="lineNum">      88</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L89"><span class="lineNum">      89</span>              :                             'How it works',</span>
-<span id="L90"><span class="lineNum">      90</span> <span class="tlaUNC">           0 :                             style: TextStyle(</span></span>
+<span id="L90"><span class="lineNum">      90</span> <span class="tlaGNC">           1 :                             style: TextStyle(</span></span>
 <span id="L91"><span class="lineNum">      91</span>              :                                 fontSize: 18, fontWeight: FontWeight.bold),</span>
 <span id="L92"><span class="lineNum">      92</span>              :                           ),</span>
-<span id="L93"><span class="lineNum">      93</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L94"><span class="lineNum">      94</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L93"><span class="lineNum">      93</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L94"><span class="lineNum">      94</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L95"><span class="lineNum">      95</span>              :                             '1. Adding and removing ingredients in my shopping list',</span>
 <span id="L96"><span class="lineNum">      96</span>              :                           ),</span>
-<span id="L97"><span class="lineNum">      97</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8.0),</span></span>
-<span id="L98"><span class="lineNum">      98</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L97"><span class="lineNum">      97</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8.0),</span></span>
+<span id="L98"><span class="lineNum">      98</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L99"><span class="lineNum">      99</span>              :                             'Adding ingredients to the shopping list: ',</span>
 <span id="L100"><span class="lineNum">     100</span>              :                           ),</span>
-<span id="L101"><span class="lineNum">     101</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8.0),</span></span>
-<span id="L102"><span class="lineNum">     102</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L101"><span class="lineNum">     101</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8.0),</span></span>
+<span id="L102"><span class="lineNum">     102</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L103"><span class="lineNum">     103</span>              :                             '1.1. Tap the &quot;+&quot; button at the bottom of the screen.\n'</span>
 <span id="L104"><span class="lineNum">     104</span>              :                             '1.2. Select a category from the &quot;Select Food Type&quot; dropdown.\n'</span>
 <span id="L105"><span class="lineNum">     105</span>              :                             '1.3. Enter the ingredient name in the &quot;Enter item name&quot; field.\n'</span>
 <span id="L106"><span class="lineNum">     106</span>              :                             '1.4. Tap &quot;Add&quot; to add the ingredient to the shopping list.',</span>
 <span id="L107"><span class="lineNum">     107</span>              :                           ),</span>
-<span id="L108"><span class="lineNum">     108</span> <span class="tlaUNC">           0 :                           SizedBox(height: 10.0),</span></span>
-<span id="L109"><span class="lineNum">     109</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L108"><span class="lineNum">     108</span> <span class="tlaGNC">           1 :                           SizedBox(height: 10.0),</span></span>
+<span id="L109"><span class="lineNum">     109</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L110"><span class="lineNum">     110</span>              :                             'Removing ingredients from the shopping list: ',</span>
 <span id="L111"><span class="lineNum">     111</span>              :                           ),</span>
-<span id="L112"><span class="lineNum">     112</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8.0),</span></span>
-<span id="L113"><span class="lineNum">     113</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L112"><span class="lineNum">     112</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8.0),</span></span>
+<span id="L113"><span class="lineNum">     113</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L114"><span class="lineNum">     114</span>              :                             '1.5. Locate the ingredient in the shopping list.\n'</span>
 <span id="L115"><span class="lineNum">     115</span>              :                             '1.6. Tap the trash can icon next to the ingredient.\n'</span>
 <span id="L116"><span class="lineNum">     116</span>              :                             '1.7. Confirm the removal in the dialog that appears by tapping &quot;Remove&quot;.\n',</span>
 <span id="L117"><span class="lineNum">     117</span>              :                           ),</span>
-<span id="L118"><span class="lineNum">     118</span> <span class="tlaUNC">           0 :                           SizedBox(height: 20),</span></span>
-<span id="L119"><span class="lineNum">     119</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L118"><span class="lineNum">     118</span> <span class="tlaGNC">           1 :                           SizedBox(height: 20),</span></span>
+<span id="L119"><span class="lineNum">     119</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L120"><span class="lineNum">     120</span>              :                             'Frequently Asked Questions',</span>
-<span id="L121"><span class="lineNum">     121</span> <span class="tlaUNC">           0 :                             style: TextStyle(</span></span>
+<span id="L121"><span class="lineNum">     121</span> <span class="tlaGNC">           1 :                             style: TextStyle(</span></span>
 <span id="L122"><span class="lineNum">     122</span>              :                                 fontSize: 18, fontWeight: FontWeight.bold),</span>
 <span id="L123"><span class="lineNum">     123</span>              :                           ),</span>
-<span id="L124"><span class="lineNum">     124</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L125"><span class="lineNum">     125</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L124"><span class="lineNum">     124</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L125"><span class="lineNum">     125</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L126"><span class="lineNum">     126</span>              :                             'Q: How can I edit my dietary preferences?\nA: Go to the &quot;Profile&quot; section and update your dietary preferences.',</span>
 <span id="L127"><span class="lineNum">     127</span>              :                           ),</span>
-<span id="L128"><span class="lineNum">     128</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L129"><span class="lineNum">     129</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L128"><span class="lineNum">     128</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L129"><span class="lineNum">     129</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L130"><span class="lineNum">     130</span>              :                             'Q: How do I navigate to the Home page?\nA: Tap on the &quot;Home&quot; tab in the navbar to return to the Home page.',</span>
 <span id="L131"><span class="lineNum">     131</span>              :                           ),</span>
-<span id="L132"><span class="lineNum">     132</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L133"><span class="lineNum">     133</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L132"><span class="lineNum">     132</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L133"><span class="lineNum">     133</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L134"><span class="lineNum">     134</span>              :                             'Q: How do I add a new recipe?\nA: Navigate to the &quot;Add Recipe&quot; section by tapping on the &quot;Add Recipe&quot; tab and fill in the required details.',</span>
 <span id="L135"><span class="lineNum">     135</span>              :                           ),</span>
-<span id="L136"><span class="lineNum">     136</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L137"><span class="lineNum">     137</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L136"><span class="lineNum">     136</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L137"><span class="lineNum">     137</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L138"><span class="lineNum">     138</span>              :                             'Q: How can I manage my shopping list?\nA: Go to the &quot;Shopping List&quot; section by tapping on the &quot;Shopping List&quot; tab to view and manage your shopping items.',</span>
 <span id="L139"><span class="lineNum">     139</span>              :                           ),</span>
-<span id="L140"><span class="lineNum">     140</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L141"><span class="lineNum">     141</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L140"><span class="lineNum">     140</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L141"><span class="lineNum">     141</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L142"><span class="lineNum">     142</span>              :                             'Q: How do I keep track of items in my pantry?\nA: Use the &quot;Pantry&quot; tab to access the &quot;Pantry List&quot; where you can add, edit, and remove items.',</span>
 <span id="L143"><span class="lineNum">     143</span>              :                           ),</span>
-<span id="L144"><span class="lineNum">     144</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L145"><span class="lineNum">     145</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L144"><span class="lineNum">     144</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L145"><span class="lineNum">     145</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L146"><span class="lineNum">     146</span>              :                             'Q: Where can I manage my kitchen appliances?\nA: Tap on the &quot;Appliances&quot; tab to view and manage your kitchen appliances.',</span>
 <span id="L147"><span class="lineNum">     147</span>              :                           ),</span>
-<span id="L148"><span class="lineNum">     148</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L149"><span class="lineNum">     149</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L148"><span class="lineNum">     148</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L149"><span class="lineNum">     149</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L150"><span class="lineNum">     150</span>              :                             'Q: How do I view my saved recipes?\nA: Navigate to the &quot;Saved Recipes&quot; section by tapping on the &quot;Saved Recipes&quot; tab to see all your saved recipes.',</span>
 <span id="L151"><span class="lineNum">     151</span>              :                           ),</span>
-<span id="L152"><span class="lineNum">     152</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
-<span id="L153"><span class="lineNum">     153</span> <span class="tlaUNC">           0 :                           Text(</span></span>
+<span id="L152"><span class="lineNum">     152</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
+<span id="L153"><span class="lineNum">     153</span> <span class="tlaGNC">           1 :                           Text(</span></span>
 <span id="L154"><span class="lineNum">     154</span>              :                             'Q: How can I update my profile information?\nA: Go to the &quot;Profile&quot; section by tapping on the &quot;Profile&quot; tab to update your profile information.',</span>
 <span id="L155"><span class="lineNum">     155</span>              :                           ),</span>
-<span id="L156"><span class="lineNum">     156</span> <span class="tlaUNC">           0 :                           SizedBox(height: 8),</span></span>
+<span id="L156"><span class="lineNum">     156</span> <span class="tlaGNC">           1 :                           SizedBox(height: 8),</span></span>
 <span id="L157"><span class="lineNum">     157</span>              : </span>
 <span id="L158"><span class="lineNum">     158</span>              :                           // Add more FAQ entries as needed</span>
 <span id="L159"><span class="lineNum">     159</span>              :                         ],</span>
 <span id="L160"><span class="lineNum">     160</span>              :                       ),</span>
 <span id="L161"><span class="lineNum">     161</span>              :                     ),</span>
 <span id="L162"><span class="lineNum">     162</span>              :                   ),</span>
-<span id="L163"><span class="lineNum">     163</span> <span class="tlaUNC">           0 :                   Align(</span></span>
+<span id="L163"><span class="lineNum">     163</span> <span class="tlaGNC">           1 :                   Align(</span></span>
 <span id="L164"><span class="lineNum">     164</span>              :                     alignment: Alignment.bottomRight,</span>
-<span id="L165"><span class="lineNum">     165</span> <span class="tlaUNC">           0 :                     child: ElevatedButton(</span></span>
-<span id="L166"><span class="lineNum">     166</span> <span class="tlaUNC">           0 :                       key: Key('close_help_menu'),</span></span>
-<span id="L167"><span class="lineNum">     167</span> <span class="tlaUNC">           0 :                         onPressed: onClose,</span></span>
-<span id="L168"><span class="lineNum">     168</span> <span class="tlaUNC">           0 :                         style: ElevatedButton.styleFrom(</span></span>
-<span id="L169"><span class="lineNum">     169</span> <span class="tlaUNC">           0 :                           backgroundColor: Color(0xFFDC945F),</span></span>
-<span id="L170"><span class="lineNum">     170</span> <span class="tlaUNC">           0 :                           padding: EdgeInsets.symmetric(</span></span>
+<span id="L165"><span class="lineNum">     165</span> <span class="tlaGNC">           1 :                     child: ElevatedButton(</span></span>
+<span id="L166"><span class="lineNum">     166</span> <span class="tlaGNC">           1 :                       key: Key('close_help_menu'),</span></span>
+<span id="L167"><span class="lineNum">     167</span> <span class="tlaGNC">           1 :                         onPressed: onClose,</span></span>
+<span id="L168"><span class="lineNum">     168</span> <span class="tlaGNC">           1 :                         style: ElevatedButton.styleFrom(</span></span>
+<span id="L169"><span class="lineNum">     169</span> <span class="tlaGNC">           1 :                           backgroundColor: Color(0xFFDC945F),</span></span>
+<span id="L170"><span class="lineNum">     170</span> <span class="tlaGNC">           1 :                           padding: EdgeInsets.symmetric(</span></span>
 <span id="L171"><span class="lineNum">     171</span>              :                               horizontal: 20, vertical: 12),</span>
 <span id="L172"><span class="lineNum">     172</span>              :                         ),</span>
-<span id="L173"><span class="lineNum">     173</span> <span class="tlaUNC">           0 :                         child: Text('Close',</span></span>
-<span id="L174"><span class="lineNum">     174</span> <span class="tlaUNC">           0 :                             style: TextStyle(color: Colors.white))),</span></span>
+<span id="L173"><span class="lineNum">     173</span> <span class="tlaGNC">           1 :                         child: Text('Close',</span></span>
+<span id="L174"><span class="lineNum">     174</span> <span class="tlaGNC">           1 :                             style: TextStyle(color: Colors.white))),</span></span>
 <span id="L175"><span class="lineNum">     175</span>              :                   ),</span>
 <span id="L176"><span class="lineNum">     176</span>              :                 ],</span>
 <span id="L177"><span class="lineNum">     177</span>              :               ),</span>
