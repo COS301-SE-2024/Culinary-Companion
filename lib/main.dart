@@ -12,7 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; //LLM
 
 void main() async {
-  await dotenv.load(); //LLM
+  await dotenv.load(fileName: ".env");//LLM
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
