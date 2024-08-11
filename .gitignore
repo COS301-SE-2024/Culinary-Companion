@@ -45,3 +45,4 @@ app.*.map.json
 # Supabase
 .branches
 .temp
+.env
