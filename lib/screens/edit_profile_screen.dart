@@ -380,38 +380,61 @@ if (mounted) {
 
   // For spice level radio buttons
   Widget _buildSpiceLevelRadio() {
-    final theme = Theme.of(context);
-    final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    //final theme = Theme.of(context);
+    //final bool isLightTheme = theme.brightness == Brightness.light;
+    //final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
     return Padding(
       padding: const EdgeInsets.only(left: 20, top: 10, right: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Preferred Spice Level:',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-          Row(
-            children:
-                ['None', 'Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) {
-              return Expanded(
-                child: RadioListTile<String>(activeColor: textColor,
-                  title: Text(level),
-                  value: level,
-                  groupValue: _spiceLevel,
-                  onChanged: (value) {
-                    if (mounted) {
-                    setState(() {
-                      _spiceLevel = value;
-                    });}
-                  },
-                ),
-              );
-            }).toList(),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isSmallScreen = constraints.maxWidth < 830;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Preferred Spice Level:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 10),
+              isSmallScreen
+                  ? Column(
+                      children: ['None', 'Mild', 'Medium', 'Hot', 'Very Hot']
+                          .map((level) {
+                        return RadioListTile<String>(
+                          title: Text(level),
+                          value: level,
+                          groupValue: _spiceLevel,
+                          onChanged: (value) {
+                            if(mounted){
+                            setState(() {
+                              _spiceLevel = value;
+                            });}
+                          },
+                        );
+                      }).toList(),
+                    )
+                  : Row(
+                      children: ['None', 'Mild', 'Medium', 'Hot', 'Very Hot']
+                          .map((level) {
+                        return Expanded(
+                          child: RadioListTile<String>(
+                            title: Text(level),
+                            value: level,
+                            groupValue: _spiceLevel,
+                            onChanged: (value) {
+                              if (mounted) {
+                              setState(() {
+                                _spiceLevel = value;
+                              });}
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -683,7 +706,7 @@ if (mounted) {
       return Scaffold(
         appBar: AppBar(
           title: Text('Edit Profile', style: TextStyle(color: textColor)),
-          backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
+          backgroundColor: Colors.transparent,
         ),
         body: Center(
           child: Lottie.asset('assets/loading.json'),
@@ -694,7 +717,7 @@ if (mounted) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Profile', style: TextStyle(color: textColor)),
-        backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
+        backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
