@@ -406,9 +406,10 @@ if (mounted) {
                           value: level,
                           groupValue: _spiceLevel,
                           onChanged: (value) {
+                            if(mounted){
                             setState(() {
                               _spiceLevel = value;
-                            });
+                            });}
                           },
                         );
                       }).toList(),
