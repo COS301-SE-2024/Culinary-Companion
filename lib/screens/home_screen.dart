@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:lottie/lottie.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/help_home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // import '../gemini_service.dart'; // LLM
 
@@ -20,6 +21,11 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isGridView = false;
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
+  String? _errorMessage;
+  Map<String, dynamic>? _userDetails;
+  String? _userId;
+  List<Map<String, dynamic>> suggestedRecipes = [];
+
   // String _generatedText = '';  // LLM
 
   // Future<void> _loadContent() async {  // LLM
@@ -36,8 +42,141 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     fetchAllRecipes();
+    _loadUserId();
     // _fetchContent();
   }
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+        //print('Login successful: $_userId');
+      });
+    }
+    if (_userId != null) {
+      await _fetchUserDetails();
+      //await fetchRecipes(); //Fetch user recipes after fetching user details
+    } else {
+      if (mounted) {
+        setState(() {
+         // _isLoading = false;
+          _errorMessage = 'User ID not found';
+        });
+      }
+    }
+  }
+
+///////////fetch the users profile details/////////
+  Future<void> _fetchUserDetails() async {
+    if (_userId == null) return;
+    if (mounted) {
+      setState(() {
+        //_isLoading = true; // Show loading indicator
+      });
+    }
+
+    final String url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'action': 'getUserDetails', 'userId': _userId}),
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        if (data.isNotEmpty) {
+          if (mounted) {
+            setState(() {
+              _userDetails = data[0]; // Get the first item in the list
+              final String spiceLevel =
+                  _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
+              final String preferredCuisine =
+                  _userDetails?['cuisine']?.toString() ?? 'Mexican'; //default
+              final List<String> dietaryConstraints = List<String>.from(
+                  _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
+            });
+             await fetchSuggestedRecipes();
+          }
+        } else {
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'No user details found';
+            });
+          }
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Failed to load user details';
+          });
+        }
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error fetching user details';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          //_isLoading = false; // Stop loading indicator
+        });
+      }
+    }
+  }
+
+  Future<void> fetchSuggestedRecipes() async {
+  if (_userDetails == null) return;
+
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final headers = <String, String>{'Content-Type': 'application/json'};
+  final body = jsonEncode({
+    'action': 'getRecipeSuggestions',
+    'spiceLevel': _userDetails?['spicelevel'] ?? 'Mild',
+    'cuisine': [_userDetails?['cuisine'] ?? 'Mexican'],
+    'dietaryConstraints': _userDetails?['dietaryConstraints'] ?? []
+  });
+
+  try {
+    final response =
+        await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> fetchedRecipes = jsonDecode(response.body);
+
+      // Clear the suggestedRecipes list before adding new items
+      suggestedRecipes.clear();
+
+      // Fetch details concurrently
+      final detailFetches = fetchedRecipes.map((recipe) async {
+        final String recipeId = recipe['recipeid'];
+        await fetchRecipeDetails(recipeId); // Call the existing fetchRecipeDetails function
+
+        // Manually find the recipe in the "recipes" list and add it to "suggestedRecipes"
+        final fetchedRecipe = recipes.firstWhere(
+          (r) => r['recipeId'] == recipeId,
+          orElse: () => {},
+        );
+
+        if (fetchedRecipe.isNotEmpty) {
+          suggestedRecipes.add(fetchedRecipe);
+        }
+      }).toList();
+
+      await Future.wait(detailFetches);
+    } else {
+      print('Failed to load suggested recipes: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error fetching suggested recipes: $error');
+  }
+}
+
   //   Future<void> _fetchContent() async {
   //   final apiKey = dotenv.env['API_KEY'] ?? '';
   //   if (apiKey.isEmpty) {
@@ -375,6 +514,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             'Appetizer', _filterRecipesByCourse('Appetizer')),
                         _buildRecipeList(
                             'Dessert', _filterRecipesByCourse('Dessert')),
+                        _buildRecipeList('Suggested for you based on your preferences', suggestedRecipes),
+
                       ],
                     ),
                   ),
