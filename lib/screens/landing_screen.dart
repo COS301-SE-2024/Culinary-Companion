@@ -15,8 +15,8 @@ class LandingScreen extends StatelessWidget {
           Positioned.fill(
             child: Image.asset(
               isMobile
-                  ? (isLightTheme ? 'MobileLightMode.png' : 'MobileDarkMode.png')
-                  : (isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png'),
+                  ? (isLightTheme ? 'assets/MobileLightMode.png' : 'assets/MobileDarkMode.png')
+                  : (isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkermode.png'),
               fit: BoxFit.cover,
             ),
           ),

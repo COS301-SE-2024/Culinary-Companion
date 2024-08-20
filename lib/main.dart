@@ -9,10 +9,10 @@ import 'screens/confirm_details.dart'; //Import the confirm details, a.k.a Signu
 import 'screens/main.dart'; // Import the main screen
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; //LLM
+// import 'package:flutter_dotenv/flutter_dotenv.dart'; //LLM
 
 void main() async {
-  await dotenv.load(fileName: ".env");//LLM
+  // await dotenv.load(); //LLM
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
     url: 'https://gsnhwvqprmdticzglwdf.supabase.co',

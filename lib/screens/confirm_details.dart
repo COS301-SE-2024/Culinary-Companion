@@ -315,7 +315,7 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png',
+              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkermode.png',
               fit: BoxFit.cover,
             ),
           ),

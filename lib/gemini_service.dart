@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 // import '/screens/home_screen.dart'; 
 
 
 Future<String> fetchContentBackpack() async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -20,7 +20,7 @@ Future<String> fetchContentBackpack() async {
 
 
 Future<String> fetchContentHorse() async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -55,7 +55,7 @@ Future<Map<String, dynamic>?> fetchRecipeDetails(String recipeId) async {
 
 Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substitute, String substitutedIngredient) async {
   // takes in a recipe id and substitute. finds a recipe using the substitute given
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -185,7 +185,7 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
 Future<String> fetchIngredientSubstitutions(String recipeId, String substitute) async {
   // takes in the recipe id and substitute. This is the ingredient for which we want to find
   // substitutes for 
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -289,7 +289,7 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute) 
 }
 
 Future<String> fetchKeywords(String recipeId) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -389,7 +389,7 @@ Future<String> fetchKeywords(String recipeId) async {
 
 
 Future<String> fetchDietaryConstraints(String recipeId) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
