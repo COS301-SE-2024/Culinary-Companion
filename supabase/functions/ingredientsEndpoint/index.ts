@@ -220,7 +220,7 @@ async function addIngredientIfNotExists(
 
 async function filterRecipes(filters :Filters, corsHeaders: HeadersInit) {
     try {
-        const query = supabase.from('recipe').select('recipeid');
+        let query = supabase.from('recipe').select('recipeid');
 
         // Apply course filter
         if (filters.course && filters.course.length > 0) {
@@ -239,7 +239,9 @@ async function filterRecipes(filters :Filters, corsHeaders: HeadersInit) {
 
         // Apply dietary options filter
         if (filters.dietaryOptions && filters.dietaryOptions.length > 0) {
-            query.in('dietaryOptions', filters.dietaryOptions);
+            filters.dietaryOptions.forEach((option) => {
+                query = query.ilike('dietaryOptions', `%${option}%`);
+            });
         }
 
         // // Apply ingredient options filter (custom logic as needed)
