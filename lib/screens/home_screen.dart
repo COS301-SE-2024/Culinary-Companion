@@ -21,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isGridView = false;
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
-  String? _errorMessage;
+  //String? _errorMessage;
   Map<String, dynamic>? _userDetails;
   String? _userId;
   List<Map<String, dynamic>> suggestedRecipes = [];
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         setState(() {
          // _isLoading = false;
-          _errorMessage = 'User ID not found';
+          //_errorMessage = 'User ID not found';
         });
       }
     }
@@ -91,33 +91,33 @@ class _HomeScreenState extends State<HomeScreen> {
           if (mounted) {
             setState(() {
               _userDetails = data[0]; // Get the first item in the list
-              final String spiceLevel =
-                  _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
-              final String preferredCuisine =
-                  _userDetails?['cuisine']?.toString() ?? 'Mexican'; //default
-              final List<String> dietaryConstraints = List<String>.from(
-                  _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
+              // final String spiceLevel =
+              //     _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
+              // final String preferredCuisine =
+              //     _userDetails?['cuisine']?.toString() ?? 'Mexican'; //default
+              // final List<String> dietaryConstraints = List<String>.from(
+              //     _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
             });
              await fetchSuggestedRecipes();
           }
         } else {
           if (mounted) {
             setState(() {
-              _errorMessage = 'No user details found';
+              //_errorMessage = 'No user details found';
             });
           }
         }
       } else {
         if (mounted) {
           setState(() {
-            _errorMessage = 'Failed to load user details';
+            //_errorMessage = 'Failed to load user details';
           });
         }
       }
     } catch (error) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Error fetching user details';
+          //_errorMessage = 'Error fetching user details';
         });
       }
     } finally {
