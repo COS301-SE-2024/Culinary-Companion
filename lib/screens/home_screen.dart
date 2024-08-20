@@ -53,10 +53,10 @@ Future<void> _loadUserIdAndFetchRecipes() async {
   await _loadUserId();
 
   // Fetch suggested recipes based on user details first
-  if (_userId != null) {
-    await fetchSuggestedRecipes();
-    await fetchSuggestedFavorites();
-  }
+  // if (_userId != null) {
+  //   await fetchSuggestedRecipes();
+  //   await fetchSuggestedFavorites();
+  // }
 
   // Then fetch all recipes
   await fetchAllRecipes();
@@ -113,8 +113,9 @@ Future<void> _loadUserId() async {
               // final List<String> dietaryConstraints = List<String>.from(
               //     _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
             });
-             await fetchSuggestedRecipes();
              await fetchSuggestedFavorites();
+             await fetchSuggestedRecipes();
+             
           }
         } else {
           if (mounted) {
@@ -178,7 +179,7 @@ Future<void> _loadUserId() async {
         );
 
         if (fetchedRecipe.isNotEmpty) {
-          suggestedFavoriteRecipes.add(fetchedRecipe);
+          suggestedRecipes.add(fetchedRecipe);
         }
       }).toList();
 
@@ -192,11 +193,10 @@ Future<void> _loadUserId() async {
 }
 
 
-  Future<void> fetchSuggestedRecipes() async {
+ Future<void> fetchSuggestedRecipes() async {
   if (_userDetails == null) return;
 
-  final url =
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
   final headers = <String, String>{'Content-Type': 'application/json'};
   final body = jsonEncode({
     'action': 'getRecipeSuggestions',
@@ -206,28 +206,32 @@ Future<void> _loadUserId() async {
   });
 
   try {
-    final response =
-        await http.post(Uri.parse(url), headers: headers, body: body);
+    final response = await http.post(Uri.parse(url), headers: headers, body: body);
 
     if (response.statusCode == 200) {
       final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
-     
-      suggestedRecipes.clear();
+      // check if recipe is already added
+      final Set<String> addedRecipeIds = suggestedRecipes.map((recipe) => recipe['recipeId'] as String).toSet();
 
-      // fetch recipe details
+      //fetch recipe details
       final detailFetches = fetchedRecipes.map((recipe) async {
         final String recipeId = recipe['recipeid'];
-        await fetchRecipeDetails(recipeId); 
 
-        // add to suggested recipes
-        final fetchedRecipe = recipes.firstWhere(
-          (r) => r['recipeId'] == recipeId,
-          orElse: () => {},
-        );
+        //only fetch and add if it’s not already in the list
+        if (!addedRecipeIds.contains(recipeId)) {
+          await fetchRecipeDetails(recipeId);
 
-        if (fetchedRecipe.isNotEmpty) {
-          suggestedRecipes.add(fetchedRecipe);
+          // add recipe to suggested
+          final fetchedRecipe = recipes.firstWhere(
+            (r) => r['recipeId'] == recipeId,
+            orElse: () => {},
+          );
+
+          if (fetchedRecipe.isNotEmpty) {
+            suggestedRecipes.add(fetchedRecipe);
+            addedRecipeIds.add(recipeId); // Mark this recipe as added
+          }
         }
       }).toList();
 
@@ -239,6 +243,7 @@ Future<void> _loadUserId() async {
     print('Error fetching suggested recipes: $error');
   }
 }
+
 
   //   Future<void> _fetchContent() async {
   //   final apiKey = dotenv.env['API_KEY'] ?? '';
@@ -589,8 +594,8 @@ Future<void> _loadUserId() async {
                             'Appetizer', _filterRecipesByCourse('Appetizer')),
                         _buildRecipeList(
                             'Dessert', _filterRecipesByCourse('Dessert')),
-                        _buildRecipeList('Suggested for you based on your preferences', suggestedRecipes),
-                        _buildRecipeList('Suggested for you based on your favorites', suggestedFavoriteRecipes),
+                        _buildRecipeList('Suggested', suggestedRecipes),
+                        //_buildRecipeList('Suggested', suggestedFavoriteRecipes),
 
                       ],
                     ),
