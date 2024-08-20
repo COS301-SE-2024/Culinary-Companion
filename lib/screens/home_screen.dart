@@ -211,18 +211,18 @@ Future<void> _loadUserId() async {
     if (response.statusCode == 200) {
       final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
-      // Use a Set to track added recipe IDs and avoid duplicates
+      // check if recipe is already added
       final Set<String> addedRecipeIds = suggestedRecipes.map((recipe) => recipe['recipeId'] as String).toSet();
 
-      // Fetch recipe details
+      //fetch recipe details
       final detailFetches = fetchedRecipes.map((recipe) async {
         final String recipeId = recipe['recipeid'];
 
-        // Only fetch and add if it’s not already in the list
+        //only fetch and add if it’s not already in the list
         if (!addedRecipeIds.contains(recipeId)) {
           await fetchRecipeDetails(recipeId);
 
-          // Find and add the fetched recipe to the list
+          // add recipe to suggested
           final fetchedRecipe = recipes.firstWhere(
             (r) => r['recipeId'] == recipeId,
             orElse: () => {},
