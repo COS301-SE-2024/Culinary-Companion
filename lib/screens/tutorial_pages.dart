@@ -44,32 +44,32 @@ class _TutorialPagesState extends State<TutorialPages>
       TutorialPage(
         title: "Welcome to Culinary Companion",
         description: "Embark on a delicious journey through your kitchen!",
-        imagePath: isLightTheme ? 'Lwelcome.png' : 'welcome.png',
+        imagePath: isLightTheme ? 'assets/Lwelcome.png' : 'assets/welcome.png',
       ),
       TutorialPage(
         title: "Smart Pantry",
         description: "Effortlessly manage your ingredients and plan meals.",
-        imagePath: isLightTheme ? 'Lpantry.png' : 'pantry.png',
+        imagePath: isLightTheme ? 'assets/Lpantry.png' : 'assets/pantry.png',
       ),
       TutorialPage(
         title: "Intelligent Shopping",
         description: "Never forget an ingredient with our smart shopping list.",
-        imagePath: isLightTheme ? 'Lshopping.png' : 'shopping.png',
+        imagePath: isLightTheme ? 'assets/Lshopping.png' : 'assets/shopping.png',
       ),
       TutorialPage(
         title: "Appliance Tracking",
         description: "Find recipes that match your kitchen equipment.",
-        imagePath: isLightTheme ? 'Lappliances.png' : 'appliances.png',
+        imagePath: isLightTheme ? 'assets/Lappliances.png' : 'assets/appliances.png',
       ),
       TutorialPage(
         title: "Recipe Creator",
         description: "Share your culinary masterpieces with the world.",
-        imagePath: isLightTheme ? 'Lrecipes.png' : 'recipes.png',
+        imagePath: isLightTheme ? 'assets/Lrecipes.png' : 'assets/recipes.png',
       ),
       TutorialPage(
         title: "Discover & Savour",
         description: "Explore, favorite, and cook with confidence!",
-        imagePath: isLightTheme ? 'Lsavour.png' : 'savour.png',
+        imagePath: isLightTheme ? 'assets/Lsavour.png' : 'assets/savour.png',
       ),
     ];
 
