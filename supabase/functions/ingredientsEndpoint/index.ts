@@ -117,6 +117,8 @@ Deno.serve(async (req) => {
                 return addRecipeDietaryConstraints(recipeid, dietaryConstraints, corsHeaders);
             case 'addIngredientIfNotExists':
                 return addIngredientIfNotExists(ingredientName, measurementUnit, corsHeaders);
+            case 'getRecipeSuggestions':
+                return getRecipeSuggestions({spiceLevel,cuisine,dietaryConstraints}, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -130,6 +132,61 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+
+async function getRecipeSuggestions(userPreferences: { spiceLevel: number; cuisine: string; dietaryConstraints: string[] }, corsHeaders: HeadersInit) {
+    try {
+        let query = supabase.from('recipe').select('recipeid');
+
+        // Build conditions for the OR clause
+        const conditions: string[] = [];
+
+        // Spice level condition
+        if (userPreferences.spiceLevel !== undefined && userPreferences.spiceLevel !== null) {
+            conditions.push(`spicelevel.eq.${userPreferences.spiceLevel}`);
+        }
+
+        // Cuisine condition
+        if (userPreferences.cuisine && userPreferences.cuisine.length > 0) {
+            conditions.push(`cuisine.eq.${userPreferences.cuisine}`);
+        }
+
+        // Dietary constraints conditions
+        if (userPreferences.dietaryConstraints && userPreferences.dietaryConstraints.length > 0) {
+            userPreferences.dietaryConstraints.forEach((option) => {
+                conditions.push(`dietaryOptions.ilike.%${option}%`);
+            });
+        }
+
+        // Combine conditions using OR
+        if (conditions.length > 0) {
+            query = query.or(conditions.join(','));
+        }
+
+        const { data: recipes, error: recipesError } = await query;
+
+        if (recipesError) {
+            console.error('Error fetching recipe suggestions:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getRecipeSuggestions function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+
 
 async function addIngredientIfNotExists(
     ingredientName: string,
