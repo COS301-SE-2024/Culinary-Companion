@@ -119,6 +119,8 @@ Deno.serve(async (req) => {
                 return addIngredientIfNotExists(ingredientName, measurementUnit, corsHeaders);
             case 'getRecipeSuggestions':
                 return getRecipeSuggestions({spiceLevel,cuisine,dietaryConstraints}, corsHeaders);
+            case 'getSuggestedFavorites':
+                return getSuggestedFavorites(userId, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -133,32 +135,96 @@ Deno.serve(async (req) => {
     }
 });
 
+async function getSuggestedFavorites(userId: string, corsHeaders: HeadersInit) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        //fetch users favorite recipes
+        const { data: userFavorites, error: userFavoritesError } = await supabase
+            .from('userFavorites')
+            .select('recipeid')
+            .eq('userid', userId);
+
+        if (userFavoritesError) {
+            throw new Error(`Error fetching user favorites: ${userFavoritesError.message}`);
+        }
+
+        if (!userFavorites || userFavorites.length === 0) {
+            return new Response(JSON.stringify([]), {
+                status: 200,
+                headers: corsHeaders,
+            });
+        }
+
+        const favoritedRecipeIds = userFavorites.map(fav => fav.recipeid);
+
+        //find users with the same favorited recipes
+        const { data: similarUsersFavorites, error: similarUsersFavoritesError } = await supabase
+            .from('userFavorites')
+            .select('userid, recipeid')
+            .in('recipeid', favoritedRecipeIds)
+            .neq('userid', userId); // Exclude the current user
+
+        if (similarUsersFavoritesError) {
+            throw new Error(`Error fetching similar users' favorites: ${similarUsersFavoritesError.message}`);
+        }
+
+        //get other users favorites 
+        const otherUserIds = Array.from(new Set(similarUsersFavorites.map(fav => fav.userid)));
+        const { data: otherUsersRecipes, error: otherUsersRecipesError } = await supabase
+            .from('userFavorites')
+            .select('recipeid')
+            .in('userid', otherUserIds);
+
+        if (otherUsersRecipesError) {
+            throw new Error(`Error fetching other users' recipes: ${otherUsersRecipesError.message}`);
+        }
+
+        //remove recipes that the user has already favorited
+        const suggestedRecipeIds = otherUsersRecipes
+            .map(fav => fav.recipeid)
+            .filter(recipeId => !favoritedRecipeIds.includes(recipeId));
+
+        return new Response(JSON.stringify(suggestedRecipeIds), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
 
 async function getRecipeSuggestions(userPreferences: { spiceLevel: number; cuisine: string; dietaryConstraints: string[] }, corsHeaders: HeadersInit) {
     try {
         let query = supabase.from('recipe').select('recipeid');
 
-        // Build conditions for the OR clause
+        //conditions for or 
         const conditions: string[] = [];
 
-        // Spice level condition
+        //spice level
         if (userPreferences.spiceLevel !== undefined && userPreferences.spiceLevel !== null) {
             conditions.push(`spicelevel.eq.${userPreferences.spiceLevel}`);
         }
 
-        // Cuisine condition
+        //cuisine
         if (userPreferences.cuisine && userPreferences.cuisine.length > 0) {
             conditions.push(`cuisine.eq.${userPreferences.cuisine}`);
         }
 
-        // Dietary constraints conditions
+        //dietary constraints
         if (userPreferences.dietaryConstraints && userPreferences.dietaryConstraints.length > 0) {
             userPreferences.dietaryConstraints.forEach((option) => {
                 conditions.push(`dietaryOptions.ilike.%${option}%`);
             });
         }
 
-        // Combine conditions using OR
+        //combine conditions
         if (conditions.length > 0) {
             query = query.or(conditions.join(','));
         }
