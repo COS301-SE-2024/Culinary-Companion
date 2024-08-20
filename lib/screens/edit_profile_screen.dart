@@ -399,7 +399,7 @@ if (mounted) {
               SizedBox(height: 10),
               isSmallScreen
                   ? Column(
-                      children: ['None', 'Mild', 'Medium', 'Hot', 'Very Hot']
+                      children: ['None', 'Mild', 'Medium', 'Hot', 'Extra Hot']
                           .map((level) {
                         return RadioListTile<String>(
                           title: Text(level),
@@ -415,7 +415,7 @@ if (mounted) {
                       }).toList(),
                     )
                   : Row(
-                      children: ['None', 'Mild', 'Medium', 'Hot', 'Very Hot']
+                      children: ['None', 'Mild', 'Medium', 'Hot', 'Extra Hot']
                           .map((level) {
                         return Expanded(
                           child: RadioListTile<String>(
