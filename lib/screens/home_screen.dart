@@ -53,10 +53,10 @@ Future<void> _loadUserIdAndFetchRecipes() async {
   await _loadUserId();
 
   // Fetch suggested recipes based on user details first
-  if (_userId != null) {
-    await fetchSuggestedRecipes();
-    await fetchSuggestedFavorites();
-  }
+  // if (_userId != null) {
+  //   await fetchSuggestedRecipes();
+  //   await fetchSuggestedFavorites();
+  // }
 
   // Then fetch all recipes
   await fetchAllRecipes();
