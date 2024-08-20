@@ -73,17 +73,17 @@ class PasteRecipe extends StatelessWidget {
                   backgroundColor: const Color(0xFFDC945F),
                   padding: EdgeInsets.symmetric(
                     horizontal: screenWidth *
-                        0.08, // Adjust the horizontal padding based on screen width
-                    vertical: screenWidth *
-                        0.04, // Adjust the vertical padding based on screen width
+                        0.09, // Adjust the horizontal padding based on screen width
+                    vertical:
+                        20, // Adjust the vertical padding based on screen width
                   ),
                 ),
                 child: Text(
                   'Format Recipe',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: screenWidth *
-                        0.045, // Adjust the font size based on screen width
+                    // fontSize: screenWidth *
+                    //     0.045, // Adjust the font size based on screen width
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -97,9 +97,9 @@ class PasteRecipe extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     padding: EdgeInsets.symmetric(
                       horizontal: screenWidth *
-                          0.08, // Adjust the horizontal padding based on screen width
-                      vertical: screenWidth *
-                          0.04, // Adjust the vertical padding based on screen width
+                          0.09, // Adjust the horizontal padding based on screen width
+                      vertical:
+                          20, // Adjust the vertical padding based on screen width
                     ),
                     side: const BorderSide(color: Color(0xFFDC945F), width: 2),
                     elevation: 0),
@@ -107,8 +107,8 @@ class PasteRecipe extends StatelessWidget {
                   'Analyze Recipe',
                   style: TextStyle(
                     color: const Color(0xFFDC945F),
-                    fontSize: screenWidth *
-                        0.045, // Adjust the font size based on screen width
+                    // fontSize: screenWidth *
+                    //     0.045, // Adjust the font size based on screen width
                     fontWeight: FontWeight.bold,
                   ),
                 ),
