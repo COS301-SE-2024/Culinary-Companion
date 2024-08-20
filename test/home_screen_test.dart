@@ -36,7 +36,8 @@ void main() {
 
       // Find and tap the help icon
       await tester.tap(find.byIcon(Icons.help));
-      await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 500));
+
 
       // Verify that the HelpMenu is displayed
       expect(find.byType(HelpMenu), findsOneWidget);
