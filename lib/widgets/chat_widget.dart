@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 //import 'package:shared_preferences/shared_preferences.dart';
@@ -43,8 +43,8 @@ class _ChatWidgetState extends State<ChatWidget> {
   }
 
   Future<void> _initializeChat() async {
-    await dotenv.load();
-    final apiKey = dotenv.env['API_KEY'] ?? '';
+    // await dotenv.load();
+    const String apiKey = String.fromEnvironment('API_KEY') ?? '';
     if (apiKey.isEmpty) {
       print('No API_KEY environment variable');
       return;
