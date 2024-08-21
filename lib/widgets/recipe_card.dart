@@ -1996,7 +1996,7 @@ class _CheckableItemState extends State<CheckableItem> {
 
     // Fetch the substitutions
     String jsonString =
-        await fetchIngredientSubstitutions(widget.recipeID, widget.title);
+        await fetchIngredientSubstitutions(widget.recipeID, widget.title); // add user id 
 
     // Parse the JSON string
     Map<String, dynamic> substitutions;

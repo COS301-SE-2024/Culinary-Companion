@@ -53,6 +53,10 @@ Future<Map<String, dynamic>?> fetchRecipeDetails(String recipeId) async {
   }
 }
 
+// Future<String> fetchUserDietaryConstraints(String userId) {
+  
+// }
+
 Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substitute, String substitutedIngredient) async {
   // takes in a recipe id and substitute. finds a recipe using the substitute given
   final apiKey = dotenv.env['API_KEY'] ?? '';
@@ -185,6 +189,7 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
 Future<String> fetchIngredientSubstitutions(String recipeId, String substitute) async {
   // takes in the recipe id and substitute. This is the ingredient for which we want to find
   // substitutes for 
+  // edit: take in user id to retrieve user's dietary constraints
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
@@ -231,7 +236,7 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute) 
 
   final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
-  suggest 5 substitutions for $substitute. Only give the ingredient names.""";
+  suggest 5 substitutions for $substitute considering these dietary constraints: . Only give the ingredient names.""";
   
   final finalPrompt = initialPrompt + formatting;
 
