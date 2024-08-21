@@ -30,10 +30,11 @@ class _HomeScreenState extends State<HomeScreen> {
   // String _generatedText = '';  // LLM
 
   // Future<void> _loadContent() async {  // LLM
-  // fetchKeywords
-  // fetchIngredientSubstitution
-  // fetchDietaryConstraints
-  // final content = await fetchKeywords("7e739692-fedd-4843-b236-80cf0d23d497"); // get recipeId and put here
+  // // fetchKeywords
+  // // fetchIngredientSubstitution
+  // // fetchDietaryConstraints
+  // final content = await fetchUserDietaryConstraints("f1d41f9c-6a34-4847-a292-96ec0dfeb871"); // get recipeId and put here
+  // print(content);
   // setState(() {
   //   _generatedText = content;
   // });

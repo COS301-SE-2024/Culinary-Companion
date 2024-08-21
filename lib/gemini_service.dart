@@ -53,9 +53,38 @@ Future<Map<String, dynamic>?> fetchRecipeDetails(String recipeId) async {
   }
 }
 
-// Future<String> fetchUserDietaryConstraints(String userId) {
-  
-// }
+Future<String> fetchUserDietaryConstraints(String userId) async {
+  final url = Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint');
+
+  try {
+    // Send a POST request to fetch dietary constraints for the user
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'action': 'getUserDietaryConstraints', 
+        'userId': userId,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+
+      // Check if the response contains the constraints
+      if (responseData.containsKey('constraints')) {
+        return responseData['constraints'];
+      } else {
+        return 'No dietary constraints found';
+      }
+    } else {
+      return 'Failed to fetch dietary constraints: ${response.statusCode}';
+    }
+  } catch (e) {
+    return 'Error fetching dietary constraints: $e';
+  }
+}
 
 Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substitute, String substitutedIngredient) async {
   // takes in a recipe id and substitute. finds a recipe using the substitute given
@@ -186,7 +215,7 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
   }
 }
 
-Future<String> fetchIngredientSubstitutions(String recipeId, String substitute) async {
+Future<String> fetchIngredientSubstitutions(String recipeId, String substitute, String userId) async {
   // takes in the recipe id and substitute. This is the ingredient for which we want to find
   // substitutes for 
   // edit: take in user id to retrieve user's dietary constraints
@@ -200,6 +229,9 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute) 
   if (recipeDetails == null) {
     return 'Failed to fetch recipe details';
   }
+
+  // fetch user's dietary constraints
+  final String dietaryConstraints = await fetchUserDietaryConstraints(userId);
 
   // Ensure the data is parsed correctly
   List<String> ingredients = [];
@@ -236,7 +268,7 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute) 
 
   final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
-  suggest 5 substitutions for $substitute considering these dietary constraints: . Only give the ingredient names.""";
+  suggest 5 substitutions for $substitute considering these dietary constraints: $dietaryConstraints. Only give the ingredient names.""";
   
   final finalPrompt = initialPrompt + formatting;
 
