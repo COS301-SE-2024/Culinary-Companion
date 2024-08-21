@@ -25,7 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? _userDetails;
   String? _userId;
   List<Map<String, dynamic>> suggestedRecipes = [];
-  List<Map<String, dynamic>> suggestedFavoriteRecipes = [];
+  //List<Map<String, dynamic>> suggestedFavoriteRecipes = [];
+  Set<String> _addedRecipeIds = {}; //recipes in the recipes list
+  Set<String> _addedToSuggestedRecipesIds = {}; //recipes in the suggestedRecipes list
 
   // String _generatedText = '';  // LLM
 
@@ -42,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
 void initState() {
   super.initState();
-  _loadUserIdAndFetchRecipes(); // Call the new method
+  _loadUserIdAndFetchRecipes(); 
 }
 
 Future<void> _loadUserIdAndFetchRecipes() async {
@@ -116,6 +118,8 @@ Future<void> _loadUserId() async {
              await fetchSuggestedFavorites();
              await fetchSuggestedRecipes();
              
+             
+             
           }
         } else {
           if (mounted) {
@@ -146,7 +150,7 @@ Future<void> _loadUserId() async {
     }
   }
 
-  Future<void> fetchSuggestedFavorites() async {
+ Future<void> fetchSuggestedFavorites() async {
   if (_userId == null) return;
 
   final url =
@@ -163,27 +167,33 @@ Future<void> _loadUserId() async {
 
     if (response.statusCode == 200) {
       final List<dynamic> recipeIds = jsonDecode(response.body);
-      //print('Rec idsss: $recipeIds');
 
-      
-      suggestedFavoriteRecipes.clear();
+      //retch each recipe details
+      for (var recipeId in recipeIds) {
+        final recipeIdString = recipeId.toString();
+        //print('here: $recipeIdString');
 
-      // fetch rec details
-      final detailFetches = recipeIds.map((recipeId) async {
-        await fetchRecipeDetails(recipeId); 
+        //check if recipe is already in suggested rec
+        if (!_addedToSuggestedRecipesIds.contains(recipeIdString)) {
+          await fetchRecipeDetails(recipeIdString);
 
-        // add to suggested favorites
-        final fetchedRecipe = recipes.firstWhere(
-          (r) => r['recipeId'] == recipeId,
-          orElse: () => {},
-        );
+          //retch recipe then add to suggestedRec list
+          final fetchedRecipe = recipes.firstWhere(
+            (r) => r['recipeId'] == recipeIdString,
+            orElse: () => {},
+          );
 
-        if (fetchedRecipe.isNotEmpty) {
-          suggestedRecipes.add(fetchedRecipe);
+          if (fetchedRecipe.isNotEmpty && !_addedToSuggestedRecipesIds.contains(recipeIdString)) {
+            setState(() {
+              suggestedRecipes.add(fetchedRecipe);
+              _addedToSuggestedRecipesIds.add(recipeIdString); //mark added to suggested
+              //print('here 2': $recipeIdString');
+            });
+          }
+        } else {
+         // print('Recipe already in suggestedRecipes: $recipeIdString');
         }
-      }).toList();
-
-      await Future.wait(detailFetches);
+      }
     } else {
       print('Failed to load suggested recipes based on favorites: ${response.statusCode}');
     }
@@ -191,6 +201,8 @@ Future<void> _loadUserId() async {
     print('Error fetching suggested recipes based on favorites: $error');
   }
 }
+
+
 
 
  Future<void> fetchSuggestedRecipes() async {
@@ -211,18 +223,14 @@ Future<void> _loadUserId() async {
     if (response.statusCode == 200) {
       final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
-      // check if recipe is already added
-      final Set<String> addedRecipeIds = suggestedRecipes.map((recipe) => recipe['recipeId'] as String).toSet();
-
-      //fetch recipe details
       final detailFetches = fetchedRecipes.map((recipe) async {
         final String recipeId = recipe['recipeid'];
 
-        //only fetch and add if it’s not already in the list
-        if (!addedRecipeIds.contains(recipeId)) {
+        //check if the recipe has already been added to recipe list
+        if (!_addedRecipeIds.contains(recipeId)) {
           await fetchRecipeDetails(recipeId);
 
-          // add recipe to suggested
+          //add recipe to suggested list
           final fetchedRecipe = recipes.firstWhere(
             (r) => r['recipeId'] == recipeId,
             orElse: () => {},
@@ -230,7 +238,7 @@ Future<void> _loadUserId() async {
 
           if (fetchedRecipe.isNotEmpty) {
             suggestedRecipes.add(fetchedRecipe);
-            addedRecipeIds.add(recipeId); // Mark this recipe as added
+            _addedRecipeIds.add(recipeId); 
           }
         }
       }).toList();
@@ -243,7 +251,6 @@ Future<void> _loadUserId() async {
     print('Error fetching suggested recipes: $error');
   }
 }
-
 
   //   Future<void> _fetchContent() async {
   //   final apiKey = dotenv.env['API_KEY'] ?? '';
@@ -276,7 +283,6 @@ Future<void> _loadUserId() async {
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
-        // Fetch details concurrently
         final detailFetches = fetchedRecipes.map((recipe) {
           final String recipeId = recipe['recipeid'];
           return fetchRecipeDetails(recipeId);
@@ -297,14 +303,8 @@ Future<void> _loadUserId() async {
   }
 
   Future<void> fetchRecipeDetails(String recipeId) async {
-  // Check if the recipe is already in the list
-  final existingRecipe = recipes.firstWhere(
-    (recipe) => recipe['recipeId'] == recipeId,
-    orElse: () => {},
-  );
-
-  // If the recipe is already in the list, skip fetching details
-  if (existingRecipe.isNotEmpty) {
+  // if its already in the recipe list dont add it again
+  if (_addedRecipeIds.contains(recipeId)) {
     return;
   }
 
@@ -322,6 +322,7 @@ Future<void> _loadUserId() async {
       if (mounted) {
         setState(() {
           recipes.add(fetchedRecipe);
+          _addedRecipeIds.add(recipeId); //add to addedrec list
         });
       }
     } else {
@@ -331,7 +332,6 @@ Future<void> _loadUserId() async {
     print('Error fetching recipe details: $error');
   }
 }
-
 
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
