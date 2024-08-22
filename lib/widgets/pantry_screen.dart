@@ -359,19 +359,39 @@ class _PantryScreenState extends State<PantryScreen> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: ElevatedButton(
-                            key: ValueKey('Pantry'),
-                            onPressed: () {
-                              _showAddItemDialog(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFDC945F),
-                              foregroundColor: Colors.white,
-                              fixedSize: const Size(48.0, 48.0),
-                              shape: const CircleBorder(),
-                              padding: EdgeInsets.all(0),
-                            ),
-                            child: const Icon(Icons.add, size: 32.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              ElevatedButton(
+                                key: ValueKey('Pantry'),
+                                onPressed: () {
+                                  _showAddItemDialog(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFDC945F),
+                                  foregroundColor: Colors.white,
+                                  fixedSize: const Size(48.0, 48.0),
+                                  shape: const CircleBorder(),
+                                  padding: EdgeInsets.all(0),
+                                ),
+                                child: const Icon(Icons.add, size: 32.0),
+                              ),
+                              ElevatedButton(
+                                key: ValueKey('UploadPhoto'),
+                                onPressed: () {
+                                  // Placeholder for future functionality
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFDC945F),
+                                  foregroundColor: Colors.white,
+                                  fixedSize: const Size(48.0, 48.0),
+                                  shape: const CircleBorder(),
+                                  padding: EdgeInsets.all(0),
+                                ),
+                                child: const Icon(Icons.camera_alt,
+                                    size: 32.0), // Camera icon
+                              ),
+                            ],
                           ),
                         ),
                       ],
