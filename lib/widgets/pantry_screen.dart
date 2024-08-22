@@ -5,6 +5,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'help_pantry.dart';
 import 'package:lottie/lottie.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' show Platform;
 
 Color shade(BuildContext context) {
   final theme = Theme.of(context);
@@ -290,6 +294,103 @@ class _PantryScreenState extends State<PantryScreen> {
     Overlay.of(context).insert(_helpMenuOverlay!);
   }
 
+  // final ImagePicker _picker = ImagePicker();
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    XFile? pickedFile;
+
+    if (kIsWeb) {
+      // For Web, only allow picking an image from gallery
+      pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    } else {
+      if (Platform.isAndroid || Platform.isIOS) {
+        // Request necessary permissions
+        if (await _requestPermissions(context)) {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(Icons.camera_alt),
+                      title: Text('Take a picture'),
+                      onTap: () async {
+                        final XFile? image =
+                            await picker.pickImage(source: ImageSource.camera);
+                        if (image != null) {
+                          // Handle image
+                          print('Image selected: ${image.path}');
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.photo_library),
+                      title: Text('Upload from gallery'),
+                      onTap: () async {
+                        final XFile? image =
+                            await picker.pickImage(source: ImageSource.gallery);
+                        if (image != null) {
+                          // Handle image
+                          print('Image selected: ${image.path}');
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+          // // Allow the user to either take a photo or pick one from the gallery
+          // pickedFile = await picker.pickImage(
+          //   source: ImageSource.camera, // or ImageSource.gallery
+          // );
+        } else {
+          // Permission denied, show an alert or snackbar
+          _showPermissionDeniedMessage(context);
+          return;
+        }
+      } else {
+        // Handle other platforms or throw an error
+        throw UnsupportedError('This platform is not supported');
+      }
+    }
+
+    if (pickedFile != null) {
+      // Handle the picked file
+      print('Image selected: ${pickedFile.path}');
+    } else {
+      print('No image selected.');
+    }
+  }
+
+  Future<bool> _requestPermissions(BuildContext context) async {
+    PermissionStatus cameraPermission = await Permission.camera.request();
+    PermissionStatus galleryPermission = await Permission.photos.request();
+
+    if (cameraPermission != PermissionStatus.granted ||
+        galleryPermission != PermissionStatus.granted) {
+      // Handle permission denied scenario
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Camera or gallery permission is required.'),
+      ));
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void _showPermissionDeniedMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Permission denied. You cannot use the camera.'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -379,10 +480,10 @@ class _PantryScreenState extends State<PantryScreen> {
                               ElevatedButton(
                                 key: ValueKey('UploadPhoto'),
                                 onPressed: () {
-                                  // Placeholder for future functionality
+                                  _pickImage();
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFDC945F),
+                                  backgroundColor: Color.fromARGB(255, 195, 108, 46),
                                   foregroundColor: Colors.white,
                                   fixedSize: const Size(48.0, 48.0),
                                   shape: const CircleBorder(),
