@@ -9,20 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
-
-Color shade(BuildContext context) {
-  final theme = Theme.of(context);
-  return theme.brightness == Brightness.light
-      ? Color.fromARGB(181, 52, 78, 70)
-      : Color(0xFF344E46);
-}
-
-Color unshade(BuildContext context) {
-  final theme = Theme.of(context);
-  return theme.brightness == Brightness.light
-      ? Color.fromARGB(188, 29, 44, 31)
-      : Color(0xFF1D2C1F);
-}
+import '../widgets/theme_utils.dart';
 
 class PantryScreen extends StatefulWidget {
   final http.Client? client;
@@ -275,13 +262,6 @@ class _PantryScreenState extends State<PantryScreen> {
     }
   }
 
-  // void _toggleCheckbox(String category, String item) {
-  //   setState(() {
-  //     final isChecked = !(_checkboxStates[item] ?? false);
-  //     _checkboxStates[item] = isChecked;
-  //   });
-  // }
-
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
       builder: (context) => HelpMenu(
@@ -483,7 +463,8 @@ class _PantryScreenState extends State<PantryScreen> {
                                   _pickImage();
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color.fromARGB(255, 195, 108, 46),
+                                  backgroundColor:
+                                      Color.fromARGB(255, 195, 108, 46),
                                   foregroundColor: Colors.white,
                                   fixedSize: const Size(48.0, 48.0),
                                   shape: const CircleBorder(),
