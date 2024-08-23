@@ -284,7 +284,7 @@ class _PantryScreenState extends State<PantryScreen> {
       pickedFile = await picker.pickImage(source: ImageSource.gallery);
       if (pickedFile != null) {
         print('Image selected: ${pickedFile.path}');
-        _showIngredientsScreen(); // Show mock ingredients screen
+        _showDetectedIngredients(); // Show mock ingredients screen
       }
     } else {
       if (Platform.isAndroid || Platform.isIOS) {
@@ -307,7 +307,7 @@ class _PantryScreenState extends State<PantryScreen> {
                           // Handle image
                           print('Image selected: ${image.path}');
                           Navigator.of(context).pop();
-                          _showIngredientsScreen(); //show mock ingredients screen
+                          _showDetectedIngredients(); //show mock ingredients screen
                         }
                       },
                     ),
@@ -321,7 +321,7 @@ class _PantryScreenState extends State<PantryScreen> {
                           // Handle image
                           print('Image selected: ${image.path}');
                           Navigator.of(context).pop();
-                          _showIngredientsScreen(); //show mock ingredients screen
+                          _showDetectedIngredients(); //show mock ingredients screen
                         }
                       },
                     ),
@@ -342,7 +342,7 @@ class _PantryScreenState extends State<PantryScreen> {
     }
   }
 
-  void _showIngredientsScreen() {
+  void _showDetectedIngredients() {
     showDialog(
       context: context,
       barrierDismissible: false, // Prevent closing when tapping outside
@@ -369,6 +369,7 @@ class _PantryScreenState extends State<PantryScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(height: 30),
                       Center(
                         child: Text(
                           'Detected Ingredients',
@@ -385,8 +386,8 @@ class _PantryScreenState extends State<PantryScreen> {
                           itemCount: 5, // Five mock ingredients
                           itemBuilder: (context, index) {
                             return ListTile(
-                              leading:
-                                  Icon(Icons.food_bank), // Mock ingredient icon
+                              leading: Icon(
+                                  Icons.restaurant), // Mock ingredient icon
                               title: Text('Ingredient ${index + 1}'),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -394,13 +395,13 @@ class _PantryScreenState extends State<PantryScreen> {
                                   IconButton(
                                     icon: Icon(Icons.edit),
                                     onPressed: () {
-                                      // Handle edit action
+                                      // HANDLE EDIT ACTION
                                     },
                                   ),
                                   IconButton(
                                     icon: Icon(Icons.delete),
                                     onPressed: () {
-                                      // Handle delete action
+                                      // HANDLE DELETE ACTION
                                     },
                                   ),
                                 ],
@@ -410,19 +411,35 @@ class _PantryScreenState extends State<PantryScreen> {
                         ),
                       ),
                       Align(
-                        alignment: Alignment.bottomRight,
-                        child: ElevatedButton(
-                          onPressed: () =>
-                              Navigator.of(context).pop(), // Close the dialog
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFDC945F),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
-                          ),
-                          child: Text('Close',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
+                          alignment: Alignment.bottomRight,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context)
+                                    .pop(), //HANDLE SAVE LOGIC!! BACKEND
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFFDC945F),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 12),
+                                ),
+                                child: Text('Save',
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                              SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context)
+                                    .pop(), //HANDLE CANCEL LOGIC!! BACKEND
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 12),
+                                ),
+                                child: Text('Cancel',
+                                    style: TextStyle(color: Color(0xFFDC945F))),
+                              ),
+                            ],
+                          )),
                     ],
                   ),
                 ),
