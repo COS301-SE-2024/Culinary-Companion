@@ -92,7 +92,7 @@ Future<void> _fetchIngredientNames() async {
       print('Failed to fetch ingredient names: ${response.statusCode}');
     }
   } catch (error) {
-    print('Error fetching ingredient names: $error');
+    //print('Error fetching ingredient names: $error');
 
     // Load from cache if the network fails
     final cachedData = prefs.getString('cachedIngredients');
@@ -155,7 +155,7 @@ Future<void> _fetchPantryList() async {
       print('Failed to fetch pantry list: ${response.statusCode}');
     }
   } catch (error) {
-    print('Error fetching pantry list: $error');
+    //print('Error fetching pantry list: $error');
 
     // Load cached data if the network request fails
     final cachedData = prefs.getString('cachedPantryList');

@@ -73,37 +73,58 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   }
 
   Future<void> _fetchIngredientNames() async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: '{"action": "getIngredientNames"}',
-        headers: {'Content-Type': 'application/json'},
-      );
+  final prefs = await SharedPreferences.getInstance();
+  try {
+    final response = await http.post(
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: '{"action": "getIngredientNames"}',
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        if (mounted) {
-          setState(() {
-            _items = data
-                .map((item) => {
-                      'id': item['id'].toString(),
-                      'name': item['name'].toString(),
-                      'category': item['category'].toString(),
-                      'measurementUnit': item['measurementUnit'].toString(),
-                    })
-                .toList();
-          });
-        }
-      } else {
-        print('Failed to fetch ingredient names: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching ingredient names: $error');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+
+      // Cache the response for offline use
+      await prefs.setString('cachedIngredients', jsonEncode(data));
+
+      setState(() {
+        _items = data
+            .map((item) => {
+                  'id': item['id'].toString(),
+                  'name': item['name'].toString(),
+                  'category': item['category'].toString(),
+                  'measurementUnit': item['measurementUnit'].toString(),
+                })
+            .toList();
+      });
+    } else {
+      print('Failed to fetch ingredient names: ${response.statusCode}');
+    }
+  } catch (error) {
+    //print('Error fetching ingredient names: $error');
+
+    // Load from cache if the network fails
+    final cachedData = prefs.getString('cachedIngredients');
+    if (cachedData != null) {
+      final List<dynamic> data = jsonDecode(cachedData);
+      setState(() {
+        _items = data
+            .map((item) => {
+                  'id': item['id'].toString(),
+                  'name': item['name'].toString(),
+                  'category': item['category'].toString(),
+                  'measurementUnit': item['measurementUnit'].toString(),
+                })
+            .toList();
+      });
     }
   }
+}
+
 
   Future<void> _fetchShoppingList() async {
+    final prefs = await SharedPreferences.getInstance();
     try {
       final response = await http.post(
         Uri.parse(
@@ -118,6 +139,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         final List<dynamic> shoppingList = data['shoppingList'];
+        await prefs.setString('cachedShoppingList', jsonEncode(shoppingList));
         if (mounted) {
           setState(() {
             _shoppingList.clear();
@@ -137,7 +159,27 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         print('Failed to fetch shopping list: ${response.statusCode}');
       }
     } catch (error) {
-      print('Error fetching shopping list: $error');
+      //print('Error fetching shopping list: $error');
+
+      final cachedData = prefs.getString('cachedShoppingList');
+    if (cachedData != null) {
+      final List<dynamic> shoppingList = jsonDecode(cachedData);
+      if (mounted) {
+          setState(() {
+            _shoppingList.clear();
+            for (var item in shoppingList) {
+              final ingredientName = item['ingredientName'].toString();
+              final category = item['category'] ?? 'Other';
+              final quantity = item['quantity'] ?? 1.0;
+              final measurementUnit = item['measurmentunit'] ?? 'unit';
+              final displayText =
+                  '$ingredientName ($quantity $measurementUnit)';
+              _shoppingList.putIfAbsent(category, () => []);
+              _shoppingList[category]?.add(displayText);
+            }
+          });
+        }
+    }
     }
   }
 

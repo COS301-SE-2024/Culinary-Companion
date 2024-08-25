@@ -49,7 +49,7 @@ void initState() {
 
 Future<void> _loadUserIdAndFetchRecipes() async {
   setState(() {
-    _isLoading = true; //if it takes too long remove this line
+    _isLoading = false; //if it takes too long remove this line slow
   });
 
   await _loadUserId();
