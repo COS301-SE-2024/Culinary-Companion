@@ -286,19 +286,35 @@ class _ChatWidgetState extends State<ChatWidget> {
               ),
             ),
           ),
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.all(10),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                return _buildMessageBubble(
-                    message["Chef Tess"]!,
-                    message[
-                        "Hey There, Im Chef Tess. I'm here to assist ypu with any of your questions regarding this ${widget.recipeName} recipe"]!);
-              },
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            Image.asset(
+              'chef.png', // Replace with your asset path
+              width: 50, // Adjust size as needed
+              height: 50, // Adjust size as needed
+              fit: BoxFit.cover,
             ),
-          ),
+            SizedBox(width: 8.0),
+            Flexible(
+              child: Container(
+                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 5),
+                    Text(
+                      "Hello! I'm Robo-Chef, here to help you with any questions you might have about this ${widget.recipeName} recipe.",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ]),
           if (_suggestedPrompts.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(8.0),

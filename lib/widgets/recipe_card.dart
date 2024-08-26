@@ -1551,7 +1551,8 @@ class _RecipeCardState extends State<RecipeCard> {
                         ),
                         style: ElevatedButton.styleFrom(
                             shape: CircleBorder(),
-                            padding: EdgeInsets.all(0),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 15),
                             backgroundColor: Color.fromARGB(0, 71, 80,
                                 71) // Adjust padding to fit the image // Background color of the button
                             ),
