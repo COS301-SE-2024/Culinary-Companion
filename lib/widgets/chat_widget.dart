@@ -205,6 +205,28 @@ class _ChatWidgetState extends State<ChatWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.chat,
+                      color: isLightTheme ? Colors.black : Colors.white),
+                  SizedBox(width: 8.0),
+                  Text(
+                    'Robo-Chef',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           if (_suggestedPrompts.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(8.0),

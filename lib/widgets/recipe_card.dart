@@ -1594,7 +1594,7 @@ class _RecipeCardState extends State<RecipeCard> {
                 height: MediaQuery.of(context).size.height * 0.7,
                 decoration: BoxDecoration(
                   color: Color(0xFF1A1A1A)
-                      .withOpacity(0.9), // Dark overlay with 70% opacity
+                      .withOpacity(0.95), // Dark overlay with 70% opacity
                   borderRadius:
                       BorderRadius.circular(15.0), // Matching border radius
                 ),
@@ -1611,18 +1611,6 @@ class _RecipeCardState extends State<RecipeCard> {
                   course: widget.course,
                 ),
               ),
-              // Content
-              // Padding(
-              //   padding: EdgeInsets.all(20.0), // Adjust padding as needed
-              //   child: ChatWidget(
-              //     recipeName: widget.name,
-              //     recipeDescription: widget.description,
-              //     ingredients: widget.ingredients,
-              //     steps: widget.steps,
-              //     userId: userId!,
-              //     course: widget.course,
-              //   ),
-              // ),
             ],
           ),
         );
