@@ -1541,14 +1541,22 @@ class _RecipeCardState extends State<RecipeCard> {
                       right: 10.0, // Adjust as needed
                       child: ElevatedButton(
                         onPressed: _chatbotPopup, // Call your popup method
-                        child: Icon(Icons.chat), // You can customize this icon
-                        style: ElevatedButton.styleFrom(
-                          shape: CircleBorder(),
-                          padding: EdgeInsets.all(16),
-                          //primary: Colors.green, // Button color
+                        child: ClipOval(
+                          child: Image.asset(
+                            'chef.png', // Path to your image asset
+                            width: 50, // Adjust size as needed
+                            height: 50, // Adjust size as needed
+                            fit: BoxFit.fitHeight,
+                          ),
                         ),
+                        style: ElevatedButton.styleFrom(
+                            shape: CircleBorder(),
+                            padding: EdgeInsets.all(0),
+                            backgroundColor: Color.fromARGB(0, 71, 80,
+                                71) // Adjust padding to fit the image // Background color of the button
+                            ),
                       ),
-                    ),
+                    )
                   ],
                 ),
               );

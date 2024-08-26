@@ -151,38 +151,93 @@ class _ChatWidgetState extends State<ChatWidget> {
     }
   }
 
+  // Widget _buildMessageBubble(String sender, String text) {
+  //   bool isUser = sender == "You";
+  //   return Align(
+  //     alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+  //     child: Container(
+  //       margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+  //       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+  //       decoration: BoxDecoration(
+  //         color: isUser ? Color.fromARGB(174, 28, 99, 65) : Colors.grey[300],
+  //         borderRadius: BorderRadius.circular(10),
+  //       ),
+  //       child: Column(
+  //         crossAxisAlignment:
+  //             isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+  //         children: [
+  //           // Text(
+  //           //   sender,
+  //           //   style: TextStyle(
+  //           //     fontWeight: FontWeight.bold,
+  //           //     color: isUser ? Colors.white : Colors.black,
+  //           //   ),
+  //           //),
+  //           SizedBox(height: 5),
+  //           Text(
+  //             text,
+  //             style: TextStyle(
+  //                 color: isUser
+  //                     ? Color.fromARGB(255, 252, 250, 250)
+  //                     : Colors.black),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget _buildMessageBubble(String sender, String text) {
     bool isUser = sender == "You";
+
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-        decoration: BoxDecoration(
-          color: isUser ? Color.fromARGB(174, 28, 99, 65) : Colors.grey[300],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            // Text(
-            //   sender,
-            //   style: TextStyle(
-            //     fontWeight: FontWeight.bold,
-            //     color: isUser ? Colors.white : Colors.black,
-            //   ),
-            //),
-            SizedBox(height: 5),
-            Text(
-              text,
-              style: TextStyle(
-                  color: isUser
-                      ? Color.fromARGB(255, 252, 250, 250)
-                      : Colors.black),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!isUser)
+            Image.asset(
+              'chef.png', // Replace with your asset path
+              width: 50, // Adjust size as needed
+              height: 50, // Adjust size as needed
+              fit: BoxFit.cover,
             ),
-          ],
-        ),
+          SizedBox(width: 8.0),
+          Flexible(
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              decoration: BoxDecoration(
+                color:
+                    isUser ? Color.fromARGB(174, 28, 99, 65) : Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment:
+                    isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 5),
+                  Text(
+                    text,
+                    style: TextStyle(
+                        color: isUser
+                            ? Color.fromARGB(255, 252, 250, 250)
+                            : Colors.black),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (isUser)
+            ClipOval(
+              child: Image.asset(
+                'chef.png', // Replace with your asset path
+                width: 50, // Adjust size as needed
+                height: 50, // Adjust size as needed
+                fit: BoxFit.cover,
+              ),
+            ),
+        ],
       ),
     );
   }
