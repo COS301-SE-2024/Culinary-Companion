@@ -309,13 +309,17 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 800;
 
     return Scaffold(
       body: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png',
+              isMobile
+                  ? (isLightTheme ? 'MobileLightMode.png' : 'MobileDarkMode.png')
+                  : (isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png'),
               fit: BoxFit.cover,
             ),
           ),
