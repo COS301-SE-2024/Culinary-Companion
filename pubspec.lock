@@ -305,6 +305,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  floating_dialog:
+    dependency: "direct main"
+    description:
+      name: floating_dialog
+      sha256: "127b0c39744e5a39bf1d64c0133eacf6160924deb29e4ace4ac15801df5d0f0e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.0+1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -1341,5 +1349,5 @@ packages:
     source: hosted
     version: "2.0.1"
 sdks:
-  dart: ">=3.4.0 <4.0.0"
+  dart: ">=3.4.0 <=3.7.12"
   flutter: ">=3.22.0"

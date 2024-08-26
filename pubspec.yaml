@@ -46,6 +46,7 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_svg: ^1.0.3
   animate_do: ^2.1.0
+  floating_dialog: ^1.1.0+1
 
 dev_dependencies:
   flutter_test:

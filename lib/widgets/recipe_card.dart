@@ -1225,7 +1225,7 @@ class _RecipeCardState extends State<RecipeCard> {
                   right: screenWidth *
                       0.05, // Adjust right padding to 5% of screen width
                 ),
-                child: Row(
+                child: Stack(
                   children: [
                     Expanded(
                       child: Column(
@@ -1536,15 +1536,17 @@ class _RecipeCardState extends State<RecipeCard> {
                         ],
                       ),
                     ),
-                    Container(
-                      width: screenWidth * 0.2,
-                      child: ChatWidget(
-                        recipeName: widget.name,
-                        recipeDescription: widget.description,
-                        ingredients: widget.ingredients,
-                        steps: widget.steps,
-                        userId: userId!,
-                        course: widget.course,
+                    Positioned(
+                      bottom: 10.0, // Adjust as needed
+                      right: 10.0, // Adjust as needed
+                      child: ElevatedButton(
+                        onPressed: _chatbotPopup, // Call your popup method
+                        child: Icon(Icons.chat), // You can customize this icon
+                        style: ElevatedButton.styleFrom(
+                          shape: CircleBorder(),
+                          padding: EdgeInsets.all(16),
+                          //primary: Colors.green, // Button color
+                        ),
                       ),
                     ),
                   ],
@@ -1558,6 +1560,74 @@ class _RecipeCardState extends State<RecipeCard> {
       // This will be called when the dialog is dismissed
       _fetchShoppingList();
     });
+  }
+
+  void _chatbotPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final double screenWidth = MediaQuery.of(context).size.width;
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(15.0), // Optional: Add rounded corners
+          ),
+          child: Stack(
+            children: [
+              // Background image with dark overlay
+              Container(
+                width: screenWidth * 0.3, // Adjust the width as needed
+                height: MediaQuery.of(context).size.height *
+                    0.7, // Adjust the height as needed
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage(widget.imagePath),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius: BorderRadius.circular(
+                      15.0), // Optional: Same as the Dialog border radius
+                ),
+              ),
+              // Dark overlay to make text readable
+              Container(
+                width: screenWidth * 0.3,
+                height: MediaQuery.of(context).size.height * 0.7,
+                decoration: BoxDecoration(
+                  color: Color(0xFF1A1A1A)
+                      .withOpacity(0.9), // Dark overlay with 70% opacity
+                  borderRadius:
+                      BorderRadius.circular(15.0), // Matching border radius
+                ),
+              ),
+              Container(
+                width: screenWidth * 0.3,
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: ChatWidget(
+                  recipeName: widget.name,
+                  recipeDescription: widget.description,
+                  ingredients: widget.ingredients,
+                  steps: widget.steps,
+                  userId: userId!,
+                  course: widget.course,
+                ),
+              ),
+              // Content
+              // Padding(
+              //   padding: EdgeInsets.all(20.0), // Adjust padding as needed
+              //   child: ChatWidget(
+              //     recipeName: widget.name,
+              //     recipeDescription: widget.description,
+              //     ingredients: widget.ingredients,
+              //     steps: widget.steps,
+              //     userId: userId!,
+              //     course: widget.course,
+              //   ),
+              // ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -2237,81 +2307,83 @@ class _CheckableItemState extends State<CheckableItem> {
   }
 
   void _addToShoppingList(
-    String ingredientString, double remainingQuantity, String unit) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? userId = prefs.getString('userId');
+      String ingredientString, double remainingQuantity, String unit) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
 
-  //extract ingredient name
-  final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
-  final match = regex.firstMatch(ingredientString);
-  final ingredientName =
-      match != null ? match.group(1) ?? ingredientString : ingredientString;
+    //extract ingredient name
+    final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
+    final match = regex.firstMatch(ingredientString);
+    final ingredientName =
+        match != null ? match.group(1) ?? ingredientString : ingredientString;
 
-  //check if the ingredient is in the db
-  final addIngredientUrl = Uri.parse(
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-  final headers = {"Content-Type": "application/json"};
-  final addIngredientBody = jsonEncode({
-    "action": "addIngredientIfNotExists",
-    "ingredientName": ingredientName,
-    "measurementUnit": unit,
-  });
+    //check if the ingredient is in the db
+    final addIngredientUrl = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final headers = {"Content-Type": "application/json"};
+    final addIngredientBody = jsonEncode({
+      "action": "addIngredientIfNotExists",
+      "ingredientName": ingredientName,
+      "measurementUnit": unit,
+    });
 
-  try {
-    final addIngredientResponse =
-        await http.post(addIngredientUrl, headers: headers, body: addIngredientBody);
-    if (addIngredientResponse.statusCode != 200) {
-      print('Failed to ensure ingredient exists: ${addIngredientResponse.body}');
+    try {
+      final addIngredientResponse = await http.post(addIngredientUrl,
+          headers: headers, body: addIngredientBody);
+      if (addIngredientResponse.statusCode != 200) {
+        print(
+            'Failed to ensure ingredient exists: ${addIngredientResponse.body}');
+        return;
+      }
+    } catch (error) {
+      print('Error ensuring ingredient exists: $error');
       return;
     }
-  } catch (error) {
-    print('Error ensuring ingredient exists: $error');
-    return;
-  }
 
-  //add to shopping list
-  final url = Uri.parse(
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-  final addShoppingListBody = jsonEncode({
-    "action": "addToShoppingList",
-    "userId": userId,
-    "ingredientName": ingredientName,
-    "quantity": remainingQuantity,
-    "measurementUnit": unit
-  });
+    //add to shopping list
+    final url = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final addShoppingListBody = jsonEncode({
+      "action": "addToShoppingList",
+      "userId": userId,
+      "ingredientName": ingredientName,
+      "quantity": remainingQuantity,
+      "measurementUnit": unit
+    });
 
-  try {
-    final response = await http.post(url, headers: headers, body: addShoppingListBody);
-    if (response.statusCode == 200) {
-      if (mounted) {
-        setState(() {
-          _isAdded = true;
-          _updateShoppingList(ingredientName, remainingQuantity, unit);
-        });
+    try {
+      final response =
+          await http.post(url, headers: headers, body: addShoppingListBody);
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            _isAdded = true;
+            _updateShoppingList(ingredientName, remainingQuantity, unit);
+          });
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added remaining $ingredientName to shopping list'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Failed to add $ingredientName to shopping list: ${response.body}'),
+          ),
+        );
       }
+    } catch (error) {
+      print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Added remaining $ingredientName to shopping list'),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Failed to add $ingredientName to shopping list: ${response.body}'),
+          content:
+              Text('Error adding $ingredientName to shopping list: $error'),
         ),
       );
     }
-  } catch (error) {
-    print('Error: $error');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('Error adding $ingredientName to shopping list: $error'),
-      ),
-    );
   }
-}
 
   void _updateShoppingList(
       String ingredientName, double quantity, String measurementUnit) {

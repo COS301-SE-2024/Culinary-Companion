@@ -20,6 +20,7 @@ class ChatWidget extends StatefulWidget {
     required this.steps,
     required this.userId,
     required this.course,
+    //required this.image,
   });
 
   @override
@@ -189,9 +190,11 @@ class _ChatWidgetState extends State<ChatWidget> {
   @override
   Widget build(BuildContext context) {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final Color backColor = isLightTheme
-        ? Color.fromARGB(255, 236, 236, 236)
-        : Color.fromARGB(179, 25, 41, 30);
+    // final Color backColor = isLightTheme
+    //     ? Color.fromARGB(255, 236, 236, 236)
+    //     : Color.fromARGB(179, 25, 41, 30);
+
+    final Color backColor = Colors.transparent;
 
     return Container(
       decoration: BoxDecoration(
