@@ -212,8 +212,12 @@ class _ChatWidgetState extends State<ChatWidget> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.chat,
-                      color: isLightTheme ? Colors.black : Colors.white),
+                  Image.asset(
+                    'chef.png',
+                    width: 50, // Adjust size as needed
+                    height: 50, // Adjust size as needed
+                    fit: BoxFit.cover,
+                  ),
                   SizedBox(width: 8.0),
                   Text(
                     'Robo-Chef',
