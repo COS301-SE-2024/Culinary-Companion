@@ -86,6 +86,39 @@ Future<String> fetchUserDietaryConstraints(String userId) async {
   }
 }
 
+Future<List<Map<String, String>>> fetchPantryList(String userId) async {
+  try {
+    final response = await http.post(
+      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'getAvailableIngredients',
+        'userId': userId,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> pantryList = data['availableIngredients'];
+      List<Map<String, String>> ingredients = pantryList.map((item) {
+        return {
+          'name': item['name'].toString(),
+          'quantity': item['quantity'].toString(),
+          'measurementUnit': item['measurmentunit'].toString()
+        };
+      }).toList();
+      return ingredients;
+    } else {
+      print('Failed to fetch pantry list: ${response.statusCode}');
+      return [];
+    }
+  } catch (error) {
+    print('Error fetching pantry list: $error');
+    return [];
+  }
+}
+
+
 Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substitute, String substitutedIngredient) async {
   // takes in a recipe id and substitute. finds a recipe using the substitute given
   final apiKey = dotenv.env['API_KEY'] ?? '';
@@ -561,3 +594,83 @@ if (response != null && response.text != null) {
   }
 }
 
+// gets the user's pantry list and creates a recipe based off of the ingredients
+Future<String> fetchRecipeFromPantryIngredients(String userId) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return 'No API_KEY environment variable';
+  }
+
+  // Step 1: Fetch pantry ingredients using fetchPantryList
+  List<Map<String, String>> pantryList = await fetchPantryList(userId);
+
+  if (pantryList.isEmpty) {
+    return 'No pantry ingredients available';
+  }
+
+  // Step 2: Compare pantry ingredients with available recipes to find matches
+  final prompt = """Based on the following pantry ingredients:
+  ${pantryList.map((item) => '${item['name']} (${item['quantity']} ${item['measurementUnit']})').join(', ')},
+  suggest a recipe that can be made using these ingredients. 
+  Return the result in JSON format with the following structure:
+  {
+    "title": "value",
+    "ingredients": ["ingredient1", "ingredient2", ...],
+    "steps": ["step1", "step2", ...],
+    "cuisine": "value",
+    "servings": "value",
+    "description": "value"
+  }
+  Just provide the JSON without explanation and make sure the output is valid JSON.""";
+
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final content = [Content.text(prompt)];
+  final response = await model.generateContent(content);
+
+  if (response != null && response.text != null) {
+    String jsonString = response.text!;
+    print(jsonString);
+
+    // Correct the JSON format by replacing single quotes with double quotes
+    jsonString = jsonString.replaceAll("'", '"');
+
+    // Split the JSON string by lines
+    List<String> lines = jsonString.split('\n');
+
+    // Check if there are more than two lines before removing the first and last lines
+    if (lines.length > 2) {
+      // Check if the first line is "``` json"
+      if (lines[0] == "```json") {
+        lines.removeAt(0); // Remove the first line
+      }
+
+      // Check if the last line is a blank line and remove it
+      if (lines.last.isEmpty) {
+        lines.removeAt(lines.length - 1); // Remove the blank line
+      }
+
+      // Check if the new last line is "```" and remove it
+      if (lines.last == "```") {
+        lines.removeAt(lines.length - 1); // Remove the last line
+      }
+    } else {
+      print("The JSON string does not have enough lines to remove the first and last lines.");
+    }
+
+    // Join the lines back together
+    jsonString = lines.join('\n');
+
+    // Optionally, parse the JSON string to a Map to verify it's a valid JSON
+    try {
+      final jsonMap = jsonDecode(jsonString);
+      print('Parsed JSON: $jsonMap');
+    } catch (e) {
+      print('Failed to parse JSON: $e');
+      return 'Failed to parse JSON';
+    }
+
+    return jsonString;
+  } else {
+    return 'No response text';
+  }
+}
