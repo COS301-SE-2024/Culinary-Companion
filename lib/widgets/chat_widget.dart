@@ -166,13 +166,13 @@ class _ChatWidgetState extends State<ChatWidget> {
           crossAxisAlignment:
               isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            Text(
-              sender,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isUser ? Colors.white : Colors.black,
-              ),
-            ),
+            // Text(
+            //   sender,
+            //   style: TextStyle(
+            //     fontWeight: FontWeight.bold,
+            //     color: isUser ? Colors.white : Colors.black,
+            //   ),
+            //),
             SizedBox(height: 5),
             Text(
               text,
@@ -208,7 +208,7 @@ class _ChatWidgetState extends State<ChatWidget> {
           Align(
             alignment: Alignment.topCenter,
             child: Container(
-              padding: EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(12.0),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -225,6 +225,19 @@ class _ChatWidgetState extends State<ChatWidget> {
                   ),
                 ],
               ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.all(10),
+              itemCount: _messages.length,
+              itemBuilder: (context, index) {
+                final message = _messages[index];
+                return _buildMessageBubble(
+                    message["Chef Tess"]!,
+                    message[
+                        "Hey There, Im Chef Tess. I'm here to assist ypu with any of your questions regarding this ${widget.recipeName} recipe"]!);
+              },
             ),
           ),
           if (_suggestedPrompts.isNotEmpty)
@@ -260,13 +273,21 @@ class _ChatWidgetState extends State<ChatWidget> {
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
-                      labelText: 'Ask chef for help',
-                      border: OutlineInputBorder(),
+                      labelText: 'Ask Robo-Chef for help',
+                      fillColor: Colors.transparent,
+                      filled: true,
+                      labelStyle: TextStyle(
+                        color: Colors.white,
+                        // fontWeight: FontWeight.bold,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: const BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: Icon(Icons.chevron_right_rounded),
                   onPressed: () => _sendMessage(),
                 ),
               ],
