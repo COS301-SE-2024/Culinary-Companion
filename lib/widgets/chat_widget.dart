@@ -33,6 +33,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   late final GenerativeModel model;
 
   int? _spiceLevel;
+  String? _profilePhoto;
   List<String>? _dietaryConstraints;
   List<String> _suggestedPrompts = [];
 
@@ -69,6 +70,8 @@ class _ChatWidgetState extends State<ChatWidget> {
         if (data.isNotEmpty) {
           if (mounted) {
             setState(() {
+              _profilePhoto =
+                  data[0]['profilephoto']?.toString() ?? 'assets/pfp.jpg';
               _spiceLevel = data[0]
                   ['spicelevel']; //users prefered spice level from 0 to 5
               _dietaryConstraints =
@@ -229,13 +232,21 @@ class _ChatWidgetState extends State<ChatWidget> {
             ),
           ),
           if (isUser)
+            // Display profile photo for user
             ClipOval(
-              child: Image.asset(
-                'chef.png', // Replace with your asset path
-                width: 50, // Adjust size as needed
-                height: 50, // Adjust size as needed
-                fit: BoxFit.cover,
-              ),
+              child: _profilePhoto != null && _profilePhoto!.startsWith('http')
+                  ? Image.network(
+                      _profilePhoto!,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset(
+                      _profilePhoto ?? 'assets/pfp.jpg',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
             ),
         ],
       ),
