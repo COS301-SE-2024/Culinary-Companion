@@ -62,74 +62,125 @@ class _PantryScreenState extends State<PantryScreen> {
     }
   }
 
-  Future<void> _fetchIngredientNames() async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: '{"action": "getIngredientNames"}',
-        headers: {'Content-Type': 'application/json'},
-      );
+Future<void> _fetchIngredientNames() async {
+  final prefs = await SharedPreferences.getInstance();
+  try {
+    final response = await http.post(
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: '{"action": "getIngredientNames"}',
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        if (mounted) {
-          setState(() {
-            _items = data
-                .map((item) => {
-                      'id': item['id'].toString(),
-                      'name': item['name'].toString(),
-                      'category': item['category'].toString(),
-                      'measurementUnit': item['measurementUnit'].toString(),
-                    })
-                .toList();
-          });
-        }
-      } else {
-        print('Failed to fetch ingredient names: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching ingredient names: $error');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+
+      // Cache the response for offline use
+      await prefs.setString('cachedIngredients', jsonEncode(data));
+
+      setState(() {
+        _items = data
+            .map((item) => {
+                  'id': item['id'].toString(),
+                  'name': item['name'].toString(),
+                  'category': item['category'].toString(),
+                  'measurementUnit': item['measurementUnit'].toString(),
+                })
+            .toList();
+      });
+    } else {
+      print('Failed to fetch ingredient names: ${response.statusCode}');
+    }
+  } catch (error) {
+    //print('Error fetching ingredient names: $error');
+
+    // Load from cache if the network fails
+    final cachedData = prefs.getString('cachedIngredients');
+    if (cachedData != null) {
+      final List<dynamic> data = jsonDecode(cachedData);
+      setState(() {
+        _items = data
+            .map((item) => {
+                  'id': item['id'].toString(),
+                  'name': item['name'].toString(),
+                  'category': item['category'].toString(),
+                  'measurementUnit': item['measurementUnit'].toString(),
+                })
+            .toList();
+      });
     }
   }
+}
 
-  Future<void> _fetchPantryList() async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'getAvailableIngredients',
-          'userId': _userId,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        final List<dynamic> pantryList = data['availableIngredients'];
-        if (mounted) {
-          setState(() {
-            _pantryList.clear();
-            for (var item in pantryList) {
-              final ingredientName = item['name'].toString();
-              final quantity = item['quantity'].toString();
-              final measurementUnit = item['measurmentunit'].toString();
-              final category = item['category'] ?? 'Other';
-              final displayText =
-                  '$ingredientName ($quantity $measurementUnit)';
-              _pantryList.putIfAbsent(category, () => []);
-              _pantryList[category]?.add(displayText);
-            }
-          });
-        }
-      } else {
-        print('Failed to fetch pantry list: ${response.statusCode}');
+Future<void> _fetchPantryList() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  try {
+    // Fetch data from the API
+    final response = await http.post(
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'getAvailableIngredients',
+        'userId': _userId,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> pantryList = data['availableIngredients'];
+
+      // Cache the response data
+      await prefs.setString('cachedPantryList', jsonEncode(pantryList));
+
+      // Process and update the pantry list
+      if (mounted) {
+        setState(() {
+          _pantryList.clear();
+          for (var item in pantryList) {
+            final ingredientName = item['name'].toString();
+            final quantity = item['quantity'].toString();
+            final measurementUnit = item['measurementunit'].toString();
+            final category = item['category'] ?? 'Other';
+            final displayText = '$ingredientName ($quantity $measurementUnit)';
+
+            _pantryList.putIfAbsent(category, () => []);
+            _pantryList[category]?.add(displayText);
+          }
+        });
       }
-    } catch (error) {
-      print('Error fetching pantry list: $error');
+    } else {
+      print('Failed to fetch pantry list: ${response.statusCode}');
+    }
+  } catch (error) {
+    //print('Error fetching pantry list: $error');
+
+    // Load cached data if the network request fails
+    final cachedData = prefs.getString('cachedPantryList');
+    if (cachedData != null) {
+      final List<dynamic> pantryList = jsonDecode(cachedData);
+
+      if (mounted) {
+        setState(() {
+          _pantryList.clear();
+          for (var item in pantryList) {
+            final ingredientName = item['name'].toString();
+            final quantity = item['quantity'].toString();
+            final measurementUnit = item['measurementunit'].toString();
+            final category = item['category'] ?? 'Other';
+            final displayText = '$ingredientName ($quantity $measurementUnit)';
+
+            _pantryList.putIfAbsent(category, () => []);
+            _pantryList[category]?.add(displayText);
+          }
+        });
+      }
     }
   }
+}
+
 
   Future<void> _addToPantryList(String? userId, String ingredientName,
       double quantity, String measurementUnit) async {

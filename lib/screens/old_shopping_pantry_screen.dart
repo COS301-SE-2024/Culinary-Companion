@@ -115,7 +115,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
       }
     } catch (error) {
       // Handle network errors or other exceptions
-      print('Error fetching shopping list: $error');
+      //print('Error fetching shopping list: $error');
     }
   }
 
@@ -152,7 +152,7 @@ class _ShoppingPantryScreenState extends State<ShoppingPantryScreen> {
       }
     } catch (error) {
       // Handle network errors or other exceptions
-      print('Error fetching pantry list: $error');
+      //print('Error fetching pantry list: $error');
     }
   }
 

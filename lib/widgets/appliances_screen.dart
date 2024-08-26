@@ -72,6 +72,7 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
   List<String> allAppliances = [];
 
   Future<void> _loadAppliances() async {
+    final prefs = await SharedPreferences.getInstance();
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     try {
@@ -85,10 +86,14 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+
+        // Cache the appliance data locally
+        await prefs.setString('cachedAllAppliances', json.encode(data));
+
         if (mounted) {
           setState(() {
-            allAppliances = data.map<String>((cuisine) {
-              return cuisine['name'].toString();
+            allAppliances = data.map<String>((appliance) {
+              return appliance['name'].toString();
             }).toList();
           });
         }
@@ -96,37 +101,66 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
         throw Exception('Failed to load appliances');
       }
     } catch (e) {
-      throw Exception('Error fetching appliances: $e');
+      //print('Error fetching appliances: $e');
+
+      // Load cached appliances if the network request fails
+      final cachedData = prefs.getString('cachedAllAppliances');
+      if (cachedData != null) {
+        final List<dynamic> cachedAppliances = json.decode(cachedData);
+        if (mounted) {
+          setState(() {
+            allAppliances = cachedAppliances.map<String>((appliance) {
+              return appliance['name'].toString();
+            }).toList();
+          });
+        }
+      }
     }
   }
 
   Future<void> _loadUserAppliances() async {
-    var response = await http.post(
-      Uri.parse(
-          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'), // Replace with your API endpoint
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'action': 'getUserAppliances',
-        'userId': _userId,
-      }),
-    );
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'), // Replace with your API endpoint
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'action': 'getUserAppliances',
+          'userId': _userId,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      List<dynamic> appliancesJson = jsonDecode(response.body);
-      if (mounted) {
-        setState(() {
-          appliances = appliancesJson
-              .map((appliance) => appliance['applianceName'].toString())
-              .toList();
-        });
+      if (response.statusCode == 200) {
+        List<dynamic> appliancesJson = jsonDecode(response.body);
+        await prefs.setString('cachedAppliances', jsonEncode(appliancesJson));
+        if (mounted) {
+          setState(() {
+            appliances = appliancesJson
+                .map((appliance) => appliance['applianceName'].toString())
+                .toList();
+          });
+        }
+
+        // Print the appliances to verify
+        //print(appliances);
+      } else {
+        print('Failed to fetch appliances');
       }
-
-      // Print the appliances to verify
-      //print(appliances);
-    } else {
-      print('Failed to fetch appliances');
+    } catch (error) {
+      final cachedData = prefs.getString('cachedAppliances');
+      if (cachedData != null) {
+        final List<dynamic> appliancesJson = jsonDecode(cachedData);
+        if (mounted) {
+          setState(() {
+            appliances = appliancesJson
+                .map((appliance) => appliance['applianceName'].toString())
+                .toList();
+          });
+        }
+      }
     }
   }
 
