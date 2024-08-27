@@ -790,7 +790,7 @@ Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String rec
 }
 
 
-/// Extracts recipe data from the pasted text using the Gemini LLM.
+///extract json data for recipe
 Future<Map<String, dynamic>?> extractRecipeData(String pastedText) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
@@ -798,10 +798,8 @@ Future<Map<String, dynamic>?> extractRecipeData(String pastedText) async {
     return null;
   }
 
-  // Define the Gemini model
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
 
-  // Prompt for extracting the recipe details
   final prompt = """
 Extract the following recipe information from the text below and return it in JSON format with this structure:
 
@@ -830,6 +828,7 @@ Extract the following recipe information from the text below and return it in JS
   "methods": [
     "Step 1",
     "Step 2",
+    "Step 3",
     ...
   ],
   "appliances": [
@@ -840,25 +839,40 @@ Extract the following recipe information from the text below and return it in JS
   'photo': "https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z"
 }
 
+**Important Conditions:**
+
+1. **Allowed Appliances:** Only include the following appliances do not add any appliances that are not in this list: ["Oven", "Microwave", "Blender", "Food Processor", "Stove", "Air Fryer", "Toaster", "Pressure Cooker", "Slow Cooker", "Grill", "Instant Pot", "Rice Cooker", "Sous Vide", "Stand Mixer", "Hand Mixer", "Immersion Blender", "Electric Kettle", "Coffee Maker", "Waffle Maker", "Panini Press", "Electric Griddle", "Deep Fryer", "Bread Maker", "Ice Cream Maker", "Yogurt Maker", "Electric Skillet", "Pizza Oven", "Rotisserie", "Indoor Grill", "Smoker", "Sandwich Maker", "Electric Knife", "Electric Can Opener", "Popcorn Maker", "Espresso Machine", "Juicer", "Dehydrator"].
+2. **Measurement Conversion:** All measurements must be numeric. For example, "1/4 cups" should be converted to "0.25 cups". If a fraction is mentioned (like "1/2"), convert it to decimal form.
+
+
 Text:
 $pastedText
   """;
 
-  // Send the prompt to Gemini
+  // send prompt
   final content = [Content.text(prompt)];
   final response = await model.generateContent(content);
 
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    // Clean up the JSON string (handle single quotes, remove extra characters)
+    // fix json
    jsonString = jsonString
-        .replaceAll('```json', '') // Remove "```json" at the start
-        .replaceAll('```', '') // Remove trailing "```"
-        .trim(); // Trim any leading or trailing whitespace
+        .replaceAll('```json', '') 
+        .replaceAll('```', '') 
+        .trim(); 
 
-    try {
+   try {
       final Map<String, dynamic> recipeData = jsonDecode(jsonString);
+
+      if (recipeData.containsKey('methods')) {
+        recipeData['methods'] = (recipeData['methods'] as List<dynamic>).map((step) {
+          return step.toString();
+        }).join('<'); //format steps
+       print("rec data: ${recipeData['methods']}");
+
+      }
+
       return recipeData;
     } catch (e) {
       print('Error parsing JSON response: $e');
@@ -870,7 +884,7 @@ $pastedText
   }
 }
 
-/// add pasted recipe to database
+/// add pasted rec to db
 Future<void> addExtractedRecipeToDatabase(Map<String, dynamic> recipeData, String userId) async {
   final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
   final headers = <String, String>{'Content-Type': 'application/json'};
@@ -890,6 +904,87 @@ Future<void> addExtractedRecipeToDatabase(Map<String, dynamic> recipeData, Strin
 
     if (response.statusCode == 200) {
       print('Recipe added successfully!');
+
+      // Fetch the recipe ID using the recipe name
+      final recipeIdResponse = await http.post(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode({
+          'action': 'getRecipeId',
+          'recipeData': {
+            'name': recipeData['name'],
+          },
+        }),
+      );
+
+      if (recipeIdResponse.statusCode == 200) {
+        final recipeId = jsonDecode(recipeIdResponse.body)['recipeId'];
+
+        // Fetch and add keywords
+        final keywordsJsonString = await fetchKeywords(recipeId);
+        Map<String, String> keywords;
+        try {
+          keywords = Map<String, String>.from(jsonDecode(keywordsJsonString));
+        } catch (e) {
+          print('Failed to parse keywords: $e');
+          return;
+        }
+        final keywordsString = keywords.values.join(',');
+
+        final addKeywordsResponse = await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode({
+            'action': 'addRecipeKeywords',
+            'recipeid': recipeId,
+            'keywords': keywordsString,
+          }),
+        );
+
+        if (addKeywordsResponse.statusCode == 200) {
+          print('Keywords added successfully');
+        } else {
+          print('Failed to add keywords');
+        }
+
+        // Fetch and add dietary constraints
+        final dietaryConstraintsJsonString = await fetchDietaryConstraints(recipeId);
+        Map<String, dynamic> dietaryConstraints;
+        try {
+          dietaryConstraints = jsonDecode(dietaryConstraintsJsonString);
+        } catch (e) {
+          print('Failed to parse dietary constraints: $e');
+          return;
+        }
+
+        // Filter dietary constraints that are "yes" or "true"
+        final filteredConstraints = dietaryConstraints.entries
+            .where((entry) =>
+                entry.value.toLowerCase() == 'yes' ||
+                entry.value.toLowerCase() == 'true')
+            .map((entry) => entry.key)
+            .toList();
+
+        final constraintsString = filteredConstraints.join(',');
+
+        final addDietaryConstraintsResponse = await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode({
+            'action': 'addRecipeDietaryConstraints',
+            'recipeid': recipeId,
+            'dietaryConstraints': constraintsString,
+          }),
+        );
+
+        if (addDietaryConstraintsResponse.statusCode == 200) {
+          print('Dietary constraints added successfully');
+        } else {
+          print('Failed to add dietary constraints');
+        }
+      } else {
+        print('Failed to retrieve recipe ID');
+      }
     } else {
       print('Failed to add recipe: ${response.statusCode} ${response.body}');
     }
@@ -897,6 +992,7 @@ Future<void> addExtractedRecipeToDatabase(Map<String, dynamic> recipeData, Strin
     print('Error adding recipe to database: $e');
   }
 }
+
 
 
 
