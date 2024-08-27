@@ -2028,10 +2028,12 @@ class _CheckableItemState extends State<CheckableItem> {
         );
       },
     );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
 
     // Fetch the substitutions
     String jsonString =
-        await fetchIngredientSubstitutions(widget.recipeID, widget.title);
+        await fetchIngredientSubstitutions(widget.recipeID, widget.title, userId ?? 'defaultUserId'); // add user id 
 
     // Parse the JSON string
     Map<String, dynamic> substitutions;
