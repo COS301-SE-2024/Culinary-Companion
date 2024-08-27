@@ -524,3 +524,113 @@ if (response != null && response.text != null) {
   }
 }
 
+
+/// Extracts recipe data from the pasted text using the Gemini LLM.
+Future<Map<String, dynamic>?> extractRecipeData(String pastedText) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    print('Error: API_KEY environment variable is missing.');
+    return null;
+  }
+
+  // Define the Gemini model
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+
+  // Prompt for extracting the recipe details
+  final prompt = """
+Extract the following recipe information from the text below and return it in JSON format with this structure:
+
+{
+  "name": "\$name",
+  "description": "\$description",
+  "cuisine": "\$cuisine",
+  "cookTime": "\$cookingTime (in minutes only put the number)",
+  "prepTime": "\$prepTime (in minutes only put the number))",
+  "course": "\$course (Breakfast,Main,Dessert, Appetizer)",
+  "servingAmount": "\$servingAmount",
+  "spiceLevel": "\$spiceLevel (None=1, Mild=2, Medium=3, Hot=4, Extra Hot=5 default to 1 if nothing is provided)",
+  "ingredients": [
+    {
+      "name": "\$ingredient1",
+      "quantity": "\$quantity1",
+      "unit": "\$unit1"
+    },
+    {
+      "name": "\$ingredient2",
+      "quantity": "\$quantity2",
+      "unit": "\$unit2"
+    },
+    ...
+  ],
+  "methods": [
+    "Step 1",
+    "Step 2",
+    ...
+  ],
+  "appliances": [
+    { "name": "\$appliance1" },
+    { "name": "\$appliance2" },
+    ...
+  ],
+  'photo': "https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z"
+}
+
+Text:
+$pastedText
+  """;
+
+  // Send the prompt to Gemini
+  final content = [Content.text(prompt)];
+  final response = await model.generateContent(content);
+
+  if (response != null && response.text != null) {
+    String jsonString = response.text!;
+
+    // Clean up the JSON string (handle single quotes, remove extra characters)
+   jsonString = jsonString
+        .replaceAll('```json', '') // Remove "```json" at the start
+        .replaceAll('```', '') // Remove trailing "```"
+        .trim(); // Trim any leading or trailing whitespace
+
+    try {
+      final Map<String, dynamic> recipeData = jsonDecode(jsonString);
+      return recipeData;
+    } catch (e) {
+      print('Error parsing JSON response: $e');
+      return null;
+    }
+  } else {
+    print('Error: No response from Gemini.');
+    return null;
+  }
+}
+
+/// add pasted recipe to database
+Future<void> addExtractedRecipeToDatabase(Map<String, dynamic> recipeData, String userId) async {
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final headers = <String, String>{'Content-Type': 'application/json'};
+
+  final payload = {
+    'action': 'addRecipe',
+    'userId': userId,
+    'recipeData': recipeData,
+  };
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: headers,
+      body: jsonEncode(payload),
+    );
+
+    if (response.statusCode == 200) {
+      print('Recipe added successfully!');
+    } else {
+      print('Failed to add recipe: ${response.statusCode} ${response.body}');
+    }
+  } catch (e) {
+    print('Error adding recipe to database: $e');
+  }
+}
+
+
