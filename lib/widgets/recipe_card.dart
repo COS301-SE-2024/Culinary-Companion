@@ -9,6 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../gemini_service.dart'; // LLM
 //import 'package:lottie/lottie.dart';
 
+import 'package:floating_dialog/floating_dialog.dart';
+
 // ignore: must_be_immutable
 class RecipeCard extends StatefulWidget {
   String recipeID;
@@ -1185,6 +1187,7 @@ class _RecipeCardState extends State<RecipeCard> {
   void _showRecipeDetails() {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    bool _showDialog = false;
 
     int neededIngredientCount = widget.ingredients
         .where((ingredient) =>
@@ -1573,59 +1576,117 @@ class _RecipeCardState extends State<RecipeCard> {
   }
 
   void _chatbotPopup() {
+    final double screenWidth = MediaQuery.of(context).size.width;
     showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final double screenWidth = MediaQuery.of(context).size.width;
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(15.0), // Optional: Add rounded corners
-          ),
-          child: Stack(
-            children: [
-              // Background image with dark overlay
-              Container(
-                width: screenWidth * 0.3, // Adjust the width as needed
-                height: MediaQuery.of(context).size.height *
-                    0.7, // Adjust the height as needed
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: NetworkImage(widget.imagePath),
-                    fit: BoxFit.cover,
+        barrierColor: Colors.white.withOpacity(0),
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return FloatingDialog(
+            // onDrag: (x, y) {
+            //   print('x: $x, y: $y');
+            // },
+            onClose: () {
+              Navigator.of(context).pop();
+            },
+            child: Stack(
+              children: [
+                // Background image with dark overlay
+                Container(
+                  width: screenWidth * 0.3, // Adjust the width as needed
+                  height: MediaQuery.of(context).size.height *
+                      0.7, // Adjust the height as needed
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: NetworkImage(widget.imagePath),
+                      fit: BoxFit.cover,
+                    ),
+                    borderRadius: BorderRadius.circular(
+                        15.0), // Optional: Same as the Dialog border radius
                   ),
-                  borderRadius: BorderRadius.circular(
-                      15.0), // Optional: Same as the Dialog border radius
                 ),
-              ),
-              // Dark overlay to make text readable
-              Container(
-                width: screenWidth * 0.3,
-                height: MediaQuery.of(context).size.height * 0.7,
-                decoration: BoxDecoration(
-                  color: Color(0xFF1A1A1A)
-                      .withOpacity(0.95), // Dark overlay with 70% opacity
-                  borderRadius:
-                      BorderRadius.circular(15.0), // Matching border radius
+                // Dark overlay to make text readable
+                Container(
+                  width: screenWidth * 0.3,
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  decoration: BoxDecoration(
+                    color: Color(0xFF1A1A1A)
+                        .withOpacity(0.95), // Dark overlay with 70% opacity
+                    borderRadius:
+                        BorderRadius.circular(15.0), // Matching border radius
+                  ),
                 ),
-              ),
-              Container(
-                width: screenWidth * 0.3,
-                height: MediaQuery.of(context).size.height * 0.7,
-                child: ChatWidget(
-                  recipeName: widget.name,
-                  recipeDescription: widget.description,
-                  ingredients: widget.ingredients,
-                  steps: widget.steps,
-                  userId: userId!,
-                  course: widget.course,
+                Container(
+                  width: screenWidth * 0.3,
+                  height: MediaQuery.of(context).size.height * 0.7,
+                  child: ChatWidget(
+                    recipeName: widget.name,
+                    recipeDescription: widget.description,
+                    ingredients: widget.ingredients,
+                    steps: widget.steps,
+                    userId: userId!,
+                    course: widget.course,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+              ],
+            ),
+          );
+        });
+
+    //Code if draggable causes issues
+    // showDialog(
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     final double screenWidth = MediaQuery.of(context).size.width;
+    //     return Dialog(
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius:
+    //             BorderRadius.circular(15.0), // Optional: Add rounded corners
+    //       ),
+    // child: Stack(
+    //   children: [
+    //     // Background image with dark overlay
+    //     Container(
+    //       width: screenWidth * 0.3, // Adjust the width as needed
+    //       height: MediaQuery.of(context).size.height *
+    //           0.7, // Adjust the height as needed
+    //       decoration: BoxDecoration(
+    //         image: DecorationImage(
+    //           image: NetworkImage(widget.imagePath),
+    //           fit: BoxFit.cover,
+    //         ),
+    //         borderRadius: BorderRadius.circular(
+    //             15.0), // Optional: Same as the Dialog border radius
+    //       ),
+    //     ),
+    //     // Dark overlay to make text readable
+    //     Container(
+    //       width: screenWidth * 0.3,
+    //       height: MediaQuery.of(context).size.height * 0.7,
+    //       decoration: BoxDecoration(
+    //         color: Color(0xFF1A1A1A)
+    //             .withOpacity(0.95), // Dark overlay with 70% opacity
+    //         borderRadius:
+    //             BorderRadius.circular(15.0), // Matching border radius
+    //       ),
+    //     ),
+    //     Container(
+    //       width: screenWidth * 0.3,
+    //       height: MediaQuery.of(context).size.height * 0.7,
+    //       child: ChatWidget(
+    //         recipeName: widget.name,
+    //         recipeDescription: widget.description,
+    //         ingredients: widget.ingredients,
+    //         steps: widget.steps,
+    //         userId: userId!,
+    //         course: widget.course,
+    //       ),
+    //     ),
+    //   ],
+    //  ),
+    //     );
+    //   },
+    // );
   }
 
   @override
