@@ -170,7 +170,7 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print(jsonString);
+    //print(jsonString);
     
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
@@ -280,7 +280,7 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute, 
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print(jsonString);
+    //print(jsonString);
     
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
@@ -379,7 +379,7 @@ Future<String> fetchKeywords(String recipeId) async {
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print(jsonString);
+    //print(jsonString);
     
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
@@ -516,7 +516,7 @@ Future<String> fetchDietaryConstraints(String recipeId) async {
 if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print(jsonString);
+    //print(jsonString);
     
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
