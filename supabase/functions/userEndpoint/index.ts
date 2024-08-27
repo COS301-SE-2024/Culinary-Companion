@@ -43,6 +43,8 @@ Deno.serve(async (req) => {
                 return getCuisines(corsHeaders);
             case 'getDietaryConstraints':
                 return getDietaryConstraints(corsHeaders);
+            case 'getUserDietaryConstraints':
+                return getUserDietaryConstraints(userId, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -56,6 +58,46 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+async function getUserDietaryConstraints(userId: string, corsHeaders: HeadersInit) {
+    try {
+        // Get the user's dietary constraints
+        const { data: userConstraints, error: userError } = await supabase
+            .from('userDietaryConstraints')
+            .select('dietaryconstraintsid')
+            .eq('userid', userId);
+
+        if (userError) {
+            throw new Error(userError.message);
+        }
+
+        // Get the corresponding constraint names from dietaryconstraints table
+        const dietaryConstraintIds = userConstraints.map(c => c.dietaryconstraintsid);
+
+        const { data: constraints, error: constraintError } = await supabase
+            .from('dietaryconstraints')
+            .select('name')
+            .in('dietaryconstraintsid', dietaryConstraintIds);
+
+        if (constraintError) {
+            throw new Error(constraintError.message);
+        }
+
+        // Extract the names and return them as a comma-separated string
+        const constraintNames = constraints.map(c => c.name).join(', ');
+
+        return new Response(JSON.stringify({ constraints: constraintNames }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+}
+
 
 // Get all the dietary constraints from the database
 async function getDietaryConstraints(corsHeaders: HeadersInit) {
