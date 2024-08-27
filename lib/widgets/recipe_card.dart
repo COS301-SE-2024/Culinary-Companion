@@ -1544,17 +1544,18 @@ class _RecipeCardState extends State<RecipeCard> {
                         child: ClipOval(
                           child: Image.asset(
                             'chef.png', // Path to your image asset
-                            width: 50, // Adjust size as needed
-                            height: 50, // Adjust size as needed
-                            fit: BoxFit.fitHeight,
+                            width: 60, // Adjust size as needed
+                            height: 60, // Adjust size as needed
+                            //fit: BoxFit.fitHeight,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
+                            elevation: 0.2,
                             shape: CircleBorder(),
                             padding: EdgeInsets.symmetric(
                                 vertical: 10, horizontal: 15),
-                            backgroundColor: Color.fromARGB(0, 71, 80,
-                                71) // Adjust padding to fit the image // Background color of the button
+                            backgroundColor: Color.fromARGB(0, 81, 168,
+                                81) // Adjust padding to fit the image // Background color of the button
                             ),
                       ),
                     )

@@ -3,6 +3,8 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:flutter_markdown/flutter_markdown.dart';
 //import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatWidget extends StatefulWidget {
@@ -184,12 +186,15 @@ class _ChatWidgetState extends State<ChatWidget> {
                     isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                 children: [
                   SizedBox(height: 5),
-                  Text(
-                    text,
-                    style: TextStyle(
+                  MarkdownBody(
+                    data: text,
+                    styleSheet: MarkdownStyleSheet(
+                      p: TextStyle(
                         color: isUser
                             ? Color.fromARGB(255, 252, 250, 250)
-                            : Colors.black),
+                            : Colors.black,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -219,8 +224,6 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.transparent,
@@ -308,7 +311,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                               prompt,
                               style: TextStyle(color: Colors.white),
                             ),
-                            backgroundColor: Color.fromARGB(255, 110, 133, 127),
+                            backgroundColor: Color.fromARGB(255, 56, 68, 65),
                             onPressed: () => _sendMessage(message: prompt),
                           );
                         }).toList(),
@@ -367,142 +370,4 @@ class _ChatWidgetState extends State<ChatWidget> {
       ),
     );
   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-//     // final Color backColor = isLightTheme
-//     //     ? Color.fromARGB(255, 236, 236, 236)
-//     //     : Color.fromARGB(179, 25, 41, 30);
-
-//     final Color backColor = Colors.transparent;
-
-//     return Container(
-//       decoration: BoxDecoration(
-//         color: backColor,
-//         border: Border.all(color: Colors.transparent),
-//         borderRadius: BorderRadius.circular(10),
-//       ),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Align(
-//             alignment: Alignment.topCenter,
-//             child: Container(
-//               padding: EdgeInsets.all(12.0),
-//               child: Row(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   Image.asset(
-//                     'chef.png',
-//                     width: 50, // Adjust size as needed
-//                     height: 50, // Adjust size as needed
-//                     fit: BoxFit.cover,
-//                   ),
-//                   SizedBox(width: 12.0),
-//                   Text(
-//                     'Robo-Chef',
-//                     style: TextStyle(
-//                       fontSize: 18,
-//                       fontWeight: FontWeight.w600,
-//                       color: Colors.white,
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//           Row(mainAxisSize: MainAxisSize.min, children: [
-//             Image.asset(
-//               'chef.png', // Replace with your asset path
-//               width: 50, // Adjust size as needed
-//               height: 50, // Adjust size as needed
-//               fit: BoxFit.cover,
-//             ),
-//             SizedBox(width: 8.0),
-//             Flexible(
-//               child: Container(
-//                 margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-//                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-//                 decoration: BoxDecoration(
-//                   color: Colors.grey[300],
-//                   borderRadius: BorderRadius.circular(10),
-//                 ),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     SizedBox(height: 5),
-//                     Text(
-//                       "Hello! I'm Robo-Chef, here to help you with any questions you might have about this ${widget.recipeName} recipe.",
-//                       style: TextStyle(color: Colors.black),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//             ),
-//           ]),
-//           if (_suggestedPrompts.isNotEmpty)
-//             Padding(
-//               padding: const EdgeInsets.all(8.0),
-//               child: Wrap(
-//                 spacing: 6.0,
-//                 runSpacing: 6.0,
-//                 children: _suggestedPrompts.map((prompt) {
-//                   return ActionChip(
-//                     label: Text(
-//                       prompt,
-//                       style: TextStyle(
-//                           color: Colors.white), // Set text color if needed
-//                     ),
-//                     backgroundColor: Color.fromARGB(
-//                         255, 110, 133, 127), // Set background color here
-//                     onPressed: () => _sendMessage(message: prompt),
-//                   );
-//                 }).toList(),
-//               ),
-//             ),
-//           Expanded(
-//             child: ListView.builder(
-//               padding: EdgeInsets.all(10),
-//               itemCount: _messages.length,
-//               itemBuilder: (context, index) {
-//                 final message = _messages[index];
-//                 return _buildMessageBubble(
-//                     message["sender"]!, message["text"]!);
-//               },
-//             ),
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.all(8.0),
-//             child: Row(
-//               children: [
-//                 Expanded(
-//                   child: TextField(
-//                     controller: _controller,
-//                     decoration: InputDecoration(
-//                       labelText: 'Ask Robo-Chef for help',
-//                       fillColor: Colors.transparent,
-//                       filled: true,
-//                       labelStyle: TextStyle(
-//                         color: Colors.white,
-//                         // fontWeight: FontWeight.bold,
-//                       ),
-//                       enabledBorder: OutlineInputBorder(
-//                           borderSide: const BorderSide(color: Colors.white),
-//                           borderRadius: BorderRadius.circular(8)),
-//                     ),
-//                   ),
-//                 ),
-//                 IconButton(
-//                   icon: Icon(Icons.chevron_right_rounded),
-//                   onPressed: () => _sendMessage(),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
 }
