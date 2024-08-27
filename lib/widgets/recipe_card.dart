@@ -533,6 +533,8 @@ class _RecipeCardState extends State<RecipeCard> {
 
     final clickColor =
         theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
+    final textColor =
+        theme.brightness == Brightness.light ? Color(0xFF283330) : Colors.white;
 
     showDialog(
       context: context,
@@ -672,8 +674,8 @@ class _RecipeCardState extends State<RecipeCard> {
                                   0.01, // Adjust height
                             ),
                             TabBar(
-                              labelColor: Colors.white,
-                              indicatorColor: Colors.white,
+                              labelColor: textColor,
+                              indicatorColor: textColor,
                               tabs: [
                                 Tab(text: 'Details'),
                                 Tab(text: 'Instructions'),
@@ -741,7 +743,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                         Text(
                                                           'Prep Time:',
                                                           style: TextStyle(
-                                                            color: Colors.white,
+                                                            color: textColor,
                                                             fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -766,8 +768,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           child: Text(
                                                             '${widget.prepTime} mins',
                                                             style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
+                                                              color: textColor,
                                                               fontSize: 12,
                                                             ),
                                                           ),
@@ -788,7 +789,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                         thickness: 1.8,
                                                         indent: 20,
                                                         endIndent: 0,
-                                                        color: Colors.white,
+                                                        color: textColor,
                                                       ),
                                                     ),
                                                     SizedBox(
@@ -809,7 +810,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                         Text(
                                                           'Cook Time:',
                                                           style: TextStyle(
-                                                            color: Colors.white,
+                                                            color: textColor,
                                                             fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -834,8 +835,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           child: Text(
                                                             '${widget.cookTime} mins',
                                                             style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
+                                                              color: textColor,
                                                               fontSize: 12,
                                                             ),
                                                           ),
@@ -859,7 +859,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                 thickness: 1.8,
                                                 indent: 20,
                                                 endIndent: 0,
-                                                color: Colors.white,
+                                                color: textColor,
                                               ),
                                             ),
                                             SizedBox(
@@ -877,7 +877,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                 Text(
                                                   'Total Time:',
                                                   style: TextStyle(
-                                                    color: Colors.white,
+                                                    color: textColor,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                   ),
@@ -898,7 +898,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                   child: Text(
                                                     '${widget.prepTime + widget.cookTime} mins',
                                                     style: TextStyle(
-                                                      color: Colors.white,
+                                                      color: textColor,
                                                       fontSize: 12,
                                                     ),
                                                   ),
@@ -947,6 +947,23 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     .size
                                                     .height *
                                                 0.02), // Adjust height to 2% of screen height
+                                        ElevatedButton(
+                                          onPressed: () {},
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: textColor,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 40, vertical: 20),
+                                          ),
+                                          child: Text(
+                                              'Adjust recipe to cater to my preferences',
+                                              style:
+                                                  TextStyle(color: clickColor)),
+                                        ),
+                                        SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.02),
                                         Text(
                                           "Ingredients:",
                                           style: TextStyle(
@@ -1366,6 +1383,24 @@ class _RecipeCardState extends State<RecipeCard> {
                                               .size
                                               .height *
                                           0.02), // Adjust height to 2% of screen height
+                                  ElevatedButton(
+                                    onPressed: () {},
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: textColor,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 40, vertical: 20),
+                                    ),
+                                    child: Text(
+                                        'Adjust recipe to cater to my preferences',
+                                        style: TextStyle(
+                                            color: isLightTheme
+                                                ? Colors.white
+                                                : Color(0xFF1F4539))),
+                                  ),
+                                  SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.02),
                                   Text('Ingredients:',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
@@ -2237,81 +2272,83 @@ class _CheckableItemState extends State<CheckableItem> {
   }
 
   void _addToShoppingList(
-    String ingredientString, double remainingQuantity, String unit) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  final String? userId = prefs.getString('userId');
+      String ingredientString, double remainingQuantity, String unit) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
 
-  //extract ingredient name
-  final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
-  final match = regex.firstMatch(ingredientString);
-  final ingredientName =
-      match != null ? match.group(1) ?? ingredientString : ingredientString;
+    //extract ingredient name
+    final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
+    final match = regex.firstMatch(ingredientString);
+    final ingredientName =
+        match != null ? match.group(1) ?? ingredientString : ingredientString;
 
-  //check if the ingredient is in the db
-  final addIngredientUrl = Uri.parse(
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-  final headers = {"Content-Type": "application/json"};
-  final addIngredientBody = jsonEncode({
-    "action": "addIngredientIfNotExists",
-    "ingredientName": ingredientName,
-    "measurementUnit": unit,
-  });
+    //check if the ingredient is in the db
+    final addIngredientUrl = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final headers = {"Content-Type": "application/json"};
+    final addIngredientBody = jsonEncode({
+      "action": "addIngredientIfNotExists",
+      "ingredientName": ingredientName,
+      "measurementUnit": unit,
+    });
 
-  try {
-    final addIngredientResponse =
-        await http.post(addIngredientUrl, headers: headers, body: addIngredientBody);
-    if (addIngredientResponse.statusCode != 200) {
-      print('Failed to ensure ingredient exists: ${addIngredientResponse.body}');
+    try {
+      final addIngredientResponse = await http.post(addIngredientUrl,
+          headers: headers, body: addIngredientBody);
+      if (addIngredientResponse.statusCode != 200) {
+        print(
+            'Failed to ensure ingredient exists: ${addIngredientResponse.body}');
+        return;
+      }
+    } catch (error) {
+      print('Error ensuring ingredient exists: $error');
       return;
     }
-  } catch (error) {
-    print('Error ensuring ingredient exists: $error');
-    return;
-  }
 
-  //add to shopping list
-  final url = Uri.parse(
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-  final addShoppingListBody = jsonEncode({
-    "action": "addToShoppingList",
-    "userId": userId,
-    "ingredientName": ingredientName,
-    "quantity": remainingQuantity,
-    "measurementUnit": unit
-  });
+    //add to shopping list
+    final url = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+    final addShoppingListBody = jsonEncode({
+      "action": "addToShoppingList",
+      "userId": userId,
+      "ingredientName": ingredientName,
+      "quantity": remainingQuantity,
+      "measurementUnit": unit
+    });
 
-  try {
-    final response = await http.post(url, headers: headers, body: addShoppingListBody);
-    if (response.statusCode == 200) {
-      if (mounted) {
-        setState(() {
-          _isAdded = true;
-          _updateShoppingList(ingredientName, remainingQuantity, unit);
-        });
+    try {
+      final response =
+          await http.post(url, headers: headers, body: addShoppingListBody);
+      if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            _isAdded = true;
+            _updateShoppingList(ingredientName, remainingQuantity, unit);
+          });
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added remaining $ingredientName to shopping list'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Failed to add $ingredientName to shopping list: ${response.body}'),
+          ),
+        );
       }
+    } catch (error) {
+      print('Error: $error');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Added remaining $ingredientName to shopping list'),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Failed to add $ingredientName to shopping list: ${response.body}'),
+          content:
+              Text('Error adding $ingredientName to shopping list: $error'),
         ),
       );
     }
-  } catch (error) {
-    print('Error: $error');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content:
-            Text('Error adding $ingredientName to shopping list: $error'),
-      ),
-    );
   }
-}
 
   void _updateShoppingList(
       String ingredientName, double quantity, String measurementUnit) {
