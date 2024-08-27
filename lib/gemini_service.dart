@@ -674,3 +674,116 @@ Future<String> fetchRecipeFromPantryIngredients(String userId) async {
     return 'No response text';
   }
 }
+
+Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String recipeId) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return 'No API_KEY environment variable';
+  }
+
+  // Fetch recipe details
+  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  if (recipeDetails == null) {
+    return 'Failed to fetch recipe details';
+  }
+
+  // Ensure the data is parsed correctly
+  List<String> ingredients = [];
+  List<String> steps = [];
+
+  // Handle ingredients
+  final ingredientsData = recipeDetails['ingredients'];
+  if (ingredientsData is List) {
+    ingredients = ingredientsData.map((item) => item.toString()).toList();
+  } else if (ingredientsData is String) {
+    // If the data is a single string, split it by commas or other delimiters
+    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+  }
+
+  // Handle steps
+  final stepsData = recipeDetails['steps'];
+  if (stepsData is List) {
+    steps = stepsData.map((item) => item.toString()).toList();
+  } else if (stepsData is String) {
+    // If the data is a single string, split it by newlines or other delimiters
+    steps = stepsData.split('\n').map((item) => item.trim()).toList();
+  }
+
+ final formatting = """Return the recipe in JSON using the following structure:
+  {
+    "title": "\$title",
+    "ingredients": [
+      "ingredient1 (quantity)",
+      "ingredient2 (quantity)",
+      ...
+    ],
+    "steps": [
+      "Step 1",
+      "Step 2",
+      ...
+    ],
+    "cuisine": "\$cuisine",
+    "description": "\$description",
+    "servings": "\$servings"
+  }
+  They should all be Strings.""";
+
+  final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
+  adjust the recipe to be suitable for this dietary constraint $dietaryConstraint. 
+  Please make any fractions into decimal values.""";
+  
+  final finalPrompt = initialPrompt + formatting;
+
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final content = [Content.text(finalPrompt)];
+  final response = await model.generateContent(content);
+
+  // Ensure response is not null and print the text content
+  if (response != null && response.text != null) {
+    String jsonString = response.text!;
+
+    print(jsonString);
+    
+    // Correct the JSON format by replacing single quotes with double quotes
+    jsonString = jsonString.replaceAll("'", '"');
+
+    // Split the JSON string by lines
+    List<String> lines = jsonString.split('\n');
+
+    // Check if there are more than two lines before removing the first and last lines
+    if (lines.length > 2) {
+      // Check if the first line is "``` json"
+      if (lines[0] == "```json") {
+        lines.removeAt(0); // Remove the first line
+      }
+
+      // Check if the last line is a blank line and remove it
+      if (lines.last.isEmpty) {
+        lines.removeAt(lines.length - 1); // Remove the blank line
+      }
+
+      // Check if the new last line is "```" and remove it
+      if (lines.last == "```") {
+        lines.removeAt(lines.length - 1); // Remove the last line
+      }
+    } else {
+      print("The JSON string does not have enough lines to remove the first and last lines.");
+    }
+    
+    // Join the lines back together
+    jsonString = lines.join('\n');
+    
+    // Optionally, parse the JSON string to a Map to verify it's a valid JSON
+    try {
+      //final jsonMap = jsonDecode(jsonString);
+      //print('Parsed JSON: $jsonMap');
+    } catch (e) {
+      print('Failed to parse JSON: $e');
+    }
+
+    return jsonString;
+  } else {
+    return 'No response text';
+  }
+}
