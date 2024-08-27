@@ -189,7 +189,7 @@ Widget build(BuildContext context) {
                               List<String> steps = [];
                               if (recipes[index]['steps'] != null) {
                                 steps = (recipes[index]['steps'] as String)
-                                    .split(',');
+                                    .split('<');
                               }
 
                               return RecipeCard(
