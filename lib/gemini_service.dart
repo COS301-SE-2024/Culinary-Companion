@@ -1076,7 +1076,9 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
   final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   adjust the recipe to be suitable for these dietary constraints: $dietaryConstraints. 
-  Please make any fractions into decimal values.""";
+  Please make any fractions into decimal values.
+  Replace each non-compliant ingredient with a specific and commonly available alternative that meets the dietary requirements. 
+  Ensure that all substitutions are practical and commonly used in cooking.""";
   
   final finalPrompt = initialPrompt + formatting;
 
