@@ -791,7 +791,7 @@ Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String rec
 
 
 ///extract json data for recipe
-Future<Map<String, dynamic>?> extractRecipeData(String pastedText) async {
+Future<Map<String, dynamic>?> extractRecipeData(String pastedText, String selectedImage) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
     print('Error: API_KEY environment variable is missing.');
@@ -836,7 +836,7 @@ Extract the following recipe information from the text below and return it in JS
     { "name": "\$appliance2" },
     ...
   ],
-  'photo': "https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z"
+  'photo': "$selectedImage"
 }
 
 **Important Conditions:**
