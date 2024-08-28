@@ -943,7 +943,7 @@ $pastedText
         recipeData['appliances'] = appliances;
       }
 
-      print("rec data: ${recipeData}");
+      print("rec data: $recipeData");
       return recipeData;
     } catch (e) {
       print('Error parsing JSON response: $e');
