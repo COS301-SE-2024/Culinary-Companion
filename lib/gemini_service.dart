@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 // import '/screens/home_screen.dart'; 
 
 
@@ -1010,7 +1011,9 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
   }
 
   // fetch user's dietary constraints
+  //print("user id in gem: $userId");
   final String dietaryConstraints = await fetchUserDietaryConstraints(userId);
+  //print("dc: $dietaryConstraints");
 
 
   // Ensure the data is parsed correctly
@@ -1069,7 +1072,7 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print(jsonString);
+    print("Altered recipe in gem:  $jsonString");
     
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');

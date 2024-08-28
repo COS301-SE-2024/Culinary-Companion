@@ -948,17 +948,31 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     .height *
                                                 0.02), // Adjust height to 2% of screen height
                                         ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: textColor,
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 40, vertical: 20),
-                                          ),
-                                          child: Text(
-                                              'Adjust recipe to cater to my preferences',
-                                              style:
-                                                  TextStyle(color: clickColor)),
-                                        ),
+  onPressed: () async {
+    if (userId != null) {
+      String alteredRecipeJson = await fetchDietaryConstraintsRecipe(userId!, widget.recipeID);
+
+      // Decode the JSON string
+      Map<String, dynamic> alteredRecipe = jsonDecode(alteredRecipeJson);
+      print("Altered recipe in card: $alteredRecipe");
+      // Update the recipe data with the altered recipe
+      _updateRecipe(alteredRecipe);
+
+      // Close the dialog if needed and refresh UI
+      Navigator.of(context).pop();
+      _showMobileRecipeDetails(); // Refresh the mobile view
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: textColor,
+    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+  ),
+  child: Text(
+    'Adjust recipe to cater to my preferences',
+    style: TextStyle(color: clickColor),
+  ),
+),
+
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
@@ -1384,19 +1398,31 @@ class _RecipeCardState extends State<RecipeCard> {
                                               .height *
                                           0.02), // Adjust height to 2% of screen height
                                   ElevatedButton(
-                                    onPressed: () {},
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: textColor,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 40, vertical: 20),
-                                    ),
-                                    child: Text(
-                                        'Adjust recipe to cater to my preferences',
-                                        style: TextStyle(
-                                            color: isLightTheme
-                                                ? Colors.white
-                                                : Color(0xFF1F4539))),
-                                  ),
+  onPressed: () async {
+    if (userId != null) {
+      String alteredRecipeJson = await fetchDietaryConstraintsRecipe(userId!, widget.recipeID);
+
+      // Decode the JSON string
+      Map<String, dynamic> alteredRecipe = jsonDecode(alteredRecipeJson);
+
+      // Update the recipe data with the altered recipe
+      _updateRecipe(alteredRecipe);
+
+      // Close the dialog if needed and refresh UI
+      Navigator.of(context).pop();
+      _showRecipeDetails(); // Refresh the desktop view
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: textColor,
+    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+  ),
+  child: Text(
+    'Adjust recipe to cater to my preferences',
+    style: TextStyle(color: clickColor),
+  ),
+),
+
                                   SizedBox(
                                       height:
                                           MediaQuery.of(context).size.height *
