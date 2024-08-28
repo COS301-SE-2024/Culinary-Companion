@@ -962,6 +962,24 @@ class _RecipeCardState extends State<RecipeCard> {
                                               ElevatedButton(
                                                 onPressed: () async {
                                                   if (userId != null) {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return AlertDialog(
+                                                          title: Text(
+                                                            'Adjusting recipe...', //loading screen
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .black),
+                                                          ),
+                                                          content:
+                                                              CircularProgressIndicator(),
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                        );
+                                                      },
+                                                    );
                                                     String alteredRecipeJson =
                                                         await fetchDietaryConstraintsRecipe(
                                                             userId!,
@@ -976,7 +994,8 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     //update rec
                                                     _updateRecipe(
                                                         alteredRecipe);
-
+                                                    Navigator.of(context)
+                                                        .pop(); //stop loading screen
                                                     Navigator.of(context).pop();
                                                     _showMobileRecipeDetails(); //refresh rec
                                                   }
@@ -1447,6 +1466,23 @@ class _RecipeCardState extends State<RecipeCard> {
                                         ElevatedButton(
                                           onPressed: () async {
                                             if (userId != null) {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: Text(
+                                                      'Adjusting recipe...',
+                                                      style: TextStyle(
+                                                          color: Colors.black),
+                                                    ),
+                                                    content:
+                                                        CircularProgressIndicator(),
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                  );
+                                                },
+                                              );
                                               String alteredRecipeJson =
                                                   await fetchDietaryConstraintsRecipe(
                                                       userId!, widget.recipeID);
@@ -1458,7 +1494,8 @@ class _RecipeCardState extends State<RecipeCard> {
 
                                               //update to new recipe
                                               _updateRecipe(alteredRecipe);
-
+                                              Navigator.of(context)
+                                                  .pop(); //stop loading screen
                                               Navigator.of(context).pop();
                                               _showRecipeDetails(); //refresh recipe card
                                             }
