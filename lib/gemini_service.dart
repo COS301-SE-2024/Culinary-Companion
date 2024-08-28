@@ -3,8 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-// import '/screens/home_screen.dart'; 
-
+// import '/screens/home_screen.dart';
 
 Future<String> fetchContentBackpack() async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
@@ -18,7 +17,6 @@ Future<String> fetchContentBackpack() async {
 
   return response.text ?? 'No response text';
 }
-
 
 Future<String> fetchContentHorse() async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
@@ -34,12 +32,14 @@ Future<String> fetchContentHorse() async {
 }
 
 Future<Map<String, dynamic>?> fetchRecipeDetails(String recipeId) async {
-  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
   final headers = <String, String>{'Content-Type': 'application/json'};
   final body = jsonEncode({'action': 'getRecipe', 'recipeid': recipeId});
 
   try {
-    final response = await http.post(Uri.parse(url), headers: headers, body: body);
+    final response =
+        await http.post(Uri.parse(url), headers: headers, body: body);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
@@ -55,7 +55,8 @@ Future<Map<String, dynamic>?> fetchRecipeDetails(String recipeId) async {
 }
 
 Future<String> fetchUserDietaryConstraints(String userId) async {
-  final url = Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint');
+  final url = Uri.parse(
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint');
 
   try {
     // Send a POST request to fetch dietary constraints for the user
@@ -65,7 +66,7 @@ Future<String> fetchUserDietaryConstraints(String userId) async {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'action': 'getUserDietaryConstraints', 
+        'action': 'getUserDietaryConstraints',
         'userId': userId,
       }),
     );
@@ -90,7 +91,8 @@ Future<String> fetchUserDietaryConstraints(String userId) async {
 Future<List<Map<String, String>>> fetchPantryList(String userId) async {
   try {
     final response = await http.post(
-      Uri.parse('https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
       body: jsonEncode({
         'action': 'getAvailableIngredients',
         'userId': userId,
@@ -119,8 +121,8 @@ Future<List<Map<String, String>>> fetchPantryList(String userId) async {
   }
 }
 
-
-Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substitute, String substitutedIngredient) async {
+Future<String> fetchIngredientSubstitutionRecipe(
+    String recipeId, String substitute, String substitutedIngredient) async {
   // takes in a recipe id and substitute. finds a recipe using the substitute given
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
@@ -131,7 +133,8 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
   // final substitute = "eggs";
 
   // Fetch recipe details
-  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  final Map<String, dynamic>? recipeDetails =
+      await fetchRecipeDetails(recipeId);
   if (recipeDetails == null) {
     return 'Failed to fetch recipe details';
   }
@@ -146,7 +149,8 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
     ingredients = ingredientsData.map((item) => item.toString()).toList();
   } else if (ingredientsData is String) {
     // If the data is a single string, split it by commas or other delimiters
-    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+    ingredients =
+        ingredientsData.split(',').map((item) => item.trim()).toList();
   }
 
   // Handle steps
@@ -170,7 +174,7 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
   // }
   // title, description, cuisine and servings should be of type String.
   // ingredients and steps should be of type List<String>.""";
-   final formatting = """Return the recipe in JSON using the following structure:
+  final formatting = """Return the recipe in JSON using the following structure:
   {
     "title": "\$title",
     "ingredients": [
@@ -197,11 +201,19 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
   }
   They should all be Strings.""";
 
-  final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  final initialPrompt =
+  """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   use this substitution $substitute instead of the $substitutedIngredient. 
-  Adjust the recipe keeping the same formatting with the substituted ingredient. Please make any fractions into decimal values.""";
-  
+  Make sure to adjust the quantities of the ingredients so the recipe is still accurate, 
+  take into account the new ingredients liquidity, saltiness, sourness, sweetness, bitterness 
+  as opposed to the previous ingredient and make sure the recipe will still create the same taste.
+  Adjust the recipe keeping the same formatting with the substituted ingredient. 
+  Make sure to adjust the quantities of the ingredients so the recipe is still accurate, 
+  take into account the new ingredients liquidity, saltiness, sourness, sweetness, bitterness 
+  as opposed to the previous ingredient and make sure the recipe will still create the same taste.
+  Please make any fractions into decimal values.""";
+
   final finalPrompt = initialPrompt + formatting;
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
@@ -213,7 +225,7 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
     String jsonString = response.text!;
 
     //print(jsonString);
-    
+
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
 
@@ -237,12 +249,13 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
         lines.removeAt(lines.length - 1); // Remove the last line
       }
     } else {
-      print("The JSON string does not have enough lines to remove the first and last lines.");
+      print(
+          "The JSON string does not have enough lines to remove the first and last lines.");
     }
-    
+
     // Join the lines back together
     jsonString = lines.join('\n');
-    
+
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
       //final jsonMap = jsonDecode(jsonString);
@@ -257,9 +270,10 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
   }
 }
 
-Future<String> fetchIngredientSubstitutions(String recipeId, String substitute, String userId) async {
+Future<String> fetchIngredientSubstitutions(
+    String recipeId, String substitute, String userId) async {
   // takes in the recipe id and substitute. This is the ingredient for which we want to find
-  // substitutes for 
+  // substitutes for
   // edit: take in user id to retrieve user's dietary constraints
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
@@ -267,7 +281,8 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute, 
   }
 
   // Fetch recipe details
-  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  final Map<String, dynamic>? recipeDetails =
+      await fetchRecipeDetails(recipeId);
   if (recipeDetails == null) {
     return 'Failed to fetch recipe details';
   }
@@ -285,7 +300,8 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute, 
     ingredients = ingredientsData.map((item) => item.toString()).toList();
   } else if (ingredientsData is String) {
     // If the data is a single string, split it by commas or other delimiters
-    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+    ingredients =
+        ingredientsData.split(',').map((item) => item.trim()).toList();
   }
 
   // Handle steps
@@ -298,7 +314,8 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute, 
   }
 
   // Construct the prompt using the fetched recipe details
-  final formatting = """Return the result in JSON format with the following structure:
+  final formatting =
+      """Return the result in JSON format with the following structure:
   {
     "substitute1": "value1",
     "substitute2": "value2",
@@ -308,10 +325,11 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute, 
   }
   Just list the substitute ingredients without explanation and make sure the output is valid JSON.""";
 
-  final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  final initialPrompt =
+      """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   suggest 5 substitutions for $substitute considering these dietary constraints: $dietaryConstraints. Only give the ingredient names.""";
-  
+
   final finalPrompt = initialPrompt + formatting;
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
@@ -323,7 +341,7 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute, 
     String jsonString = response.text!;
 
     //print(jsonString);
-    
+
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
 
@@ -347,12 +365,13 @@ Future<String> fetchIngredientSubstitutions(String recipeId, String substitute, 
         lines.removeAt(lines.length - 1); // Remove the last line
       }
     } else {
-      print("The JSON string does not have enough lines to remove the first and last lines.");
+      print(
+          "The JSON string does not have enough lines to remove the first and last lines.");
     }
-    
+
     // Join the lines back together
     jsonString = lines.join('\n');
-    
+
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
       //final jsonMap = jsonDecode(jsonString);
@@ -374,7 +393,8 @@ Future<String> fetchKeywords(String recipeId) async {
   }
 
   // Fetch recipe details
-  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  final Map<String, dynamic>? recipeDetails =
+      await fetchRecipeDetails(recipeId);
   if (recipeDetails == null) {
     return 'Failed to fetch recipe details';
   }
@@ -389,7 +409,8 @@ Future<String> fetchKeywords(String recipeId) async {
     ingredients = ingredientsData.map((item) => item.toString()).toList();
   } else if (ingredientsData is String) {
     // If the data is a single string, split it by commas or other delimiters
-    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+    ingredients =
+        ingredientsData.split(',').map((item) => item.trim()).toList();
   }
 
   // Handle steps
@@ -401,7 +422,8 @@ Future<String> fetchKeywords(String recipeId) async {
     steps = stepsData.split('\n').map((item) => item.trim()).toList();
   }
 
-  final prompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  final prompt =
+      """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   extract the 5 most relevant keywords that describe the dish, including ingredients and flavours. 
   Return the result in JSON format with the following structure:
@@ -413,7 +435,7 @@ Future<String> fetchKeywords(String recipeId) async {
     "keyword5": "value5"
   }
   Just list the keywords without explanation and make sure the output is valid JSON.""";
-  
+
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
   final content = [Content.text(prompt)];
   final response = await model.generateContent(content);
@@ -422,13 +444,13 @@ Future<String> fetchKeywords(String recipeId) async {
     String jsonString = response.text!;
 
     //print(jsonString);
-    
+
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
 
     // Split the JSON string by lines
     List<String> lines = jsonString.split('\n');
-    
+
     // Check if there are more than two lines before removing the first and last lines
     if (lines.length > 2) {
       // Check if the first line is "``` json"
@@ -446,12 +468,13 @@ Future<String> fetchKeywords(String recipeId) async {
         lines.removeAt(lines.length - 1); // Remove the last line
       }
     } else {
-      print("The JSON string does not have enough lines to remove the first and last lines.");
+      print(
+          "The JSON string does not have enough lines to remove the first and last lines.");
     }
-    
+
     // Join the lines back together
     jsonString = lines.join('\n');
-    
+
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
       //final jsonMap = jsonDecode(jsonString);
@@ -466,7 +489,6 @@ Future<String> fetchKeywords(String recipeId) async {
   }
 }
 
-
 Future<String> fetchDietaryConstraints(String recipeId) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
@@ -474,7 +496,8 @@ Future<String> fetchDietaryConstraints(String recipeId) async {
   }
 
   // Fetch recipe details
-  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  final Map<String, dynamic>? recipeDetails =
+      await fetchRecipeDetails(recipeId);
   if (recipeDetails == null) {
     return 'Failed to fetch recipe details';
   }
@@ -489,7 +512,8 @@ Future<String> fetchDietaryConstraints(String recipeId) async {
     ingredients = ingredientsData.map((item) => item.toString()).toList();
   } else if (ingredientsData is String) {
     // If the data is a single string, split it by commas or other delimiters
-    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+    ingredients =
+        ingredientsData.split(',').map((item) => item.trim()).toList();
   }
 
   // Handle steps
@@ -501,7 +525,8 @@ Future<String> fetchDietaryConstraints(String recipeId) async {
     steps = stepsData.split('\n').map((item) => item.trim()).toList();
   }
 
-  final prompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  final prompt =
+      """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
     with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
     analyze the recipe and identify which of the following dietary constraints the recipe belongs to:
     Vegan, Gluten Free, Dairy Free, Nut Free, Low Carb, Low Fat, Low Sodium, Paleo, Keto, Whole30, Pescatarian, 
@@ -555,17 +580,17 @@ Future<String> fetchDietaryConstraints(String recipeId) async {
 //     return 'No response text';
 //   }
 // }
-if (response != null && response.text != null) {
+  if (response != null && response.text != null) {
     String jsonString = response.text!;
 
     //print(jsonString);
-    
+
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
 
     // Split the JSON string by lines
     List<String> lines = jsonString.split('\n');
-    
+
     // Check if there are more than two lines before removing the first and last lines
     if (lines.length > 2) {
       // Check if the first line is "``` json"
@@ -583,12 +608,13 @@ if (response != null && response.text != null) {
         lines.removeAt(lines.length - 1); // Remove the last line
       }
     } else {
-      print("The JSON string does not have enough lines to remove the first and last lines.");
+      print(
+          "The JSON string does not have enough lines to remove the first and last lines.");
     }
-    
+
     // Join the lines back together
     jsonString = lines.join('\n');
-    
+
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
       //final jsonMap = jsonDecode(jsonString);
@@ -663,7 +689,8 @@ Future<String> fetchRecipeFromPantryIngredients(String userId) async {
         lines.removeAt(lines.length - 1); // Remove the last line
       }
     } else {
-      print("The JSON string does not have enough lines to remove the first and last lines.");
+      print(
+          "The JSON string does not have enough lines to remove the first and last lines.");
     }
 
     // Join the lines back together
@@ -685,14 +712,16 @@ Future<String> fetchRecipeFromPantryIngredients(String userId) async {
 }
 
 // only 1 dietary constraint
-Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String recipeId) async {
+Future<String> fetchDietaryConstraintRecipe(
+    String dietaryConstraint, String recipeId) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
 
   // Fetch recipe details
-  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  final Map<String, dynamic>? recipeDetails =
+      await fetchRecipeDetails(recipeId);
   if (recipeDetails == null) {
     return 'Failed to fetch recipe details';
   }
@@ -707,7 +736,8 @@ Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String rec
     ingredients = ingredientsData.map((item) => item.toString()).toList();
   } else if (ingredientsData is String) {
     // If the data is a single string, split it by commas or other delimiters
-    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+    ingredients =
+        ingredientsData.split(',').map((item) => item.trim()).toList();
   }
 
   // Handle steps
@@ -719,7 +749,7 @@ Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String rec
     steps = stepsData.split('\n').map((item) => item.trim()).toList();
   }
 
- final formatting = """Return the recipe in JSON using the following structure:
+  final formatting = """Return the recipe in JSON using the following structure:
   {
     "title": "\$title",
     "ingredients": [
@@ -738,11 +768,12 @@ Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String rec
   }
   They should all be Strings.""";
 
-  final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  final initialPrompt =
+      """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   adjust the recipe to be suitable for this dietary constraint $dietaryConstraint. 
   Please make any fractions into decimal values.""";
-  
+
   final finalPrompt = initialPrompt + formatting;
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
@@ -754,7 +785,7 @@ Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String rec
     String jsonString = response.text!;
 
     //print(jsonString);
-    
+
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
 
@@ -778,12 +809,13 @@ Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String rec
         lines.removeAt(lines.length - 1); // Remove the last line
       }
     } else {
-      print("The JSON string does not have enough lines to remove the first and last lines.");
+      print(
+          "The JSON string does not have enough lines to remove the first and last lines.");
     }
-    
+
     // Join the lines back together
     jsonString = lines.join('\n');
-    
+
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
       //final jsonMap = jsonDecode(jsonString);
@@ -797,7 +829,6 @@ Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String rec
     return 'No response text';
   }
 }
-
 
 ///extract json data for recipe
 Future<Map<String, dynamic>?> extractRecipeData(String pastedText) async {
@@ -866,20 +897,18 @@ $pastedText
     String jsonString = response.text!;
 
     // fix json
-   jsonString = jsonString
-        .replaceAll('```json', '') 
-        .replaceAll('```', '') 
-        .trim(); 
+    jsonString =
+        jsonString.replaceAll('```json', '').replaceAll('```', '').trim();
 
-   try {
+    try {
       final Map<String, dynamic> recipeData = jsonDecode(jsonString);
 
       if (recipeData.containsKey('methods')) {
-        recipeData['methods'] = (recipeData['methods'] as List<dynamic>).map((step) {
+        recipeData['methods'] =
+            (recipeData['methods'] as List<dynamic>).map((step) {
           return step.toString();
         }).join('<'); //format steps
-       print("rec data: ${recipeData['methods']}");
-
+        print("rec data: ${recipeData['methods']}");
       }
 
       return recipeData;
@@ -894,8 +923,10 @@ $pastedText
 }
 
 /// add pasted rec to db
-Future<void> addExtractedRecipeToDatabase(Map<String, dynamic> recipeData, String userId) async {
-  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+Future<void> addExtractedRecipeToDatabase(
+    Map<String, dynamic> recipeData, String userId) async {
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
   final headers = <String, String>{'Content-Type': 'application/json'};
 
   final payload = {
@@ -957,7 +988,8 @@ Future<void> addExtractedRecipeToDatabase(Map<String, dynamic> recipeData, Strin
         }
 
         // Fetch and add dietary constraints
-        final dietaryConstraintsJsonString = await fetchDietaryConstraints(recipeId);
+        final dietaryConstraintsJsonString =
+            await fetchDietaryConstraints(recipeId);
         Map<String, dynamic> dietaryConstraints;
         try {
           dietaryConstraints = jsonDecode(dietaryConstraintsJsonString);
@@ -1002,18 +1034,17 @@ Future<void> addExtractedRecipeToDatabase(Map<String, dynamic> recipeData, Strin
   }
 }
 
-
-
-
 // all dietary constraints
-Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) async {
+Future<String> fetchDietaryConstraintsRecipe(
+    String userId, String recipeId) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
 
   // Fetch recipe details
-  final Map<String, dynamic>? recipeDetails = await fetchRecipeDetails(recipeId);
+  final Map<String, dynamic>? recipeDetails =
+      await fetchRecipeDetails(recipeId);
   if (recipeDetails == null) {
     return 'Failed to fetch recipe details';
   }
@@ -1022,7 +1053,6 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
   //print("user id in gem: $userId");
   final String dietaryConstraints = await fetchUserDietaryConstraints(userId);
   //print("dc: $dietaryConstraints");
-
 
   // Ensure the data is parsed correctly
   List<String> ingredients = [];
@@ -1034,7 +1064,8 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
     ingredients = ingredientsData.map((item) => item.toString()).toList();
   } else if (ingredientsData is String) {
     // If the data is a single string, split it by commas or other delimiters
-    ingredients = ingredientsData.split(',').map((item) => item.trim()).toList();
+    ingredients =
+        ingredientsData.split(',').map((item) => item.trim()).toList();
   }
 
   // Handle steps
@@ -1046,7 +1077,8 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
     steps = stepsData.split('\n').map((item) => item.trim()).toList();
   }
 
- final formatting = """Return the recipe in JSON using the following structure the ingredients must be in the specified structure:
+  final formatting =
+      """Return the recipe in JSON using the following structure the ingredients must be in the specified structure:
   {
     "title": "\$title",
     "ingredients": [
@@ -1073,13 +1105,14 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
   }
   They should all be Strings.""";
 
-  final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  final initialPrompt =
+      """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   adjust the recipe to be suitable for these dietary constraints: $dietaryConstraints. 
   Please make any fractions into decimal values.
   Replace each non-compliant ingredient with a specific and commonly available alternative that meets the dietary requirements. 
   Ensure that all substitutions are practical and commonly used in cooking.""";
-  
+
   final finalPrompt = initialPrompt + formatting;
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
@@ -1091,7 +1124,7 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
     String jsonString = response.text!;
 
     print("Altered recipe in gem:  $jsonString");
-    
+
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
 
@@ -1115,12 +1148,13 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
         lines.removeAt(lines.length - 1); // Remove the last line
       }
     } else {
-      print("The JSON string does not have enough lines to remove the first and last lines.");
+      print(
+          "The JSON string does not have enough lines to remove the first and last lines.");
     }
-    
+
     // Join the lines back together
     jsonString = lines.join('\n');
-    
+
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
       //final jsonMap = jsonDecode(jsonString);
