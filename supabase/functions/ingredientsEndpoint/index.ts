@@ -260,7 +260,7 @@ async function addIngredientIfNotExists(
     corsHeaders: HeadersInit
 ) {
     if (!ingredientName || !measurementUnit) {
-        console.error('Invalid ingredient data provided.');
+        console.error('Validation Error: Ingredient name or measurement unit is missing.');
         return new Response(JSON.stringify({ error: 'Invalid ingredient data provided' }), {
             status: 400,
             headers: corsHeaders,
@@ -269,6 +269,7 @@ async function addIngredientIfNotExists(
 
     try {
         // Check if the ingredient exists
+        console.log(`Attempting to fetch ingredient with name: ${ingredientName}`);
         const { data: existingIngredient, error: fetchError } = await supabase
             .from('ingredient')
             .select('ingredientid')
@@ -276,7 +277,7 @@ async function addIngredientIfNotExists(
             .limit(1);
 
         if (fetchError) {
-            console.error('Error fetching ingredient:', fetchError);
+            console.error('Error fetching ingredient:', fetchError.message);
             return new Response(JSON.stringify({ error: fetchError.message }), {
                 status: 500,
                 headers: corsHeaders,
@@ -299,7 +300,7 @@ async function addIngredientIfNotExists(
             .limit(1);
 
         if (maxIdError) {
-            console.error('Error fetching max ingredient ID:', maxIdError);
+            console.error('Error fetching max ingredient ID:', maxIdError.message);
             return new Response(JSON.stringify({ error: maxIdError.message }), {
                 status: 500,
                 headers: corsHeaders,
@@ -319,7 +320,7 @@ async function addIngredientIfNotExists(
             .select('ingredientid');
 
         if (insertError) {
-            console.error('Error adding new ingredient:', insertError);
+            console.error('Error adding new ingredient:', insertError.message);
             return new Response(JSON.stringify({ error: insertError.message }), {
                 status: 500,
                 headers: corsHeaders,
@@ -332,7 +333,7 @@ async function addIngredientIfNotExists(
         });
 
     } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('Unexpected error:', error.message);
         return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
             headers: corsHeaders,
