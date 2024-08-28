@@ -656,32 +656,21 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
             });
         }
 
-        // Insert ingredients
+        
         for (const ingredient of ingredients) {
-            const { data: ingredientData, error: ingredientError } = await supabase
-                .from('ingredient')
-                .select('ingredientid')
-                .eq('name', ingredient.name)
-                .single();
+            const ingredientResponse = await addIngredientIfNotExists(ingredient.name, ingredient.unit, corsHeaders);
 
-            if (ingredientError) {
-                console.error('Error fetching ingredient:', ingredientError);
-                return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredient.name}` }), {
+            if (ingredientResponse.status !== 200) {
+                console.error('Error adding or fetching ingredient:', await ingredientResponse.json());
+                return new Response(JSON.stringify({ error: 'Failed to add or fetch ingredient' }), {
                     status: 400,
                     headers: corsHeaders,
                 });
             }
 
-            const ingredientId = ingredientData?.ingredientid;
+            const { ingredientId } = await ingredientResponse.json();
 
-            if (!ingredientId) {
-                console.error(`Failed to retrieve ingredient ID for ${ingredient.name}`);
-                return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), {
-                    status: 400,
-                    headers: corsHeaders,
-                });
-            }
-
+            // Insert the ingredient into the recipe ingredients table
             const { error: recipeIngredientError } = await supabase
                 .from('recipeingredients')
                 .insert({
@@ -699,6 +688,7 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
                 });
             }
         }
+
 
         // Insert appliances
         for (const appliance of appliances) {

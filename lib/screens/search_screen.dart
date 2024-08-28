@@ -719,7 +719,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           List<String> steps = [];
                           if (recipes[index]['steps'] != null) {
                             steps =
-                                (recipes[index]['steps'] as String).split(',');
+                                (recipes[index]['steps'] as String).split('<');
                           }
 
                           return RecipeCard(
