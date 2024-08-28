@@ -180,6 +180,10 @@ class _RecipeFormState extends State<RecipeForm>
                       'measurementUnit': item['measurementUnit'].toString(),
                     })
                 .toList();
+
+            // Sort items alphabetically by name
+            _availableIngredients
+                .sort((a, b) => a['name']!.compareTo(b['name']!));
           });
         }
       } else {

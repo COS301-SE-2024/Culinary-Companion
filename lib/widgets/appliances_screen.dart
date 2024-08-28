@@ -95,6 +95,9 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
             allAppliances = data.map<String>((appliance) {
               return appliance['name'].toString();
             }).toList();
+
+            // Sort appliances alphabetically by name
+            allAppliances.sort((a, b) => a.compareTo(b));
           });
         }
       } else {
@@ -112,6 +115,9 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
             allAppliances = cachedAppliances.map<String>((appliance) {
               return appliance['name'].toString();
             }).toList();
+
+            // Sort appliances alphabetically by name
+            allAppliances.sort((a, b) => a.compareTo(b));
           });
         }
       }
