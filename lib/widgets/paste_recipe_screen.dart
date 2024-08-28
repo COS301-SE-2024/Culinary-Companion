@@ -101,19 +101,39 @@ final List<String> _preloadedImages = [
     _selectedImage ?? _preloadedImages[0],
   );
 
-  if (extractedRecipeData != null && !extractedRecipeData.containsKey('error')) {
-    await addExtractedRecipeToDatabase(extractedRecipeData, _userId!);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Recipe added successfully!'),
-      ),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Failed to extract recipe data.'),
-      ),
-    );
+  showDialog( //loading screen 
+    context: context,
+    barrierDismissible: false, // Prevent closing the dialog by tapping outside
+    builder: (BuildContext context) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    },
+  );
+
+   try {
+    //call gem service to extract recipe data
+    final extractedRecipeData = await extractRecipeData(pastedText, _selectedImage ?? _preloadedImages[0]);
+    print("extracted data: $extractedRecipeData");
+
+    if (extractedRecipeData != null && !extractedRecipeData.containsKey('error')) {
+      // add recipe to db
+      await addExtractedRecipeToDatabase(extractedRecipeData, _userId!);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Recipe added successfully!'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to extract recipe data.'),
+        ),
+      );
+    }
+  } finally {
+    //stop the loading screen
+    Navigator.of(context).pop();
   }
 }
 
