@@ -95,12 +95,6 @@ final List<String> _preloadedImages = [
     return;
   }
 
-  // send pasted text and image url 
-  final extractedRecipeData = await extractRecipeData(
-    pastedText,
-    _selectedImage ?? _preloadedImages[0],
-  );
-
   showDialog( //loading screen 
     context: context,
     barrierDismissible: false, // Prevent closing the dialog by tapping outside
@@ -110,6 +104,13 @@ final List<String> _preloadedImages = [
       );
     },
   );
+  
+  
+  // // send pasted text and image url 
+  // final extractedRecipeData = await extractRecipeData(
+  //   pastedText,
+  //   _selectedImage ?? _preloadedImages[0],
+  // );
 
    try {
     //call gem service to extract recipe data
