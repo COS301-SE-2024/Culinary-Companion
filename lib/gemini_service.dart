@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 // import '/screens/home_screen.dart'; 
 
 
@@ -173,10 +174,18 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
   {
     "title": "\$title",
     "ingredients": [
-      "ingredient1 (quantity)",
-      "ingredient2 (quantity)",
-      ...
-    ],
+    {
+      "name": "\$ingredient1",
+      "quantity": "\$quantity1",
+      "unit": "\$unit1"
+    },
+    {
+      "name": "\$ingredient2",
+      "quantity": "\$quantity2",
+      "unit": "\$unit2"
+    },
+    ...
+  ],
     "steps": [
       "Step 1",
       "Step 2",
@@ -629,7 +638,7 @@ Future<String> fetchRecipeFromPantryIngredients(String userId) async {
 
   if (response != null && response.text != null) {
     String jsonString = response.text!;
-    print(jsonString);
+    //print(jsonString);
 
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
@@ -744,7 +753,7 @@ Future<String> fetchDietaryConstraintRecipe(String dietaryConstraint, String rec
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print(jsonString);
+    //print(jsonString);
     
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
@@ -1010,7 +1019,9 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
   }
 
   // fetch user's dietary constraints
+  //print("user id in gem: $userId");
   final String dietaryConstraints = await fetchUserDietaryConstraints(userId);
+  //print("dc: $dietaryConstraints");
 
 
   // Ensure the data is parsed correctly
@@ -1035,14 +1046,22 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
     steps = stepsData.split('\n').map((item) => item.trim()).toList();
   }
 
- final formatting = """Return the recipe in JSON using the following structure:
+ final formatting = """Return the recipe in JSON using the following structure the ingredients must be in the specified structure:
   {
     "title": "\$title",
     "ingredients": [
-      "ingredient1 (quantity)",
-      "ingredient2 (quantity)",
-      ...
-    ],
+    {
+      "name": "\$ingredient1",
+      "quantity": "\$quantity1",
+      "unit": "\$unit1"
+    },
+    {
+      "name": "\$ingredient2",
+      "quantity": "\$quantity2",
+      "unit": "\$unit2"
+    },
+    ...
+  ],
     "steps": [
       "Step 1",
       "Step 2",
@@ -1057,7 +1076,9 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
   final initialPrompt = """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   adjust the recipe to be suitable for these dietary constraints: $dietaryConstraints. 
-  Please make any fractions into decimal values.""";
+  Please make any fractions into decimal values.
+  Replace each non-compliant ingredient with a specific and commonly available alternative that meets the dietary requirements. 
+  Ensure that all substitutions are practical and commonly used in cooking.""";
   
   final finalPrompt = initialPrompt + formatting;
 
@@ -1069,7 +1090,7 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print(jsonString);
+    print("Altered recipe in gem:  $jsonString");
     
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
