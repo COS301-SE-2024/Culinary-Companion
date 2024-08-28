@@ -174,10 +174,18 @@ Future<String> fetchIngredientSubstitutionRecipe(String recipeId, String substit
   {
     "title": "\$title",
     "ingredients": [
-      "ingredient1 (quantity)",
-      "ingredient2 (quantity)",
-      ...
-    ],
+    {
+      "name": "\$ingredient1",
+      "quantity": "\$quantity1",
+      "unit": "\$unit1"
+    },
+    {
+      "name": "\$ingredient2",
+      "quantity": "\$quantity2",
+      "unit": "\$unit2"
+    },
+    ...
+  ],
     "steps": [
       "Step 1",
       "Step 2",
@@ -1038,14 +1046,22 @@ Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) asy
     steps = stepsData.split('\n').map((item) => item.trim()).toList();
   }
 
- final formatting = """Return the recipe in JSON using the following structure:
+ final formatting = """Return the recipe in JSON using the following structure the ingredients must be in the specified structure:
   {
     "title": "\$title",
     "ingredients": [
-      "ingredient1 (quantity)",
-      "ingredient2 (quantity)",
-      ...
-    ],
+    {
+      "name": "\$ingredient1",
+      "quantity": "\$quantity1",
+      "unit": "\$unit1"
+    },
+    {
+      "name": "\$ingredient2",
+      "quantity": "\$quantity2",
+      "unit": "\$unit2"
+    },
+    ...
+  ],
     "steps": [
       "Step 1",
       "Step 2",

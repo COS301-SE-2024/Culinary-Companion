@@ -122,18 +122,27 @@ class _RecipeCardState extends State<RecipeCard> {
         //print('gets here 11');
 
         // map ingredients
+        // widget.ingredients = alteredRecipe['ingredients']
+        //     .map<Map<String, dynamic>>((ingredient) {
+        //   //print('Ingredient: $ingredient');
+        //   var nameEndIndex = ingredient.lastIndexOf(' (');
+        //   var name = ingredient.substring(0, nameEndIndex);
+        //   var quantityAndUnit = ingredient
+        //       .substring(nameEndIndex + 2, ingredient.length - 1)
+        //       .split(' ');
+        //   return {
+        //     'name': name,
+        //     'quantity': double.tryParse(quantityAndUnit[0]) ?? 0.0,
+        //     'measurement_unit': quantityAndUnit[1],
+        //   };
+        // }).toList();
         widget.ingredients = alteredRecipe['ingredients']
             .map<Map<String, dynamic>>((ingredient) {
-          //print('Ingredient: $ingredient');
-          var nameEndIndex = ingredient.lastIndexOf(' (');
-          var name = ingredient.substring(0, nameEndIndex);
-          var quantityAndUnit = ingredient
-              .substring(nameEndIndex + 2, ingredient.length - 1)
-              .split(' ');
           return {
-            'name': name,
-            'quantity': double.tryParse(quantityAndUnit[0]) ?? 0.0,
-            'measurement_unit': quantityAndUnit[1],
+            'name': ingredient['name'],
+            'quantity':
+                double.tryParse(ingredient['quantity'].toString()) ?? 0.0,
+            'measurement_unit': ingredient['unit'],
           };
         }).toList();
 
@@ -948,51 +957,65 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     .height *
                                                 0.02), // Adjust height to 2% of screen height
                                         Column(
-  children: [
-    if (!_isAlteredRecipe) 
-      ElevatedButton(
-        onPressed: () async {
-          if (userId != null) {
-            String alteredRecipeJson = await fetchDietaryConstraintsRecipe(userId!, widget.recipeID);
+                                          children: [
+                                            if (!_isAlteredRecipe)
+                                              ElevatedButton(
+                                                onPressed: () async {
+                                                  if (userId != null) {
+                                                    String alteredRecipeJson =
+                                                        await fetchDietaryConstraintsRecipe(
+                                                            userId!,
+                                                            widget.recipeID);
 
-            //decode json
-            Map<String, dynamic> alteredRecipe = jsonDecode(alteredRecipeJson);
+                                                    //decode json
+                                                    Map<String, dynamic>
+                                                        alteredRecipe =
+                                                        jsonDecode(
+                                                            alteredRecipeJson);
 
-            //update rec
-            _updateRecipe(alteredRecipe);
+                                                    //update rec
+                                                    _updateRecipe(
+                                                        alteredRecipe);
 
-            Navigator.of(context).pop();
-            _showMobileRecipeDetails(); //refresh rec
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: textColor,
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-        ),
-        child: Text(
-          'Adjust recipe to cater to my preferences',
-          style: TextStyle(color: clickColor),
-        ),
-      )
-    else 
-      ElevatedButton(
-        onPressed: () {
-          _revertToOriginalRecipe();//go back to origional rec
-          Navigator.of(context).pop();
-          _showMobileRecipeDetails(); //refresh rec
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: textColor,
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-        ),
-        child: Text(
-          'Revert to Original Recipe',
-          style: TextStyle(color: clickColor),
-        ),
-      ),
-  ],
-),
-
+                                                    Navigator.of(context).pop();
+                                                    _showMobileRecipeDetails(); //refresh rec
+                                                  }
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: textColor,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 40,
+                                                      vertical: 20),
+                                                ),
+                                                child: Text(
+                                                  'Adjust recipe to cater to my preferences',
+                                                  style: TextStyle(
+                                                      color: clickColor),
+                                                ),
+                                              )
+                                            else
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  _revertToOriginalRecipe(); //go back to origional rec
+                                                  Navigator.of(context).pop();
+                                                  _showMobileRecipeDetails(); //refresh rec
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: textColor,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 40,
+                                                      vertical: 20),
+                                                ),
+                                                child: Text(
+                                                  'Revert to Original Recipe',
+                                                  style: TextStyle(
+                                                      color: clickColor),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
 
                                         SizedBox(
                                             height: MediaQuery.of(context)
