@@ -87,20 +87,21 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
 
         // Cache the response for offline use
         await prefs.setString('cachedIngredients', jsonEncode(data));
+        if (mounted) {
+          setState(() {
+            _items = data
+                .map((item) => {
+                      'id': item['id'].toString(),
+                      'name': item['name'].toString(),
+                      'category': item['category'].toString(),
+                      'measurementUnit': item['measurementUnit'].toString(),
+                    })
+                .toList();
 
-        setState(() {
-          _items = data
-              .map((item) => {
-                    'id': item['id'].toString(),
-                    'name': item['name'].toString(),
-                    'category': item['category'].toString(),
-                    'measurementUnit': item['measurementUnit'].toString(),
-                  })
-              .toList();
-
-          // Sort items alphabetically by name
-          _items.sort((a, b) => a['name']!.compareTo(b['name']!));
-        });
+            // Sort items alphabetically by name
+            _items.sort((a, b) => a['name']!.compareTo(b['name']!));
+          });
+        }
       } else {
         print('Failed to fetch ingredient names: ${response.statusCode}');
       }
@@ -111,24 +112,24 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       final cachedData = prefs.getString('cachedIngredients');
       if (cachedData != null) {
         final List<dynamic> data = jsonDecode(cachedData);
-        setState(() {
-          _items = data
-              .map((item) => {
-                    'id': item['id'].toString(),
-                    'name': item['name'].toString(),
-                    'category': item['category'].toString(),
-                    'measurementUnit': item['measurementUnit'].toString(),
-                  })
-              .toList();
+        if (mounted) {
+          setState(() {
+            _items = data
+                .map((item) => {
+                      'id': item['id'].toString(),
+                      'name': item['name'].toString(),
+                      'category': item['category'].toString(),
+                      'measurementUnit': item['measurementUnit'].toString(),
+                    })
+                .toList();
 
-          // Sort items alphabetically by name
-          _items.sort((a, b) => a['name']!.compareTo(b['name']!));
-        });
+            // Sort items alphabetically by name
+            _items.sort((a, b) => a['name']!.compareTo(b['name']!));
+          });
+        }
       }
     }
   }
-
-
 
   Future<void> _fetchShoppingList() async {
     final prefs = await SharedPreferences.getInstance();
@@ -146,7 +147,10 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         final List<dynamic> shoppingList = data['shoppingList'];
+
+        // Cache the shopping list data
         await prefs.setString('cachedShoppingList', jsonEncode(shoppingList));
+
         if (mounted) {
           setState(() {
             _shoppingList.clear();
@@ -160,6 +164,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               _shoppingList.putIfAbsent(category, () => []);
               _shoppingList[category]?.add(displayText);
             }
+
+            // Sort items within each category alphabetically
+            _shoppingList.forEach((category, items) {
+              items.sort((a, b) => a.compareTo(b));
+            });
           });
         }
       } else {
@@ -169,9 +178,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       //print('Error fetching shopping list: $error');
 
       final cachedData = prefs.getString('cachedShoppingList');
-    if (cachedData != null) {
-      final List<dynamic> shoppingList = jsonDecode(cachedData);
-      if (mounted) {
+      if (cachedData != null) {
+        final List<dynamic> shoppingList = jsonDecode(cachedData);
+        if (mounted) {
           setState(() {
             _shoppingList.clear();
             for (var item in shoppingList) {
@@ -184,11 +193,17 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               _shoppingList.putIfAbsent(category, () => []);
               _shoppingList[category]?.add(displayText);
             }
+
+            // Sort items within each category alphabetically
+            _shoppingList.forEach((category, items) {
+              items.sort((a, b) => a.compareTo(b));
+            });
           });
         }
-    }
+      }
     }
   }
+
 
   void _addItem(
       String category, String item, double quantity, String measurementUnit) {
