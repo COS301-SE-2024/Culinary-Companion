@@ -2,8 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
-// import '/screens/home_screen.dart'; 
-
+// import '/screens/home_screen.dart';
 
 Future<String> fetchContentBackpack() async {
   const String apiKey = String.fromEnvironment('API_KEY') ?? '';
@@ -266,7 +265,7 @@ Future<String> fetchIngredientSubstitutionRecipe(
 Future<String> fetchIngredientSubstitutions(
     String recipeId, String substitute, String userId) async {
   // takes in the recipe id and substitute. This is the ingredient for which we want to find
-  // substitutes for 
+  // substitutes for
   const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
@@ -623,7 +622,7 @@ Future<String> fetchDietaryConstraints(String recipeId) async {
 
 // gets the user's pantry list and creates a recipe based off of the ingredients
 Future<String> fetchRecipeFromPantryIngredients(String userId) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -706,7 +705,7 @@ Future<String> fetchRecipeFromPantryIngredients(String userId) async {
 // only 1 dietary constraint
 Future<String> fetchDietaryConstraintRecipe(
     String dietaryConstraint, String recipeId) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -839,7 +838,7 @@ Future<List<String>> fetchAllowedAppliances() async {
 ///extract json data for recipe
 Future<Map<String, dynamic>?> extractRecipeData(
     String pastedText, String selectedImage) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     print('Error: API_KEY environment variable is missing.');
     return null;
@@ -1078,7 +1077,7 @@ Future<void> addExtractedRecipeToDatabase(
 // all dietary constraints
 Future<String> fetchDietaryConstraintsRecipe(
     String userId, String recipeId) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -1117,7 +1116,8 @@ Future<String> fetchDietaryConstraintsRecipe(
     steps = stepsData.split('\n').map((item) => item.trim()).toList();
   }
 
- final formatting = """Return the recipe in JSON using the following structure the ingredients must be in the specified structure:
+  final formatting =
+      """Return the recipe in JSON using the following structure the ingredients must be in the specified structure:
   {
     "title": "\$title",
     "ingredients": [
@@ -1151,7 +1151,7 @@ Future<String> fetchDietaryConstraintsRecipe(
   Please make any fractions into decimal values.
   Replace each non-compliant ingredient with a specific and commonly available alternative that meets the dietary requirements. 
   Ensure that all substitutions are practical and commonly used in cooking.""";
-  
+
   final finalPrompt = initialPrompt + formatting;
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
@@ -1162,8 +1162,8 @@ Future<String> fetchDietaryConstraintsRecipe(
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print("Altered recipe in gem:  $jsonString");
-    
+    //print("Altered recipe in gem:  $jsonString");
+
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
 
