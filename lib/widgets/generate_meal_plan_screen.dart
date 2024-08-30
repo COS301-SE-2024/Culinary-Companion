@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
-class GenerateMealPlanScreen extends StatelessWidget {
+class GenerateMealPlanScreen extends StatefulWidget {
+  @override
+  GenerateMealPlanState createState() => GenerateMealPlanState();
+}
+
+class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _gender;
   double? _height;
   double? _weight;
   int? _age;
-  String? _activityLevel;
+  int _activityLevel = 1;
   String? _goal;
-  int? _mealFrequency;
+  int _mealFrequency = 3;
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +107,7 @@ class GenerateMealPlanScreen extends StatelessWidget {
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 12.0,
                     horizontal: 12.0,
-                  ), 
+                  ),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -187,7 +191,7 @@ class GenerateMealPlanScreen extends StatelessWidget {
                   contentPadding: const EdgeInsets.symmetric(
                     vertical: 12.0,
                     horizontal: 12.0,
-                  ), 
+                  ),
                 ),
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -199,27 +203,28 @@ class GenerateMealPlanScreen extends StatelessWidget {
                 onSaved: (value) {},
               ),
               const SizedBox(height: 16),
-              // Activity Level - make it a slider
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(labelText: 'Activity Level'),
-                items: [
-                  'Sedentary',
-                  'Lightly Active',
-                  'Moderately Active',
-                  'Very Active'
-                ]
-                    .map((label) => DropdownMenuItem(
-                          child: Text(label),
-                          value: label,
-                        ))
-                    .toList(),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select your activity level';
-                  }
-                  return null;
-                },
-                onChanged: (value) {},
+              // Activity Level - Slider
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Activity Level:'),
+                  SizedBox(height: 16),
+                  Slider(
+                    value: _activityLevel.toDouble(),
+                    min: 1,
+                    max: 4,
+                    divisions: 3,
+                    label: _getActivityLevelDescription(_activityLevel),
+                    onChanged: (value) {
+                      if (mounted) {
+                        setState(() {
+                          _activityLevel = value.toInt();
+                        });
+                      }
+                    },
+                    activeColor: Color(0xFFDC945F),
+                  ),
+                ],
               ),
               SizedBox(height: 24),
               Text('Meal Plan Goals',
@@ -271,18 +276,28 @@ class GenerateMealPlanScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               // Dietary Preferences - get this from database, no need to enter again
-              // Meal Frequency - make this a slider
-              TextFormField(
-                decoration: InputDecoration(
-                    labelText: 'Preferred Meal Frequency (meals/day):'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your meal frequency';
-                  }
-                  return null;
-                },
-                onSaved: (value) {},
+              // Meal Frequency - Slider
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Preferred Meal Frequency (meals/day):'),
+                  SizedBox(height: 16),
+                  Slider(
+                    value: _mealFrequency.toDouble(),
+                    min: 1,
+                    max: 6,
+                    divisions: 5,
+                    label: _getMealFrequencyDescription(_mealFrequency),
+                    onChanged: (value) {
+                      if (mounted) {
+                        setState(() {
+                          _mealFrequency = value.toInt();
+                        });
+                      }
+                    },
+                    activeColor: Color(0xFFDC945F),
+                  ),
+                ],
               ),
               SizedBox(height: 24),
               ElevatedButton(
@@ -322,5 +337,39 @@ class GenerateMealPlanScreen extends StatelessWidget {
             ],
           ),
         ));
+  }
+
+  String _getActivityLevelDescription(int level) {
+    switch (level) {
+      case 1:
+        return 'Sedentary';
+      case 2:
+        return 'Lightly Active';
+      case 3:
+        return 'Moderately Active';
+      case 4:
+        return 'Very Active';
+      default:
+        return '';
+    }
+  }
+
+  String _getMealFrequencyDescription(int level) {
+    switch (level) {
+      case 1:
+        return '1 meal/day';
+      case 2:
+        return '2 meals/day';
+      case 3:
+        return '3 meals/day';
+      case 4:
+        return '4 meals/day';
+      case 5:
+        return '5 meals/day';
+      case 6:
+        return '6 meals/day';
+      default:
+        return '';
+    }
   }
 }
