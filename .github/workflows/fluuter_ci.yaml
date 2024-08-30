@@ -56,11 +56,15 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Start ChromeDriver server
-        run: chromedriver --port=4444 &
+      - name: Install Chrome
+        run: sudo apt-get install -y google-chrome-stable
 
-      # - name: Run integration tests 1
-      #   run: flutter drive --target=test_driver/app.dart -d web-server
-      
-      # - name: Run integration tests 2
-      #   run: flutter drive --target=test_driver/app_2.dart -d web-server
+      - name: Start ChromeDriver server
+        run: |
+          chromedriver --port=4444 --whitelisted-ips='' --url-base='' --verbose &
+
+      - name: Run integration tests 1
+        run: flutter drive --target=test_driver/app.dart -d web-server --browser-name=chrome --headless
+
+      - name: Run integration tests 2
+        run: flutter drive --target=test_driver/app_2.dart -d web-server --browser-name=chrome --headless
