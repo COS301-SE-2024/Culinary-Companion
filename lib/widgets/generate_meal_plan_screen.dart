@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class GenerateMealPlanScreen extends StatefulWidget {
+  final TabController tabController;
+
+  // Accept TabController as a parameter
+  GenerateMealPlanScreen({required this.tabController});
+
   @override
   GenerateMealPlanState createState() => GenerateMealPlanState();
 }
@@ -399,7 +405,29 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                     print("Goal: $_goal");
                     print("Meal Frequency: $_mealFrequency");
 
-                    // Navigate to another page or show a confirmation dialog
+                    // Show loading dialog with Lottie animation
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return Center(
+                          child: Lottie.asset(
+                            'planner_load.json',
+                            width: 200,
+                            height: 200,
+                            fit: BoxFit.contain,
+                          ),
+                        );
+                      },
+                    );
+
+                    // Simulate meal plan generation with a delay
+                    Future.delayed(Duration(seconds: 10), () {
+                      Navigator.of(context).pop();
+
+                      // Switch to "My Meal Plans" tab
+                      widget.tabController.animateTo(1);
+                    });
                   }
                 },
                 style: ElevatedButton.styleFrom(

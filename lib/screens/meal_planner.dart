@@ -73,7 +73,8 @@ class _MealPlannerScreenState extends State<MealPlannerScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          GenerateMealPlanScreen(),
+          // Pass the TabController to the GenerateMealPlanScreen
+          GenerateMealPlanScreen(tabController: _tabController),
           MyMealPlansScreen(),
         ],
       ),
