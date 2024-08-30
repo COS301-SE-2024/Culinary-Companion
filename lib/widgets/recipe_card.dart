@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-//import 'package:your_project_name/path_to_tab_controller.dart';  // Import your tab controller file here
 import '../gemini_service.dart'; // LLM
 //import 'package:lottie/lottie.dart';
+import 'package:flutter_application_1/widgets/timer_popup.dart';
 
 // ignore: must_be_immutable
 class RecipeCard extends StatefulWidget {
@@ -90,6 +90,15 @@ class _RecipeCardState extends State<RecipeCard> {
         userId = prefs.getString('userId');
       });
     }
+  }
+
+  void _showTimerPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return TimerPopup(); // This will be your timer widget
+      },
+    );
   }
 
   void _updateRecipe(Map<String, dynamic> alteredRecipe) {
@@ -635,19 +644,33 @@ class _RecipeCardState extends State<RecipeCard> {
                             .withOpacity(0.5), // Background color of the circle
                       ),
                       child: Center(
-                        child: IconButton(
-                          icon: Icon(
-                            _isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: _isFavorite ? Colors.red : Colors.white,
+                          child: 
+                        //   Row(
+                        // children: [
+                        //   IconButton(
+                        //     icon: Icon(
+                        //       Icons.timer,
+                        //       color: Colors.white,
+                        //       size: MediaQuery.of(context).size.width * 0.05,
+                              
+                        //     ),
+                        //     iconSize: screenWidth * 0.05,
+                        //     onPressed: _showTimerPopup,
+                        //   ),
+                          IconButton(
+                            icon: Icon(
+                              _isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: _isFavorite ? Colors.red : Colors.white,
+                            ),
+                            iconSize: screenWidth * 0.05, // Adjust icon size
+                            onPressed: _toggleFavorite,
                           ),
-                          iconSize: screenWidth * 0.05, // Adjust icon size
-                          onPressed: _toggleFavorite,
-                        ),
-                      ),
+                        //],
+                      )),
                     ),
-                  ),
+                  //),
                   Positioned(
                     bottom: contentHeight +
                         10, // Adjust position to be at the bottom of the image
@@ -1341,6 +1364,15 @@ class _RecipeCardState extends State<RecipeCard> {
                               ),
                               Row(
                                 children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.timer,
+                                      color: Colors.white,
+                                      size: MediaQuery.of(context).size.width *
+                                          0.017,
+                                    ),
+                                    onPressed: _showTimerPopup,
+                                  ),
                                   IconButton(
                                     icon: Icon(
                                       _isFavorite
@@ -2093,17 +2125,28 @@ class _RecipeCardState extends State<RecipeCard> {
                 ),
               ),
             Positioned(
-              top: MediaQuery.of(context).size.width * 0.01,
-              right: MediaQuery.of(context).size.width * 0.01,
-              child: IconButton(
-                icon: Icon(
-                  _isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: _isFavorite ? Colors.red : Colors.white,
-                  size: MediaQuery.of(context).size.width * 0.017,
-                ),
-                onPressed: _toggleFavorite,
-              ),
-            ),
+                top: MediaQuery.of(context).size.width * 0.01,
+                right: MediaQuery.of(context).size.width * 0.01,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.timer,
+                        color: Colors.white,
+                        size: MediaQuery.of(context).size.width * 0.017,
+                      ),
+                      onPressed: _showTimerPopup,
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: _isFavorite ? Colors.red : Colors.white,
+                        size: MediaQuery.of(context).size.width * 0.017,
+                      ),
+                      onPressed: _toggleFavorite,
+                    ),
+                  ],
+                )),
           ],
         ),
       ),
