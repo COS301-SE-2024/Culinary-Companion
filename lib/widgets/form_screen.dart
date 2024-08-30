@@ -596,7 +596,7 @@ Future<void> addIngredientIfNotExists(String ingredientName, String measurementU
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
     return InputDecoration(
       labelText: labelText,
       labelStyle: TextStyle(color: textColor),
