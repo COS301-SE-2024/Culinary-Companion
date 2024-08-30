@@ -5,20 +5,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'help_pantry.dart';
 import 'package:lottie/lottie.dart';
-
-Color shade(BuildContext context) {
-  final theme = Theme.of(context);
-  return theme.brightness == Brightness.light
-      ? Color.fromARGB(181, 52, 78, 70)
-      : Color(0xFF344E46);
-}
-
-Color unshade(BuildContext context) {
-  final theme = Theme.of(context);
-  return theme.brightness == Brightness.light
-      ? Color.fromARGB(188, 29, 44, 31)
-      : Color(0xFF1D2C1F);
-}
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:io' show Platform;
+import '../widgets/theme_utils.dart';
 
 class PantryScreen extends StatefulWidget {
   final http.Client? client;
@@ -71,74 +62,125 @@ class _PantryScreenState extends State<PantryScreen> {
     }
   }
 
-  Future<void> _fetchIngredientNames() async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: '{"action": "getIngredientNames"}',
-        headers: {'Content-Type': 'application/json'},
-      );
+Future<void> _fetchIngredientNames() async {
+  final prefs = await SharedPreferences.getInstance();
+  try {
+    final response = await http.post(
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: '{"action": "getIngredientNames"}',
+      headers: {'Content-Type': 'application/json'},
+    );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        if (mounted) {
-          setState(() {
-            _items = data
-                .map((item) => {
-                      'id': item['id'].toString(),
-                      'name': item['name'].toString(),
-                      'category': item['category'].toString(),
-                      'measurementUnit': item['measurementUnit'].toString(),
-                    })
-                .toList();
-          });
-        }
-      } else {
-        print('Failed to fetch ingredient names: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching ingredient names: $error');
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+
+      // Cache the response for offline use
+      await prefs.setString('cachedIngredients', jsonEncode(data));
+
+      setState(() {
+        _items = data
+            .map((item) => {
+                  'id': item['id'].toString(),
+                  'name': item['name'].toString(),
+                  'category': item['category'].toString(),
+                  'measurementUnit': item['measurementUnit'].toString(),
+                })
+            .toList();
+      });
+    } else {
+      print('Failed to fetch ingredient names: ${response.statusCode}');
+    }
+  } catch (error) {
+    //print('Error fetching ingredient names: $error');
+
+    // Load from cache if the network fails
+    final cachedData = prefs.getString('cachedIngredients');
+    if (cachedData != null) {
+      final List<dynamic> data = jsonDecode(cachedData);
+      setState(() {
+        _items = data
+            .map((item) => {
+                  'id': item['id'].toString(),
+                  'name': item['name'].toString(),
+                  'category': item['category'].toString(),
+                  'measurementUnit': item['measurementUnit'].toString(),
+                })
+            .toList();
+      });
     }
   }
+}
 
-  Future<void> _fetchPantryList() async {
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'getAvailableIngredients',
-          'userId': _userId,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = jsonDecode(response.body);
-        final List<dynamic> pantryList = data['availableIngredients'];
-        if (mounted) {
-          setState(() {
-            _pantryList.clear();
-            for (var item in pantryList) {
-              final ingredientName = item['name'].toString();
-              final quantity = item['quantity'].toString();
-              final measurementUnit = item['measurmentunit'].toString();
-              final category = item['category'] ?? 'Other';
-              final displayText =
-                  '$ingredientName ($quantity $measurementUnit)';
-              _pantryList.putIfAbsent(category, () => []);
-              _pantryList[category]?.add(displayText);
-            }
-          });
-        }
-      } else {
-        print('Failed to fetch pantry list: ${response.statusCode}');
+Future<void> _fetchPantryList() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  try {
+    // Fetch data from the API
+    final response = await http.post(
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      body: jsonEncode({
+        'action': 'getAvailableIngredients',
+        'userId': _userId,
+      }),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      final List<dynamic> pantryList = data['availableIngredients'];
+
+      // Cache the response data
+      await prefs.setString('cachedPantryList', jsonEncode(pantryList));
+
+      // Process and update the pantry list
+      if (mounted) {
+        setState(() {
+          _pantryList.clear();
+          for (var item in pantryList) {
+            final ingredientName = item['name'].toString();
+            final quantity = item['quantity'].toString();
+            final measurementUnit = item['measurementunit'].toString();
+            final category = item['category'] ?? 'Other';
+            final displayText = '$ingredientName ($quantity $measurementUnit)';
+
+            _pantryList.putIfAbsent(category, () => []);
+            _pantryList[category]?.add(displayText);
+          }
+        });
       }
-    } catch (error) {
-      print('Error fetching pantry list: $error');
+    } else {
+      print('Failed to fetch pantry list: ${response.statusCode}');
+    }
+  } catch (error) {
+    //print('Error fetching pantry list: $error');
+
+    // Load cached data if the network request fails
+    final cachedData = prefs.getString('cachedPantryList');
+    if (cachedData != null) {
+      final List<dynamic> pantryList = jsonDecode(cachedData);
+
+      if (mounted) {
+        setState(() {
+          _pantryList.clear();
+          for (var item in pantryList) {
+            final ingredientName = item['name'].toString();
+            final quantity = item['quantity'].toString();
+            final measurementUnit = item['measurementunit'].toString();
+            final category = item['category'] ?? 'Other';
+            final displayText = '$ingredientName ($quantity $measurementUnit)';
+
+            _pantryList.putIfAbsent(category, () => []);
+            _pantryList[category]?.add(displayText);
+          }
+        });
+      }
     }
   }
+}
+
 
   Future<void> _addToPantryList(String? userId, String ingredientName,
       double quantity, String measurementUnit) async {
@@ -271,13 +313,6 @@ class _PantryScreenState extends State<PantryScreen> {
     }
   }
 
-  // void _toggleCheckbox(String category, String item) {
-  //   setState(() {
-  //     final isChecked = !(_checkboxStates[item] ?? false);
-  //     _checkboxStates[item] = isChecked;
-  //   });
-  // }
-
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
       builder: (context) => HelpMenu(
@@ -288,6 +323,207 @@ class _PantryScreenState extends State<PantryScreen> {
       ),
     );
     Overlay.of(context).insert(_helpMenuOverlay!);
+  }
+
+  // final ImagePicker _picker = ImagePicker();
+  Future<void> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+    XFile? pickedFile;
+
+    if (kIsWeb) {
+      // For Web, only allow picking an image from gallery
+      pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        print('Image selected: ${pickedFile.path}');
+        _showDetectedIngredients(); // Show mock ingredients screen
+      }
+    } else {
+      if (Platform.isAndroid || Platform.isIOS) {
+        // Request necessary permissions
+        if (await _requestPermissions(context)) {
+          showModalBottomSheet(
+            context: context,
+            builder: (context) {
+              return SafeArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      leading: Icon(Icons.camera_alt),
+                      title: Text('Take a picture'),
+                      onTap: () async {
+                        final XFile? image =
+                            await picker.pickImage(source: ImageSource.camera);
+                        if (image != null) {
+                          // Handle image
+                          print('Image selected: ${image.path}');
+                          Navigator.of(context).pop();
+                          _showDetectedIngredients(); //show mock ingredients screen
+                        }
+                      },
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.photo_library),
+                      title: Text('Upload from gallery'),
+                      onTap: () async {
+                        final XFile? image =
+                            await picker.pickImage(source: ImageSource.gallery);
+                        if (image != null) {
+                          // Handle image
+                          print('Image selected: ${image.path}');
+                          Navigator.of(context).pop();
+                          _showDetectedIngredients(); //show mock ingredients screen
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        } else {
+          // Permission denied, show an alert or snackbar
+          _showPermissionDeniedMessage(context);
+          return;
+        }
+      } else {
+        // Handle other platforms or throw an error
+        throw UnsupportedError('This platform is not supported');
+      }
+    }
+  }
+
+  void _showDetectedIngredients() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent closing when tapping outside
+      builder: (BuildContext context) {
+        final theme = Theme.of(context);
+
+        final backgroundColor = theme.brightness == Brightness.light
+            ? Color(0xFFEDEDED)
+            : Color(0xFF283330);
+
+        final fontColor = getFontColor(context);
+
+        return GestureDetector(
+          child: Container(
+            color: Color.fromARGB(121, 0, 0, 0), // Semi-transparent background
+            child: Center(
+              child: Material(
+                borderRadius: BorderRadius.circular(10),
+                color: backgroundColor,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 30),
+                      Center(
+                        child: Text(
+                          'Detected Ingredients',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: fontColor,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: 5, // Five mock ingredients
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              leading: Icon(
+                                  Icons.restaurant), // Mock ingredient icon
+                              title: Text('Ingredient ${index + 1}'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.edit),
+                                    onPressed: () {
+                                      // HANDLE EDIT ACTION
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {
+                                      // HANDLE DELETE ACTION
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Align(
+                          alignment: Alignment.bottomRight,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context)
+                                    .pop(), //HANDLE SAVE LOGIC!! BACKEND
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFFDC945F),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 12),
+                                ),
+                                child: Text('Save',
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                              SizedBox(width: 8),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context)
+                                    .pop(), //HANDLE CANCEL LOGIC!! BACKEND
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 12),
+                                ),
+                                child: Text('Cancel',
+                                    style: TextStyle(color: Color(0xFFDC945F))),
+                              ),
+                            ],
+                          )),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool> _requestPermissions(BuildContext context) async {
+    PermissionStatus cameraPermission = await Permission.camera.request();
+    PermissionStatus galleryPermission = await Permission.photos.request();
+
+    if (cameraPermission != PermissionStatus.granted ||
+        galleryPermission != PermissionStatus.granted) {
+      // Handle permission denied scenario
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Camera or gallery permission is required.'),
+      ));
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void _showPermissionDeniedMessage(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Permission denied. You cannot use the camera.'),
+      ),
+    );
   }
 
   @override
@@ -359,19 +595,39 @@ class _PantryScreenState extends State<PantryScreen> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: ElevatedButton(
-                            key: ValueKey('Pantry'),
-                            onPressed: () {
-                              _showAddItemDialog(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFDC945F),
-                              foregroundColor: Colors.white,
-                              fixedSize: const Size(48.0, 48.0),
-                              shape: const CircleBorder(),
-                              padding: EdgeInsets.all(0),
-                            ),
-                            child: const Icon(Icons.add, size: 32.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              ElevatedButton(
+                                key: ValueKey('Pantry'),
+                                onPressed: () {
+                                  _showAddItemDialog(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFDC945F),
+                                  foregroundColor: Colors.white,
+                                  fixedSize: const Size(48.0, 48.0),
+                                  shape: const CircleBorder(),
+                                  padding: EdgeInsets.all(0),
+                                ),
+                                child: const Icon(Icons.add, size: 32.0),
+                              ),
+                              ElevatedButton(
+                                key: ValueKey('UploadPhoto'),
+                                onPressed: () {
+                                  _pickImage();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Color.fromARGB(255, 195, 108, 46),
+                                  foregroundColor: Colors.white,
+                                  fixedSize: const Size(48.0, 48.0),
+                                  shape: const CircleBorder(),
+                                  padding: EdgeInsets.all(0),
+                                ),
+                                child: const Icon(Icons.camera_alt, size: 32.0),
+                              ),
+                            ],
                           ),
                         ),
                       ],

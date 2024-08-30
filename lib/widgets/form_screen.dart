@@ -294,6 +294,7 @@ class _RecipeFormState extends State<RecipeForm>
   }
 
   Future<void> _submitRecipe() async {
+    print("ingredients: $_ingredients");
     List<Map<String, String>> appliancesData =
         _selectedAppliances.map((appliance) {
       return {'name': appliance};
@@ -741,53 +742,57 @@ class _RecipeFormState extends State<RecipeForm>
                           children: [
                             Expanded(
                               child: TypeAheadFormField<String>(
-                                textFieldConfiguration: TextFieldConfiguration(
-                                  cursorColor: textColor,
-                                  controller: _ingredientControllers[index],
-                                  decoration: _buildInputDecoration(
-                                    'Ingredient',
-                                  ),
-                                ),
-                                suggestionsCallback: (pattern) {
-                                  return _availableIngredients
-                                      .where((ingredient) => ingredient['name']!
-                                          .toLowerCase()
-                                          .contains(pattern.toLowerCase()))
-                                      .map((ingredient) => ingredient['name']!)
-                                      .toList();
-                                },
-                                itemBuilder: (context, String suggestion) {
-                                  return ListTile(
-                                    title: Text(suggestion),
-                                  );
-                                },
-                                onSuggestionSelected: (String suggestion) {
-                                  if (mounted) {
-                                    setState(() {
-                                      _ingredients[index]['name'] = suggestion;
-                                      final selectedIngredient =
-                                          _availableIngredients.firstWhere(
-                                              (ingredient) =>
-                                                  ingredient['name'] ==
-                                                  suggestion);
-                                      _ingredients[index]['unit'] =
-                                          selectedIngredient[
-                                              'measurementUnit']!;
-                                      _ingredientControllers[index].text =
-                                          suggestion;
-                                    });
-                                  }
-                                },
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return 'Please select an ingredient';
-                                  }
-                                  return null;
-                                },
-                                onSaved: (value) {
-                                  _ingredients[index]['name'] = value!;
-                                },
-                              ),
+  textFieldConfiguration: TextFieldConfiguration(
+    cursorColor: textColor,
+    controller: _ingredientControllers[index],
+    decoration: _buildInputDecoration(
+      'Ingredient',
+    ),
+    onChanged: (value) {
+      // Update the ingredient's name with the user input
+      if (mounted) {
+        setState(() {
+          _ingredients[index]['name'] = value;
+        });
+      }
+    },
+  ),
+  suggestionsCallback: (pattern) {
+    return _availableIngredients
+        .where((ingredient) => ingredient['name']!
+            .toLowerCase()
+            .contains(pattern.toLowerCase()))
+        .map((ingredient) => ingredient['name']!)
+        .toList();
+  },
+  itemBuilder: (context, String suggestion) {
+    return ListTile(
+      title: Text(suggestion),
+    );
+  },
+  onSuggestionSelected: (String suggestion) {
+    if (mounted) {
+      setState(() {
+        _ingredients[index]['name'] = suggestion;
+        final selectedIngredient = _availableIngredients.firstWhere(
+            (ingredient) => ingredient['name'] == suggestion);
+        _ingredients[index]['unit'] =
+            selectedIngredient['measurementUnit'] ?? measurementUnits.first;
+        _ingredientControllers[index].text = suggestion;
+      });
+    }
+  },
+  validator: (value) {
+    if (value!.isEmpty) {
+      return 'Please select an ingredient';
+    }
+    return null;
+  },
+  onSaved: (value) {
+    _ingredients[index]['name'] = value!;
+  },
+),
+
                             ),
                             const SizedBox(width: 8),
                             Expanded(

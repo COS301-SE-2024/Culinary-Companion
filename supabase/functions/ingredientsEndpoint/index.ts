@@ -117,6 +117,10 @@ Deno.serve(async (req) => {
                 return addRecipeDietaryConstraints(recipeid, dietaryConstraints, corsHeaders);
             case 'addIngredientIfNotExists':
                 return addIngredientIfNotExists(ingredientName, measurementUnit, corsHeaders);
+            case 'getRecipeSuggestions':
+                return getRecipeSuggestions({spiceLevel,cuisine,dietaryConstraints}, corsHeaders);
+            case 'getSuggestedFavorites':
+                return getSuggestedFavorites(userId, corsHeaders);
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -131,13 +135,132 @@ Deno.serve(async (req) => {
     }
 });
 
+async function getSuggestedFavorites(userId: string, corsHeaders: HeadersInit) {
+    try {
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        //fetch users favorite recipes
+        const { data: userFavorites, error: userFavoritesError } = await supabase
+            .from('userFavorites')
+            .select('recipeid')
+            .eq('userid', userId);
+
+        if (userFavoritesError) {
+            throw new Error(`Error fetching user favorites: ${userFavoritesError.message}`);
+        }
+
+        if (!userFavorites || userFavorites.length === 0) {
+            return new Response(JSON.stringify([]), {
+                status: 200,
+                headers: corsHeaders,
+            });
+        }
+
+        const favoritedRecipeIds = userFavorites.map(fav => fav.recipeid);
+
+        //find users with the same favorited recipes
+        const { data: similarUsersFavorites, error: similarUsersFavoritesError } = await supabase
+            .from('userFavorites')
+            .select('userid, recipeid')
+            .in('recipeid', favoritedRecipeIds)
+            .neq('userid', userId); // Exclude the current user
+
+        if (similarUsersFavoritesError) {
+            throw new Error(`Error fetching similar users' favorites: ${similarUsersFavoritesError.message}`);
+        }
+
+        //get other users favorites 
+        const otherUserIds = Array.from(new Set(similarUsersFavorites.map(fav => fav.userid)));
+        const { data: otherUsersRecipes, error: otherUsersRecipesError } = await supabase
+            .from('userFavorites')
+            .select('recipeid')
+            .in('userid', otherUserIds);
+
+        if (otherUsersRecipesError) {
+            throw new Error(`Error fetching other users' recipes: ${otherUsersRecipesError.message}`);
+        }
+
+        //remove recipes that the user has already favorited
+        const suggestedRecipeIds = otherUsersRecipes
+            .map(fav => fav.recipeid)
+            .filter(recipeId => !favoritedRecipeIds.includes(recipeId));
+
+        return new Response(JSON.stringify(suggestedRecipeIds), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+
+async function getRecipeSuggestions(userPreferences: { spiceLevel: number; cuisine: string; dietaryConstraints: string[] }, corsHeaders: HeadersInit) {
+    try {
+        let query = supabase.from('recipe').select('recipeid');
+
+        //conditions for or 
+        const conditions: string[] = [];
+
+        //spice level
+        if (userPreferences.spiceLevel !== undefined && userPreferences.spiceLevel !== null) {
+            conditions.push(`spicelevel.eq.${userPreferences.spiceLevel}`);
+        }
+
+        //cuisine
+        if (userPreferences.cuisine && userPreferences.cuisine.length > 0) {
+            conditions.push(`cuisine.eq.${userPreferences.cuisine}`);
+        }
+
+        //dietary constraints
+        if (userPreferences.dietaryConstraints && userPreferences.dietaryConstraints.length > 0) {
+            userPreferences.dietaryConstraints.forEach((option) => {
+                conditions.push(`dietaryOptions.ilike.%${option}%`);
+            });
+        }
+
+        //combine conditions
+        if (conditions.length > 0) {
+            query = query.or(conditions.join(','));
+        }
+
+        const { data: recipes, error: recipesError } = await query;
+
+        if (recipesError) {
+            console.error('Error fetching recipe suggestions:', recipesError);
+            return new Response(JSON.stringify({ error: recipesError.message }), {
+                status: 400,
+                headers: corsHeaders,
+            });
+        }
+
+        return new Response(JSON.stringify(recipes), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+    } catch (e) {
+        console.error('Error in getRecipeSuggestions function:', e);
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+
+
 async function addIngredientIfNotExists(
     ingredientName: string,
     measurementUnit: string,
     corsHeaders: HeadersInit
 ) {
     if (!ingredientName || !measurementUnit) {
-        console.error('Invalid ingredient data provided.');
+        console.error('Validation Error: Ingredient name or measurement unit is missing.');
         return new Response(JSON.stringify({ error: 'Invalid ingredient data provided' }), {
             status: 400,
             headers: corsHeaders,
@@ -146,6 +269,7 @@ async function addIngredientIfNotExists(
 
     try {
         // Check if the ingredient exists
+        console.log(`Attempting to fetch ingredient with name: ${ingredientName}`);
         const { data: existingIngredient, error: fetchError } = await supabase
             .from('ingredient')
             .select('ingredientid')
@@ -153,7 +277,7 @@ async function addIngredientIfNotExists(
             .limit(1);
 
         if (fetchError) {
-            console.error('Error fetching ingredient:', fetchError);
+            console.error('Error fetching ingredient:', fetchError.message);
             return new Response(JSON.stringify({ error: fetchError.message }), {
                 status: 500,
                 headers: corsHeaders,
@@ -176,7 +300,7 @@ async function addIngredientIfNotExists(
             .limit(1);
 
         if (maxIdError) {
-            console.error('Error fetching max ingredient ID:', maxIdError);
+            console.error('Error fetching max ingredient ID:', maxIdError.message);
             return new Response(JSON.stringify({ error: maxIdError.message }), {
                 status: 500,
                 headers: corsHeaders,
@@ -196,7 +320,7 @@ async function addIngredientIfNotExists(
             .select('ingredientid');
 
         if (insertError) {
-            console.error('Error adding new ingredient:', insertError);
+            console.error('Error adding new ingredient:', insertError.message);
             return new Response(JSON.stringify({ error: insertError.message }), {
                 status: 500,
                 headers: corsHeaders,
@@ -209,7 +333,7 @@ async function addIngredientIfNotExists(
         });
 
     } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('Unexpected error:', error.message);
         return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
             headers: corsHeaders,
@@ -220,7 +344,7 @@ async function addIngredientIfNotExists(
 
 async function filterRecipes(filters :Filters, corsHeaders: HeadersInit) {
     try {
-        const query = supabase.from('recipe').select('recipeid');
+        let query = supabase.from('recipe').select('recipeid');
 
         // Apply course filter
         if (filters.course && filters.course.length > 0) {
@@ -239,7 +363,9 @@ async function filterRecipes(filters :Filters, corsHeaders: HeadersInit) {
 
         // Apply dietary options filter
         if (filters.dietaryOptions && filters.dietaryOptions.length > 0) {
-            query.in('dietaryOptions', filters.dietaryOptions);
+            filters.dietaryOptions.forEach((option) => {
+                query = query.ilike('dietaryOptions', `%${option}%`);
+            });
         }
 
         // // Apply ingredient options filter (custom logic as needed)
@@ -531,32 +657,21 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
             });
         }
 
-        // Insert ingredients
+        
         for (const ingredient of ingredients) {
-            const { data: ingredientData, error: ingredientError } = await supabase
-                .from('ingredient')
-                .select('ingredientid')
-                .eq('name', ingredient.name)
-                .single();
+            const ingredientResponse = await addIngredientIfNotExists(ingredient.name, ingredient.unit, corsHeaders);
 
-            if (ingredientError) {
-                console.error('Error fetching ingredient:', ingredientError);
-                return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredient.name}` }), {
+            if (ingredientResponse.status !== 200) {
+                console.error('Error adding or fetching ingredient:', await ingredientResponse.json());
+                return new Response(JSON.stringify({ error: 'Failed to add or fetch ingredient' }), {
                     status: 400,
                     headers: corsHeaders,
                 });
             }
 
-            const ingredientId = ingredientData?.ingredientid;
+            const { ingredientId } = await ingredientResponse.json();
 
-            if (!ingredientId) {
-                console.error(`Failed to retrieve ingredient ID for ${ingredient.name}`);
-                return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), {
-                    status: 400,
-                    headers: corsHeaders,
-                });
-            }
-
+            // Insert the ingredient into the recipe ingredients table
             const { error: recipeIngredientError } = await supabase
                 .from('recipeingredients')
                 .insert({
@@ -574,6 +689,7 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
                 });
             }
         }
+
 
         // Insert appliances
         for (const appliance of appliances) {

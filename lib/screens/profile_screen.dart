@@ -646,7 +646,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 //     (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
                 List<String> steps = [];
                 if (recipes[index]['steps'] != null) {
-                  steps = (recipes[index]['steps'] as String).split(',');
+                  steps = (recipes[index]['steps'] as String).split('<');
                 }
 
                 return RecipeCard(

@@ -63,6 +63,8 @@ Future<void> loginUser(String email, String password, String action) async {
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
     final FocusNode passwordFocusNode = FocusNode();
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 800;
 
     return Scaffold(
       body: Stack(
@@ -70,7 +72,9 @@ Future<void> loginUser(String email, String password, String action) async {
           //Background image
           Positioned.fill(
             child: Image.asset(
-              isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkermode.png',
+              isMobile
+                  ? (isLightTheme ? 'assets/MobileLightMode.png' : 'assets/MobileDarkMode.png')
+                  : (isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkermode.png'),
               fit: BoxFit.cover,
             ),
           ),
