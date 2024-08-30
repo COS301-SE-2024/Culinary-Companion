@@ -49,6 +49,12 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
               TextFormField(
                 decoration: InputDecoration(labelText: 'Height (cm)'),
                 keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your height';
+                  }
+                  return null;
+                },
                 onSaved: (value) {
                   _height = double.tryParse(value ?? '');
                 },
@@ -57,6 +63,12 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
               TextFormField(
                 decoration: InputDecoration(labelText: 'Weight (kg)'),
                 keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your weight';
+                  }
+                  return null;
+                },
                 onSaved: (value) {
                   _weight = double.tryParse(value ?? '');
                 },
@@ -65,6 +77,12 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
               TextFormField(
                 decoration: InputDecoration(labelText: 'Age'),
                 keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your age';
+                  }
+                  return null;
+                },
                 onSaved: (value) {
                   _age = int.tryParse(value ?? '');
                 },
@@ -83,6 +101,12 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
                           value: label,
                         ))
                     .toList(),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select your activity level';
+                  }
+                  return null;
+                },
                 onChanged: (value) {
                   setState(() {
                     _activityLevel = value;
@@ -92,50 +116,38 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
               // Goal
               DropdownButtonFormField<String>(
                 decoration: InputDecoration(labelText: 'Dietary Goal'),
-                items: [
-                  'Lose Weight',
-                  'Gain Muscle',
-                  'Maintain Weight'
-                ]
+                items: ['Lose Weight', 'Gain Muscle', 'Maintain Weight']
                     .map((label) => DropdownMenuItem(
                           child: Text(label),
                           value: label,
                         ))
                     .toList(),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your dietary goal';
+                  }
+                  return null;
+                },
                 onChanged: (value) {
                   setState(() {
                     _goal = value;
                   });
                 },
               ),
-              // Dietary Preferences
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Dietary Preferences'),
-                onSaved: (value) {
-                  _dietaryPreferences = value?.split(',') ?? [];
-                },
-              ),
-              // Allergies
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Allergies'),
-                onSaved: (value) {
-                  _allergies = value?.split(',') ?? [];
-                },
-              ),
+              // Dietary Preferences - get this from database, no need to enter again
               // Meal Frequency
               TextFormField(
-                decoration: InputDecoration(labelText: 'Preferred Meal Frequency (meals/day)'),
+                decoration: InputDecoration(
+                    labelText: 'Preferred Meal Frequency (meals/day)'),
                 keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your meal frequency';
+                  }
+                  return null;
+                },
                 onSaved: (value) {
                   _mealFrequency = int.tryParse(value ?? '');
-                },
-              ),
-              // Caloric Intake
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Caloric Intake Goal (if known)'),
-                keyboardType: TextInputType.number,
-                onSaved: (value) {
-                  _caloricIntake = int.tryParse(value ?? '');
                 },
               ),
               SizedBox(height: 20),
@@ -143,10 +155,21 @@ class _MealPlannerPageState extends State<MealPlannerPage> {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     _formKey.currentState?.save();
-                    // Process the form data here
+                    // You can process the form data here
+                    // For example, save the data to a database or use it to generate meal plans
+                    print("Gender: $_gender");
+                    print("Height: $_height");
+                    print("Weight: $_weight");
+                    print("Age: $_age");
+                    print("Activity Level: $_activityLevel");
+                    print("Goal: $_goal");
+                    print("Dietary Preferences: $_dietaryPreferences");
+                    print("Meal Frequency: $_mealFrequency");
+
+                    // Navigate to another page or show a confirmation dialog
                   }
                 },
-                child: Text('Save Information'),
+                child: Text('Generate my meal plan'),
               ),
             ],
           ),
