@@ -1172,7 +1172,7 @@ Future<String> fetchDietaryConstraintsRecipe(
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print("Altered recipe in gem:  $jsonString");
+   //print("Altered recipe in gem:  $jsonString");
 
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
