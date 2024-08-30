@@ -127,6 +127,12 @@ flutter:
     - assets/appliances.png
     - assets/recipes.png
     - assets/savour.png
+    - assets/Lwelcome.png
+    - assets/Lpantry.png
+    - assets/Lshopping.png
+    - assets/Lappliances.png
+    - assets/Lrecipes.png
+    - assets/Lsavour.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
