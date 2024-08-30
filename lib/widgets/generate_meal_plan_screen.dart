@@ -9,7 +9,9 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _gender;
   double? _height;
+  String _heightUnit = 'cm'; // Default unit for height
   double? _weight;
+  String _weightUnit = 'kg'; // Default unit for weight
   int? _age;
   int _activityLevel = 1;
   String? _goal;
@@ -77,88 +79,171 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                 onChanged: (value) {},
               ),
               const SizedBox(height: 16),
-              // Height - add dropdown to choose cm/inch
-              TextFormField(
-                cursorColor: textColor,
-                decoration: InputDecoration(
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  labelText: 'Height:',
-                  labelStyle: TextStyle(
-                    fontSize: 20,
-                    color: textColor,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                        8.0), // Adjust the border radius as needed
-                    borderSide: const BorderSide(
-                      color: Color(0xFFA9B8AC), // Set the border color
-                      width: 2.0, // Adjust the border thickness as needed
+              // Height
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextFormField(
+                      cursorColor: textColor,
+                      decoration: InputDecoration(
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelText: 'Height:',
+                        labelStyle: TextStyle(
+                          fontSize: 20,
+                          color: textColor,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFA9B8AC),
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFDC945F),
+                            width: 2.0,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 12.0,
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your height';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {},
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                        8.0), // Ensure the border radius matches
-                    borderSide: const BorderSide(
-                      color: Color(
-                          0xFFDC945F), // Set the border color when the field is focused
-                      width: 2.0, // Adjust the border thickness as needed
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 1,
+                    child: DropdownButtonFormField<String>(
+                      dropdownColor:
+                          isLightTheme ? Colors.white : Color(0xFF1F4539),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFA9B8AC),
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFDC945F),
+                            width: 2.0,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 12.0,
+                        ),
+                      ),
+                      value: _heightUnit,
+                      items: ['cm', 'm', 'ft', 'in']
+                          .map((unit) => DropdownMenuItem(
+                                child: Text(unit),
+                                value: unit,
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        _heightUnit = value!;
+                      },
                     ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 12.0,
-                    horizontal: 12.0,
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your height';
-                  }
-                  return null;
-                },
-                onSaved: (value) {},
+                ],
               ),
               const SizedBox(height: 16),
-              // Weight - add dropdown to choose kg/lbs
-              TextFormField(
-                cursorColor: textColor,
-                decoration: InputDecoration(
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
-                  labelText: 'Weight:',
-                  labelStyle: TextStyle(
-                    fontSize: 20,
-                    color: textColor,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                        8.0), // Adjust the border radius as needed
-                    borderSide: const BorderSide(
-                      color: Color(0xFFA9B8AC), // Set the border color
-                      width: 2.0, // Adjust the border thickness as needed
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextFormField(
+                      cursorColor: textColor,
+                      decoration: InputDecoration(
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelText: 'Weight:',
+                        labelStyle: TextStyle(
+                          fontSize: 20,
+                          color: textColor,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFA9B8AC),
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFDC945F),
+                            width: 2.0,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 12.0,
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your weight';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {},
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                        8.0), // Ensure the border radius matches
-                    borderSide: const BorderSide(
-                      color: Color(
-                          0xFFDC945F), // Set the border color when the field is focused
-                      width: 2.0, // Adjust the border thickness as needed
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 1,
+                    child: DropdownButtonFormField<String>(
+                      dropdownColor:
+                          isLightTheme ? Colors.white : Color(0xFF1F4539),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFA9B8AC),
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: const BorderSide(
+                            color: Color(0xFFDC945F),
+                            width: 2.0,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 12.0,
+                        ),
+                      ),
+                      value: _weightUnit,
+                      items: ['kg', 'lb']
+                          .map((unit) => DropdownMenuItem(
+                                child: Text(unit),
+                                value: unit,
+                              ))
+                          .toList(),
+                      onChanged: (value) {
+                        _weightUnit = value!;
+                      },
                     ),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 12.0,
-                    horizontal: 12.0,
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your weight';
-                  }
-                  return null;
-                },
-                onSaved: (value) {},
+                ],
               ),
               const SizedBox(height: 16),
               // Age -add years text at end
