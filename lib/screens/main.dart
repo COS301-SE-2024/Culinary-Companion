@@ -93,7 +93,7 @@ class _MainScreenState extends State<MainScreen> {
       case '/inventory-screen':
         return InventoryScreen();
       case '/meal-planner':
-        return MealPlannerPage();
+        return MealPlannerScreen();
       case '/saved-recipes':
         return SavedRecipesScreen();
       case '/profile':
