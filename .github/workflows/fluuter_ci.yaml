@@ -70,4 +70,7 @@ jobs:
 
       - name: Run integration tests 2
         run: flutter drive --target=test_driver/app_2.dart -d web-server --browser-name=chrome --headless --verbose
+      
+      - name: Run integration tests 1
+        run: flutter drive --target=test_driver/app_1.dart -d web-server --browser-name=chrome --headless --verbose
 
