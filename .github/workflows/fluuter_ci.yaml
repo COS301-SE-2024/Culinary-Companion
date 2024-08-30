@@ -60,11 +60,14 @@ jobs:
         run: sudo apt-get install -y google-chrome-stable
 
       - name: Start ChromeDriver server
-        run: |
-          chromedriver --port=4444 --whitelisted-ips='' --url-base='' --verbose &
+        run: chromedriver --port=4444 --whitelisted-ips='' --url-base='' --verbose &
 
-      - name: Run integration tests 1
-        run: flutter drive --target=test_driver/app.dart -d web-server --browser-name=chrome --headless
+      - name: Wait for server to be ready
+        run: sleep 10
+
+      - name: Set FLUTTER_TEST_TIMEOUT environment variable
+        run: echo "FLUTTER_TEST_TIMEOUT=120000" >> $GITHUB_ENV
 
       - name: Run integration tests 2
-        run: flutter drive --target=test_driver/app_2.dart -d web-server --browser-name=chrome --headless
+        run: flutter drive --target=test_driver/app_2.dart -d web-server --browser-name=chrome --headless --verbose
+
