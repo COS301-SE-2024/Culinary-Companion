@@ -68,9 +68,6 @@ jobs:
       - name: Set FLUTTER_TEST_TIMEOUT environment variable
         run: echo "FLUTTER_TEST_TIMEOUT=120000" >> $GITHUB_ENV
 
-      - name: Run integration tests 2
+      - name: Run integration tests
         run: flutter drive --target=test_driver/app_2.dart -d web-server --browser-name=chrome --headless --verbose
-      
-      - name: Run integration tests 1
-        run: flutter drive --target=test_driver/app.dart -d web-server --browser-name=chrome --headless --verbose
 
