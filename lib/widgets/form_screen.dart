@@ -399,6 +399,7 @@ Future<void> addIngredientIfNotExists(String ingredientName, String measurementU
 
   Future<void> _submitRecipe() async {
 
+    // ignore: avoid_function_literals_in_foreach_calls
     _ingredients.forEach((ingredient) {
       ingredient['name'] = capitalizeEachWord(ingredient['name']!);
     });
