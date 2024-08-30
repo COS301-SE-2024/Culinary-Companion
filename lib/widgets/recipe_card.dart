@@ -127,7 +127,7 @@ class _RecipeCardState extends State<RecipeCard> {
         widget.steps = List<String>.from(alteredRecipe['steps']);
         //print('gets here 10');
         widget.appliances =
-            widget.appliances; // Assuming appliances don't change
+            widget.appliances; 
         //print('gets here 11');
 
         // map ingredients
@@ -223,9 +223,9 @@ class _RecipeCardState extends State<RecipeCard> {
       double requiredQuantity = ingredient['quantity'];
       String unit = ingredient['measurement_unit'];
 
-      // Check if the ingredient is already in the shopping list
+      
       if (_shoppingList.containsKey(name)) {
-        continue; // Skip adding if the ingredient is already in the shopping list
+        continue; //skip add if the ingredient is already in the shopping list
       }
 
       if (_pantryIngredients.containsKey(name)) {
@@ -253,7 +253,7 @@ class _RecipeCardState extends State<RecipeCard> {
                     'quantity': remainingQuantity,
                     'measurementUnit': unit
                   };
-                  // Update the state to reflect that the ingredient is in the shopping list
+                 
                   // ignore: duplicate_ignore
                   // ignore: avoid_function_literals_in_foreach_calls
                   widget.ingredients.forEach((ingredient) {
@@ -292,7 +292,7 @@ class _RecipeCardState extends State<RecipeCard> {
                   'quantity': requiredQuantity,
                   'measurementUnit': unit
                 };
-                // Update the state to reflect that the ingredient is in the shopping list
+                //update state to show ingredients in the shopping list
                 widget.ingredients.forEach((ingredient) {
                   if (ingredient['name'] == name) {
                     widget.ingredients[widget.ingredients.indexOf(ingredient)]
@@ -370,10 +370,10 @@ class _RecipeCardState extends State<RecipeCard> {
 
       double currentQuantity = _pantryIngredients[item]!['quantity'];
 
-      // Calculate the new quantity
+      //calc new quantity
       double newQuantity = currentQuantity - quantity;
 
-      // Determine the action based on the new quantity
+      //determine the action based on quantity
       String action =
           newQuantity <= 0 ? 'removeFromPantryList' : 'editPantryItem';
       double finalQuantity = newQuantity <= 0 ? 0 : newQuantity;
@@ -2167,7 +2167,7 @@ class CheckableItem extends StatefulWidget {
   final bool isChecked;
   bool isInShoppingList;
   final String recipeID;
-  final Function(Map<String, dynamic>) onRecipeUpdate; // Add this
+  final Function(Map<String, dynamic>) onRecipeUpdate; 
 
   CheckableItem({
     required this.title,
@@ -2190,7 +2190,7 @@ class _CheckableItemState extends State<CheckableItem> {
   bool _isAdded = false;
 
   void _showSubstitutesDialog() async {
-    // Show a loading dialog
+    //loading screen
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -2207,16 +2207,16 @@ class _CheckableItemState extends State<CheckableItem> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
 
-    // Fetch the substitutions
-    String jsonString = await fetchIngredientSubstitutions(widget.recipeID,
-        widget.title, userId ?? 'defaultUserId'); // add user id
+    //fetch substitutions
+    String jsonString =
+        await fetchIngredientSubstitutions(widget.recipeID, widget.title, userId ?? 'defaultUserId'); // add user id 
 
     // Parse the JSON string
     Map<String, dynamic> substitutions;
     try {
       substitutions = jsonDecode(jsonString);
     } catch (e) {
-      Navigator.of(context).pop(); // Close the loading dialog
+      Navigator.of(context).pop(); //stop loading screen
       // Show an error dialog
       showDialog(
         context: context,
@@ -2224,11 +2224,11 @@ class _CheckableItemState extends State<CheckableItem> {
           return AlertDialog(
             title: Text(
               'Error',
-              style: TextStyle(color: Colors.black), // Set text color to black
+              style: TextStyle(color: Colors.black), 
             ),
             content: Text(
               'Failed to fetch substitutions.',
-              style: TextStyle(color: Colors.black), // Set text color to black
+              style: TextStyle(color: Colors.black),
             ),
             actions: [
               TextButton(
@@ -2239,7 +2239,7 @@ class _CheckableItemState extends State<CheckableItem> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                 },
                 child: Text(
                   'Close',
@@ -2256,10 +2256,10 @@ class _CheckableItemState extends State<CheckableItem> {
       return;
     }
 
-    // Close the loading dialog
+    //stop loading
     Navigator.of(context).pop();
 
-    // Show the substitutions dialog
+    //substitution options 
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -2316,7 +2316,7 @@ class _CheckableItemState extends State<CheckableItem> {
 
   Future<void> _generateAlteredRecipe(
       String substitute, String substitutedIngredient) async {
-    // Show a loading dialog
+    //show loading 
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -2331,17 +2331,17 @@ class _CheckableItemState extends State<CheckableItem> {
       },
     );
 
-    // Fetch the altered recipe
+    //fetch the altered rec
     String jsonString = await fetchIngredientSubstitutionRecipe(
         widget.recipeID, substitute, substitutedIngredient);
 
-    // Close the loading dialog
+    //stop loading
     Navigator.of(context).pop();
 
     // Parse the JSON string
     Map<String, dynamic> alteredRecipe = jsonDecode(jsonString);
 
-    // Update the recipe data with the altered recipe
+    //update the altered recipe
     widget.onRecipeUpdate(alteredRecipe);
 
     if (mounted) {

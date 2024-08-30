@@ -830,13 +830,32 @@ Future<String> fetchDietaryConstraintRecipe(
   }
 }
 
+Future<List<String>> fetchAllowedAppliances() async {
+  // Call the edge function to fetch allowed appliances
+  final response = await http.get(Uri.parse(
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'));
+
+  if (response.statusCode == 200) {
+    final List<dynamic> appliances = jsonDecode(response.body);
+    return appliances.map((appliance) => appliance['name'] as String).toList();
+  } else {
+    print('Error fetching allowed appliances: ${response.body}');
+    return [];
+  }
+}
+
 ///extract json data for recipe
-Future<Map<String, dynamic>?> extractRecipeData(String pastedText) async {
+Future<Map<String, dynamic>?> extractRecipeData(
+    String pastedText, String selectedImage) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
     print('Error: API_KEY environment variable is missing.');
     return null;
   }
+
+  print(" image: $selectedImage");
+
+  final allowedAppliances = await fetchAllowedAppliances();
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
 
@@ -876,14 +895,14 @@ Extract the following recipe information from the text below and return it in JS
     { "name": "\$appliance2" },
     ...
   ],
-  'photo': "https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z"
+  'photo': "$selectedImage"
 }
 
 **Important Conditions:**
 
-1. **Allowed Appliances:** Only include the following appliances do not add any appliances that are not in this list: ["Oven", "Microwave", "Blender", "Food Processor", "Stove", "Air Fryer", "Toaster", "Pressure Cooker", "Slow Cooker", "Grill", "Instant Pot", "Rice Cooker", "Sous Vide", "Stand Mixer", "Hand Mixer", "Immersion Blender", "Electric Kettle", "Coffee Maker", "Waffle Maker", "Panini Press", "Electric Griddle", "Deep Fryer", "Bread Maker", "Ice Cream Maker", "Yogurt Maker", "Electric Skillet", "Pizza Oven", "Rotisserie", "Indoor Grill", "Smoker", "Sandwich Maker", "Electric Knife", "Electric Can Opener", "Popcorn Maker", "Espresso Machine", "Juicer", "Dehydrator"].
-2. **Measurement Conversion:** All measurements must be numeric. For example, "1/4 cups" should be converted to "0.25 cups". If a fraction is mentioned (like "1/2"), convert it to decimal form.
-
+1. **Allowed Appliances:** Only include the following appliances. Do not add any appliances that are not in this list: ${allowedAppliances.join(', ')}. If an appliance is mentioned that is not in this list, exclude it from the JSON output.
+2. **Measurement Conversion and Specificity:** All measurements must be numeric and specific. For example, "1/4 cups" should be converted to "0.25 cups", and "to taste" or "as needed" should not be used. Convert them to specific measurements like grams, tablespoons, etc., based on common usage.
+3. **Exclude Incomplete Information:** If any ingredient lacks a specific quantity or unit, exclude it from the list the quantity and unit of an ingredient can never be null. each word in the ingredient name must start with a capital letter and the unit must also start with a capital letter
 
 Text:
 $pastedText
@@ -908,9 +927,39 @@ $pastedText
             (recipeData['methods'] as List<dynamic>).map((step) {
           return step.toString();
         }).join('<'); //format steps
-        print("rec data: ${recipeData['methods']}");
       }
 
+      //check that each ingredient has a unit and quantity, if not add default
+      if (recipeData.containsKey('ingredients')) {
+        List<dynamic> ingredients = recipeData['ingredients'];
+        for (var ingredient in ingredients) {
+          //check if the unit has a value
+          if (ingredient['unit'] == null ||
+              ingredient['unit'].isEmpty ||
+              ingredient['unit'].toLowerCase() == "null") {
+            ingredient['unit'] = 'units';
+          }
+
+          //check quantity has a value
+          if (ingredient['quantity'] == null ||
+              ingredient['quantity'].toString().isEmpty ||
+              ingredient['quantity'].toString().toLowerCase() == "null") {
+            ingredient['quantity'] = 1;
+          }
+        }
+        recipeData['ingredients'] = ingredients;
+      }
+
+      //remove any appliances not in the specified list
+      if (recipeData.containsKey('appliances')) {
+        List<dynamic> appliances = recipeData['appliances'];
+        appliances = appliances.where((appliance) {
+          return allowedAppliances.contains(appliance['name']);
+        }).toList();
+        recipeData['appliances'] = appliances;
+      }
+
+      print("rec data: $recipeData");
       return recipeData;
     } catch (e) {
       print('Error parsing JSON response: $e');
