@@ -48,7 +48,7 @@ class CulinaryCompanionApp extends StatelessWidget {
         textTheme: GoogleFonts.interTextTheme(),
         primarySwatch: Colors.green,
         brightness: Brightness.light,
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: Color(0xFFEDEDED),
         inputDecorationTheme: const InputDecorationTheme(
           border: OutlineInputBorder(),
           filled: true,
