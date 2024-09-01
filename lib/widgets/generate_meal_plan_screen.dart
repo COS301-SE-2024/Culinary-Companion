@@ -412,7 +412,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                       builder: (BuildContext context) {
                         return Center(
                           child: Lottie.asset(
-                            'planner_load.json',
+                            'assets/planner_load.json',
                             width: 200,
                             height: 200,
                             fit: BoxFit.contain,
