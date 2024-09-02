@@ -4,11 +4,16 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'help_pantry.dart';
+import 'dart:html' as html; // For web
+import 'dart:io'; // For mobile
 import 'package:lottie/lottie.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
+// import 'dart:io';
 import '../widgets/theme_utils.dart';
 
 class PantryScreen extends StatefulWidget {
@@ -325,182 +330,264 @@ Future<void> _fetchPantryList() async {
     Overlay.of(context).insert(_helpMenuOverlay!);
   }
 
-  // final ImagePicker _picker = ImagePicker();
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    XFile? pickedFile;
 
-    if (kIsWeb) {
-      // For Web, only allow picking an image from gallery
-      pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        print('Image selected: ${pickedFile.path}');
-        _showDetectedIngredients(); // Show mock ingredients screen
+// final ImagePicker _picker = ImagePicker();
+  Future<XFile?> _pickImage() async {
+    final ImagePicker picker = ImagePicker();
+  XFile? pickedFile;
+
+  if (kIsWeb) {
+    // For Web, only allow picking an image from gallery
+    pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  } else {
+    if (Platform.isAndroid || Platform.isIOS) {
+      if (await _requestPermissions(context)) {
+        pickedFile = await showModalBottomSheet<XFile?>(
+          context: context,
+          builder: (context) {
+            return SafeArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  ListTile(
+                    leading: Icon(Icons.camera_alt),
+                    title: Text('Take a picture'),
+                    onTap: () async {
+                      Navigator.of(context).pop(await picker.pickImage(source: ImageSource.camera));
+                    },
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.photo_library),
+                    title: Text('Upload from gallery'),
+                    onTap: () async {
+                      Navigator.of(context).pop(await picker.pickImage(source: ImageSource.gallery));
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      } else {
+        _showPermissionDeniedMessage(context);
+        return null;
       }
     } else {
-      if (Platform.isAndroid || Platform.isIOS) {
-        // Request necessary permissions
-        if (await _requestPermissions(context)) {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ListTile(
-                      leading: Icon(Icons.camera_alt),
-                      title: Text('Take a picture'),
-                      onTap: () async {
-                        final XFile? image =
-                            await picker.pickImage(source: ImageSource.camera);
-                        if (image != null) {
-                          // Handle image
-                          print('Image selected: ${image.path}');
-                          Navigator.of(context).pop();
-                          _showDetectedIngredients(); //show mock ingredients screen
-                        }
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.photo_library),
-                      title: Text('Upload from gallery'),
-                      onTap: () async {
-                        final XFile? image =
-                            await picker.pickImage(source: ImageSource.gallery);
-                        if (image != null) {
-                          // Handle image
-                          print('Image selected: ${image.path}');
-                          Navigator.of(context).pop();
-                          _showDetectedIngredients(); //show mock ingredients screen
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        } else {
-          // Permission denied, show an alert or snackbar
-          _showPermissionDeniedMessage(context);
-          return;
-        }
-      } else {
-        // Handle other platforms or throw an error
-        throw UnsupportedError('This platform is not supported');
-      }
+      throw UnsupportedError('This platform is not supported');
     }
   }
 
-  void _showDetectedIngredients() {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent closing when tapping outside
-      builder: (BuildContext context) {
-        final theme = Theme.of(context);
-
-        final backgroundColor = theme.brightness == Brightness.light
-            ? Color(0xFFEDEDED)
-            : Color(0xFF283330);
-
-        final fontColor = getFontColor(context);
-
-        return GestureDetector(
-          child: Container(
-            color: Color.fromARGB(121, 0, 0, 0), // Semi-transparent background
-            child: Center(
-              child: Material(
-                borderRadius: BorderRadius.circular(10),
-                color: backgroundColor,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 30),
-                      Center(
-                        child: Text(
-                          'Detected Ingredients',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: fontColor,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: 5, // Five mock ingredients
-                          itemBuilder: (context, index) {
-                            return ListTile(
-                              leading: Icon(
-                                  Icons.restaurant), // Mock ingredient icon
-                              title: Text('Ingredient ${index + 1}'),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.edit),
-                                    onPressed: () {
-                                      // HANDLE EDIT ACTION
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.delete),
-                                    onPressed: () {
-                                      // HANDLE DELETE ACTION
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      Align(
-                          alignment: Alignment.bottomRight,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ElevatedButton(
-                                onPressed: () => Navigator.of(context)
-                                    .pop(), //HANDLE SAVE LOGIC!! BACKEND
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFDC945F),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 12),
-                                ),
-                                child: Text('Save',
-                                    style: TextStyle(color: Colors.white)),
-                              ),
-                              SizedBox(width: 8),
-                              ElevatedButton(
-                                onPressed: () => Navigator.of(context)
-                                    .pop(), //HANDLE CANCEL LOGIC!! BACKEND
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 12),
-                                ),
-                                child: Text('Cancel',
-                                    style: TextStyle(color: Color(0xFFDC945F))),
-                              ),
-                            ],
-                          )),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
+  return pickedFile;
   }
+
+  Future<void> _scanImage() async {
+  if (kIsWeb) {
+    // Web-specific code
+    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+    uploadInput.accept = 'image/*';
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) async {
+      final files = uploadInput.files;
+      if (files!.isEmpty) return;
+
+      final reader = html.FileReader();
+      reader.readAsDataUrl(files[0]);
+
+      reader.onLoadEnd.listen((_) async {
+        final base64Image = reader.result.toString().split(',').last;
+        final text = await _extractTextFromImage(base64Image);
+        if (text.isNotEmpty) {
+          await _handleScannedText(text);
+        }
+      });
+    });
+  } else {
+    // Mobile-specific code
+    if (await Permission.camera.request().isGranted) {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.camera);
+      if (pickedFile != null) {
+        final imageBytes = File(pickedFile.path).readAsBytesSync();
+        final text = await _extractTextFromImage(imageBytes);
+        if (text.isNotEmpty) {
+          await _handleScannedText(text);
+        }
+      }
+    }
+  }
+}
+
+Future<void> _selectImage() async {
+  if (kIsWeb) {
+    // Web-specific code
+    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
+    uploadInput.accept = 'image/*';
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) async {
+      final files = uploadInput.files;
+      if (files!.isEmpty) return;
+
+      final reader = html.FileReader();
+      reader.readAsDataUrl(files[0]);
+
+      reader.onLoadEnd.listen((_) async {
+        final base64Image = reader.result.toString().split(',').last;
+        final text = await _extractTextFromImage(base64Image);
+        if (text.isNotEmpty) {
+          await _handleScannedText(text);
+        }
+      });
+    });
+  } else {
+    // Mobile-specific code
+    if (await Permission.photos.request().isGranted) {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        final imageBytes = File(pickedFile.path).readAsBytesSync();
+        final text = await _extractTextFromImage(imageBytes);
+        if (text.isNotEmpty) {
+          await _handleScannedText(text);
+        }
+      }
+    }
+  }
+}
+
+Future<void> _showIngredientDialog(List<String> ingredients) async {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Detected Ingredients'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: ingredients.map((ingredient) {
+            return ListTile(
+              title: Text(ingredient),
+              trailing: ElevatedButton(
+                onPressed: () {
+                  // add to pantry here lol 
+                  Navigator.of(context).pop();
+                },
+                child: Text('Add to Pantry'),
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    },
+  );
+}
+
+Future<String> _extractTextFromImage(dynamic imageData) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return 'No API_KEY environment variable';
+  }
+  final url = 'https://vision.googleapis.com/v1/images:annotate?key=$apiKey';
+
+  String base64Image;
+
+  if (kIsWeb) {
+    // For Web, imageData is a Base64-encoded string
+    base64Image = imageData;
+  } else {
+    // For Mobile, convert Uint8List to Base64 string
+    base64Image = base64Encode(imageData);
+  }
+
+  final requestPayload = json.encode({
+    'requests': [
+      {
+        'image': {
+          'content': base64Image,
+        },
+        'features': [
+          {
+            'type': 'TEXT_DETECTION',
+            'maxResults': 1,
+          },
+        ],
+      },
+    ],
+  });
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: requestPayload,
+    );
+
+    if (response.statusCode == 200) {
+      final responseJson = json.decode(response.body);
+      final textAnnotations = responseJson['responses'][0]['textAnnotations'];
+      if (textAnnotations != null && textAnnotations.isNotEmpty) {
+        return textAnnotations[0]['description'];
+      } else {
+        return 'No text detected.';
+      }
+    } else {
+      print('Error: ${response.statusCode} ${response.reasonPhrase}');
+      print('Response body: ${response.body}');
+      return 'Failed to detect text from image';
+    }
+  } catch (e) {
+    print('Exception: $e');
+    return 'Failed to detect text from image';
+  }
+}
+
+
+Future<void> _handleScannedText(String text) async {
+  final ingredients = _parseIngredientsFromText(text);
+  if (ingredients.isNotEmpty) {
+    _showIngredientDialog(ingredients);
+  } else {
+    _showNoIngredientsFoundDialog();
+  }
+}
+
+List<String> _parseIngredientsFromText(String text) {
+  final ingredients = <String>[];
+  
+  // Split the text by new lines or commas, and trim whitespace from each item
+  final lines = text.split(RegExp(r'\n|,\s*'));
+  
+  for (var line in lines) {
+    final trimmedLine = line.trim();
+    
+    if (trimmedLine.isNotEmpty) {
+      ingredients.add(trimmedLine);
+    }
+  }
+  
+  return ingredients;
+}
+
+
+Future<void> _showNoIngredientsFoundDialog() async {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('No Ingredients Found'),
+        content: Text('No ingredients were detected in the image.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   Future<bool> _requestPermissions(BuildContext context) async {
     PermissionStatus cameraPermission = await Permission.camera.request();
@@ -526,118 +613,145 @@ Future<void> _fetchPantryList() async {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        title: Padding(
-          padding: EdgeInsets.only(top: 30, left: 38.0),
-          child: Text(
-            'Pantry',
-            style: TextStyle(
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
-            ),
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      automaticallyImplyLeading: false,
+      backgroundColor: Colors.transparent,
+      title: Padding(
+        padding: EdgeInsets.only(top: 30, left: 38.0),
+        child: Text(
+          'Pantry',
+          style: TextStyle(
+            fontSize: 24.0,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0),
-            child: IconButton(
-              key: Key('help_button'),
-              icon: Icon(Icons.help),
-              onPressed: _showHelpMenu,
-              iconSize: 35,
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 20.0),
+          child: IconButton(
+            key: Key('help_button'),
+            icon: Icon(Icons.help),
+            onPressed: _showHelpMenu,
+            iconSize: 35,
+          ),
+        ),
+      ],
+    ),
+    body: _isLoading
+        ? Center(child: Lottie.asset('assets/loading.json'))
+        : Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 40.0),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(height: 30.0),
+                      Expanded(
+                        child: _pantryList.isEmpty
+                            ? Center(
+                                child: Text(
+                                  "No ingredients have been added. Click the plus icon to add your first ingredient!",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              )
+                            : ListView(
+                                children: _pantryList.entries.expand((entry) {
+                                  return [
+                                    if (entry.value.isNotEmpty) ...[
+                                      _buildCategoryHeader(entry.key),
+                                    ],
+                                    ...entry.value.asMap().entries.map(
+                                        (item) => _buildCheckableListItem(
+                                            entry.key,
+                                            item.value,
+                                            item.key % 2 == 1)),
+                                  ];
+                                }).toList(),
+                              ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            ElevatedButton(
+                              key: ValueKey('Pantry'),
+                              onPressed: () {
+                                _showAddItemDialog(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFFDC945F),
+                                foregroundColor: Colors.white,
+                                fixedSize: const Size(48.0, 48.0),
+                                shape: const CircleBorder(),
+                                padding: EdgeInsets.all(0),
+                              ),
+                              child: const Icon(Icons.add, size: 32.0),
+                            ),
+                            ElevatedButton(
+                              key: ValueKey('UploadPhoto'),
+                              onPressed: () {
+                                _showImageSourceSelection(); // Added method to choose image source
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromARGB(255, 195, 108, 46),
+                                foregroundColor: Colors.white,
+                                fixedSize: const Size(48.0, 48.0),
+                                shape: const CircleBorder(),
+                                padding: EdgeInsets.all(0),
+                              ),
+                              child: const Icon(Icons.camera_alt, size: 32.0),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
+  );
+}
+
+void _showImageSourceSelection() {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Select Image Source'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _scanImage(); // Use camera
+            },
+            child: Text('Take Photo'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _selectImage(); // Use gallery
+            },
+            child: Text('Choose from Gallery'),
+          ),
         ],
-      ),
-      body: _isLoading
-          ? Center(child: Lottie.asset('assets/loading.json'))
-          : Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: <Widget>[
-                        SizedBox(height: 30.0),
-                        Expanded(
-                          child: _pantryList.isEmpty
-                              ? Center(
-                                  child: Text(
-                                    "No ingredients have been added. Click the plus icon to add your first ingredient!",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                )
-                              : ListView(
-                                  children: _pantryList.entries.expand((entry) {
-                                    return [
-                                      if (entry.value.isNotEmpty) ...[
-                                        _buildCategoryHeader(entry.key),
-                                      ],
-                                      ...entry.value.asMap().entries.map(
-                                          (item) => _buildCheckableListItem(
-                                              entry.key,
-                                              item.value,
-                                              item.key % 2 == 1)),
-                                    ];
-                                  }).toList(),
-                                ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              ElevatedButton(
-                                key: ValueKey('Pantry'),
-                                onPressed: () {
-                                  _showAddItemDialog(context);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFDC945F),
-                                  foregroundColor: Colors.white,
-                                  fixedSize: const Size(48.0, 48.0),
-                                  shape: const CircleBorder(),
-                                  padding: EdgeInsets.all(0),
-                                ),
-                                child: const Icon(Icons.add, size: 32.0),
-                              ),
-                              ElevatedButton(
-                                key: ValueKey('UploadPhoto'),
-                                onPressed: () {
-                                  _pickImage();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      Color.fromARGB(255, 195, 108, 46),
-                                  foregroundColor: Colors.white,
-                                  fixedSize: const Size(48.0, 48.0),
-                                  shape: const CircleBorder(),
-                                  padding: EdgeInsets.all(0),
-                                ),
-                                child: const Icon(Icons.camera_alt, size: 32.0),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-    );
-  }
+      );
+    },
+  );
+}
 
 // Helper method to build a category header
   Widget _buildCategoryHeader(String title) {
