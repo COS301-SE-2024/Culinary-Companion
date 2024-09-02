@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:flutter_markdown/flutter_markdown.dart';
-//import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatWidget extends StatefulWidget {
   final String recipeName;
@@ -14,6 +14,7 @@ class ChatWidget extends StatefulWidget {
   final List<String> steps;
   final String userId;
   final String course;
+  //final VoidCallback onClearConversation;
 
   ChatWidget({
     required this.recipeName,
@@ -22,7 +23,7 @@ class ChatWidget extends StatefulWidget {
     required this.steps,
     required this.userId,
     required this.course,
-    //required this.image,
+    // required this.onClearConversation,
   });
 
   @override
@@ -43,6 +44,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   void initState() {
     super.initState();
     _initializeChat();
+    _loadConversation();
     //_generateSuggestedPrompts();
   }
 
@@ -80,6 +82,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                   List<String>.from(data[0]['dietaryConstraints']);
               // print('$_dietaryConstraints');
               _generateSuggestedPrompts();
+              //_loadConversation();
             });
           }
         }
@@ -130,11 +133,11 @@ class _ChatWidgetState extends State<ChatWidget> {
         setState(() {
           _messages.add({"sender": "You", "text": text});
         });
+        await _saveConversation(); // Save conversation after user sends a message
       }
 
       var content = [
-        Content.text(//send the recipe details and users preferences for context
-            "Recipe Name: ${widget.recipeName}\n"
+        Content.text("Recipe Name: ${widget.recipeName}\n"
             "Description: ${widget.recipeDescription}\n"
             "Ingredients: ${widget.ingredients.map((e) => '${e['quantity']} ${e['measurement_unit']} of ${e['name']}').join(', ')}\n"
             "Steps: ${widget.steps.join('. ')}\n"
@@ -151,10 +154,46 @@ class _ChatWidgetState extends State<ChatWidget> {
             "text": response.text ?? 'No response text'
           });
         });
+        await _saveConversation(); // Save conversation after receiving a response
       }
       _controller.clear();
     }
   }
+
+  Future<void> _saveConversation() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> messagesToSave =
+        _messages.map((message) => jsonEncode(message)).toList();
+
+    await prefs.setStringList(
+        'chat_conversation_${widget.recipeName}', messagesToSave);
+  }
+
+  Future<void> _loadConversation() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String>? savedMessages =
+        prefs.getStringList('chat_conversation_${widget.recipeName}');
+
+    if (savedMessages != null) {
+      setState(() {
+        _messages.addAll(savedMessages.map((msg) {
+          // Decode the JSON string
+          Map<String, dynamic> jsonMap = jsonDecode(msg);
+
+          // Check and safely convert to Map<String, String> if possible
+          return jsonMap.map((key, value) => MapEntry(key.toString(),
+              value.toString())); // Ensure both key and value are strings
+        }).toList());
+      });
+    } else {
+      print('No saved messages found.');
+    }
+  }
+
+  // Future<void> _clearConversation() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.remove('chat_conversation_${widget.recipeName}');
+  // }
 
   Widget _buildMessageBubble(String sender, String text) {
     bool isUser = sender == "You";

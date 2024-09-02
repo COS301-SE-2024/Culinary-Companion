@@ -1187,7 +1187,6 @@ class _RecipeCardState extends State<RecipeCard> {
   void _showRecipeDetails() {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
-    bool _showDialog = false;
 
     int neededIngredientCount = widget.ingredients
         .where((ingredient) =>
@@ -1267,6 +1266,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                         0.02, // Adjust icon size to 2% of screen width
                                     onPressed: () {
                                       Navigator.of(context).pop();
+
                                       _fetchShoppingList(); // Refresh shopping list when dialog is closed
                                     },
                                   ),
@@ -1578,14 +1578,11 @@ class _RecipeCardState extends State<RecipeCard> {
   void _chatbotPopup() {
     final double screenWidth = MediaQuery.of(context).size.width;
     showDialog(
-        barrierColor: Colors.white.withOpacity(0),
+        barrierColor: Color.fromARGB(158, 0, 0, 0),
         barrierDismissible: false,
         context: context,
         builder: (context) {
           return FloatingDialog(
-            // onDrag: (x, y) {
-            //   print('x: $x, y: $y');
-            // },
             onClose: () {
               Navigator.of(context).pop();
             },
