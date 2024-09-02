@@ -614,9 +614,50 @@ List<String> parsePicknPayReceipt(String text) {
   // .
   // DUE VAT INCL
 
-  final lines = text.split('\n');
-  return lines.map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+  final lowerCaseText = text.toLowerCase();
+  
+  final startMarker = 'cashier:';
+  final endMarker = 'due vat incl';
+  
+  final startIndex = lowerCaseText.indexOf(startMarker);
+  final endIndex = lowerCaseText.indexOf(endMarker);
+
+  // Check if both markers are found and in correct order
+  if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
+    return []; 
+  }
+
+  final startOffset = lowerCaseText.indexOf('\n', startIndex) + 1; 
+  final section = lowerCaseText.substring(startOffset, endIndex).trim();
+  
+  final lines = section.split('\n').map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+  print("LINES");
+  print(lines);
+
+  final items = <String>[];
+  
+  String? currentItem;
+
+  for (var line in lines) {
+    if (line.contains('less cash-off')) {
+      continue; // skip discounts
+    }
+
+    if (line.contains(RegExp(r'@')) || line.contains(RegExp(r'\d+\.\d{2}')) || line.startsWith(RegExp(r'\d+'))) {
+      // can add quantity stuff here
+      continue;
+    } else {
+      currentItem = line.trim();
+      items.add(currentItem);
+    }
+  }
+
+  print("ITEMS");
+  print(items);
+  return items;
 }
+
+
 
 List<String> parseWoolworthsReceipt(String text) {
   final lines = text.split('\n');
