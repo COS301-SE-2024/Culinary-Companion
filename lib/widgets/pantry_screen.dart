@@ -398,6 +398,7 @@ Future<void> _fetchPantryList() async {
         final base64Image = reader.result.toString().split(',').last;
         final text = await _extractTextFromImage(base64Image);
         if (text.isNotEmpty) {
+          print(text);
           await _handleScannedText(text);
         }
       });
@@ -543,6 +544,7 @@ Future<String> _extractTextFromImage(dynamic imageData) async {
 
 
 Future<void> _handleScannedText(String text) async {
+  print(text);
   final ingredients = _parseIngredientsFromText(text);
   if (ingredients.isNotEmpty) {
     _showIngredientDialog(ingredients);
@@ -552,21 +554,104 @@ Future<void> _handleScannedText(String text) async {
 }
 
 List<String> _parseIngredientsFromText(String text) {
-  final ingredients = <String>[];
+  final lowerCaseText = text.toLowerCase();
+// Extract the first line of text
+  final firstLine = lowerCaseText.split('\n').first;
+  print(firstLine);
   
-  // Split the text by new lines or commas, and trim whitespace from each item
-  final lines = text.split(RegExp(r'\n|,\s*'));
-  
-  for (var line in lines) {
-    final trimmedLine = line.trim();
-    
-    if (trimmedLine.isNotEmpty) {
-      ingredients.add(trimmedLine);
-    }
-  }
-  
-  return ingredients;
+  // Detect store based on the first line
+  final store = detectStoreFormat(firstLine);
+
+  return parseReceiptForStore(lowerCaseText, store);
 }
+
+String detectStoreFormat(String text) {
+  // checks which one of the stores the line passed in is to modify the parsing accordingly
+  if (text.contains('pick n pay')) {
+    print("first line is pick n pay");
+    return "P"; // Pick n Pay
+  } else if (text.contains('woolworths')) {
+    print("first line is woolworths");
+    return "W"; // Woolworths
+  } else if (text.contains('checkers')) {
+    print("first line is checkers");
+    return "C"; // Checkers
+  }
+  print("couldn't find store name");
+  return "U"; // Unknown
+}
+
+// Function to parse receipt based on detected store
+List<String> parseReceiptForStore(String text, String store) {
+  switch (store) {
+    case "P":
+      print("going to parse Pick n Pay receipt");
+      return parsePicknPayReceipt(text);
+    case "W":
+      print("going to parse Woolworths receipt");
+      return parseWoolworthsReceipt(text);
+    case "C":
+    print("going to parse Checkers receipt");
+      return parseCheckersReceipt(text);
+    default:
+      return []; // Handle unknown or unsupported formats
+  }
+}
+
+// Store-specific parsing functions
+List<String> parsePicknPayReceipt(String text) {
+  // FORMAT
+  // Pick n Pay
+  // location
+  // phone number
+  // CASHIER: ****
+
+  // item name (required)
+  //        quantity      @      price   (optional -- only if > 1)
+  // ** Less cash-off (optional if discounted)
+  // .
+  // .
+  // .
+  // DUE VAT INCL
+
+  final lines = text.split('\n');
+  return lines.map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+}
+
+List<String> parseWoolworthsReceipt(String text) {
+  final lines = text.split('\n');
+  return lines.map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+}
+
+List<String> parseCheckersReceipt(String text) {
+  final lines = text.split('\n');
+  return lines.map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+}
+
+// List<String> _parseIngredientsFromText(String text) {
+//   final ingredients = <String>[];
+  
+//   // Split the text by new lines or commas, and trim whitespace from each item
+//   // final lines = text.split(RegExp(r'\n|,\s*'));
+//   // final lines = text.split('\n');
+  
+//   // Convert the entire text to lowercase
+//   final lowerCaseText = text.toLowerCase();
+  
+//   // Split the text by new lines
+//   final lines = lowerCaseText.split('\n');
+
+  
+//   for (var line in lines) {
+//     final trimmedLine = line.trim();
+    
+//     if (trimmedLine.isNotEmpty) {
+//       ingredients.add(trimmedLine);
+//     }
+//   }
+  
+//   return ingredients;
+// }
 
 
 Future<void> _showNoIngredientsFoundDialog() async {
