@@ -205,7 +205,7 @@ class _ChatWidgetState extends State<ChatWidget> {
         children: [
           if (!isUser)
             Image.asset(
-              'chef.png', // Replace with your asset path
+              'assets/chef.png', // Replace with your asset path
               width: 50, // Adjust size as needed
               height: 50, // Adjust size as needed
               fit: BoxFit.cover,
@@ -280,7 +280,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Image.asset(
-                    'chef.png',
+                    'assets/chef.png',
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
@@ -308,7 +308,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Image.asset(
-                        'chef.png',
+                        'assets/chef.png',
                         width: 50,
                         height: 50,
                         fit: BoxFit.cover,

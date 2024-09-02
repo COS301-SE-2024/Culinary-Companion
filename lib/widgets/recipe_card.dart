@@ -1546,7 +1546,7 @@ class _RecipeCardState extends State<RecipeCard> {
                         onPressed: _chatbotPopup, // Call your popup method
                         child: ClipOval(
                           child: Image.asset(
-                            'chef.png', // Path to your image asset
+                            'assets/chef.png', // Path to your image asset
                             width: 60, // Adjust size as needed
                             height: 60, // Adjust size as needed
                             //fit: BoxFit.fitHeight,
