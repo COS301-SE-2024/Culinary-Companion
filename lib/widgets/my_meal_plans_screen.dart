@@ -50,7 +50,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Padding(
-          padding: EdgeInsets.only(top: 30, left: 38.0),
+          padding: EdgeInsets.all(30),
           child: Text(
             'My Meal Plans',
             style: TextStyle(
@@ -104,7 +104,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
         String day = entry.key;
         List<Map<String, dynamic>> recipes = entry.value;
         return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
+          padding: const EdgeInsets.all(30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -162,7 +162,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
                         );
                       }).toList(),
                       if (recipes.isEmpty)
-                        ...List.generate(2, (index) => PlaceholderRecipeCard())
+                        ...List.generate(3, (index) => PlaceholderRecipeCard())
                             .toList(),
                     ],
                   ),
@@ -180,8 +180,8 @@ class PlaceholderRecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 150,
-      height: 200,
+      width: 150 * 2,
+      height: 200 * 2,
       margin: EdgeInsets.only(right: 10),
       decoration: BoxDecoration(
         color: Colors.grey[200],
