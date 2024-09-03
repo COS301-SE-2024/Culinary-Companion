@@ -22,9 +22,9 @@ class _PasteRecipeState extends State<PasteRecipe> {
   String _imageUrl = "";
   String? _selectedImage;
 
-final List<String> _preloadedImages = [
-  'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z'
-];
+  final List<String> _preloadedImages = [
+    'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z'
+  ];
 
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -35,7 +35,7 @@ final List<String> _preloadedImages = [
     }
   }
 
-   Future<void> _pickImage() async {
+  Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image == null) {
@@ -95,48 +95,320 @@ final List<String> _preloadedImages = [
     return;
   }
 
-  showDialog( //loading screen 
+  showDialog(
     context: context,
-    barrierDismissible: false, // Prevent closing the dialog by tapping outside
+    barrierDismissible: false,
     builder: (BuildContext context) {
       return Center(
         child: CircularProgressIndicator(),
       );
     },
   );
-  
-  
-  // // send pasted text and image url 
-  // final extractedRecipeData = await extractRecipeData(
-  //   pastedText,
-  //   _selectedImage ?? _preloadedImages[0],
-  // );
 
-   try {
-    //call gem service to extract recipe data
+  try {
     final extractedRecipeData = await extractRecipeData(pastedText, _selectedImage ?? _preloadedImages[0]);
     print("extracted data: $extractedRecipeData");
 
     if (extractedRecipeData != null && !extractedRecipeData.containsKey('error')) {
-      // add recipe to db
-      await addExtractedRecipeToDatabase(extractedRecipeData, _userId!);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Recipe added successfully!'),
-        ),
-      );
+      // Split methods into a list of steps
+      if (extractedRecipeData.containsKey('methods')) {
+        extractedRecipeData['methods'] = extractedRecipeData['methods'].split('<');
+      }
+
+      // Handle null or empty cuisine
+      extractedRecipeData['cuisine'] = extractedRecipeData['cuisine'] ?? 'American';
+
+      await _showRecipeConfirmationDialog(context, extractedRecipeData);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to extract recipe data.'),
-        ),
+        SnackBar(content: Text('Failed to extract recipe data.')),
       );
     }
   } finally {
-    //stop the loading screen
     Navigator.of(context).pop();
   }
 }
+
+
+  Future<void> _showRecipeConfirmationDialog(
+  BuildContext context, Map<String, dynamic> recipeData) async {
+  final TextEditingController nameController =
+      TextEditingController(text: recipeData['name']);
+  final TextEditingController descriptionController =
+      TextEditingController(text: recipeData['description']);
+  final TextEditingController cuisineController =
+      TextEditingController(text: recipeData['cuisine']);
+  final TextEditingController cookTimeController =
+      TextEditingController(text: recipeData['cookTime'].toString());
+  final TextEditingController prepTimeController =
+      TextEditingController(text: recipeData['prepTime'].toString());
+  final TextEditingController courseController =
+      TextEditingController(text: recipeData['course']);
+  final TextEditingController servingAmountController =
+      TextEditingController(text: recipeData['servingAmount'].toString());
+  final TextEditingController spiceLevelController =
+      TextEditingController(text: recipeData['spiceLevel'].toString());
+
+  final List<TextEditingController> ingredientNameControllers = [];
+  final List<TextEditingController> ingredientQuantityControllers = [];
+  final List<TextEditingController> ingredientUnitControllers = [];
+
+  for (var ingredient in recipeData['ingredients']) {
+    ingredientNameControllers.add(
+        TextEditingController(text: ingredient['name']));
+    ingredientQuantityControllers.add(
+        TextEditingController(text: ingredient['quantity'].toString()));
+    ingredientUnitControllers.add(
+        TextEditingController(text: ingredient['unit']));
+  }
+
+  final List<TextEditingController> methodControllers = [];
+  for (var step in recipeData['methods']) {
+    methodControllers.add(TextEditingController(text: step));
+  }
+
+  final List<String> appliances = List<String>.from(
+      recipeData['appliances'].map((appliance) => appliance['name']));
+  final List<TextEditingController> applianceControllers = appliances
+      .map((appliance) => TextEditingController(text: appliance))
+      .toList();
+
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Confirm Recipe'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(labelText: 'Recipe Name'),
+                  ),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(labelText: 'Description'),
+                  ),
+                  TextField(
+                    controller: cuisineController,
+                    decoration: InputDecoration(labelText: 'Cuisine'),
+                  ),
+                  TextField(
+                    controller: cookTimeController,
+                    decoration: InputDecoration(labelText: 'Cook Time (minutes)'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: prepTimeController,
+                    decoration: InputDecoration(labelText: 'Prep Time (minutes)'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: courseController,
+                    decoration: InputDecoration(labelText: 'Course'),
+                  ),
+                  TextField(
+                    controller: servingAmountController,
+                    decoration: InputDecoration(labelText: 'Serving Amount'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  TextField(
+                    controller: spiceLevelController,
+                    decoration: InputDecoration(labelText: 'Spice Level'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Ingredients:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Column(
+                    children: List.generate(
+                      ingredientNameControllers.length,
+                      (index) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: ingredientNameControllers[index],
+                                  decoration: InputDecoration(labelText: 'Ingredient Name'),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  setState(() {
+                                    ingredientNameControllers.removeAt(index);
+                                    ingredientQuantityControllers.removeAt(index);
+                                    ingredientUnitControllers.removeAt(index);
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                          TextField(
+                            controller: ingredientQuantityControllers[index],
+                            decoration: InputDecoration(labelText: 'Quantity'),
+                            keyboardType: TextInputType.number,
+                          ),
+                          TextField(
+                            controller: ingredientUnitControllers[index],
+                            decoration: InputDecoration(labelText: 'Unit'),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        ingredientNameControllers.add(TextEditingController());
+                        ingredientQuantityControllers.add(TextEditingController());
+                        ingredientUnitControllers.add(TextEditingController());
+                      });
+                    },
+                    child: Text('Add Ingredient'),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Methods:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Column(
+                    children: List.generate(
+                      methodControllers.length,
+                      (index) => Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: methodControllers[index],
+                              decoration: InputDecoration(labelText: 'Step ${index + 1}'),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                methodControllers.removeAt(index);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        methodControllers.add(TextEditingController());
+                      });
+                    },
+                    child: Text('Add Step'),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Appliances:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Column(
+                    children: List.generate(
+                      applianceControllers.length,
+                      (index) => Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: applianceControllers[index],
+                              decoration: InputDecoration(labelText: 'Appliance'),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                applianceControllers.removeAt(index);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        applianceControllers.add(TextEditingController());
+                      });
+                    },
+                    child: Text('Add Appliance'),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  // Update recipeData with the new values from the controllers
+                  recipeData['name'] = nameController.text;
+                  recipeData['description'] = descriptionController.text;
+                  recipeData['cuisine'] = cuisineController.text;
+                  recipeData['cookTime'] = int.tryParse(cookTimeController.text) ?? 0;
+                  recipeData['prepTime'] = int.tryParse(prepTimeController.text) ?? 0;
+                  recipeData['course'] = courseController.text;
+                  recipeData['servingAmount'] = int.tryParse(servingAmountController.text) ?? 0;
+                  recipeData['spiceLevel'] = int.tryParse(spiceLevelController.text) ?? 1;
+
+                  recipeData['ingredients'] = List.generate(
+                    ingredientNameControllers.length,
+                    (index) => {
+                      'name': ingredientNameControllers[index].text,
+                      'quantity': double.tryParse(ingredientQuantityControllers[index].text) ?? 1,
+                      'unit': ingredientUnitControllers[index].text,
+                    },
+                  );
+
+                  recipeData['methods'] = methodControllers
+                      .map((controller) => controller.text)
+                      .toList()
+                      .join('<'); // Join the steps with '<'
+
+                  recipeData['appliances'] = applianceControllers
+                      .map((controller) => {'name': controller.text})
+                      .toList();
+
+                  Navigator.of(context).pop(); // Close the dialog
+
+                  // Now, proceed to submit the recipe to the database
+                  await addExtractedRecipeToDatabase(recipeData, _userId!);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Recipe added successfully!')),
+                  );
+                },
+                child: Text('Confirm'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
 
 
   @override
