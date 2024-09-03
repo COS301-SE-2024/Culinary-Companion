@@ -48,6 +48,9 @@ dependencies:
   flutter_svg: ^1.0.3
   animate_do: ^2.1.0
 
+  flutter_markdown: ^0.6.3
+  floating_dialog: ^1.1.0+1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -130,6 +133,7 @@ flutter:
     - assets/recipes.png
     - assets/savour.png
     - assets/sounds/Alarm1.wav
+    - assets/chef.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

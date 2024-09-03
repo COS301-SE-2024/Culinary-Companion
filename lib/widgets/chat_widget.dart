@@ -3,7 +3,9 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-//import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatWidget extends StatefulWidget {
   final String recipeName;
@@ -12,6 +14,7 @@ class ChatWidget extends StatefulWidget {
   final List<String> steps;
   final String userId;
   final String course;
+  //final VoidCallback onClearConversation;
 
   ChatWidget({
     required this.recipeName,
@@ -20,6 +23,7 @@ class ChatWidget extends StatefulWidget {
     required this.steps,
     required this.userId,
     required this.course,
+    // required this.onClearConversation,
   });
 
   @override
@@ -32,6 +36,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   late final GenerativeModel model;
 
   int? _spiceLevel;
+  String? _profilePhoto;
   List<String>? _dietaryConstraints;
   List<String> _suggestedPrompts = [];
 
@@ -39,6 +44,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   void initState() {
     super.initState();
     _initializeChat();
+    _loadConversation();
     //_generateSuggestedPrompts();
   }
 
@@ -68,12 +74,15 @@ class _ChatWidgetState extends State<ChatWidget> {
         if (data.isNotEmpty) {
           if (mounted) {
             setState(() {
+              _profilePhoto =
+                  data[0]['profilephoto']?.toString() ?? 'assets/pfp.jpg';
               _spiceLevel = data[0]
                   ['spicelevel']; //users prefered spice level from 0 to 5
               _dietaryConstraints =
                   List<String>.from(data[0]['dietaryConstraints']);
               // print('$_dietaryConstraints');
               _generateSuggestedPrompts();
+              //_loadConversation();
             });
           }
         }
@@ -124,11 +133,11 @@ class _ChatWidgetState extends State<ChatWidget> {
         setState(() {
           _messages.add({"sender": "You", "text": text});
         });
+        await _saveConversation(); // Save conversation after user sends a message
       }
 
       var content = [
-        Content.text(//send the recipe details and users preferences for context
-            "Recipe Name: ${widget.recipeName}\n"
+        Content.text("Recipe Name: ${widget.recipeName}\n"
             "Description: ${widget.recipeDescription}\n"
             "Ingredients: ${widget.ingredients.map((e) => '${e['quantity']} ${e['measurement_unit']} of ${e['name']}').join(', ')}\n"
             "Steps: ${widget.steps.join('. ')}\n"
@@ -145,88 +154,229 @@ class _ChatWidgetState extends State<ChatWidget> {
             "text": response.text ?? 'No response text'
           });
         });
+        await _saveConversation(); // Save conversation after receiving a response
       }
       _controller.clear();
     }
   }
 
+  Future<void> _saveConversation() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> messagesToSave =
+        _messages.map((message) => jsonEncode(message)).toList();
+
+    await prefs.setStringList(
+        'chat_conversation_${widget.recipeName}', messagesToSave);
+  }
+
+  Future<void> _loadConversation() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String>? savedMessages =
+        prefs.getStringList('chat_conversation_${widget.recipeName}');
+
+    if (savedMessages != null) {
+      setState(() {
+        _messages.addAll(savedMessages.map((msg) {
+          // Decode the JSON string
+          Map<String, dynamic> jsonMap = jsonDecode(msg);
+
+          // Check and safely convert to Map<String, String> if possible
+          return jsonMap.map((key, value) => MapEntry(key.toString(),
+              value.toString())); // Ensure both key and value are strings
+        }).toList());
+      });
+    } else {
+      print('No saved messages found.');
+    }
+  }
+
+  // Future<void> _clearConversation() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   await prefs.remove('chat_conversation_${widget.recipeName}');
+  // }
+
   Widget _buildMessageBubble(String sender, String text) {
     bool isUser = sender == "You";
+
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-        decoration: BoxDecoration(
-          color: isUser ? Color.fromARGB(174, 28, 99, 65) : Colors.grey[300],
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          crossAxisAlignment:
-              isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            Text(
-              sender,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: isUser ? Colors.white : Colors.black,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!isUser)
+            Image.asset(
+              'assets/chef.png', // Replace with your asset path
+              width: 50, // Adjust size as needed
+              height: 50, // Adjust size as needed
+              fit: BoxFit.cover,
+            ),
+          SizedBox(width: 8.0),
+          Flexible(
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              decoration: BoxDecoration(
+                color:
+                    isUser ? Color.fromARGB(255, 56, 68, 65) : Colors.grey[300],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment:
+                    isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 5),
+                  MarkdownBody(
+                    data: text,
+                    styleSheet: MarkdownStyleSheet(
+                      p: TextStyle(
+                        color: isUser
+                            ? Color.fromARGB(255, 252, 250, 250)
+                            : Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 5),
-            Text(
-              text,
-              style: TextStyle(
-                  color: isUser
-                      ? Color.fromARGB(255, 252, 250, 250)
-                      : Colors.black),
+          ),
+          if (isUser)
+            // Display profile photo for user
+            ClipOval(
+              child: _profilePhoto != null && _profilePhoto!.startsWith('http')
+                  ? Image.network(
+                      _profilePhoto!,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    )
+                  : Image.asset(
+                      _profilePhoto ?? 'assets/pfp.jpg',
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final Color backColor = isLightTheme
-        ? Color.fromARGB(255, 236, 236, 236)
-        : Color.fromARGB(179, 25, 41, 30);
-
     return Container(
       decoration: BoxDecoration(
-        color: backColor,
+        color: Colors.transparent,
         border: Border.all(color: Colors.transparent),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_suggestedPrompts.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Wrap(
-                spacing: 6.0,
-                runSpacing: 6.0,
-                children: _suggestedPrompts.map((prompt) {
-                  return ActionChip(
-                    label: Text(prompt),
-                    onPressed: () => _sendMessage(message: prompt),
-                  );
-                }).toList(),
+          // Header
+          Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              padding: EdgeInsets.all(12.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Image.asset(
+                    'assets/chef.png',
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  ),
+                  SizedBox(width: 12.0),
+                  Text(
+                    'Robo-Chef',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
+          ),
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.all(10),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                return _buildMessageBubble(
-                    message["sender"]!, message["text"]!);
-              },
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Greeting Message
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        'assets/chef.png',
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(width: 8.0),
+                      Flexible(
+                        child: Container(
+                          margin:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 5),
+                              Text(
+                                "Hello! I'm Robo-Chef, here to help you with any questions you might have about this ${widget.recipeName} recipe.",
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_suggestedPrompts.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Wrap(
+                        spacing: 6.0,
+                        runSpacing: 6.0,
+                        children: _suggestedPrompts.map((prompt) {
+                          return ActionChip(
+                            label: Text(
+                              prompt,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            backgroundColor: Color.fromARGB(255, 56, 68, 65),
+                            onPressed: () => _sendMessage(message: prompt),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  // Message List
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics:
+                        NeverScrollableScrollPhysics(), // Prevent internal scrolling
+                    padding: EdgeInsets.all(10),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      return _buildMessageBubble(
+                          message["sender"]!, message["text"]!);
+                    },
+                  ),
+                  SizedBox(
+                      height:
+                          60), // Add some space to ensure text input is not covered
+                ],
+              ),
             ),
           ),
+          // Text Input and Send Button
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -235,13 +385,21 @@ class _ChatWidgetState extends State<ChatWidget> {
                   child: TextField(
                     controller: _controller,
                     decoration: InputDecoration(
-                      labelText: 'Ask chef for help',
-                      border: OutlineInputBorder(),
+                      labelText: 'Ask Robo-Chef for help',
+                      fillColor: Colors.transparent,
+                      filled: true,
+                      labelStyle: TextStyle(
+                        color: Colors.white,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: Icon(Icons.chevron_right_rounded),
                   onPressed: () => _sendMessage(),
                 ),
               ],
