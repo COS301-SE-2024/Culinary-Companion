@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../gemini_service.dart'; 
 import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
 class PasteRecipe extends StatefulWidget {
   @override
@@ -11,13 +15,87 @@ class PasteRecipe extends StatefulWidget {
 
 class _PasteRecipeState extends State<PasteRecipe> {
   String? _userId;
-  final TextEditingController _recipeTextController = TextEditingController(); // Controller for capturing pasted text
+  final TextEditingController _recipeTextController = TextEditingController(); //pasted text controller
+  List<String> _cuisines = [];
+  String? _selectedCuisine;
+  List<String> _appliances = [];
+  List<String> _selectedAppliances = [];
+  List<MultiSelectItem<String>> _applianceItems = [];
+
 
   @override
-  void initState() {
-    super.initState();
-    _loadUserId();
+void initState() {
+  super.initState();
+  _loadUserId();
+  _loadCuisines();
+  _loadAppliances();
+}
+
+Future<void> _loadAppliances() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'action': 'getAllAppliances'}),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        if (mounted) {
+          setState(() {
+            _appliances = data.map<String>((appliance) {
+              return appliance['name'].toString();
+            }).toList();
+            _applianceItems = _appliances
+                .map((appliance) =>
+                    MultiSelectItem<String>(appliance, appliance))
+                .toList();
+          });
+        }
+      } else {
+        throw Exception('Failed to load appliances');
+      }
+    } catch (e) {
+      throw Exception('Error fetching appliances: $e');
+    }
   }
+
+
+  Future<void> _loadCuisines() async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'action': 'getCuisines'}),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        if (mounted) {
+          setState(() {
+            // Ensure the UI updates after cuisines are loaded
+            _cuisines = data.map<String>((cuisine) {
+              return cuisine['name'].toString();
+            }).toList();
+          });
+        }
+        //print(_cuisines);
+      } else {
+        throw Exception('Failed to load cuisines');
+      }
+    } catch (e) {
+      throw Exception('Error fetching cuisines: $e');
+    }
+  }
+
 
   String _imageUrl = "";
   String? _selectedImage;
@@ -151,14 +229,12 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
 }
 
 
-  Future<void> _showRecipeConfirmationDialog(
+ Future<void> _showRecipeConfirmationDialog(
   BuildContext context, Map<String, dynamic> recipeData) async {
   final TextEditingController nameController =
       TextEditingController(text: recipeData['name']);
   final TextEditingController descriptionController =
       TextEditingController(text: recipeData['description']);
-  final TextEditingController cuisineController =
-      TextEditingController(text: recipeData['cuisine']);
   final TextEditingController cookTimeController =
       TextEditingController(text: recipeData['cookTime'].toString());
   final TextEditingController prepTimeController =
@@ -188,12 +264,6 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
     methodControllers.add(TextEditingController(text: step));
   }
 
-  final List<String> appliances = List<String>.from(
-      recipeData['appliances'].map((appliance) => appliance['name']));
-  final List<TextEditingController> applianceControllers = appliances
-      .map((appliance) => TextEditingController(text: appliance))
-      .toList();
-
   await showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -213,8 +283,19 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
                     controller: descriptionController,
                     decoration: InputDecoration(labelText: 'Description'),
                   ),
-                  TextField(
-                    controller: cuisineController,
+                  DropdownButtonFormField<String>(
+                    value: _selectedCuisine,
+                    items: _cuisines
+                        .map((cuisine) => DropdownMenuItem<String>(
+                              value: cuisine,
+                              child: Text(cuisine),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedCuisine = value;
+                      });
+                    },
                     decoration: InputDecoration(labelText: 'Cuisine'),
                   ),
                   TextField(
@@ -340,36 +421,16 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
-                  Column(
-                    children: List.generate(
-                      applianceControllers.length,
-                      (index) => Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: applianceControllers[index],
-                              decoration: InputDecoration(labelText: 'Appliance'),
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.delete),
-                            onPressed: () {
-                              setState(() {
-                                applianceControllers.removeAt(index);
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
+                  MultiSelectDialogField<String>(
+                    items: _applianceItems,
+                    initialValue: _selectedAppliances,
+                    title: Text("Appliances"),
+                    selectedColor: Colors.blue,
+                    onConfirm: (results) {
                       setState(() {
-                        applianceControllers.add(TextEditingController());
+                        _selectedAppliances = results;
                       });
                     },
-                    child: Text('Add Appliance'),
                   ),
                 ],
               ),
@@ -377,66 +438,53 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop(); //close popup
                 },
                 child: Text('Cancel'),
               ),
               ElevatedButton(
-  onPressed: () async {
-    // update recipe data
-    recipeData['name'] = nameController.text;
-    recipeData['description'] = descriptionController.text;
-    recipeData['cuisine'] = cuisineController.text;
-    recipeData['cookTime'] = int.tryParse(cookTimeController.text) ?? 0;
-    recipeData['prepTime'] = int.tryParse(prepTimeController.text) ?? 0;
-    recipeData['course'] = courseController.text;
-    recipeData['servingAmount'] = int.tryParse(servingAmountController.text) ?? 0;
-    recipeData['spiceLevel'] = int.tryParse(spiceLevelController.text) ?? 1;
+                onPressed: () async {
+                  // update recipe details
+                  recipeData['name'] = nameController.text;
+                  recipeData['description'] = descriptionController.text;
+                  recipeData['cuisine'] = _selectedCuisine ?? '';
+                  recipeData['cookTime'] = int.tryParse(cookTimeController.text) ?? 0;
+                  recipeData['prepTime'] = int.tryParse(prepTimeController.text) ?? 0;
+                  recipeData['course'] = courseController.text;
+                  recipeData['servingAmount'] = int.tryParse(servingAmountController.text) ?? 0;
+                  recipeData['spiceLevel'] = int.tryParse(spiceLevelController.text) ?? 1;
 
-    // validate ingredient format
-    recipeData['ingredients'] = List.generate(
-      ingredientNameControllers.length,
-      (index) {
-        String name = capitalizeEachWord(ingredientNameControllers[index].text.trim());
-        double quantity = parseQuantity(ingredientQuantityControllers[index].text.trim());
-        String unit = ingredientUnitControllers[index].text.trim();
+                  recipeData['ingredients'] = List.generate(
+                    ingredientNameControllers.length,
+                    (index) => {
+                      'name': capitalizeEachWord(ingredientNameControllers[index].text.trim()),
+                      'quantity': parseQuantity(ingredientQuantityControllers[index].text.trim()),
+                      'unit': ingredientUnitControllers[index].text.trim(),
+                    },
+                  );
 
-        if (unit.isEmpty) {
-          unit = 'Units'; // default if none
-        }
+                  recipeData['methods'] = methodControllers
+                      .map((controller) => controller.text)
+                      .toList()
+                      .join('<'); // join steps 
 
-        return {
-          'name': name,
-          'quantity': quantity,
-          'unit': unit,
-        };
-      },
-    );
+                  recipeData['appliances'] = _selectedAppliances //list of appliances
+                      .map((appliance) => {'name': appliance})
+                      .toList();
 
-    recipeData['methods'] = methodControllers
-        .map((controller) => controller.text)
-        .toList()
-        .join('<'); // separate steps with <
+                  
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Recipe added successfully!')),
+                  );
 
-    recipeData['appliances'] = applianceControllers
-        .map((controller) => {'name': controller.text})
-        .toList();
+                  // close popup
+                  Navigator.of(context).pop();
 
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Recipe added successfully!')),
-    );
-
-    //close popup
-    Navigator.of(context).pop();
-
-    // submit rec
-    await addExtractedRecipeToDatabase(recipeData, _userId!);
-  },
-  child: Text('Confirm'),
-),
-
-
+                  // submit rec
+                  await addExtractedRecipeToDatabase(recipeData, _userId!);
+                },
+                child: Text('Confirm'),
+              ),
             ],
           );
         },
@@ -444,6 +492,7 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
     },
   );
 }
+
 
 
 
