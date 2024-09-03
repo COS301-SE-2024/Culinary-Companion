@@ -95,6 +95,9 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
             allAppliances = data.map<String>((appliance) {
               return appliance['name'].toString();
             }).toList();
+
+            // Sort appliances alphabetically by name
+            allAppliances.sort((a, b) => a.compareTo(b));
           });
         }
       } else {
@@ -112,6 +115,9 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
             allAppliances = cachedAppliances.map<String>((appliance) {
               return appliance['name'].toString();
             }).toList();
+
+            // Sort appliances alphabetically by name
+            allAppliances.sort((a, b) => a.compareTo(b));
           });
         }
       }
@@ -135,12 +141,18 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
 
       if (response.statusCode == 200) {
         List<dynamic> appliancesJson = jsonDecode(response.body);
+
+        // Cache the appliances data locally
         await prefs.setString('cachedAppliances', jsonEncode(appliancesJson));
+
         if (mounted) {
           setState(() {
             appliances = appliancesJson
                 .map((appliance) => appliance['applianceName'].toString())
                 .toList();
+
+            // Sort the appliances alphabetically
+            appliances.sort((a, b) => a.compareTo(b));
           });
         }
 
@@ -158,11 +170,15 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
             appliances = appliancesJson
                 .map((appliance) => appliance['applianceName'].toString())
                 .toList();
+
+            // Sort the appliances alphabetically
+            appliances.sort((a, b) => a.compareTo(b));
           });
         }
       }
     }
   }
+
 
   void _addAppliance(String appliance) async {
     final success = await _addUserApplianceToDatabase(appliance);

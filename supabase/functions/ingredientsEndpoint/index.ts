@@ -260,7 +260,7 @@ async function addIngredientIfNotExists(
     corsHeaders: HeadersInit
 ) {
     if (!ingredientName || !measurementUnit) {
-        console.error('Invalid ingredient data provided.');
+        console.error('Validation Error: Ingredient name or measurement unit is missing.');
         return new Response(JSON.stringify({ error: 'Invalid ingredient data provided' }), {
             status: 400,
             headers: corsHeaders,
@@ -269,6 +269,7 @@ async function addIngredientIfNotExists(
 
     try {
         // Check if the ingredient exists
+        console.log(`Attempting to fetch ingredient with name: ${ingredientName}`);
         const { data: existingIngredient, error: fetchError } = await supabase
             .from('ingredient')
             .select('ingredientid')
@@ -276,7 +277,7 @@ async function addIngredientIfNotExists(
             .limit(1);
 
         if (fetchError) {
-            console.error('Error fetching ingredient:', fetchError);
+            console.error('Error fetching ingredient:', fetchError.message);
             return new Response(JSON.stringify({ error: fetchError.message }), {
                 status: 500,
                 headers: corsHeaders,
@@ -299,7 +300,7 @@ async function addIngredientIfNotExists(
             .limit(1);
 
         if (maxIdError) {
-            console.error('Error fetching max ingredient ID:', maxIdError);
+            console.error('Error fetching max ingredient ID:', maxIdError.message);
             return new Response(JSON.stringify({ error: maxIdError.message }), {
                 status: 500,
                 headers: corsHeaders,
@@ -319,7 +320,7 @@ async function addIngredientIfNotExists(
             .select('ingredientid');
 
         if (insertError) {
-            console.error('Error adding new ingredient:', insertError);
+            console.error('Error adding new ingredient:', insertError.message);
             return new Response(JSON.stringify({ error: insertError.message }), {
                 status: 500,
                 headers: corsHeaders,
@@ -332,7 +333,7 @@ async function addIngredientIfNotExists(
         });
 
     } catch (error) {
-        console.error('Unexpected error:', error);
+        console.error('Unexpected error:', error.message);
         return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
             headers: corsHeaders,
@@ -656,32 +657,21 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
             });
         }
 
-        // Insert ingredients
+        
         for (const ingredient of ingredients) {
-            const { data: ingredientData, error: ingredientError } = await supabase
-                .from('ingredient')
-                .select('ingredientid')
-                .eq('name', ingredient.name)
-                .single();
+            const ingredientResponse = await addIngredientIfNotExists(ingredient.name, ingredient.unit, corsHeaders);
 
-            if (ingredientError) {
-                console.error('Error fetching ingredient:', ingredientError);
-                return new Response(JSON.stringify({ error: `Ingredient not found: ${ingredient.name}` }), {
+            if (ingredientResponse.status !== 200) {
+                console.error('Error adding or fetching ingredient:', await ingredientResponse.json());
+                return new Response(JSON.stringify({ error: 'Failed to add or fetch ingredient' }), {
                     status: 400,
                     headers: corsHeaders,
                 });
             }
 
-            const ingredientId = ingredientData?.ingredientid;
+            const { ingredientId } = await ingredientResponse.json();
 
-            if (!ingredientId) {
-                console.error(`Failed to retrieve ingredient ID for ${ingredient.name}`);
-                return new Response(JSON.stringify({ error: `Failed to retrieve ingredient ID for ${ingredient.name}` }), {
-                    status: 400,
-                    headers: corsHeaders,
-                });
-            }
-
+            // Insert the ingredient into the recipe ingredients table
             const { error: recipeIngredientError } = await supabase
                 .from('recipeingredients')
                 .insert({
@@ -699,6 +689,7 @@ async function addRecipe(userId: string, recipeData: RecipeData, corsHeaders: He
                 });
             }
         }
+
 
         // Insert appliances
         for (const appliance of appliances) {

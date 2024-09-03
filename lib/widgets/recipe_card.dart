@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-//import 'package:your_project_name/path_to_tab_controller.dart';  // Import your tab controller file here
 import '../gemini_service.dart'; // LLM
 //import 'package:lottie/lottie.dart';
+import 'package:flutter_application_1/widgets/timer_popup.dart';
 
 import 'package:floating_dialog/floating_dialog.dart';
 
@@ -94,6 +94,15 @@ class _RecipeCardState extends State<RecipeCard> {
     }
   }
 
+  void _showTimerPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return TimerPopup(); // This will be your timer widget
+      },
+    );
+  }
+
   void _updateRecipe(Map<String, dynamic> alteredRecipe) {
     if (mounted) {
       setState(() {
@@ -120,22 +129,31 @@ class _RecipeCardState extends State<RecipeCard> {
         widget.steps = List<String>.from(alteredRecipe['steps']);
         //print('gets here 10');
         widget.appliances =
-            widget.appliances; // Assuming appliances don't change
+            widget.appliances; 
         //print('gets here 11');
 
         // map ingredients
+        // widget.ingredients = alteredRecipe['ingredients']
+        //     .map<Map<String, dynamic>>((ingredient) {
+        //   //print('Ingredient: $ingredient');
+        //   var nameEndIndex = ingredient.lastIndexOf(' (');
+        //   var name = ingredient.substring(0, nameEndIndex);
+        //   var quantityAndUnit = ingredient
+        //       .substring(nameEndIndex + 2, ingredient.length - 1)
+        //       .split(' ');
+        //   return {
+        //     'name': name,
+        //     'quantity': double.tryParse(quantityAndUnit[0]) ?? 0.0,
+        //     'measurement_unit': quantityAndUnit[1],
+        //   };
+        // }).toList();
         widget.ingredients = alteredRecipe['ingredients']
             .map<Map<String, dynamic>>((ingredient) {
-          //print('Ingredient: $ingredient');
-          var nameEndIndex = ingredient.lastIndexOf(' (');
-          var name = ingredient.substring(0, nameEndIndex);
-          var quantityAndUnit = ingredient
-              .substring(nameEndIndex + 2, ingredient.length - 1)
-              .split(' ');
           return {
-            'name': name,
-            'quantity': double.tryParse(quantityAndUnit[0]) ?? 0.0,
-            'measurement_unit': quantityAndUnit[1],
+            'name': ingredient['name'],
+            'quantity':
+                double.tryParse(ingredient['quantity'].toString()) ?? 0.0,
+            'measurement_unit': ingredient['unit'],
           };
         }).toList();
 
@@ -207,9 +225,9 @@ class _RecipeCardState extends State<RecipeCard> {
       double requiredQuantity = ingredient['quantity'];
       String unit = ingredient['measurement_unit'];
 
-      // Check if the ingredient is already in the shopping list
+      
       if (_shoppingList.containsKey(name)) {
-        continue; // Skip adding if the ingredient is already in the shopping list
+        continue; //skip add if the ingredient is already in the shopping list
       }
 
       if (_pantryIngredients.containsKey(name)) {
@@ -237,7 +255,7 @@ class _RecipeCardState extends State<RecipeCard> {
                     'quantity': remainingQuantity,
                     'measurementUnit': unit
                   };
-                  // Update the state to reflect that the ingredient is in the shopping list
+                 
                   // ignore: duplicate_ignore
                   // ignore: avoid_function_literals_in_foreach_calls
                   widget.ingredients.forEach((ingredient) {
@@ -276,7 +294,7 @@ class _RecipeCardState extends State<RecipeCard> {
                   'quantity': requiredQuantity,
                   'measurementUnit': unit
                 };
-                // Update the state to reflect that the ingredient is in the shopping list
+                //update state to show ingredients in the shopping list
                 widget.ingredients.forEach((ingredient) {
                   if (ingredient['name'] == name) {
                     widget.ingredients[widget.ingredients.indexOf(ingredient)]
@@ -354,10 +372,10 @@ class _RecipeCardState extends State<RecipeCard> {
 
       double currentQuantity = _pantryIngredients[item]!['quantity'];
 
-      // Calculate the new quantity
+      //calc new quantity
       double newQuantity = currentQuantity - quantity;
 
-      // Determine the action based on the new quantity
+      //determine the action based on quantity
       String action =
           newQuantity <= 0 ? 'removeFromPantryList' : 'editPantryItem';
       double finalQuantity = newQuantity <= 0 ? 0 : newQuantity;
@@ -535,6 +553,8 @@ class _RecipeCardState extends State<RecipeCard> {
 
     final clickColor =
         theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
+    final textColor =
+        theme.brightness == Brightness.light ? Color(0xFF283330) : Colors.white;
 
     showDialog(
       context: context,
@@ -626,19 +646,33 @@ class _RecipeCardState extends State<RecipeCard> {
                             .withOpacity(0.5), // Background color of the circle
                       ),
                       child: Center(
-                        child: IconButton(
-                          icon: Icon(
-                            _isFavorite
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: _isFavorite ? Colors.red : Colors.white,
+                          child: 
+                        //   Row(
+                        // children: [
+                        //   IconButton(
+                        //     icon: Icon(
+                        //       Icons.timer,
+                        //       color: Colors.white,
+                        //       size: MediaQuery.of(context).size.width * 0.05,
+                              
+                        //     ),
+                        //     iconSize: screenWidth * 0.05,
+                        //     onPressed: _showTimerPopup,
+                        //   ),
+                          IconButton(
+                            icon: Icon(
+                              _isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: _isFavorite ? Colors.red : Colors.white,
+                            ),
+                            iconSize: screenWidth * 0.05, // Adjust icon size
+                            onPressed: _toggleFavorite,
                           ),
-                          iconSize: screenWidth * 0.05, // Adjust icon size
-                          onPressed: _toggleFavorite,
-                        ),
-                      ),
+                        //],
+                      )),
                     ),
-                  ),
+                  //),
                   Positioned(
                     bottom: contentHeight +
                         10, // Adjust position to be at the bottom of the image
@@ -674,8 +708,8 @@ class _RecipeCardState extends State<RecipeCard> {
                                   0.01, // Adjust height
                             ),
                             TabBar(
-                              labelColor: Colors.white,
-                              indicatorColor: Colors.white,
+                              labelColor: textColor,
+                              indicatorColor: textColor,
                               tabs: [
                                 Tab(text: 'Details'),
                                 Tab(text: 'Instructions'),
@@ -743,7 +777,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                         Text(
                                                           'Prep Time:',
                                                           style: TextStyle(
-                                                            color: Colors.white,
+                                                            color: textColor,
                                                             fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -768,8 +802,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           child: Text(
                                                             '${widget.prepTime} mins',
                                                             style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
+                                                              color: textColor,
                                                               fontSize: 12,
                                                             ),
                                                           ),
@@ -790,7 +823,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                         thickness: 1.8,
                                                         indent: 20,
                                                         endIndent: 0,
-                                                        color: Colors.white,
+                                                        color: textColor,
                                                       ),
                                                     ),
                                                     SizedBox(
@@ -811,7 +844,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                         Text(
                                                           'Cook Time:',
                                                           style: TextStyle(
-                                                            color: Colors.white,
+                                                            color: textColor,
                                                             fontSize: 12,
                                                             fontWeight:
                                                                 FontWeight.bold,
@@ -836,8 +869,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                           child: Text(
                                                             '${widget.cookTime} mins',
                                                             style: TextStyle(
-                                                              color:
-                                                                  Colors.white,
+                                                              color: textColor,
                                                               fontSize: 12,
                                                             ),
                                                           ),
@@ -861,7 +893,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                 thickness: 1.8,
                                                 indent: 20,
                                                 endIndent: 0,
-                                                color: Colors.white,
+                                                color: textColor,
                                               ),
                                             ),
                                             SizedBox(
@@ -879,7 +911,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                 Text(
                                                   'Total Time:',
                                                   style: TextStyle(
-                                                    color: Colors.white,
+                                                    color: textColor,
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.bold,
                                                   ),
@@ -900,7 +932,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                   child: Text(
                                                     '${widget.prepTime + widget.cookTime} mins',
                                                     style: TextStyle(
-                                                      color: Colors.white,
+                                                      color: textColor,
                                                       fontSize: 12,
                                                     ),
                                                   ),
@@ -949,6 +981,91 @@ class _RecipeCardState extends State<RecipeCard> {
                                                     .size
                                                     .height *
                                                 0.02), // Adjust height to 2% of screen height
+                                        Column(
+                                          children: [
+                                            if (!_isAlteredRecipe)
+                                              ElevatedButton(
+                                                onPressed: () async {
+                                                  if (userId != null) {
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext
+                                                          context) {
+                                                        return AlertDialog(
+                                                          title: Text(
+                                                            'Adjusting recipe...', //loading screen
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .black),
+                                                          ),
+                                                          content:
+                                                              CircularProgressIndicator(),
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                        );
+                                                      },
+                                                    );
+                                                    String alteredRecipeJson =
+                                                        await fetchDietaryConstraintsRecipe(
+                                                            userId!,
+                                                            widget.recipeID);
+
+                                                    //decode json
+                                                    Map<String, dynamic>
+                                                        alteredRecipe =
+                                                        jsonDecode(
+                                                            alteredRecipeJson);
+
+                                                    //update rec
+                                                    _updateRecipe(
+                                                        alteredRecipe);
+                                                    Navigator.of(context)
+                                                        .pop(); //stop loading screen
+                                                    Navigator.of(context).pop();
+                                                    _showMobileRecipeDetails(); //refresh rec
+                                                  }
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: textColor,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 40,
+                                                      vertical: 20),
+                                                ),
+                                                child: Text(
+                                                  'Adjust recipe to cater to my preferences',
+                                                  style: TextStyle(
+                                                      color: clickColor),
+                                                ),
+                                              )
+                                            else
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  _revertToOriginalRecipe(); //go back to origional rec
+                                                  Navigator.of(context).pop();
+                                                  _showMobileRecipeDetails(); //refresh rec
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: textColor,
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 40,
+                                                      vertical: 20),
+                                                ),
+                                                child: Text(
+                                                  'Revert to Original Recipe',
+                                                  style: TextStyle(
+                                                      color: clickColor),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+
+                                        SizedBox(
+                                            height: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.02),
                                         Text(
                                           "Ingredients:",
                                           style: TextStyle(
@@ -1251,6 +1368,15 @@ class _RecipeCardState extends State<RecipeCard> {
                                 children: [
                                   IconButton(
                                     icon: Icon(
+                                      Icons.timer,
+                                      color: Colors.white,
+                                      size: MediaQuery.of(context).size.width *
+                                          0.017,
+                                    ),
+                                    onPressed: _showTimerPopup,
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
                                       _isFavorite
                                           ? Icons.favorite
                                           : Icons.favorite_border,
@@ -1369,6 +1495,80 @@ class _RecipeCardState extends State<RecipeCard> {
                                               .size
                                               .height *
                                           0.02), // Adjust height to 2% of screen height
+                                  Column(
+                                    children: [
+                                      if (!_isAlteredRecipe)
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            if (userId != null) {
+                                              showDialog(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context) {
+                                                  return AlertDialog(
+                                                    title: Text(
+                                                      'Adjusting recipe...',
+                                                      style: TextStyle(
+                                                          color: Colors.black),
+                                                    ),
+                                                    content:
+                                                        CircularProgressIndicator(),
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                  );
+                                                },
+                                              );
+                                              String alteredRecipeJson =
+                                                  await fetchDietaryConstraintsRecipe(
+                                                      userId!, widget.recipeID);
+
+                                              //decode json
+                                              Map<String, dynamic>
+                                                  alteredRecipe =
+                                                  jsonDecode(alteredRecipeJson);
+
+                                              //update to new recipe
+                                              _updateRecipe(alteredRecipe);
+                                              Navigator.of(context)
+                                                  .pop(); //stop loading screen
+                                              Navigator.of(context).pop();
+                                              _showRecipeDetails(); //refresh recipe card
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: textColor,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 40, vertical: 20),
+                                          ),
+                                          child: Text(
+                                            'Adjust recipe to cater to my preferences',
+                                            style: TextStyle(color: clickColor),
+                                          ),
+                                        )
+                                      else
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            _revertToOriginalRecipe(); //revert to the origional recipe
+                                            Navigator.of(context).pop();
+                                            _showRecipeDetails(); //refresh recipe
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: textColor,
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 40, vertical: 20),
+                                          ),
+                                          child: Text(
+                                            'Revert to Original Recipe',
+                                            style: TextStyle(color: clickColor),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+
+                                  SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.02),
                                   Text('Ingredients:',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold)),
@@ -1513,25 +1713,25 @@ class _RecipeCardState extends State<RecipeCard> {
                                               ));
                                     }).toList(),
                                   ),
-                                  if (_isAlteredRecipe)
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        _revertToOriginalRecipe();
-                                        if (mounted) {
-                                          dialogSetState(() {});
-                                        } // Update the dialog's state
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: textColor,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 40, vertical: 20),
-                                      ),
-                                      child: Text('Revert to Original Recipe',
-                                          style: TextStyle(
-                                              color: isLightTheme
-                                                  ? Colors.white
-                                                  : Color(0xFF1F4539))),
-                                    ),
+                                  // if (_isAlteredRecipe)
+                                  //   ElevatedButton(
+                                  //     onPressed: () {
+                                  //       _revertToOriginalRecipe();
+                                  //       if (mounted) {
+                                  //         dialogSetState(() {});
+                                  //       } // Update the dialog's state
+                                  //     },
+                                  //     style: ElevatedButton.styleFrom(
+                                  //       backgroundColor: textColor,
+                                  //       padding: const EdgeInsets.symmetric(
+                                  //           horizontal: 40, vertical: 20),
+                                  //     ),
+                                  //     child: Text('Revert to Original Recipe',
+                                  //         style: TextStyle(
+                                  //             color: isLightTheme
+                                  //                 ? Colors.white
+                                  //                 : Color(0xFF1F4539))),
+                                  //   ),
                                 ],
                               ),
                             ),
@@ -2051,17 +2251,28 @@ class _RecipeCardState extends State<RecipeCard> {
                 ),
               ),
             Positioned(
-              top: MediaQuery.of(context).size.width * 0.01,
-              right: MediaQuery.of(context).size.width * 0.01,
-              child: IconButton(
-                icon: Icon(
-                  _isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: _isFavorite ? Colors.red : Colors.white,
-                  size: MediaQuery.of(context).size.width * 0.017,
-                ),
-                onPressed: _toggleFavorite,
-              ),
-            ),
+                top: MediaQuery.of(context).size.width * 0.01,
+                right: MediaQuery.of(context).size.width * 0.01,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.timer,
+                        color: Colors.white,
+                        size: MediaQuery.of(context).size.width * 0.017,
+                      ),
+                      onPressed: _showTimerPopup,
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        _isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: _isFavorite ? Colors.red : Colors.white,
+                        size: MediaQuery.of(context).size.width * 0.017,
+                      ),
+                      onPressed: _toggleFavorite,
+                    ),
+                  ],
+                )),
           ],
         ),
       ),
@@ -2082,7 +2293,7 @@ class CheckableItem extends StatefulWidget {
   final bool isChecked;
   bool isInShoppingList;
   final String recipeID;
-  final Function(Map<String, dynamic>) onRecipeUpdate; // Add this
+  final Function(Map<String, dynamic>) onRecipeUpdate; 
 
   CheckableItem({
     required this.title,
@@ -2105,7 +2316,7 @@ class _CheckableItemState extends State<CheckableItem> {
   bool _isAdded = false;
 
   void _showSubstitutesDialog() async {
-    // Show a loading dialog
+    //loading screen
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -2119,17 +2330,19 @@ class _CheckableItemState extends State<CheckableItem> {
         );
       },
     );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('userId');
 
-    // Fetch the substitutions
+    //fetch substitutions
     String jsonString =
-        await fetchIngredientSubstitutions(widget.recipeID, widget.title);
+        await fetchIngredientSubstitutions(widget.recipeID, widget.title, userId ?? 'defaultUserId'); // add user id 
 
     // Parse the JSON string
     Map<String, dynamic> substitutions;
     try {
       substitutions = jsonDecode(jsonString);
     } catch (e) {
-      Navigator.of(context).pop(); // Close the loading dialog
+      Navigator.of(context).pop(); //stop loading screen
       // Show an error dialog
       showDialog(
         context: context,
@@ -2137,11 +2350,11 @@ class _CheckableItemState extends State<CheckableItem> {
           return AlertDialog(
             title: Text(
               'Error',
-              style: TextStyle(color: Colors.black), // Set text color to black
+              style: TextStyle(color: Colors.black), 
             ),
             content: Text(
               'Failed to fetch substitutions.',
-              style: TextStyle(color: Colors.black), // Set text color to black
+              style: TextStyle(color: Colors.black),
             ),
             actions: [
               TextButton(
@@ -2152,7 +2365,7 @@ class _CheckableItemState extends State<CheckableItem> {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                 },
                 child: Text(
                   'Close',
@@ -2169,10 +2382,10 @@ class _CheckableItemState extends State<CheckableItem> {
       return;
     }
 
-    // Close the loading dialog
+    //stop loading
     Navigator.of(context).pop();
 
-    // Show the substitutions dialog
+    //substitution options 
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -2229,7 +2442,7 @@ class _CheckableItemState extends State<CheckableItem> {
 
   Future<void> _generateAlteredRecipe(
       String substitute, String substitutedIngredient) async {
-    // Show a loading dialog
+    //show loading 
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -2244,17 +2457,17 @@ class _CheckableItemState extends State<CheckableItem> {
       },
     );
 
-    // Fetch the altered recipe
+    //fetch the altered rec
     String jsonString = await fetchIngredientSubstitutionRecipe(
         widget.recipeID, substitute, substitutedIngredient);
 
-    // Close the loading dialog
+    //stop loading
     Navigator.of(context).pop();
 
     // Parse the JSON string
     Map<String, dynamic> alteredRecipe = jsonDecode(jsonString);
 
-    // Update the recipe data with the altered recipe
+    //update the altered recipe
     widget.onRecipeUpdate(alteredRecipe);
 
     if (mounted) {

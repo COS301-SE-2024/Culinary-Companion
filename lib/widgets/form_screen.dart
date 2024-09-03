@@ -22,14 +22,14 @@ class _RecipeFormState extends State<RecipeForm>
 
   // Add this line inside your class
   List<String> measurementUnits = [
-    'unit',
+    'units',
     'kg',
     'g',
     'lbs',
     'oz',
-    'ml',
+    'milliliters',
     'fl oz',
-    'cup',
+    'cups',
     'tbsp',
     'tsp',
     'quart',
@@ -180,6 +180,10 @@ class _RecipeFormState extends State<RecipeForm>
                       'measurementUnit': item['measurementUnit'].toString(),
                     })
                 .toList();
+
+            // Sort items alphabetically by name
+            _availableIngredients
+                .sort((a, b) => a['name']!.compareTo(b['name']!));
           });
         }
       } else {
@@ -220,6 +224,109 @@ class _RecipeFormState extends State<RecipeForm>
       }
     } catch (e) {
       throw Exception('Error fetching appliances: $e');
+    }
+  }
+
+  void _showAddIngredientDialog(int index) {
+    //popup for users to add ingredients that arent in db
+    String newIngredientName = '';
+    String selectedUnit = measurementUnits.first;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add New Ingredient'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: 'Ingredient Name'),
+                onChanged: (value) {
+                  newIngredientName = value;
+                },
+              ),
+              DropdownButtonFormField<String>(
+                value: selectedUnit,
+                onChanged: (value) {
+                  selectedUnit = value!;
+                },
+                items: measurementUnits.map((unit) {
+                  return DropdownMenuItem<String>(
+                    value: unit,
+                    child: Text(unit),
+                  );
+                }).toList(),
+                decoration: InputDecoration(labelText: 'Measurement Unit'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                //capitalize new ingredient
+                newIngredientName = capitalizeEachWord(newIngredientName);
+
+                //add ingredient to db
+                await addIngredientIfNotExists(newIngredientName, selectedUnit);
+
+                if (mounted) {
+                  setState(() {
+                    _ingredients[index]['name'] = newIngredientName;
+                    _ingredients[index]['unit'] = selectedUnit;
+                    _ingredientControllers[index].text = newIngredientName;
+                    _availableIngredients.add({
+                      'name': newIngredientName,
+                      'measurementUnit': selectedUnit,
+                    });
+                  });
+                }
+
+                Navigator.of(context).pop();
+              },
+              child: Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String capitalizeEachWord(String input) {
+    return input.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
+  Future<void> addIngredientIfNotExists(
+      String ingredientName, String measurementUnit) async {
+    //make sure each first letter of a word is capitalized
+    String formattedIngredientName = capitalizeEachWord(ingredientName);
+
+    final response = await http.post(
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'action': 'addIngredientIfNotExists',
+        'ingredientName': formattedIngredientName,
+        'measurementUnit': measurementUnit,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      print('Failed to add ingredient: ${response.body}');
+    } else {
+      print('Ingredient added successfully');
     }
   }
 
@@ -294,6 +401,11 @@ class _RecipeFormState extends State<RecipeForm>
   }
 
   Future<void> _submitRecipe() async {
+    // ignore: avoid_function_literals_in_foreach_calls
+    _ingredients.forEach((ingredient) {
+      ingredient['name'] = capitalizeEachWord(ingredient['name']!);
+    });
+    print("ingredients: $_ingredients");
     List<Map<String, String>> appliancesData =
         _selectedAppliances.map((appliance) {
       return {'name': appliance};
@@ -482,7 +594,7 @@ class _RecipeFormState extends State<RecipeForm>
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
     return InputDecoration(
       labelText: labelText,
       labelStyle: TextStyle(color: textColor),
@@ -747,14 +859,29 @@ class _RecipeFormState extends State<RecipeForm>
                                   decoration: _buildInputDecoration(
                                     'Ingredient',
                                   ),
+                                  onChanged: (value) {
+                                    // Update the ingredient's name with the user input
+                                    if (mounted) {
+                                      setState(() {
+                                        _ingredients[index]['name'] = value;
+                                      });
+                                    }
+                                  },
                                 ),
                                 suggestionsCallback: (pattern) {
-                                  return _availableIngredients
+                                  final suggestions = _availableIngredients
                                       .where((ingredient) => ingredient['name']!
                                           .toLowerCase()
                                           .contains(pattern.toLowerCase()))
                                       .map((ingredient) => ingredient['name']!)
                                       .toList();
+
+                                  if (suggestions.isEmpty) {
+                                    suggestions.add(
+                                        'No items found, add new ingredient');
+                                  }
+
+                                  return suggestions;
                                 },
                                 itemBuilder: (context, String suggestion) {
                                   return ListTile(
@@ -762,20 +889,27 @@ class _RecipeFormState extends State<RecipeForm>
                                   );
                                 },
                                 onSuggestionSelected: (String suggestion) {
-                                  if (mounted) {
-                                    setState(() {
-                                      _ingredients[index]['name'] = suggestion;
-                                      final selectedIngredient =
-                                          _availableIngredients.firstWhere(
-                                              (ingredient) =>
-                                                  ingredient['name'] ==
-                                                  suggestion);
-                                      _ingredients[index]['unit'] =
-                                          selectedIngredient[
-                                              'measurementUnit']!;
-                                      _ingredientControllers[index].text =
-                                          suggestion;
-                                    });
+                                  if (suggestion ==
+                                      'No items found, add new ingredient') {
+                                    _showAddIngredientDialog(index);
+                                  } else {
+                                    if (mounted) {
+                                      setState(() {
+                                        _ingredients[index]['name'] =
+                                            suggestion;
+                                        final selectedIngredient =
+                                            _availableIngredients.firstWhere(
+                                                (ingredient) =>
+                                                    ingredient['name'] ==
+                                                    suggestion);
+                                        _ingredients[index]['unit'] =
+                                            selectedIngredient[
+                                                    'measurementUnit'] ??
+                                                measurementUnits.first;
+                                        _ingredientControllers[index].text =
+                                            suggestion;
+                                      });
+                                    }
                                   }
                                 },
                                 validator: (value) {

@@ -2,7 +2,7 @@ name: flutter_application_1
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.4.0 <4.0.0'
+  sdk: ">=3.4.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  audioplayers: ^6.1.0
   supabase_flutter: ^2.5.5
   http: ^1.2.1
   flutter_typeahead: ^4.0.0
@@ -40,7 +41,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   lottie: ^3.1.2
   url_launcher: ^6.0.9
-  provider: ^6.1.2  
+  provider: ^6.1.2
   google_generative_ai: ^0.4.3
   flutter_dotenv: ^5.1.0
   google_fonts: ^6.2.1
@@ -78,7 +79,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -120,6 +120,7 @@ flutter:
     - assets/beef_tacos.jpg
     - assets/pancakes.jpg
     - assets/loading.json
+    - assets/planner_load.json
     - assets/helper_chef.png
     - assets/light_helper_chef.png
     - assets/logo_1.png
@@ -131,6 +132,7 @@ flutter:
     - assets/appliances.png
     - assets/recipes.png
     - assets/savour.png
+    - assets/sounds/Alarm1.wav
     - assets/chef.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
