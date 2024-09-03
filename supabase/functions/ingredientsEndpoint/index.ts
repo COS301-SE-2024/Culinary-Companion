@@ -25,6 +25,14 @@ interface RecipeData {
     dietaryOptions?: string[];
     ingredientOption?: string; 
   }
+
+  interface Ingredient {
+    id: number;
+    name: string;
+    category: string;
+    measurementUnit: string;
+}
+
   
 
 // Create the Supabase Client
@@ -48,7 +56,7 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm, filters, keywords, dietaryConstraints } = await req.json();
+        const { action, userId, recipeData, ingredientName, course, spiceLevel, cuisine, category, recipeid, applianceName, quantity,measurementUnit, searchTerm, filters, keywords, dietaryConstraints, itemName, identifiedIngredient } = await req.json();
 
         switch (action) {
             case 'getAllIngredients':
@@ -121,6 +129,8 @@ Deno.serve(async (req) => {
                 return getRecipeSuggestions({spiceLevel,cuisine,dietaryConstraints}, corsHeaders);
             case 'getSuggestedFavorites':
                 return getSuggestedFavorites(userId, corsHeaders);
+            case 'findSimilarIngredients':
+                return findSimilarIngredients(itemName, identifiedIngredient, corsHeaders);                
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -134,6 +144,82 @@ Deno.serve(async (req) => {
         });
     }
 });
+
+interface Ingredient {
+    id: number;
+    name: string;
+    category: string;
+    measurementUnit: string;
+}
+
+async function findSimilarIngredients(
+    ingredientName: string, // item name
+    ingredientType: string, // type of ingredient to be compared as part of the name
+    corsHeaders: HeadersInit
+) {
+    if (!ingredientName) {
+        console.error('Ingredient name is required.');
+        return new Response(JSON.stringify({ error: 'Ingredient name is required' }), {
+            status: 400,
+            headers: corsHeaders,
+        });
+    }
+
+    try {
+        // Fetch all ingredients
+        const allIngredientsResponse = await getIngredientNames(corsHeaders);
+        const allIngredients: Ingredient[] = await allIngredientsResponse.json();
+
+        // Split ingredientName and ingredientType into search terms
+        const nameTerms = ingredientName.toLowerCase().split(/\s+/);
+        const typeTerms = ingredientType.toLowerCase().split(/\s+/);
+
+        // Check for special cases
+        const specialKeywords = ["flora", "stork", "rama"];
+        const containsSpecialKeyword = [...nameTerms, ...typeTerms].some(term => specialKeywords.includes(term));
+
+        // Filter ingredients based on name and type terms
+        let similarIngredients = allIngredients.filter((ingredient: Ingredient) => {
+            const ingredientNameLower = ingredient.name.toLowerCase();
+
+            // Check if any of the name or type terms are included in the ingredient name
+            return nameTerms.some(term => ingredientNameLower.includes(term)) ||
+                   typeTerms.some(term => ingredientNameLower.includes(term));
+        });
+
+        // If special keywords are found, ensure margarine and butter are included
+        if (containsSpecialKeyword) {
+            const margarineAndButter = allIngredients.filter(ingredient =>
+                ingredient.name.toLowerCase().includes("margarine") ||
+                ingredient.name.toLowerCase().includes("butter")
+            );
+            // Combine the results, ensuring no duplicates
+            similarIngredients = Array.from(new Set([...similarIngredients, ...margarineAndButter]));
+        }
+
+        // If no similar ingredients are found, return all ingredients
+        if (similarIngredients.length === 0) {
+            return new Response(JSON.stringify(allIngredients), {
+                status: 200,
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            });
+        }
+
+        return new Response(JSON.stringify(similarIngredients), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+
+    } catch (error) {
+        console.error('Unexpected error:', error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
+}
+
+
 
 async function getSuggestedFavorites(userId: string, corsHeaders: HeadersInit) {
     try {

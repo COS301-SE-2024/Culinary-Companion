@@ -15,6 +15,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
 // import 'dart:io';
 import '../widgets/theme_utils.dart';
+import '../gemini_service.dart'; // LLM
+
 
 class PantryScreen extends StatefulWidget {
   final http.Client? client;
@@ -483,6 +485,7 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
   );
 }
 
+
 Future<String> _extractTextFromImage(dynamic imageData) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
@@ -545,7 +548,16 @@ Future<String> _extractTextFromImage(dynamic imageData) async {
 
 Future<void> _handleScannedText(String text) async {
   print(text);
-  final ingredients = _parseIngredientsFromText(text);
+  final items = _parseIngredientsFromText(text);
+
+  // Convert List<String> to a single String
+  final itemsString = items.join('\n');
+
+  // Await the result of the identifyIngredientFromReceipt function
+  final ingredients = await identifyIngredientFromReceipt(itemsString);
+  print("INGREDIENTS");
+  print(ingredients);
+
   if (ingredients.isNotEmpty) {
     _showIngredientDialog(ingredients);
   } else {
@@ -553,13 +565,13 @@ Future<void> _handleScannedText(String text) async {
   }
 }
 
+
 List<String> _parseIngredientsFromText(String text) {
   final lowerCaseText = text.toLowerCase();
-// Extract the first line of text
+
   final firstLine = lowerCaseText.split('\n').first;
   print(firstLine);
   
-  // Detect store based on the first line
   final store = detectStoreFormat(firstLine);
 
   return parseReceiptForStore(lowerCaseText, store);
@@ -668,32 +680,6 @@ List<String> parseCheckersReceipt(String text) {
   final lines = text.split('\n');
   return lines.map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
 }
-
-// List<String> _parseIngredientsFromText(String text) {
-//   final ingredients = <String>[];
-  
-//   // Split the text by new lines or commas, and trim whitespace from each item
-//   // final lines = text.split(RegExp(r'\n|,\s*'));
-//   // final lines = text.split('\n');
-  
-//   // Convert the entire text to lowercase
-//   final lowerCaseText = text.toLowerCase();
-  
-//   // Split the text by new lines
-//   final lines = lowerCaseText.split('\n');
-
-  
-//   for (var line in lines) {
-//     final trimmedLine = line.trim();
-    
-//     if (trimmedLine.isNotEmpty) {
-//       ingredients.add(trimmedLine);
-//     }
-//   }
-  
-//   return ingredients;
-// }
-
 
 Future<void> _showNoIngredientsFoundDialog() async {
   showDialog(

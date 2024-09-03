@@ -993,7 +993,63 @@ Future<void> addExtractedRecipeToDatabase(Map<String, dynamic> recipeData, Strin
   }
 }
 
+Future<List<String>> identifyIngredientFromReceipt(String items) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return ['No API_KEY environment variable'];
+  }
 
+  final formatting = """Return the items in the following JSON format:
+  {
+  "items": [
+    {
+      "name": "Item Name",
+      "ingredient": "Ingredient Name"
+    },
+    {
+      "name": "Item Name",
+      "ingredient": "Ingredient Name"
+    }
+  ]
+}
+  They should all be Strings.""";
+
+  final initialPrompt = """For these items: $items; remove all non-edible items and all non human food 
+  and then identify what food stuff the remaining items are.""";
+  
+  final finalPrompt = initialPrompt + formatting;
+
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final content = [Content.text(finalPrompt)];
+  final response = await model.generateContent(content);
+
+  // Ensure response is not null and print the text content
+  if (response != null && response.text != null) {
+    String jsonString = response.text!;
+
+    print(jsonString);
+    
+    // Correct the JSON format by replacing single quotes with double quotes
+    jsonString = jsonString.replaceAll("'", '"');
+
+    // Remove markdown syntax if present
+    jsonString = jsonString.replaceAll(RegExp(r'```(json)?\s*'), '').replaceAll(RegExp(r'\s*```'), '');
+
+    // Parse the JSON string to a Map to verify it's valid JSON
+    try {
+      final jsonMap = jsonDecode(jsonString);
+      final itemsList = (jsonMap['items'] as List<dynamic>)
+          .map((item) => 'Item: ${item['name']}, Ingredient: ${item['ingredient']}')
+          .toList();
+      return itemsList;
+    } catch (e) {
+      print('Failed to parse JSON: $e');
+      return [];
+    }
+  } else {
+    return ['No response text'];
+  }
+}
 
 
 // all dietary constraints
