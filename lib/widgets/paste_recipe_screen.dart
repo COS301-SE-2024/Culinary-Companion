@@ -74,6 +74,27 @@ class _PasteRecipeState extends State<PasteRecipe> {
     }
   }
 
+  String capitalizeEachWord(String input) { //ensure proper capitalization of ingredients
+  return input.split(' ').map((word) {
+    if (word.isEmpty) return word;
+    return word[0].toUpperCase() + word.substring(1).toLowerCase();
+  }).join(' ');
+}
+
+double parseQuantity(String quantity) {//make sure quantity is numeric
+  if (quantity.contains('/')) {
+    List<String> parts = quantity.split('/');
+    if (parts.length == 2) {
+      double numerator = double.tryParse(parts[0].trim()) ?? 1.0;
+      double denominator = double.tryParse(parts[1].trim()) ?? 1.0;
+      return numerator / denominator;
+    }
+  }
+  return double.tryParse(quantity) ?? 1.0; //defult if empty
+}
+
+
+
   Future<void> _processRecipe() async {
   if (_userId == null) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -110,12 +131,12 @@ class _PasteRecipeState extends State<PasteRecipe> {
     print("extracted data: $extractedRecipeData");
 
     if (extractedRecipeData != null && !extractedRecipeData.containsKey('error')) {
-      // Split methods into a list of steps
+      // split steps
       if (extractedRecipeData.containsKey('methods')) {
         extractedRecipeData['methods'] = extractedRecipeData['methods'].split('<');
       }
 
-      // Handle null or empty cuisine
+      // if cusine is null
       extractedRecipeData['cuisine'] = extractedRecipeData['cuisine'] ?? 'American';
 
       await _showRecipeConfirmationDialog(context, extractedRecipeData);
@@ -361,46 +382,61 @@ class _PasteRecipeState extends State<PasteRecipe> {
                 child: Text('Cancel'),
               ),
               ElevatedButton(
-                onPressed: () async {
-                  // Update recipeData with the new values from the controllers
-                  recipeData['name'] = nameController.text;
-                  recipeData['description'] = descriptionController.text;
-                  recipeData['cuisine'] = cuisineController.text;
-                  recipeData['cookTime'] = int.tryParse(cookTimeController.text) ?? 0;
-                  recipeData['prepTime'] = int.tryParse(prepTimeController.text) ?? 0;
-                  recipeData['course'] = courseController.text;
-                  recipeData['servingAmount'] = int.tryParse(servingAmountController.text) ?? 0;
-                  recipeData['spiceLevel'] = int.tryParse(spiceLevelController.text) ?? 1;
+  onPressed: () async {
+    // update recipe data
+    recipeData['name'] = nameController.text;
+    recipeData['description'] = descriptionController.text;
+    recipeData['cuisine'] = cuisineController.text;
+    recipeData['cookTime'] = int.tryParse(cookTimeController.text) ?? 0;
+    recipeData['prepTime'] = int.tryParse(prepTimeController.text) ?? 0;
+    recipeData['course'] = courseController.text;
+    recipeData['servingAmount'] = int.tryParse(servingAmountController.text) ?? 0;
+    recipeData['spiceLevel'] = int.tryParse(spiceLevelController.text) ?? 1;
 
-                  recipeData['ingredients'] = List.generate(
-                    ingredientNameControllers.length,
-                    (index) => {
-                      'name': ingredientNameControllers[index].text,
-                      'quantity': double.tryParse(ingredientQuantityControllers[index].text) ?? 1,
-                      'unit': ingredientUnitControllers[index].text,
-                    },
-                  );
+    // validate ingredient format
+    recipeData['ingredients'] = List.generate(
+      ingredientNameControllers.length,
+      (index) {
+        String name = capitalizeEachWord(ingredientNameControllers[index].text.trim());
+        double quantity = parseQuantity(ingredientQuantityControllers[index].text.trim());
+        String unit = ingredientUnitControllers[index].text.trim();
 
-                  recipeData['methods'] = methodControllers
-                      .map((controller) => controller.text)
-                      .toList()
-                      .join('<'); // Join the steps with '<'
+        if (unit.isEmpty) {
+          unit = 'Units'; // default if none
+        }
 
-                  recipeData['appliances'] = applianceControllers
-                      .map((controller) => {'name': controller.text})
-                      .toList();
+        return {
+          'name': name,
+          'quantity': quantity,
+          'unit': unit,
+        };
+      },
+    );
 
-                  Navigator.of(context).pop(); // Close the dialog
+    recipeData['methods'] = methodControllers
+        .map((controller) => controller.text)
+        .toList()
+        .join('<'); // separate steps with <
 
-                  // Now, proceed to submit the recipe to the database
-                  await addExtractedRecipeToDatabase(recipeData, _userId!);
+    recipeData['appliances'] = applianceControllers
+        .map((controller) => {'name': controller.text})
+        .toList();
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Recipe added successfully!')),
-                  );
-                },
-                child: Text('Confirm'),
-              ),
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Recipe added successfully!')),
+    );
+
+    //close popup
+    Navigator.of(context).pop();
+
+    // submit rec
+    await addExtractedRecipeToDatabase(recipeData, _userId!);
+  },
+  child: Text('Confirm'),
+),
+
+
             ],
           );
         },
