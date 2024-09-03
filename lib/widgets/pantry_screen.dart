@@ -558,12 +558,45 @@ Future<void> _handleScannedText(String text) async {
   print("INGREDIENTS");
   print(ingredients);
 
-  if (ingredients.isNotEmpty) {
-    _showIngredientDialog(ingredients);
+  // Parse the ingredients list to extract both items and ingredients in pairs
+  final pairedItemsIngredients = <Map<String, String>>[];
+
+  for (var entry in ingredients) {
+    final itemMatch = RegExp(r'Item: ([^,]+)').firstMatch(entry);
+    final ingredientMatch = RegExp(r'Ingredient: (.+)').firstMatch(entry);
+
+    if (itemMatch != null && ingredientMatch != null) {
+      final item = itemMatch.group(1)?.trim();
+      final ingredient = ingredientMatch.group(1)?.trim();
+
+      if (item != null && ingredient != null) {
+        pairedItemsIngredients.add({'item': item, 'ingredient': ingredient});
+      }
+    }
+  }
+
+  // Filter out any pairs where the ingredient contains unwanted keywords
+  final filteredPairs = pairedItemsIngredients.where((pair) {
+    final lowerIngredient = pair['ingredient']!.toLowerCase();
+    
+    // Check if the ingredient contains 'drink', 'soap', or other unwanted keywords
+    return !lowerIngredient.contains('drink') &&
+           !lowerIngredient.contains('soap'); // Add more filters here
+  }).toList();
+
+  // Prepare the filtered list for display
+  final filteredItems = filteredPairs
+      .map((pair) => 'Item: ${pair['item']}, Ingredient: ${pair['ingredient']}')
+      .toList();
+
+  // Show the appropriate dialog based on the filtered results
+  if (filteredItems.isNotEmpty) {
+    _showIngredientDialog(filteredItems);
   } else {
     _showNoIngredientsFoundDialog();
   }
 }
+
 
 
 List<String> _parseIngredientsFromText(String text) {
@@ -651,8 +684,19 @@ List<String> parsePicknPayReceipt(String text) {
   String? currentItem;
 
   for (var line in lines) {
+    // all the skips
     if (line.contains('less cash-off')) {
       continue; // skip discounts
+    }
+
+    // remove dog food lol because Gemini doesn't want to
+    if (line.contains('dog') || line.contains("d/f")) {
+      continue;
+    }
+
+    // remove drinks - can add more drinks here
+    if (line.contains('drink') || line.contains('jce') || line.contains('juice')) {
+      continue;
     }
 
     if (line.contains(RegExp(r'@')) || line.contains(RegExp(r'\d+\.\d{2}')) || line.startsWith(RegExp(r'\d+'))) {
@@ -666,6 +710,8 @@ List<String> parsePicknPayReceipt(String text) {
 
   print("ITEMS");
   print(items);
+
+
   return items;
 }
 
