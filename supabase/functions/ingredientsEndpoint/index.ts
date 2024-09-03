@@ -152,12 +152,12 @@ interface Ingredient {
     measurementUnit: string;
 }
 
-async function findSimilarIngredients(
-    ingredientName: string, // item name
-    ingredientType: string, // type of ingredient to be compared as part of the name
+async function findSimilarIngredients( // itemName, identifiedIngredient,
+    itemName: string, // item name
+    identifiedIngredient: string, // type of ingredient to be compared as part of the name
     corsHeaders: HeadersInit
 ) {
-    if (!ingredientName) {
+    if (!itemName) {
         console.error('Ingredient name is required.');
         return new Response(JSON.stringify({ error: 'Ingredient name is required' }), {
             status: 400,
@@ -171,8 +171,8 @@ async function findSimilarIngredients(
         const allIngredients: Ingredient[] = await allIngredientsResponse.json();
 
         // Split ingredientName and ingredientType into search terms
-        const nameTerms = ingredientName.toLowerCase().split(/\s+/);
-        const typeTerms = ingredientType.toLowerCase().split(/\s+/);
+        const nameTerms = itemName.toLowerCase().split(/\s+/);
+        const typeTerms = identifiedIngredient.toLowerCase().split(/\s+/);
 
         // Check for special cases
         const specialKeywords = ["flora", "stork", "rama"];

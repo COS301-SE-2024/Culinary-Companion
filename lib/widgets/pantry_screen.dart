@@ -459,31 +459,174 @@ Future<void> _selectImage() async {
   }
 }
 
+// Future<void> _showIngredientDialog(List<String> ingredients) async {
+//   showDialog(
+//     context: context,
+//     builder: (context) {
+//       return AlertDialog(
+//         title: Text('Detected Ingredients'),
+//         content: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: ingredients.map((ingredient) {
+//             return ListTile(
+//               title: Text(ingredient),
+//               trailing: ElevatedButton(
+//                 onPressed: () {
+//                   // add to pantry here lol 
+//                   Navigator.of(context).pop();
+//                 },
+//                 child: Text('Add to Pantry'),
+//               ),
+//             );
+//           }).toList(),
+//         ),
+//       );
+//     },
+//   );
+// }
+
 Future<void> _showIngredientDialog(List<String> ingredients) async {
   showDialog(
     context: context,
     builder: (context) {
-      return AlertDialog(
-        title: Text('Detected Ingredients'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: ingredients.map((ingredient) {
-            return ListTile(
-              title: Text(ingredient),
-              trailing: ElevatedButton(
+      return StatefulBuilder(
+        builder: (context, setState) {
+          List<String> selectedIngredients = List.filled(ingredients.length, '');
+
+          return AlertDialog(
+            title: Text('Detected Ingredients'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: ingredients.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String itemEntry = entry.value;
+
+                  // Extract itemName and identifiedIngredient from the entry
+                  final itemParts = itemEntry.split(',');
+                  final itemName = itemParts[0].replaceFirst('Item: ', '').trim();
+                  final identifiedIngredient = itemParts[1].replaceFirst('Ingredient: ', '').trim();
+
+                  return FutureBuilder<List<String>>(
+                    future: findSimilarIngredients(itemName, identifiedIngredient), // Call Dart function
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return ListTile(
+                          title: Text(itemName),
+                          trailing: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return ListTile(
+                          title: Text(itemName),
+                          trailing: Text('Error loading similar ingredients'),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return ListTile(
+                          title: Text(itemName),
+                          trailing: Text('No similar ingredients found'),
+                        );
+                      }
+
+                      final similarIngredients = snapshot.data!;
+                      return ListTile(
+                        title: Text(itemName),
+                        trailing: DropdownButton<String>(
+                          value: selectedIngredients[index].isEmpty ? null : selectedIngredients[index],
+                          hint: Text('Select similar ingredient'),
+                          items: similarIngredients.map((ingredient) {
+                            return DropdownMenuItem<String>(
+                              value: ingredient,
+                              child: Text(ingredient),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              selectedIngredients[index] = newValue ?? '';
+                            });
+                          },
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+            actions: [
+              ElevatedButton(
                 onPressed: () {
-                  // add to pantry here lol 
+                  // Handle adding selected ingredients to the pantry
+                  for (var selected in selectedIngredients) {
+                    if (selected.isNotEmpty) {
+                      print('Add $selected to pantry');
+                    }
+                  }
                   Navigator.of(context).pop();
                 },
                 child: Text('Add to Pantry'),
               ),
-            );
-          }).toList(),
-        ),
+            ],
+          );
+        },
       );
     },
   );
 }
+
+
+Future<List<String>> findSimilarIngredients(String itemName, String identifiedIngredient) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  try {
+    // Define the body of the request as per your TypeScript function's requirements
+    final requestBody = jsonEncode({
+      'action': 'findSimilarIngredients',
+      'itemName': itemName,
+      'identifiedIngredient': identifiedIngredient,
+    });
+
+    // Print out the request body for debugging
+    print('Request Body: $requestBody');
+
+    // Send the POST request to your Supabase Function
+    final response = await http.post(
+      Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'
+      ),
+      headers: {'Content-Type': 'application/json'},
+      body: requestBody,
+    );
+
+    // Log the response status and body for debugging
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      // Decode the response body as a list of ingredients
+      final List<dynamic> data = jsonDecode(response.body);
+
+      // Cache the response for offline use (optional)
+      await prefs.setString('cachedSimilarIngredients', jsonEncode(data));
+
+      // Return a list of ingredient names from the response
+      return data.map<String>((ingredient) => ingredient['name'].toString()).toList();
+    } else {
+      print('Failed to fetch similar ingredients: ${response.statusCode}');
+      return [];
+    }
+  } catch (error) {
+    print('Error fetching similar ingredients: $error');
+
+    // Fallback to cached data in case of network failure
+    final cachedData = prefs.getString('cachedSimilarIngredients');
+    if (cachedData != null) {
+      final List<dynamic> data = jsonDecode(cachedData);
+      return data.map<String>((ingredient) => ingredient['name'].toString()).toList();
+    }
+
+    return [];
+  }
+}
+
 
 
 Future<String> _extractTextFromImage(dynamic imageData) async {
@@ -596,8 +739,6 @@ Future<void> _handleScannedText(String text) async {
     _showNoIngredientsFoundDialog();
   }
 }
-
-
 
 List<String> _parseIngredientsFromText(String text) {
   final lowerCaseText = text.toLowerCase();
