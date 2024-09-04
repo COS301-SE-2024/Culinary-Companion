@@ -240,10 +240,12 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
       TextEditingController(text: recipeData['cookTime'].toString());
   final TextEditingController prepTimeController =
       TextEditingController(text: recipeData['prepTime'].toString());
+  
   final TextEditingController courseController =
       TextEditingController(text: recipeData['course']);
   final TextEditingController servingAmountController =
       TextEditingController(text: recipeData['servingAmount'].toString());
+  
   final TextEditingController spiceLevelController =
       TextEditingController(text: recipeData['spiceLevel'].toString());
 
@@ -285,20 +287,24 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
                     decoration: InputDecoration(labelText: 'Description'),
                   ),
                   DropdownButtonFormField<String>(
-                    value: _selectedCuisine,
-                    items: _cuisines
-                        .map((cuisine) => DropdownMenuItem<String>(
-                              value: cuisine,
-                              child: Text(cuisine),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedCuisine = value;
-                      });
-                    },
-                    decoration: InputDecoration(labelText: 'Cuisine'),
-                  ),
+  value: _selectedCuisine ?? recipeData['cuisine'],  // Initialize selected value from recipeData
+  items: _cuisines.map((cuisine) => DropdownMenuItem<String>(
+        value: cuisine,
+        child: Text(cuisine),
+      )).toList(),
+  onChanged: (value) {
+    setState(() {
+      _selectedCuisine = value;
+      recipeData['cuisine'] = value ?? recipeData['cuisine'];  // Update recipeData
+    });
+    print('Selected Cuisine: $value');  // Debugging line
+    print('Updated RecipeData: ${recipeData['cuisine']}');
+  },
+  decoration: InputDecoration(labelText: 'Cuisine'),
+),
+
+
+
                   TextField(
                     controller: cookTimeController,
                     decoration: InputDecoration(labelText: 'Cook Time (minutes)'),
@@ -309,20 +315,55 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
                     decoration: InputDecoration(labelText: 'Prep Time (minutes)'),
                     keyboardType: TextInputType.number,
                   ),
-                  TextField(
-                    controller: courseController,
-                    decoration: InputDecoration(labelText: 'Course'),
-                  ),
+                  DropdownButtonFormField<String>(
+  value: recipeData['course'],  // Initialize selected value from recipeData
+  items: ['Breakfast', 'Main', 'Dessert', 'Appetizer']
+      .map((course) => DropdownMenuItem<String>(
+            value: course,
+            child: Text(course),
+          ))
+      .toList(),
+  onChanged: (value) {
+    setState(() {
+      recipeData['course'] = value ?? recipeData['course'];  // Update recipeData
+    });
+    print('Selected Course: $value');  // Debugging line
+    print('Updated RecipeData: ${recipeData['course']}');
+  },
+  decoration: InputDecoration(labelText: 'Course'),
+),
+
+
+
                   TextField(
                     controller: servingAmountController,
                     decoration: InputDecoration(labelText: 'Serving Amount'),
                     keyboardType: TextInputType.number,
                   ),
-                  TextField(
-                    controller: spiceLevelController,
-                    decoration: InputDecoration(labelText: 'Spice Level'),
-                    keyboardType: TextInputType.number,
-                  ),
+                  DropdownButtonFormField<int>(
+  value: recipeData['spiceLevel'] is int
+      ? recipeData['spiceLevel']
+      : int.tryParse(recipeData['spiceLevel'].toString()) ?? 1,  // Initialize selected value
+  items: [
+    DropdownMenuItem<int>(value: 1, child: Text('None')),
+    DropdownMenuItem<int>(value: 2, child: Text('Mild')),
+    DropdownMenuItem<int>(value: 3, child: Text('Medium')),
+    DropdownMenuItem<int>(value: 4, child: Text('Hot')),
+    DropdownMenuItem<int>(value: 5, child: Text('Extra Hot')),
+  ],
+  onChanged: (value) {
+    setState(() {
+      recipeData['spiceLevel'] = value ?? 1;  // Update recipeData
+    });
+    print('Selected Spice Level: $value');  // Debugging line
+    print('Updated RecipeData: ${recipeData['spiceLevel']}');
+  },
+  decoration: InputDecoration(labelText: 'Spice Level'),
+),
+
+
+
+
                   const SizedBox(height: 16),
                   const Text(
                     'Ingredients:',
@@ -448,12 +489,15 @@ double parseQuantity(String quantity) {//make sure quantity is numeric
                   // update recipe details
                   recipeData['name'] = nameController.text;
                   recipeData['description'] = descriptionController.text;
-                  recipeData['cuisine'] = _selectedCuisine ?? '';
+                  recipeData['cuisine'] = _selectedCuisine ?? recipeData['cuisine'];
                   recipeData['cookTime'] = int.tryParse(cookTimeController.text) ?? 0;
                   recipeData['prepTime'] = int.tryParse(prepTimeController.text) ?? 0;
-                  recipeData['course'] = courseController.text;
+                  //recipeData['course'] = courseController.text;
+                  recipeData['course'] = recipeData['course'];  // Use selected course
+
                   recipeData['servingAmount'] = int.tryParse(servingAmountController.text) ?? 0;
-                  recipeData['spiceLevel'] = int.tryParse(spiceLevelController.text) ?? 1;
+                  //recipeData['spiceLevel'] = int.tryParse(spiceLevelController.text) ?? 1;
+                  recipeData['spiceLevel'] = recipeData['spiceLevel'] ;
 
                   recipeData['ingredients'] = List.generate(
                     ingredientNameControllers.length,
