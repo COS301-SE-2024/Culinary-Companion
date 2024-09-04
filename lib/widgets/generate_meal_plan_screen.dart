@@ -22,6 +22,14 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
   int _activityLevel = 1;
   String? _goal;
   int _mealFrequency = 3;
+  List<String> _mealTypes = [
+    'Breakfast',
+    'Lunch',
+    'Dinner',
+    'Appetizer',
+    'Dessert'
+  ];
+  List<String> _selectedMeals = [];
 
   @override
   Widget build(BuildContext context) {
@@ -298,7 +306,10 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Activity Level:'),
+                  Text(
+                    'Activity Level:',
+                    style: TextStyle(fontSize: 16),
+                  ),
                   SizedBox(height: 16),
                   Slider(
                     value: _activityLevel.toDouble(),
@@ -366,12 +377,14 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                 onChanged: (value) {},
               ),
               const SizedBox(height: 16),
-              // Dietary Preferences - get this from database, no need to enter again
               // Meal Frequency - Slider
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Preferred Meal Frequency (meals/day):'),
+                  Text(
+                    'Preferred Meal Frequency (meals/day):',
+                    style: TextStyle(fontSize: 16),
+                  ),
                   SizedBox(height: 16),
                   Slider(
                     value: _mealFrequency.toDouble(),
@@ -383,10 +396,54 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                       if (mounted) {
                         setState(() {
                           _mealFrequency = value.toInt();
+                          _selectedMeals
+                              .clear(); //Clear selected meals when frequency changes
                         });
                       }
                     },
                     activeColor: Color(0xFFDC945F),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // Meal Type Checkboxes in a Row
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Select Meal Types:',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(height: 16),
+                  Wrap(
+                    spacing: 100.0,
+                    runSpacing: 4.0,
+                    children: _mealTypes.map((mealType) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Checkbox(
+                            value: _selectedMeals.contains(mealType),
+                            onChanged: _selectedMeals.length < _mealFrequency ||
+                                    _selectedMeals.contains(mealType)
+                                ? (bool? value) {
+                                    setState(() {
+                                      if (value == true) {
+                                        _selectedMeals.add(mealType);
+                                      } else {
+                                        _selectedMeals.remove(mealType);
+                                      }
+                                    });
+                                  }
+                                : null, // Disable if limit is reached
+                          ),
+                          Text(
+                            mealType,
+                            style: TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
@@ -404,6 +461,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                     print("Activity Level: $_activityLevel");
                     print("Goal: $_goal");
                     print("Meal Frequency: $_mealFrequency");
+                    print("Selected Meals: $_selectedMeals");
 
                     // Show loading dialog with Lottie animation
                     showDialog(
