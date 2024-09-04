@@ -698,8 +698,8 @@ Future<void> _handleScannedText(String text) async {
 
   // Await the result of the identifyIngredientFromReceipt function
   final ingredients = await identifyIngredientFromReceipt(itemsString);
-  print("INGREDIENTS");
-  print(ingredients);
+  // print("INGREDIENTS");
+  // print(ingredients);
 
   // Parse the ingredients list to extract both items and ingredients in pairs
   final pairedItemsIngredients = <Map<String, String>>[];
@@ -817,8 +817,8 @@ List<String> parsePicknPayReceipt(String text) {
   final section = lowerCaseText.substring(startOffset, endIndex).trim();
   
   final lines = section.split('\n').map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
-  print("LINES");
-  print(lines);
+  // print("LINES");
+  // print(lines);
 
   final items = <String>[];
   
@@ -849,8 +849,8 @@ List<String> parsePicknPayReceipt(String text) {
     }
   }
 
-  print("ITEMS");
-  print(items);
+  // print("ITEMS");
+  // print(items);
 
 
   return items;
@@ -864,9 +864,61 @@ List<String> parseWoolworthsReceipt(String text) {
 }
 
 List<String> parseCheckersReceipt(String text) {
-  final lines = text.split('\n');
-  return lines.map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+  // FORMAT
+  // Checkers 
+  // company
+  // location + number
+  // address
+  // VAT no.
+  // TAX INVOICE
+  // item (required)    price
+  //        num    @    price (optional if num > 1)
+  //  XTRASAVE ... -price (optional - discount)
+  // .
+  // .
+  // .
+  // TOTAL[]        price
+  final lowerCaseText = text.toLowerCase();
+
+  final startMarker = 'tax invoice';
+  final endMarker = 'total';
+
+  final startIndex = lowerCaseText.indexOf(startMarker);
+  final endIndex = lowerCaseText.indexOf(endMarker);
+
+  // Check if both markers are found and in correct order
+  if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
+    return [];
+  }
+
+  final startOffset = lowerCaseText.indexOf('\n', startIndex) + 1;
+  final section = lowerCaseText.substring(startOffset, endIndex).trim();
+
+  final lines = section.split('\n').map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+  // print("LINES");
+  // print(lines);
+
+  final items = <String>[];
+  
+  String? currentItem;
+
+  for (var line in lines) {
+    // Skip quantity lines, prices, and discounts
+    if (line.contains(RegExp(r'@')) || line.startsWith(RegExp(r'\d+')) || line.contains('xtrasave')) {
+      continue;
+    }
+
+    // Add item name
+    currentItem = line.trim();
+    items.add(currentItem);
+  }
+
+  // print("ITEMS");
+  // print(items);
+
+  return items;
 }
+
 
 Future<void> _showNoIngredientsFoundDialog() async {
   showDialog(

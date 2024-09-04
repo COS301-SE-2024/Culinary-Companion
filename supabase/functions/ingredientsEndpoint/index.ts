@@ -152,9 +152,9 @@ interface Ingredient {
     measurementUnit: string;
 }
 
-async function findSimilarIngredients( // itemName, identifiedIngredient,
-    itemName: string, // item name
-    identifiedIngredient: string, // type of ingredient to be compared as part of the name
+async function findSimilarIngredients(
+    itemName: string, 
+    identifiedIngredient: string, 
     corsHeaders: HeadersInit
 ) {
     if (!itemName) {
@@ -174,28 +174,31 @@ async function findSimilarIngredients( // itemName, identifiedIngredient,
         const nameTerms = itemName.toLowerCase().split(/\s+/);
         const typeTerms = identifiedIngredient.toLowerCase().split(/\s+/);
 
-        // Check for special cases
-        const specialKeywords = ["flora", "stork", "rama"];
-        const containsSpecialKeyword = [...nameTerms, ...typeTerms].some(term => specialKeywords.includes(term));
+        // Define special cases: each keyword has its substitution
+        const specialKeywords: { [key: string]: string } = {
+            flora: "margarine",
+            stork: "margarine",
+            rama: "margarine",
+            tussers: "cheese",
+            maggi: "instant noodles",
+            dougls: "milk",
+        };
 
-        // Filter ingredients based on name and type terms
-        let similarIngredients = allIngredients.filter((ingredient: Ingredient) => {
-            const ingredientNameLower = ingredient.name.toLowerCase();
-
-            // Check if any of the name or type terms are included in the ingredient name
-            return nameTerms.some(term => ingredientNameLower.includes(term)) ||
-                   typeTerms.some(term => ingredientNameLower.includes(term));
+        // Check if the itemName or identifiedIngredient has any special keyword
+        const substitutedTerms = [...nameTerms, ...typeTerms].map(term => {
+            if (Object.prototype.hasOwnProperty.call(specialKeywords, term)) {
+                return specialKeywords[term]; // Replace the term with its corresponding special keyword value
+            }
+            return term; // Keep the original term if it's not a special keyword
         });
 
-        // If special keywords are found, ensure margarine and butter are included
-        if (containsSpecialKeyword) {
-            const margarineAndButter = allIngredients.filter(ingredient =>
-                ingredient.name.toLowerCase().includes("margarine") ||
-                ingredient.name.toLowerCase().includes("butter")
-            );
-            // Combine the results, ensuring no duplicates
-            similarIngredients = Array.from(new Set([...similarIngredients, ...margarineAndButter]));
-        }
+        // Filter ingredients based on the substituted terms
+        const similarIngredients = allIngredients.filter((ingredient: Ingredient) => {
+            const ingredientNameLower = ingredient.name.toLowerCase();
+
+            // Check if any of the substituted terms are included in the ingredient name
+            return substitutedTerms.some(term => ingredientNameLower.includes(term));
+        });
 
         // If no similar ingredients are found, return all ingredients
         if (similarIngredients.length === 0) {
