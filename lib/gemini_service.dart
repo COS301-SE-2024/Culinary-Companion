@@ -1243,3 +1243,59 @@ Future<String> fetchDietaryConstraintsRecipe(
     return 'No response text';
   }
 }
+
+Future<List<String>> validateRecipe(String name, String description, List<String> steps) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return ['No API_KEY environment variable'];
+  }
+
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final prompt = """
+Validate the following recipe data:
+
+- Name: "$name"
+- Description: "$description"
+- Steps: ${steps.join(', ')}
+
+Ensure that:
+- The name, description, and steps are relevant to cooking.
+- They do not contain inappropriate words or phrases.
+- Do not comment if there are grammar, punctuation or spelling errors
+-Description can be anything as long as it does not contain inappropriate words or phrases.
+-Steps do not have to be extreamly precise or complete as long as they do not contain inappropriate words or phrases and are cooking related
+
+If there are any issues, return a simple list of validation errors like this:
+[
+  "Error 1: The name contains inappropriate words.",
+  "Error 2: Step 2 is not relevant to cooking."
+]
+
+Otherwise, return an empty list if everything is valid.
+  """;
+
+  final content = [Content.text(prompt)];
+  final response = await model.generateContent(content);
+
+  if (response != null && response.text != null) {
+    String responseText = response.text!;
+
+    // Clean up the response
+    responseText = responseText.trim();
+
+    // Ensure the response is a valid JSON array by removing any unwanted text
+    responseText = responseText.replaceAll(RegExp(r'[^\[]*\['), '['); // Remove text before the array
+    responseText = responseText.replaceAll(RegExp(r'\][^\]]*$'), ']'); // Remove text after the array
+
+    // Attempt to parse the cleaned-up JSON response
+    try {
+      List<String> errors = List<String>.from(jsonDecode(responseText));
+      return errors;
+    } catch (e) {
+      print('Error parsing validation response: $e');
+      return ['Failed to parse validation response'];
+    }
+  } else {
+    return ['No response from Gemini'];
+  }
+}
