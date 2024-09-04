@@ -831,18 +831,44 @@ Future<String> fetchDietaryConstraintRecipe(
 }
 
 Future<List<String>> fetchAllowedAppliances() async {
-  // Call the edge function to fetch allowed appliances
-  final response = await http.get(Uri.parse(
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'));
+  
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
 
-  if (response.statusCode == 200) {
-    final List<dynamic> appliances = jsonDecode(response.body);
-    return appliances.map((appliance) => appliance['name'] as String).toList();
-  } else {
-    print('Error fetching allowed appliances: ${response.body}');
+  try {
+    
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'action': 'getAllAppliances',  
+      }),
+    );
+    if (response.statusCode == 200) {
+      try {
+        
+        final List<dynamic> appliances = jsonDecode(response.body);
+        print(response.body);
+        return appliances.map((appliance) => appliance['name'] as String).toList();
+      } catch (e) {
+        print('Error parsing JSON: $e');
+        print('Response body: ${response.body}');
+        return [];
+      }
+    } else {
+      print('Error fetching allowed appliances: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      return [];
+    }
+  } catch (e) {
+    print('Exception during fetch: $e');
     return [];
   }
 }
+
+
 
 ///extract json data for recipe
 Future<Map<String, dynamic>?> extractRecipeData(
