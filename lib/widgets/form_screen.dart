@@ -400,16 +400,124 @@ class _RecipeFormState extends State<RecipeForm>
     }
   }
 
+  void _showErrorPopup(String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Validation Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Close'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+void _validateIngredients() {
+  //make sure all ingredients have a valid name and quantity
+  for (int i = 0; i < _ingredients.length; i++) {
+    if (_ingredients[i]['name'] == null || _ingredients[i]['name']!.isEmpty) {
+      _showErrorPopup('Please provide a valid ingredient name for ingredient ${i + 1}.');
+      return;
+    }
+    if (_ingredients[i]['quantity'] == null || _ingredients[i]['quantity']!.isEmpty) {
+      _showErrorPopup('Please provide a valid quantity for ingredient ${i + 1}.');
+      return;
+    }
+  }
+}
+
+
+
   Future<void> _submitRecipe() async {
-    // ignore: avoid_function_literals_in_foreach_calls
-    _ingredients.forEach((ingredient) {
-      ingredient['name'] = capitalizeEachWord(ingredient['name']!);
-    });
+
+     // ignore: prefer_conditional_assignment
+     if (_spiceLevel == null) {
+    _spiceLevel = 1;  // Default spice level
+  }
+
+  if (_servingAmountController.text.isEmpty) {
+    _servingAmountController.text = '1';  // default servig
+  }
+
+  if (_selectedCuisine.isEmpty) {
+    _selectedCuisine = _cuisines.first;  // default cuisine
+  }
+
+  if (_selectedCourse.isEmpty) {
+    _selectedCourse = _courses.first;  // default course
+  }
+
+  if (_selectedAppliances.isEmpty) {
+    _selectedAppliances = [];  // if none selected
+  }
+
+  // ensure steps and ingredients are not empty
+  if (_methods.isEmpty || _methods.any((method) => method.isEmpty)) {
+    _showErrorPopup('Please provide at least one valid step.');
+    return;
+  }
+
+  if (_ingredients.isEmpty || _ingredients.any((ingredient) => ingredient['name']!.isEmpty || ingredient['quantity']!.isEmpty)) {
+    _showErrorPopup('Please provide at least one valid ingredient with quantity.');
+    return;
+  }
+
+  _validateIngredients() ;
+
+//////////form validation method dont remove///////
+  //   //validate recipebefore submission
+  // final validationErrors = await validateRecipe(
+  //   _nameController.text,
+  //   _descriptionController.text,
+  //   _methods,
+  // );
+
+  // if (validationErrors.isNotEmpty) {
+  //   //if recipe is not valid show popup
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Validation Errors'),
+  //         content: Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: validationErrors.map((error) {
+  //             return Text(error);
+  //           }).toList(),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: const Text('Close'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  //   return;
+  // }
+    
     print("ingredients: $_ingredients");
     List<Map<String, String>> appliancesData =
         _selectedAppliances.map((appliance) {
       return {'name': appliance};
     }).toList();
+
+    // ignore: avoid_function_literals_in_foreach_calls
+    _ingredients.forEach((ingredient) {
+      ingredient['name'] = capitalizeEachWord(ingredient['name']!);
+    });
+
     final recipeData = {
       'name': _nameController.text,
       'description': _descriptionController.text,
@@ -430,6 +538,8 @@ class _RecipeFormState extends State<RecipeForm>
       'appliances': appliancesData,
       'photo': _selectedImage,
     };
+
+    print('rec data form:$recipeData');
 
     final response = await http.post(
       Uri.parse(
