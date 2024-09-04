@@ -850,7 +850,7 @@ Future<List<String>> fetchAllowedAppliances() async {
       try {
         
         final List<dynamic> appliances = jsonDecode(response.body);
-        print(response.body);
+        //print(response.body);
         return appliances.map((appliance) => appliance['name'] as String).toList();
       } catch (e) {
         print('Error parsing JSON: $e');

@@ -243,12 +243,12 @@ class _PasteRecipeState extends State<PasteRecipe> {
     final TextEditingController prepTimeController =
         TextEditingController(text: recipeData['prepTime'].toString());
 
-    final TextEditingController courseController =
+    //final TextEditingController courseController =
         TextEditingController(text: recipeData['course']);
     final TextEditingController servingAmountController =
         TextEditingController(text: recipeData['servingAmount'].toString());
 
-    final TextEditingController spiceLevelController =
+    //final TextEditingController spiceLevelController =
         TextEditingController(text: recipeData['spiceLevel'].toString());
 
     final List<TextEditingController> ingredientNameControllers = [];
@@ -549,7 +549,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
 
                     // close popup
                     Navigator.of(context).pop();
-
+                    print("final rec: $recipeData");
                     // submit rec
                     await addExtractedRecipeToDatabase(recipeData, _userId!);
                   },
