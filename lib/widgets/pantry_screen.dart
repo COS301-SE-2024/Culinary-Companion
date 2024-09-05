@@ -551,7 +551,7 @@ Future<void> _fetchPantryList() async {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         title: Padding(
-          padding: EdgeInsets.only(top: 30, left: 38.0),
+          padding: EdgeInsets.only(top: 30, left: 30.0),
           child: Text(
             'Pantry',
             style: TextStyle(
@@ -785,7 +785,7 @@ Future<void> _fetchPantryList() async {
                 'Edit Item',
                 style: TextStyle(color: Colors.white),
               ),
-              backgroundColor: unshade(context),
+              backgroundColor: Color(0xFF283330),
               content: SingleChildScrollView(
                 child: Form(
                   key: formKey,
@@ -802,7 +802,7 @@ Future<void> _fetchPantryList() async {
                             borderSide: BorderSide(color: Colors.white),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.orange),
+                            borderSide: BorderSide(color: Color(0xFFDC945F)),
                           ),
                         ),
                         style: TextStyle(color: Colors.white),

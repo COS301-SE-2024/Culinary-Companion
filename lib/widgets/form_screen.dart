@@ -800,14 +800,14 @@ void _validateIngredients() {
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(30.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Recipe Details',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             Card(
               color: theme.brightness == Brightness.light
                   ? Color.fromARGB(255, 223, 223, 223)

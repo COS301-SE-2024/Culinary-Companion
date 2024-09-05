@@ -179,7 +179,6 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
     }
   }
 
-
   void _addAppliance(String appliance) async {
     final success = await _addUserApplianceToDatabase(appliance);
     if (success) {
@@ -264,7 +263,6 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
       context: context,
       builder: (BuildContext context) {
         return Theme(
-          // Apply custom theme to the AlertDialog
           data: ThemeData(
             // Set the background color to white
             dialogBackgroundColor: const Color.fromARGB(255, 255, 255, 255),
@@ -352,7 +350,7 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         title: Padding(
-          padding: EdgeInsets.only(top: 30, left: 38.0),
+          padding: EdgeInsets.only(top: 30, left: 30.0),
           child: Text(
             'Appliances',
             style: TextStyle(
@@ -444,17 +442,11 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
                           key: Key('add_appliance_button'),
                           onPressed: _showAddApplianceDialog,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(
-                                0xFFDC945F), // Button background color
-                            foregroundColor: Colors.white, // Text color
-                            fixedSize: const Size(
-                                48.0, 48.0), // Ensure the button is square
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(16), // Rounded corners
-                            ),
-                            padding: const EdgeInsets.all(
-                                0), // Remove default padding
+                            backgroundColor: const Color(0xFFDC945F),
+                            foregroundColor: Colors.white,
+                            fixedSize: const Size(48.0, 48.0),
+                            shape: const CircleBorder(),
+                            padding: EdgeInsets.all(0),
                           ),
                           child: const Icon(Icons.add, size: 32.0),
                         ),

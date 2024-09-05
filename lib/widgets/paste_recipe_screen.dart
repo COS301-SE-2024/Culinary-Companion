@@ -574,9 +574,8 @@ class _PasteRecipeState extends State<PasteRecipe> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
           const Padding(
-            padding: EdgeInsets.only(left: 32.0),
+            padding: EdgeInsets.all(30.0),
             child: Row(
               children: [
                 Text(
@@ -586,10 +585,9 @@ class _PasteRecipeState extends State<PasteRecipe> {
               ],
             ),
           ),
-          const SizedBox(height: 40),
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32.0),
+              padding: EdgeInsets.symmetric(horizontal: 30.0),
               child: TextField(
                 controller: _recipeTextController,
                 keyboardType: TextInputType.multiline,
