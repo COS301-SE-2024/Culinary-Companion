@@ -54,7 +54,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Padding(
-          padding: EdgeInsets.all(30),
+          padding: EdgeInsets.only(top: 30, left: 20),
           child: Text(
             'My Meal Plans',
             style: TextStyle(
@@ -65,7 +65,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
         ),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 38.0),
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
         children: [
           SizedBox(
             height: 24.0,
@@ -107,21 +107,18 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
 
   Widget buildMealPlanContent(
       Map<String, List<Map<String, dynamic>>> days, BuildContext context) {
-    // Determine the screen width
     double screenWidth = MediaQuery.of(context).size.width;
 
     // Define card dimensions based on screen size
-    double cardWidth = screenWidth > 600
-        ? 300
-        : 150; // 300 for larger screens, 150 for smaller screens
-    double cardHeight = screenWidth > 600
-        ? 400
-        : 200; // 400 for larger screens, 200 for smaller screens
+    double cardWidth = screenWidth > 600 ? 300 : 150;
+    double cardHeight = screenWidth > 600 ? 400 : 200;
 
     return Column(
       children: days.entries.map((entry) {
         String day = entry.key;
         List<Map<String, dynamic>> recipes = entry.value;
+        bool hasMoreThanTwoMeals = recipes.length > 2;
+
         return Padding(
           padding: const EdgeInsets.all(25),
           child: Column(
@@ -156,32 +153,75 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Row(
                     children: [
-                      ...recipes.map((recipe) {
+                      // ...recipes.map((recipe) {
+                      //   return Padding(
+                      //       padding: const EdgeInsets.only(right: 8.0),
+                      //       child: SizedBox(
+                      //         width: cardWidth,
+                      //         height: cardHeight,
+                      //         child: RecipeCard(
+                      //           recipeID: recipe['recipeId'] ?? '',
+                      //           name: recipe['name'] ?? 'Recipe Name',
+                      //           description:
+                      //               recipe['description'] ?? 'Description here',
+                      //           imagePath: recipe['photo'] ??
+                      //               'assets/placeholder_image.jpg',
+                      //           prepTime: recipe['preptime'] ?? 0,
+                      //           cookTime: recipe['cooktime'] ?? 0,
+                      //           cuisine: recipe['cuisine'] ?? 'Cuisine',
+                      //           spiceLevel: recipe['spicelevel'] ?? 0,
+                      //           course: recipe['course'] ?? 'Main Course',
+                      //           servings: recipe['servings'] ?? 1,
+                      //           steps: ['Step 1', 'Step 2'],
+                      //           appliances: ['Oven', 'Stove'],
+                      //           ingredients: [
+                      //             {'name': 'Ingredient 1', 'quantity': '100g'}
+                      //           ],
+                      //         ),
+                      //       ));
+                      // }).toList(),
+                      ...recipes.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        Map<String, dynamic> recipe = entry.value;
+
                         return Padding(
-                            padding: const EdgeInsets.only(right: 8.0),
-                            child: SizedBox(
-                              width: cardWidth,
-                              height: cardHeight,
-                              child: RecipeCard(
-                                recipeID: recipe['recipeId'] ?? '',
-                                name: recipe['name'] ?? 'Recipe Name',
-                                description:
-                                    recipe['description'] ?? 'Description here',
-                                imagePath: recipe['photo'] ??
-                                    'assets/placeholder_image.jpg',
-                                prepTime: recipe['preptime'] ?? 0,
-                                cookTime: recipe['cooktime'] ?? 0,
-                                cuisine: recipe['cuisine'] ?? 'Cuisine',
-                                spiceLevel: recipe['spicelevel'] ?? 0,
-                                course: recipe['course'] ?? 'Main Course',
-                                servings: recipe['servings'] ?? 1,
-                                steps: ['Step 1', 'Step 2'],
-                                appliances: ['Oven', 'Stove'],
-                                ingredients: [
-                                  {'name': 'Ingredient 1', 'quantity': '100g'}
-                                ],
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: Stack(
+                            children: [
+                              SizedBox(
+                                width: cardWidth,
+                                height: cardHeight,
+                                child: RecipeCard(
+                                  recipeID: recipe['recipeId'] ?? '',
+                                  name: recipe['name'] ?? 'Recipe Name',
+                                  description: recipe['description'] ??
+                                      'Description here',
+                                  imagePath: recipe['photo'] ??
+                                      'assets/placeholder_image.jpg',
+                                  prepTime: recipe['preptime'] ?? 0,
+                                  cookTime: recipe['cooktime'] ?? 0,
+                                  cuisine: recipe['cuisine'] ?? 'Cuisine',
+                                  spiceLevel: recipe['spicelevel'] ?? 0,
+                                  course: recipe['course'] ?? 'Main Course',
+                                  servings: recipe['servings'] ?? 1,
+                                  steps: ['Step 1', 'Step 2'],
+                                  appliances: ['Oven', 'Stove'],
+                                  ingredients: [
+                                    {'name': 'Ingredient 1', 'quantity': '100g'}
+                                  ],
+                                ),
                               ),
-                            ));
+                              // Conditionally add the arrow icon
+                              if (index < 2 && hasMoreThanTwoMeals)
+                                Positioned(
+                                  right: 0,
+                                  top: cardHeight / 2 -
+                                      20, // Center the arrow vertically
+                                  child: Icon(Icons.arrow_forward_ios),
+                                ),
+                            ],
+                          ),
+                        );
                       }).toList(),
                       if (recipes.isEmpty)
                         ...List.generate(

@@ -135,13 +135,13 @@ class HelpMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubSectionTitle('Navigating the Saved Recipes Page', fontColor),
+        _buildSubSectionTitle('Navigating the Favorite Recipes Page', fontColor),
         _buildParagraph(
-            'Here’s how you can make the most of your saved recipes:',
+            'Here’s how you can make the most of your favorited recipes:',
             fontColor),
         _buildStep(
             '1',
-            'Scroll through the list to view all your saved recipes. Each card provides an overview including the recipe name, description, prep time, and cook time.',
+            'Scroll through the list to view all your favorited recipes. Each card provides an overview including the recipe name, description, prep time, and cook time.',
             fontColor),
         _buildStep(
             '2',
@@ -149,11 +149,11 @@ class HelpMenu extends StatelessWidget {
             fontColor),
         _buildStep(
             '3',
-            'To remove a recipe from your saved list, just click the heart icon in the top right corner.',
+            'To remove a recipe from your favorited list, just click the heart icon in the top right corner.',
             fontColor),
         _buildStep(
             '4',
-            'If you want to add ingredients from a saved recipe to your shopping list, tap the "Add to Shopping List" button similar to the Home Page.',
+            'If you want to add ingredients from a favorited recipe to your shopping list, tap the "Add to Shopping List" button similar to the Home Page.',
             fontColor),
       ],
     );
@@ -226,8 +226,8 @@ class HelpMenu extends StatelessWidget {
             'A: Go to the "Search Recipes" section to be able to search for recipes by name, ingredients and filter according to your preferences.',
             fontColor),
         _buildFAQ(
-            'Q: How do I view my saved recipes?',
-            'A: Navigate to the "Saved Recipes" section by tapping on the "Saved Recipes" tab to see all your saved recipes.',
+            'Q: How do I view my favorited recipes?',
+            'A: Navigate to the "Favorite Recipes" section by tapping on the "Favorite Recipes" tab to see all your favorited recipes.',
             fontColor),
         _buildFAQ(
             'Q: How can I update my profile information?',
