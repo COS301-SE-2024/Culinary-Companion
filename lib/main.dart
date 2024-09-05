@@ -45,6 +45,11 @@ class CulinaryCompanionApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Culinary Companion',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xFFDC945F), // Replace this with your seed color
+          brightness: Brightness.light, // or Brightness.dark for dark theme
+        ),
+        useMaterial3: true,
         textTheme: GoogleFonts.interTextTheme(),
         primarySwatch: Colors.green,
         brightness: Brightness.light,
@@ -56,6 +61,10 @@ class CulinaryCompanionApp extends StatelessWidget {
         ),
       ),
       darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xFFEDEDED), // Replace this with your seed color
+          brightness: Brightness.dark, // or Brightness.dark for dark theme
+        ),
         textTheme: GoogleFonts.interTextTheme().apply(
           bodyColor: Color(0xFFD9D9D9),
           displayColor: Color(0xFFD9D9D9),
