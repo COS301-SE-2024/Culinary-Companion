@@ -113,12 +113,6 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                 label: Text(constraint),
                 backgroundColor: Color(0xFFDC945F),
                 labelStyle: TextStyle(color: Color(0xFF20493C), fontSize: 16),
-                // onDeleted: () {
-                //   if (mounted) {
-                //   setState(() {
-                //     _selectedDietaryConstraints.remove(constraint);
-                //   });}
-                // },
               );
             }).toList(),
           ),
@@ -178,9 +172,12 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
             .map<String>((constraint) => constraint['name'].toString())
             .toList();
 
-        // Sort the dietary constraints alphabetically
-        constraintItems
-            .sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+        // Sort the dietary constraints alphabetically, but put "None" at the end
+        constraintItems.sort((a, b) {
+          if (a.toLowerCase() == 'none') return 1; // Put "None" at the end
+          if (b.toLowerCase() == 'none') return -1;
+          return a.toLowerCase().compareTo(b.toLowerCase());
+        });
 
         return constraintItems;
       } else {
