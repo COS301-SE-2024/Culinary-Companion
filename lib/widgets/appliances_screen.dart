@@ -260,6 +260,7 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
   void _showAddApplianceDialog() {
     final TextEditingController typeAheadController = TextEditingController();
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Theme(

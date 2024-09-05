@@ -231,21 +231,31 @@ class _RecipeFormState extends State<RecipeForm>
     //popup for users to add ingredients that arent in db
     String newIngredientName = '';
     String selectedUnit = measurementUnits.first;
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
+    final Color backgroundColor = isLightTheme ? Colors.white : Color(0xFF283330);
 
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add New Ingredient'),
+          backgroundColor: backgroundColor,
+          title: Text('Add New Ingredient', style: TextStyle(fontSize: 22, color: textColor),),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(height: 15),
               TextField(
-                decoration: InputDecoration(labelText: 'Ingredient Name'),
+                decoration: InputDecoration(
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    labelText: 'Ingredient Name'),
                 onChanged: (value) {
                   newIngredientName = value;
                 },
               ),
+              SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: selectedUnit,
                 onChanged: (value) {
@@ -261,14 +271,38 @@ class _RecipeFormState extends State<RecipeForm>
               ),
             ],
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
+              style: TextButton.styleFrom(
+                side: const BorderSide(
+                  color: Color(0xFFDC945F),
+                  width: 1.5, // Border thickness
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color(0xFFDC945F), // Set the color to orange
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Color(0xFFDC945F),
+                side: const BorderSide(
+                  color: Color(0xFFDC945F),
+                  width: 1.5, // Border thickness
+                ),
+              ),
+              child: const Text(
+                'Add',
+                style: TextStyle(
+                  color: Colors.white, // Set the color to orange
+                ),
+              ),
               onPressed: () async {
                 //capitalize new ingredient
                 newIngredientName = capitalizeEachWord(newIngredientName);
@@ -290,7 +324,6 @@ class _RecipeFormState extends State<RecipeForm>
 
                 Navigator.of(context).pop();
               },
-              child: Text('Add'),
             ),
           ],
         );
@@ -401,112 +434,115 @@ class _RecipeFormState extends State<RecipeForm>
   }
 
   void _showErrorPopup(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Validation Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Close'),
-          ),
-        ],
-      );
-    },
-  );
-}
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Validation Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-void _validateIngredients() {
-  //make sure all ingredients have a valid name and quantity
-  for (int i = 0; i < _ingredients.length; i++) {
-    if (_ingredients[i]['name'] == null || _ingredients[i]['name']!.isEmpty) {
-      _showErrorPopup('Please provide a valid ingredient name for ingredient ${i + 1}.');
-      return;
-    }
-    if (_ingredients[i]['quantity'] == null || _ingredients[i]['quantity']!.isEmpty) {
-      _showErrorPopup('Please provide a valid quantity for ingredient ${i + 1}.');
-      return;
+  void _validateIngredients() {
+    //make sure all ingredients have a valid name and quantity
+    for (int i = 0; i < _ingredients.length; i++) {
+      if (_ingredients[i]['name'] == null || _ingredients[i]['name']!.isEmpty) {
+        _showErrorPopup(
+            'Please provide a valid ingredient name for ingredient ${i + 1}.');
+        return;
+      }
+      if (_ingredients[i]['quantity'] == null ||
+          _ingredients[i]['quantity']!.isEmpty) {
+        _showErrorPopup(
+            'Please provide a valid quantity for ingredient ${i + 1}.');
+        return;
+      }
     }
   }
-}
-
-
 
   Future<void> _submitRecipe() async {
+    // ignore: prefer_conditional_assignment
+    if (_spiceLevel == null) {
+      _spiceLevel = 1; // Default spice level
+    }
 
-     // ignore: prefer_conditional_assignment
-     if (_spiceLevel == null) {
-    _spiceLevel = 1;  // Default spice level
-  }
+    if (_servingAmountController.text.isEmpty) {
+      _servingAmountController.text = '1'; // default servig
+    }
 
-  if (_servingAmountController.text.isEmpty) {
-    _servingAmountController.text = '1';  // default servig
-  }
+    if (_selectedCuisine.isEmpty) {
+      _selectedCuisine = _cuisines.first; // default cuisine
+    }
 
-  if (_selectedCuisine.isEmpty) {
-    _selectedCuisine = _cuisines.first;  // default cuisine
-  }
+    if (_selectedCourse.isEmpty) {
+      _selectedCourse = _courses.first; // default course
+    }
 
-  if (_selectedCourse.isEmpty) {
-    _selectedCourse = _courses.first;  // default course
-  }
+    if (_selectedAppliances.isEmpty) {
+      _selectedAppliances = []; // if none selected
+    }
 
-  if (_selectedAppliances.isEmpty) {
-    _selectedAppliances = [];  // if none selected
-  }
+    // ensure steps and ingredients are not empty
+    if (_methods.isEmpty || _methods.any((method) => method.isEmpty)) {
+      _showErrorPopup('Please provide at least one valid step.');
+      return;
+    }
 
-  // ensure steps and ingredients are not empty
-  if (_methods.isEmpty || _methods.any((method) => method.isEmpty)) {
-    _showErrorPopup('Please provide at least one valid step.');
-    return;
-  }
+    if (_ingredients.isEmpty ||
+        _ingredients.any((ingredient) =>
+            ingredient['name']!.isEmpty || ingredient['quantity']!.isEmpty)) {
+      _showErrorPopup(
+          'Please provide at least one valid ingredient with quantity.');
+      return;
+    }
 
-  if (_ingredients.isEmpty || _ingredients.any((ingredient) => ingredient['name']!.isEmpty || ingredient['quantity']!.isEmpty)) {
-    _showErrorPopup('Please provide at least one valid ingredient with quantity.');
-    return;
-  }
-
-  _validateIngredients() ;
+    _validateIngredients();
 
 //////////form validation method dont remove///////
-  //   //validate recipebefore submission
-  // final validationErrors = await validateRecipe(
-  //   _nameController.text,
-  //   _descriptionController.text,
-  //   _methods,
-  // );
+    //   //validate recipebefore submission
+    // final validationErrors = await validateRecipe(
+    //   _nameController.text,
+    //   _descriptionController.text,
+    //   _methods,
+    // );
 
-  // if (validationErrors.isNotEmpty) {
-  //   //if recipe is not valid show popup
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Validation Errors'),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: validationErrors.map((error) {
-  //             return Text(error);
-  //           }).toList(),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text('Close'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  //   return;
-  // }
-    
+    // if (validationErrors.isNotEmpty) {
+    //   //if recipe is not valid show popup
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: const Text('Validation Errors'),
+    //         content: Column(
+    //           mainAxisSize: MainAxisSize.min,
+    //           children: validationErrors.map((error) {
+    //             return Text(error);
+    //           }).toList(),
+    //         ),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () {
+    //               Navigator.of(context).pop();
+    //             },
+    //             child: const Text('Close'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    //   return;
+    // }
+
     print("ingredients: $_ingredients");
     List<Map<String, String>> appliancesData =
         _selectedAppliances.map((appliance) {
@@ -811,7 +847,7 @@ void _validateIngredients() {
             Card(
               color: theme.brightness == Brightness.light
                   ? Color.fromARGB(255, 223, 223, 223)
-                  : Color.fromARGB(255, 21, 48, 39),
+                  : Color.fromARGB(255, 52, 68, 64),
               elevation: 4,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -1112,7 +1148,7 @@ void _validateIngredients() {
                       onPressed: _pickImage,
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            isLightTheme ? Colors.white : Color(0xFF1F4539),
+                            isLightTheme ? Colors.white : Color(0xFF283330),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 20),
                       ),

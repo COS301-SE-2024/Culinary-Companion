@@ -637,6 +637,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     final TextEditingController quantityController = TextEditingController();
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Theme(
@@ -782,6 +783,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         TextEditingController(text: quantity.toString());
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(

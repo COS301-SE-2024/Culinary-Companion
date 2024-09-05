@@ -776,6 +776,7 @@ Future<void> _fetchPantryList() async {
         TextEditingController(text: quantity.toString());
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -875,6 +876,7 @@ Future<void> _fetchPantryList() async {
     final TextEditingController quantityController = TextEditingController();
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
