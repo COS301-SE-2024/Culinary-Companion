@@ -804,7 +804,8 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                 ),
                 child: Stack(
                   children: [
-                    Expanded(
+                    Positioned.fill(
+                      // Use Positioned or any other layout widget compatible with Stack
                       child: Column(
                         children: [
                           Row(
@@ -839,7 +840,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                         0.02, // Adjust icon size to 2% of screen width
                                     onPressed: () {
                                       Navigator.of(context).pop();
-
                                     },
                                   ),
                                 ],
@@ -943,17 +943,18 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                           0.02), // Adjust height to 2% of screen height
                                   Column(
                                     children: [
-                                        
+                                      // Your content here
                                     ],
                                   ),
-
                                   SizedBox(
                                       height:
                                           MediaQuery.of(context).size.height *
                                               0.02),
-                                  Text('Ingredients:',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
+                                  Text(
+                                    'Ingredients:',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                   SizedBox(
                                       height: MediaQuery.of(context)
                                               .size
@@ -966,7 +967,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                     int idx = entry.key;
                                     Map<String, dynamic> ingredient =
                                         entry.value;
-                                   
+
                                     return CheckableItem(
                                       title:
                                           '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
@@ -986,20 +987,18 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                       onRecipeUpdate:
                                           (Map<String, dynamic> alteredRecipe) {
                                         _updateRecipe(alteredRecipe);
-                                        if (mounted) {
-                                          dialogSetState(() {});
-                                        } // Update the dialog's state
                                       },
                                     );
                                   }),
                                   SizedBox(
-                                      height: MediaQuery.of(context)
-                                              .size
-                                              .height *
-                                          0.02), // Adjust height to 2% of screen height
-                                  Text('Appliances:',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.02),
+                                  Text(
+                                    'Appliances:',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                   SizedBox(
                                       height: MediaQuery.of(context)
                                               .size
@@ -1008,13 +1007,14 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                   ...widget.appliances
                                       .map((appliance) => Text(appliance)),
                                   SizedBox(
-                                      height: MediaQuery.of(context)
-                                              .size
-                                              .height *
-                                          0.02), // Adjust height to 2% of screen height
-                                  Text('Instructions:',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.02),
+                                  Text(
+                                    'Instructions:',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                                   SizedBox(
                                       height: MediaQuery.of(context)
                                               .size
@@ -1024,20 +1024,21 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: widget.steps.expand((step) {
-                                      return step
-                                          .split('<')
-                                          .map((subStep) => Padding(
-                                                padding: EdgeInsets.only(
-                                                  bottom: MediaQuery.of(context)
-                                                          .size
-                                                          .height *
-                                                      0.01,
-                                                ),
-                                                child: Text(
-                                                    '${widget.steps.indexOf(step) + 1}. $subStep'),
-                                              ));
-                                    }).toList(),
+                                      return step.split('<').map((subStep) {
+                                        return Padding(
+                                          padding: EdgeInsets.only(
+                                            bottom: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.01,
+                                          ),
+                                          child: Text(
+                                              '${widget.steps.indexOf(step) + 1}. $subStep'),
+                                        );
+                                      }).toList(); // Convert the Iterable to a List<Widget>
+                                    }).toList(), // Convert the expanded Iterable to a List<Widget>
                                   ),
+
                                 ],
                               ),
                             ),
@@ -1047,6 +1048,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                     ),
                   ],
                 ),
+
               );
             },
           ),
@@ -1055,7 +1057,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     ).then((_) {
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
