@@ -459,32 +459,6 @@ Future<void> _selectImage() async {
   }
 }
 
-// Future<void> _showIngredientDialog(List<String> ingredients) async {
-//   showDialog(
-//     context: context,
-//     builder: (context) {
-//       return AlertDialog(
-//         title: Text('Detected Ingredients'),
-//         content: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: ingredients.map((ingredient) {
-//             return ListTile(
-//               title: Text(ingredient),
-//               trailing: ElevatedButton(
-//                 onPressed: () {
-//                   // add to pantry here lol 
-//                   Navigator.of(context).pop();
-//                 },
-//                 child: Text('Add to Pantry'),
-//               ),
-//             );
-//           }).toList(),
-//         ),
-//       );
-//     },
-//   );
-// }
-
 Future<void> _showIngredientDialog(List<String> ingredients) async {
   showDialog(
     context: context,
@@ -859,9 +833,71 @@ List<String> parsePicknPayReceipt(String text) {
 
 
 List<String> parseWoolworthsReceipt(String text) {
-  final lines = text.split('\n');
-  return lines.map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+  // FORMAT
+  // Welcome to our store
+  // other stuff
+  // TAX INVOICE
+  // -------------------------------------------
+  // S | Z item (required)      price
+  //   num @ price (optional if num > 1)
+  // price (Rxx.xx) less promo price (Rxx.xx) (optional if on promotion)
+  // .
+  // .
+  // .
+  // TOTAL
+
+  final lowerCaseText = text.toLowerCase();
+
+  final startMarker = 'tax invoice';
+  final endMarker = 'total';
+
+  final startIndex = lowerCaseText.indexOf(startMarker);
+  final endIndex = lowerCaseText.indexOf(endMarker);
+
+  // Check if both markers are found and in correct order
+  if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
+    return [];
+  }
+
+  final startOffset = lowerCaseText.indexOf('\n', startIndex) + 1;
+  final section = lowerCaseText.substring(startOffset, endIndex).trim();
+
+  final lines = section
+      .split('\n')
+      .map((line) => line.trim())
+      .where((line) => line.isNotEmpty)
+      .toList();
+
+  final items = <String>[];
+
+  String? currentItem;
+
+  for (var line in lines) {
+    // Skip promotions and discounts
+    if (line.contains('less promo') || line.contains('discount')) {
+      continue;
+    }
+
+    // Skip drinks, just as in Pick n Pay
+    if (line.contains('drink') || line.contains('jce') || line.contains('juice')) {
+      continue;
+    }
+
+    // Skip price lines and quantity lines (optional)
+    if (line.contains(RegExp(r'@')) ||
+        line.contains(RegExp(r'r\d+\.\d{2}')) ||
+        line.startsWith(RegExp(r'\d+'))) {
+      continue;
+    } else {
+      // Extract the item name
+      currentItem = line.trim();
+      items.add(currentItem);
+    }
+  }
+
+  return items;
 }
+
 
 List<String> parseCheckersReceipt(String text) {
   // FORMAT
