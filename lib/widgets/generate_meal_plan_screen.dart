@@ -39,7 +39,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
     final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
 
     return SingleChildScrollView(
-        padding: EdgeInsets.all(40.0),
+        padding: EdgeInsets.all(30.0),
         child: Form(
           key: _formKey,
           child: Column(

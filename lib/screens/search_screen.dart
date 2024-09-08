@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:lottie/lottie.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/help_search.dart';
+import '../widgets/filter_recipes.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -16,22 +17,8 @@ class _SearchScreenState extends State<SearchScreen> {
   OverlayEntry? _helpMenuOverlay;
 
   final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
-
   List<String> cuisineType = [];
-
-  List<String> dietaryOptions = [
-    'Vegan'
-        'Vegetarian',
-    'Gluten-Free',
-    'Lactose-Free',
-    'No Banana',
-    'No Nuts',
-    'High Protein',
-    'High Calorie',
-    'Low Calorie',
-    'Low Carb',
-    'Low Sugar'
-  ]; //Change these so it is fetched from database!!!
+  List<String> dietaryOptions = [];
 
   // List<String> ingredientOptions = [
   //   'Need 1 Extra Ingredient',
@@ -106,6 +93,13 @@ class _SearchScreenState extends State<SearchScreen> {
             dietaryOptions = data.map<String>((constraint) {
               return constraint['name'].toString();
             }).toList();
+
+            // Sort the dietary constraints alphabetically, but put "None" at the end
+            dietaryOptions.sort((a, b) {
+              if (a.toLowerCase() == 'none') return 1; // Put "None" at the end
+              if (b.toLowerCase() == 'none') return -1;
+              return a.toLowerCase().compareTo(b.toLowerCase());
+            });
           });
         }
         //print('here');
@@ -137,6 +131,13 @@ class _SearchScreenState extends State<SearchScreen> {
             cuisineType = data.map<String>((cuisine) {
               return cuisine['name'].toString();
             }).toList();
+
+            // Sort cuisines alphabetically, but put "None" at the end
+            cuisineType.sort((a, b) {
+              if (a.toLowerCase() == 'none') return 1; // Put "None" at the end
+              if (b.toLowerCase() == 'none') return -1;
+              return a.toLowerCase().compareTo(b.toLowerCase());
+            });
           });
         }
         //print(_cuisines);
@@ -301,7 +302,7 @@ class _SearchScreenState extends State<SearchScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.all(25),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,8 +313,10 @@ class _SearchScreenState extends State<SearchScreen> {
                     SizedBox(height: 15),
                     Text('Dietary Constraints:',
                         style: TextStyle(fontSize: 16)),
+                    SizedBox(height: 10),
                     Wrap(
                       spacing: 8.0,
+                      runSpacing: 8,
                       children: dietaryOptions.map((option) {
                         return ChoiceChip(
                           label: Text(option),
@@ -330,10 +333,12 @@ class _SearchScreenState extends State<SearchScreen> {
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 20),
                     Text('Course Type:', style: TextStyle(fontSize: 16)),
+                    SizedBox(height: 10),
                     Wrap(
                       spacing: 8.0,
+                      runSpacing: 8,
                       children: _courses.map((option) {
                         return ChoiceChip(
                           label: Text(option),
@@ -350,10 +355,12 @@ class _SearchScreenState extends State<SearchScreen> {
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 20),
                     Text('Cuisine Type:', style: TextStyle(fontSize: 16)),
+                    SizedBox(height: 10),
                     Wrap(
                       spacing: 8.0,
+                      runSpacing: 8,
                       children: cuisineType.map((option) {
                         return ChoiceChip(
                           label: Text(option),
@@ -370,10 +377,12 @@ class _SearchScreenState extends State<SearchScreen> {
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 15),
+                    SizedBox(height: 20),
                     Text('Spice Level:', style: TextStyle(fontSize: 16)),
+                    SizedBox(height: 10),
                     Wrap(
                       spacing: 8.0,
+                      runSpacing: 8,
                       children: spiceLevelOptions.map((option) {
                         return ChoiceChip(
                           label: Text(option),
@@ -458,7 +467,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-// Helper function to convert spice level string to int
+  // Helper function to convert spice level string to int
   int? _spiceLevelToInt(String? spiceLevel) {
     if (spiceLevel == null) return null;
     switch (spiceLevel) {
@@ -657,7 +666,7 @@ class _SearchScreenState extends State<SearchScreen> {
           // Main content
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(30.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -759,31 +768,5 @@ class _SearchScreenState extends State<SearchScreen> {
         ],
       ),
     );
-  }
-}
-
-class Filters {
-  List<String>? course;
-  int? spiceLevel;
-  List<String>? cuisine;
-  List<String>? dietaryOptions;
-  String? ingredientOption;
-
-  Filters({
-    this.course,
-    this.spiceLevel,
-    this.cuisine,
-    this.dietaryOptions,
-    this.ingredientOption,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'course': course,
-      'spiceLevel': spiceLevel,
-      'cuisine': cuisine,
-      'dietaryOptions': dietaryOptions,
-      'ingredientOption': ingredientOption,
-    };
   }
 }

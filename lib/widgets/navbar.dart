@@ -305,7 +305,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                 alignment: Alignment.centerLeft,
                 child: Image.asset(
                   isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
-                  height: screenHeight * 0.1,
+                  height: screenHeight * 0.07,
                 ),
               ),
               Align(
