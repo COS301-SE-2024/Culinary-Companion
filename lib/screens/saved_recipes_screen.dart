@@ -38,22 +38,54 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
     }
   }
 
-  Future<void> fetchRecipes() async {
+Future<void> fetchRecipes() async {
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
     final body = jsonEncode({'action': 'getUserFavourites', 'userId': _userId});
 
     try {
+      // Load cached recipes first in the background without showing the loader again
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedRecipes = prefs.getString('cached_recipes');
+
+      if (cachedRecipes != null) {
+        // Only set the state if recipes list is empty (so that it doesn't "reload")
+        if (recipes.isEmpty) {
+          setState(() {
+            recipes =
+                List<Map<String, dynamic>>.from(jsonDecode(cachedRecipes));
+          });
+        }
+      }
+
+      // Fetch fresh recipes from Supabase
       final response =
           await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
+        // Clear the recipes list to avoid duplication and update with fresh data
+        recipes.clear();
+
+        // Fetch recipe details in parallel
+        List<Future<void>> recipeFutures = [];
         for (var recipe in fetchedRecipes) {
           final String recipeId = recipe['recipeid'];
-          await fetchRecipeDetails(recipeId);
+          recipeFutures.add(fetchRecipeDetails(recipeId));
+        }
+
+        await Future.wait(recipeFutures);
+
+        // Cache the fetched recipes for future use
+        await prefs.setString('cached_recipes', jsonEncode(recipes));
+
+        // Update the UI only after fresh data is fetched
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
         }
       } else {
         print('Failed to load recipes: ${response.statusCode}');
@@ -61,12 +93,20 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
     } catch (error) {
       print('Error fetching recipes: $error');
     }
+
+    // Ensure loading spinner is hidden once data is fetched
     if (mounted) {
       setState(() {
         _isLoading = false;
       });
     }
   }
+
+
+
+
+
+
 
   Future<void> fetchRecipeDetails(String recipeId) async {
     final url =
