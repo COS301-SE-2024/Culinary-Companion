@@ -41,9 +41,10 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   Future<void> _initializeData() async {
+    await fetchAllRecipes();
     await _loadCuisines();
     await _loadDietaryConstraints();
-    await fetchAllRecipes();
+    
   }
 
   Future<void> fetchAllRecipes() async {
