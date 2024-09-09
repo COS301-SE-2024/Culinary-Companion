@@ -1015,7 +1015,7 @@ Future<List<String>> identifyIngredientFromReceipt(String items) async {
   They should all be Strings.""";
 
   final initialPrompt = """For these items: $items; remove all non-edible items and all non human food 
-  and then identify what food stuff the remaining items are.""";
+  and then identify what food stuff the remaining items are. Be specific, like mince should should be specified as such i.e Beef Mince.""";
   
   final finalPrompt = initialPrompt + formatting;
 

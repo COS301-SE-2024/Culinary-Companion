@@ -465,6 +465,7 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
+          // Initialize the selected ingredients with the first (most accurate) result
           List<String> selectedIngredients = List.filled(ingredients.length, '');
 
           return AlertDialog(
@@ -502,10 +503,15 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
                       }
 
                       final similarIngredients = snapshot.data!;
+                      // Set the first suggestion as the default selected ingredient if not already set
+                      if (selectedIngredients[index].isEmpty && similarIngredients.isNotEmpty) {
+                        selectedIngredients[index] = similarIngredients.first;
+                      }
+
                       return ListTile(
                         title: Text(itemName),
                         trailing: DropdownButton<String>(
-                          value: selectedIngredients[index].isEmpty ? null : selectedIngredients[index],
+                          value: selectedIngredients[index],
                           hint: Text('Select similar ingredient'),
                           items: similarIngredients.map((ingredient) {
                             return DropdownMenuItem<String>(
@@ -551,7 +557,6 @@ Future<List<String>> findSimilarIngredients(String itemName, String identifiedIn
   final prefs = await SharedPreferences.getInstance();
 
   try {
-    // Define the body of the request as per your TypeScript function's requirements
     final requestBody = jsonEncode({
       'action': 'findSimilarIngredients',
       'itemName': itemName,
@@ -559,7 +564,7 @@ Future<List<String>> findSimilarIngredients(String itemName, String identifiedIn
     });
 
     // Print out the request body for debugging
-    print('Request Body: $requestBody');
+    // print('Request Body: $requestBody');
 
     // Send the POST request to your Supabase Function
     final response = await http.post(
@@ -571,8 +576,8 @@ Future<List<String>> findSimilarIngredients(String itemName, String identifiedIn
     );
 
     // Log the response status and body for debugging
-    print('Response Status Code: ${response.statusCode}');
-    print('Response Body: ${response.body}');
+    // print('Response Status Code: ${response.statusCode}');
+    // print('Response Body: ${response.body}');
 
     if (response.statusCode == 200) {
       // Decode the response body as a list of ingredients
@@ -672,8 +677,8 @@ Future<void> _handleScannedText(String text) async {
 
   // Await the result of the identifyIngredientFromReceipt function
   final ingredients = await identifyIngredientFromReceipt(itemsString);
-  // print("INGREDIENTS");
-  // print(ingredients);
+  print("INGREDIENTS");
+  print(ingredients);
 
   // Parse the ingredients list to extract both items and ingredients in pairs
   final pairedItemsIngredients = <Map<String, String>>[];
@@ -879,7 +884,7 @@ List<String> parseWoolworthsReceipt(String text) {
     }
 
     // Skip drinks, just as in Pick n Pay
-    if (line.contains('drink') || line.contains('jce') || line.contains('juice')) {
+    if (line.contains('drink') || line.contains('jce') || line.contains('juice') || line.contains('coke')) {
       continue;
     }
 
