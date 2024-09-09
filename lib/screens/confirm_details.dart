@@ -34,21 +34,23 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
       final List<String> cuisineItems = await _loadCuisines();
       final List<String> constraintItems = await _loadDietaryConstraints();
       if (mounted) {
-      setState(() {
-        _cuisineOptions = cuisineItems;
-        _dietaryOptions = constraintItems;
-        _dietaryConstraints = _dietaryOptions!
-            .map(
-                (constraint) => MultiSelectItem<String>(constraint, constraint))
-            .toList();
-      });}
+        setState(() {
+          _cuisineOptions = cuisineItems;
+          _dietaryOptions = constraintItems;
+          _dietaryConstraints = _dietaryOptions!
+              .map((constraint) =>
+                  MultiSelectItem<String>(constraint, constraint))
+              .toList();
+        });
+      }
     } catch (error) {
       print('Error initializing data: $error');
       if (mounted) {
-      setState(() {
-        //_isLoading = false;
-        //_errorMessage = 'Error initializing data';
-      });}
+        setState(() {
+          //_isLoading = false;
+          //_errorMessage = 'Error initializing data';
+        });
+      }
     }
   }
 
@@ -77,9 +79,10 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
             initialValue: _selectedDietaryConstraints,
             onConfirm: (values) {
               if (mounted) {
-              setState(() {
-                _selectedDietaryConstraints = values;
-              });}
+                setState(() {
+                  _selectedDietaryConstraints = values;
+                });
+              }
             },
             chipDisplay: MultiSelectChipDisplay.none(),
             buttonText: Text(
@@ -110,12 +113,6 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                 label: Text(constraint),
                 backgroundColor: Color(0xFFDC945F),
                 labelStyle: TextStyle(color: Color(0xFF20493C), fontSize: 16),
-                onDeleted: () {
-                  if (mounted) {
-                  setState(() {
-                    _selectedDietaryConstraints.remove(constraint);
-                  });}
-                },
               );
             }).toList(),
           ),
@@ -135,6 +132,14 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
         final List<dynamic> data = json.decode(response.body);
         final List<String> cuisineItems =
             data.map<String>((cuisine) => cuisine['name'].toString()).toList();
+
+        // Sort cuisines alphabetically, but put "None" at the end
+        cuisineItems.sort((a, b) {
+          if (a.toLowerCase() == 'none') return 1; // Put "None" at the end
+          if (b.toLowerCase() == 'none') return -1;
+          return a.toLowerCase().compareTo(b.toLowerCase());
+        });
+
         return cuisineItems;
       } else {
         throw Exception('Failed to load cuisines');
@@ -147,10 +152,11 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (mounted) {
-    setState(() {
-      _userId = prefs.getString('userId');
-      //print('Login successful: $_userId');
-    });}
+      setState(() {
+        _userId = prefs.getString('userId');
+        //print('Login successful: $_userId');
+      });
+    }
   }
 
   Future<List<String>> _loadDietaryConstraints() async {
@@ -165,6 +171,14 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
         final List<String> constraintItems = data
             .map<String>((constraint) => constraint['name'].toString())
             .toList();
+
+        // Sort the dietary constraints alphabetically, but put "None" at the end
+        constraintItems.sort((a, b) {
+          if (a.toLowerCase() == 'none') return 1; // Put "None" at the end
+          if (b.toLowerCase() == 'none') return -1;
+          return a.toLowerCase().compareTo(b.toLowerCase());
+        });
+
         return constraintItems;
       } else {
         throw Exception('Failed to load dietary constraints');
@@ -318,7 +332,9 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
           Positioned.fill(
             child: Image.asset(
               isMobile
-                  ? (isLightTheme ? 'MobileLightMode.png' : 'MobileDarkMode.png')
+                  ? (isLightTheme
+                      ? 'MobileLightMode.png'
+                      : 'MobileDarkMode.png')
                   : (isLightTheme ? 'assets/Lightmode.png' : 'Darkermode.png'),
               fit: BoxFit.cover,
             ),
@@ -442,9 +458,10 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         }).toList(),
                         onChanged: (newValue) {
                           if (mounted) {
-                          setState(() {
-                            _spiceLevel = newValue!;
-                          });}
+                            setState(() {
+                              _spiceLevel = newValue!;
+                            });
+                          }
                         },
                       ),
                     ),
@@ -493,13 +510,13 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                         }).toList(),
                         onChanged: (newValue) {
                           if (mounted) {
-                          setState(() {
-                            _cuisine = newValue!;
-                          });}
+                            setState(() {
+                              _cuisine = newValue!;
+                            });
+                          }
                         },
                       ),
                     ),
-                    // const SizedBox(height: 2),
                     _buildDietaryConstraintsMultiSelect(),
                     const SizedBox(height: 50),
                     ElevatedButton(
@@ -527,12 +544,6 @@ class _ConfirmDetailsScreenState extends State<ConfirmDetailsScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // TextButton(
-                    //   onPressed: () {
-                    //     Navigator.pushNamed(context, '/login');
-                    //   },
-                    //   child: const Text('Already have an account? Login'),
-                    // ),r
                   ],
                 ),
               ),

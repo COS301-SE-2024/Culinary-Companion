@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
-import 'saved_recipes_screen.dart';
+import 'favorite_recipes_screen.dart';
 import 'profile_screen.dart';
 import 'add_recipe_screen.dart';
 import 'inventory_screen.dart';

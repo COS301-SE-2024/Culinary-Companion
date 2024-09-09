@@ -80,13 +80,24 @@ class _TimerPopupState extends State<TimerPopup> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
+    final Color backgroundColor =
+        isLightTheme ? Colors.white : Color(0xFF283330);
+
     return AlertDialog(
-      title: Text('Set Timer'),
+      title: Text(
+        'Set Timer',
+        style: TextStyle(fontSize: 22, color: textColor),
+      ),
+      backgroundColor: backgroundColor,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
+              SizedBox(height: 15),
               Expanded(
                 child: TextField(
                   keyboardType: TextInputType.number,
@@ -115,7 +126,7 @@ class _TimerPopupState extends State<TimerPopup> {
           SizedBox(height: 20),
           Text(
             'Time Remaining: ${_duration.inMinutes}:${(_duration.inSeconds % 60).toString().padLeft(2, '0')}',
-            style: TextStyle(fontSize: 24),
+            style: TextStyle(fontSize: 22, color: textColor),
           ),
           SizedBox(height: 20),
           Row(
@@ -125,10 +136,12 @@ class _TimerPopupState extends State<TimerPopup> {
                 onPressed: _isRunning && !_isPaused ? _pauseTimer : _startTimer,
                 child: Text(_isRunning && !_isPaused ? 'Pause' : 'Start'),
               ),
+              SizedBox(width: 10),
               ElevatedButton(
                 onPressed: _stopTimer,
                 child: Text('Stop'),
               ),
+              SizedBox(width: 10),
               ElevatedButton(
                 onPressed: _isRunning ? _restartTimer : null,
                 child: Text('Restart'),
@@ -140,7 +153,10 @@ class _TimerPopupState extends State<TimerPopup> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Text('Close'),
+          child: Text('Close', style: TextStyle(color: backgroundColor),),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: textColor,
+          ),
         ),
       ],
     );

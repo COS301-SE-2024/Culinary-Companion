@@ -204,7 +204,6 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     }
   }
 
-
   void _addItem(
       String category, String item, double quantity, String measurementUnit) {
     if (mounted) {
@@ -415,7 +414,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         title: Padding(
-          padding: EdgeInsets.only(top: 30, left: 38.0),
+          padding: EdgeInsets.only(top: 30, left: 30.0),
           child: Text(
             'Shopping List',
             style: TextStyle(
@@ -591,7 +590,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                 _toggleCheckbox(category, item);
               }
             },
-            activeColor: Colors.orange,
+            activeColor: Color(0xFFDC945F),
             checkColor: Colors.white,
           ),
           title: Text(
@@ -638,6 +637,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     final TextEditingController quantityController = TextEditingController();
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Theme(
@@ -783,6 +783,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         TextEditingController(text: quantity.toString());
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -790,7 +791,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
             'Edit Item',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: unshade(context),
+          backgroundColor: Color(0xFF283330),
           content: SingleChildScrollView(
             child: Form(
               key: formKey,
@@ -807,7 +808,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                         borderSide: BorderSide(color: Colors.white),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.orange),
+                        borderSide: BorderSide(color: Color(0xFFDC945F)),
                       ),
                     ),
                     style: TextStyle(color: Colors.white),

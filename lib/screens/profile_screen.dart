@@ -233,7 +233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         title: Padding(
-          padding: EdgeInsets.only(top: 30, left: 38.0),
+          padding: EdgeInsets.only(top: 80, left: 30.0, bottom: 70),
           child: Text(
             'Account',
             style: TextStyle(
@@ -257,7 +257,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.only(left: 50, right: 20.0),
+            padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30),
             child: _isLoading
                 ? Center(
                     child: Lottie.asset('assets/loading.json'),
@@ -282,7 +282,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 SizedBox(height: screenHeight * 20 / 730),
                                 //buildPreferences(),
                                 // SizedBox(height: screenHeight * 20 / 730),
-                                // buildMyRecipes(),
+                               buildMyRecipes(),
                               ],
                             );
                           } else {
