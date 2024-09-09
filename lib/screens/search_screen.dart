@@ -208,11 +208,17 @@ class _SearchScreenState extends State<SearchScreen> {
           });
         }
 
-        for (var recipe in fetchedRecipeIds) {
-          final String recipeId =
-              recipe['recipeid']; //fetch rec details for each rec
-          await fetchRecipeDetails(recipeId);
+        for (int i = 0; i < fetchedRecipeIds.length; i++) {
+        final String recipeId = fetchedRecipeIds[i]['recipeid'];
+        await fetchRecipeDetails(recipeId);
+
+        // Once the first recipe is fetched, stop showing the loading indicator
+        if (i == 0 && mounted) {
+          setState(() {
+            _isLoading = false;
+          });
         }
+      }
       } else {
         print('Failed to load search results: ${response.statusCode}');
       }
