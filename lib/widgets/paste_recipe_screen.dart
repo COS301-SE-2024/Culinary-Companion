@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 // ignore: unnecessary_import
 import 'package:multi_select_flutter/util/multi_select_item.dart';
@@ -109,7 +107,6 @@ class _PasteRecipeState extends State<PasteRecipe> {
   String _imageUrl = ""; //state variable to store the uploaded image URL
   String? _selectedImage;
   bool _isImageUploaded = false; //state variable to track image upload status
-  File? _uploadedImage; // State variable to store the uploaded image
 
   final List<String> _preloadedImages = [
     'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z'
