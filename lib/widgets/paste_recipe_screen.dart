@@ -26,6 +26,14 @@ class _PasteRecipeState extends State<PasteRecipe> {
   List<String> _selectedAppliances = [];
   List<MultiSelectItem<String>> _applianceItems = [];
 
+  // Add these two to manage the clearing of the text field and icon visibility
+  void clearFieldsAfterSuccess() {
+    setState(() {
+      _recipeTextController.clear(); // Clear the text field
+      _isImageUploaded = false; // Hide the icon
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -517,6 +525,9 @@ class _PasteRecipeState extends State<PasteRecipe> {
                     ),
                     const SizedBox(height: 8),
                     MultiSelectDialogField<String>(
+                      checkColor: Colors.white,
+                      selectedColor: Color(0xFF20493C),
+                      backgroundColor: Color(0xFFDC945F),
                       items: _applianceItems,
                       initialValue: _selectedAppliances.isEmpty
                           ? recipeData['appliances']
@@ -525,7 +536,6 @@ class _PasteRecipeState extends State<PasteRecipe> {
                               .toList()
                           : _selectedAppliances,
                       title: Text("Appliances"),
-                      selectedColor: Color.fromARGB(255, 215, 120, 61),
                       onConfirm: (results) {
                         setState(() {
                           _selectedAppliances = results;
@@ -586,6 +596,9 @@ class _PasteRecipeState extends State<PasteRecipe> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Recipe added successfully!')),
                     );
+
+                    // Clear the Paste Recipe text field and hide the icon
+                    clearFieldsAfterSuccess();
 
                     // close popup
                     Navigator.of(context).pop();
