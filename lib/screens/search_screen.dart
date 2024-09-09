@@ -6,6 +6,8 @@ import 'package:lottie/lottie.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/help_search.dart';
 import '../widgets/filter_recipes.dart';
+import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -19,7 +21,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
   List<String> cuisineType = [];
   List<String> dietaryOptions = [];
-
+Timer? _debounce;
   // List<String> ingredientOptions = [
   //   'Need 1 Extra Ingredient',
   //   'Mostly in My Pantry',
@@ -33,7 +35,19 @@ class _SearchScreenState extends State<SearchScreen> {
     'Hot',
     'Extra Hot' //5
   ];
+void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      // Perform the search only when the user has stopped typing for 500ms
+      _performSearch(query);
+    });
+  }
 
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
   @override
   void initState() {
     super.initState();
@@ -53,31 +67,50 @@ class _SearchScreenState extends State<SearchScreen> {
     final body = jsonEncode({'action': 'getAllRecipes'});
 
     try {
+      // Load cached recipes to avoid re-fetching if already available
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedRecipes = prefs.getString('cached_all_recipes');
+
+      if (cachedRecipes != null && recipes.isEmpty) {
+        setState(() {
+          recipes = List<Map<String, dynamic>>.from(jsonDecode(cachedRecipes));
+        });
+      }
+
+      // Fetch fresh recipes from Supabase
       final response =
           await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
-        // Fetch details concurrently
-        final detailFetches = fetchedRecipes.map((recipe) {
+        // Clear the recipes list to avoid duplication
+        recipes.clear();
+
+        // Fetch recipe details in parallel using Future.wait for faster results
+        List<Future<void>> detailFetches = fetchedRecipes.map((recipe) {
           final String recipeId = recipe['recipeid'];
-          return fetchRecipeDetails(recipeId);
+          return fetchRecipeDetails(recipeId); // Fetch in parallel
         }).toList();
 
         await Future.wait(detailFetches);
+
+        // Cache the fetched recipes
+        await prefs.setString('cached_all_recipes', jsonEncode(recipes));
       } else {
         print('Failed to load recipes: ${response.statusCode}');
       }
     } catch (error) {
       print('Error fetching recipes: $error');
     }
+
     if (mounted) {
       setState(() {
-        _isLoading = false;
+        _isLoading = false; // Hide loading indicator
       });
     }
   }
+
 
   Future<void> _loadDietaryConstraints() async {
     final url =
@@ -197,22 +230,23 @@ class _SearchScreenState extends State<SearchScreen> {
     final body = jsonEncode({'action': 'searchRecipes', 'searchTerm': query});
 
     try {
+      // Load search results from Supabase
       final response =
           await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
-        if (mounted) {
-          setState(() {
-            recipes.clear(); //clear recipes
-          });
-        }
+        setState(() {
+          recipes.clear(); // Clear the current list of recipes
+        });
 
-        for (var recipe in fetchedRecipeIds) {
-          final String recipeId =
-              recipe['recipeid']; //fetch rec details for each rec
-          await fetchRecipeDetails(recipeId);
-        }
+        // Fetch recipe details in parallel for search results
+        final detailFetches = fetchedRecipeIds.map((recipe) {
+          final String recipeId = recipe['recipeid'];
+          return fetchRecipeDetails(recipeId);
+        }).toList();
+
+        await Future.wait(detailFetches);
       } else {
         print('Failed to load search results: ${response.statusCode}');
       }
@@ -234,15 +268,42 @@ class _SearchScreenState extends State<SearchScreen> {
       });
     }
 
+    // Perform filtering on cached recipes when possible
     Filters filters = Filters(
       course: selectedCourseTypeOptions,
       spiceLevel:
           selectedSpiceLevel != null ? int.tryParse(selectedSpiceLevel!) : null,
       cuisine: selectedCuisineType,
       dietaryOptions: selectedDietaryOptions,
-      ingredientOption: selectedIngredientOption,
     );
 
+    // Filter recipes locally first
+    List<Map<String, dynamic>> filteredRecipes = recipes.where((recipe) {
+      bool matchesCourse = selectedCourseTypeOptions.isEmpty ||
+          selectedCourseTypeOptions.contains(recipe['course']);
+      bool matchesCuisine = selectedCuisineType.isEmpty ||
+          selectedCuisineType.contains(recipe['cuisine']);
+      bool matchesSpiceLevel = selectedSpiceLevel == null ||
+          recipe['spicelevel'] == int.tryParse(selectedSpiceLevel!);
+      bool matchesDietary = selectedDietaryOptions.isEmpty ||
+          selectedDietaryOptions
+              .any((option) => recipe['dietary'].contains(option));
+
+      return matchesCourse &&
+          matchesCuisine &&
+          matchesSpiceLevel &&
+          matchesDietary;
+    }).toList();
+
+    if (filteredRecipes.isNotEmpty) {
+      setState(() {
+        recipes = filteredRecipes; // Update with locally filtered recipes
+        _isLoading = false;
+      });
+      return;
+    }
+
+    // If no local matches, fetch filtered recipes from Supabase
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
@@ -257,17 +318,17 @@ class _SearchScreenState extends State<SearchScreen> {
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
-        if (mounted) {
-          setState(() {
-            recipes.clear(); //clear the current recipes
-          });
-        }
+        setState(() {
+          recipes.clear(); // Clear the current recipes
+        });
 
-        for (var recipe in fetchedRecipeIds) {
-          final String recipeId =
-              recipe['recipeid']; //fetch recpe details for each recipe
-          await fetchRecipeDetails(recipeId);
-        }
+        // Fetch recipe details for filtered results
+        List<Future<void>> detailFetches = fetchedRecipeIds.map((recipe) {
+          final String recipeId = recipe['recipeid'];
+          return fetchRecipeDetails(recipeId); // Fetch in parallel
+        }).toList();
+
+        await Future.wait(detailFetches);
       } else {
         print('Failed to load filtered recipes: ${response.statusCode}');
       }
@@ -281,6 +342,7 @@ class _SearchScreenState extends State<SearchScreen> {
       }
     }
   }
+
 
   void _openFilterModal() {
     final theme = Theme.of(context);
@@ -690,7 +752,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             suffixIcon: IconButton(
                               icon: Icon(Icons.search),
                               onPressed: () =>
-                                  _performSearch(_searchController.text),
+                                  _onSearchChanged(_searchController.text),
                             ),
                           ),
                         ),
