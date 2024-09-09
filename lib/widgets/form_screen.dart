@@ -234,7 +234,8 @@ class _RecipeFormState extends State<RecipeForm>
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
-    final Color backgroundColor = isLightTheme ? Colors.white : Color(0xFF283330);
+    final Color backgroundColor =
+        isLightTheme ? Colors.white : Color(0xFF283330);
 
     showDialog(
       barrierDismissible: false,
@@ -242,7 +243,10 @@ class _RecipeFormState extends State<RecipeForm>
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: backgroundColor,
-          title: Text('Add New Ingredient', style: TextStyle(fontSize: 22, color: textColor),),
+          title: Text(
+            'Add New Ingredient',
+            style: TextStyle(fontSize: 22, color: textColor),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -671,8 +675,6 @@ class _RecipeFormState extends State<RecipeForm>
           return;
         }
 
-// print("dietaryConstraints");
-// print(dietaryConstraints);
         // Filter dietary constraints that are "yes" or "true"
         final filteredConstraints = dietaryConstraints.entries
             .where((entry) =>
@@ -681,8 +683,6 @@ class _RecipeFormState extends State<RecipeForm>
             .map((entry) => entry.key)
             .toList();
 
-        // print("filteredConstraints");
-        // print(filteredConstraints);
         // Convert the filtered constraints to a comma-separated string
         final constraintsString = filteredConstraints.join(',');
 
