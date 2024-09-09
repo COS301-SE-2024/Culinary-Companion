@@ -1201,68 +1201,6 @@ class _RecipeCardState extends State<RecipeCard> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   buildActionButton(context),
-                                  // if (!_isAlteredRecipe)
-                                  //   ElevatedButton(
-                                  //     onPressed: () async {
-                                  //       if (userId != null) {
-                                  //         showDialog(
-                                  //           context: context,
-                                  //           builder: (BuildContext context) {
-                                  //             return AlertDialog(
-                                  //               title: Text(
-                                  //                 'Adjusting recipe...', //loading screen
-                                  //                 style: TextStyle(
-                                  //                     color: Colors.black),
-                                  //               ),
-                                  //               content:
-                                  //                   CircularProgressIndicator(),
-                                  //               backgroundColor: Colors.white,
-                                  //             );
-                                  //           },
-                                  //         );
-                                  //         String alteredRecipeJson =
-                                  //             await fetchDietaryConstraintsRecipe(
-                                  //                 userId!, widget.recipeID);
-
-                                  //         //decode json
-                                  //         Map<String, dynamic> alteredRecipe =
-                                  //             jsonDecode(alteredRecipeJson);
-
-                                  //         //update rec
-                                  //         _updateRecipe(alteredRecipe);
-                                  //         Navigator.of(context)
-                                  //             .pop(); //stop loading screen
-                                  //         Navigator.of(context).pop();
-                                  //         _showMobileRecipeDetails(); //refresh rec
-                                  //       }
-                                  //     },
-                                  //     style: ElevatedButton.styleFrom(
-                                  //       backgroundColor: textColor,
-                                  //       padding: const EdgeInsets.symmetric(
-                                  //           horizontal: 40, vertical: 20),
-                                  //     ),
-                                  //     child: Text(
-                                  //       'Adjust recipe to cater to my preferences',
-                                  //       style: TextStyle(color: clickColor),
-                                  //     ),
-                                  //   )
-                                  // else
-                                  //   ElevatedButton(
-                                  //     onPressed: () {
-                                  //       _revertToOriginalRecipe(); //go back to origional rec
-                                  //       Navigator.of(context).pop();
-                                  //       _showMobileRecipeDetails(); //refresh rec
-                                  //     },
-                                  //     style: ElevatedButton.styleFrom(
-                                  //       backgroundColor: textColor,
-                                  //       padding: const EdgeInsets.symmetric(
-                                  //           horizontal: 40, vertical: 20),
-                                  //     ),
-                                  //     child: Text(
-                                  //       'Revert to Original Recipe',
-                                  //       style: TextStyle(color: clickColor),
-                                  //     ),
-                                  //   ),
                                   SizedBox(
                                       height:
                                           MediaQuery.of(context).size.height *
