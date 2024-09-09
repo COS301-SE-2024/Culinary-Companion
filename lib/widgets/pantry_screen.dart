@@ -62,125 +62,143 @@ class _PantryScreenState extends State<PantryScreen> {
     }
   }
 
-Future<void> _fetchIngredientNames() async {
-  final prefs = await SharedPreferences.getInstance();
-  try {
-    final response = await http.post(
-      Uri.parse(
-          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: '{"action": "getIngredientNames"}',
-      headers: {'Content-Type': 'application/json'},
-    );
+  Future<void> _fetchIngredientNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: '{"action": "getIngredientNames"}',
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
 
-      // Cache the response for offline use
-      await prefs.setString('cachedIngredients', jsonEncode(data));
+        // Cache the response for offline use
+        await prefs.setString('cachedIngredients', jsonEncode(data));
+        if (mounted) {
+          setState(() {
+            _items = data
+                .map((item) => {
+                      'id': item['id'].toString(),
+                      'name': item['name'].toString(),
+                      'category': item['category'].toString(),
+                      'measurementUnit': item['measurementUnit'].toString(),
+                    })
+                .toList();
 
-      setState(() {
-        _items = data
-            .map((item) => {
-                  'id': item['id'].toString(),
-                  'name': item['name'].toString(),
-                  'category': item['category'].toString(),
-                  'measurementUnit': item['measurementUnit'].toString(),
-                })
-            .toList();
-      });
-    } else {
-      print('Failed to fetch ingredient names: ${response.statusCode}');
-    }
-  } catch (error) {
-    //print('Error fetching ingredient names: $error');
+            // Sort items alphabetically by name
+            _items.sort((a, b) => a['name']!.compareTo(b['name']!));
+          });
+        }
+      } else {
+        print('Failed to fetch ingredient names: ${response.statusCode}');
+      }
+    } catch (error) {
+      //print('Error fetching ingredient names: $error');
 
-    // Load from cache if the network fails
-    final cachedData = prefs.getString('cachedIngredients');
-    if (cachedData != null) {
-      final List<dynamic> data = jsonDecode(cachedData);
-      setState(() {
-        _items = data
-            .map((item) => {
-                  'id': item['id'].toString(),
-                  'name': item['name'].toString(),
-                  'category': item['category'].toString(),
-                  'measurementUnit': item['measurementUnit'].toString(),
-                })
-            .toList();
-      });
+      // Load from cache if the network fails
+      final cachedData = prefs.getString('cachedIngredients');
+      if (cachedData != null) {
+        final List<dynamic> data = jsonDecode(cachedData);
+        if(mounted){
+        setState(() {
+          _items = data
+              .map((item) => {
+                    'id': item['id'].toString(),
+                    'name': item['name'].toString(),
+                    'category': item['category'].toString(),
+                    'measurementUnit': item['measurementUnit'].toString(),
+                  })
+              .toList();
+
+          // Sort items alphabetically by name
+          _items.sort((a, b) => a['name']!.compareTo(b['name']!));
+        });}
+      }
     }
   }
-}
-
-
+  
 Future<void> _fetchPantryList() async {
-  final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
-  try {
-    // Fetch data from the API
-    final response = await http.post(
-      Uri.parse(
-          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: jsonEncode({
-        'action': 'getAvailableIngredients',
-        'userId': _userId,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
+    try {
+      // Fetch data from the API
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'getAvailableIngredients',
+          'userId': _userId,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final List<dynamic> pantryList = data['availableIngredients'];
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final List<dynamic> pantryList = data['availableIngredients'];
 
-      // Cache the response data
-      await prefs.setString('cachedPantryList', jsonEncode(pantryList));
+        // Cache the response data
+        await prefs.setString('cachedPantryList', jsonEncode(pantryList));
 
-      // Process and update the pantry list
-      if (mounted) {
-        setState(() {
-          _pantryList.clear();
-          for (var item in pantryList) {
-            final ingredientName = item['name'].toString();
-            final quantity = item['quantity'].toString();
-            final measurementUnit = item['measurementunit'].toString();
-            final category = item['category'] ?? 'Other';
-            final displayText = '$ingredientName ($quantity $measurementUnit)';
+        // Process and update the pantry list
+        if (mounted) {
+          setState(() {
+            _pantryList.clear();
+            for (var item in pantryList) {
+              final ingredientName = item['name'].toString();
+              final quantity = item['quantity'].toString();
+              final measurementUnit = item['measurementunit'].toString();
+              final category = item['category'] ?? 'Other';
+              final displayText =
+                  '$ingredientName ($quantity $measurementUnit)';
 
-            _pantryList.putIfAbsent(category, () => []);
-            _pantryList[category]?.add(displayText);
-          }
-        });
+              _pantryList.putIfAbsent(category, () => []);
+              _pantryList[category]?.add(displayText);
+            }
+
+            // Sort items within each category alphabetically
+            _pantryList.forEach((category, items) {
+              items.sort((a, b) => a.compareTo(b));
+            });
+          });
+        }
+      } else {
+        print('Failed to fetch pantry list: ${response.statusCode}');
       }
-    } else {
-      print('Failed to fetch pantry list: ${response.statusCode}');
-    }
-  } catch (error) {
-    //print('Error fetching pantry list: $error');
+    } catch (error) {
+      //print('Error fetching pantry list: $error');
 
-    // Load cached data if the network request fails
-    final cachedData = prefs.getString('cachedPantryList');
-    if (cachedData != null) {
-      final List<dynamic> pantryList = jsonDecode(cachedData);
+      // Load cached data if the network request fails
+      final cachedData = prefs.getString('cachedPantryList');
+      if (cachedData != null) {
+        final List<dynamic> pantryList = jsonDecode(cachedData);
 
-      if (mounted) {
-        setState(() {
-          _pantryList.clear();
-          for (var item in pantryList) {
-            final ingredientName = item['name'].toString();
-            final quantity = item['quantity'].toString();
-            final measurementUnit = item['measurementunit'].toString();
-            final category = item['category'] ?? 'Other';
-            final displayText = '$ingredientName ($quantity $measurementUnit)';
+        if (mounted) {
+          setState(() {
+            _pantryList.clear();
+            for (var item in pantryList) {
+              final ingredientName = item['name'].toString();
+              final quantity = item['quantity'].toString();
+              final measurementUnit = item['measurementunit'].toString();
+              final category = item['category'] ?? 'Other';
+              final displayText =
+                  '$ingredientName ($quantity $measurementUnit)';
 
-            _pantryList.putIfAbsent(category, () => []);
-            _pantryList[category]?.add(displayText);
-          }
-        });
+              _pantryList.putIfAbsent(category, () => []);
+              _pantryList[category]?.add(displayText);
+            }
+
+            // Sort items within each category alphabetically
+            _pantryList.forEach((category, items) {
+              items.sort((a, b) => a.compareTo(b));
+            });
+          });
+        }
       }
     }
   }
-}
-
 
   Future<void> _addToPantryList(String? userId, String ingredientName,
       double quantity, String measurementUnit) async {
@@ -533,7 +551,7 @@ Future<void> _fetchPantryList() async {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         title: Padding(
-          padding: EdgeInsets.only(top: 30, left: 38.0),
+          padding: EdgeInsets.only(top: 30, left: 30.0),
           child: Text(
             'Pantry',
             style: TextStyle(
@@ -758,6 +776,7 @@ Future<void> _fetchPantryList() async {
         TextEditingController(text: quantity.toString());
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -767,7 +786,7 @@ Future<void> _fetchPantryList() async {
                 'Edit Item',
                 style: TextStyle(color: Colors.white),
               ),
-              backgroundColor: unshade(context),
+              backgroundColor: Color(0xFF283330),
               content: SingleChildScrollView(
                 child: Form(
                   key: formKey,
@@ -784,7 +803,7 @@ Future<void> _fetchPantryList() async {
                             borderSide: BorderSide(color: Colors.white),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.orange),
+                            borderSide: BorderSide(color: Color(0xFFDC945F)),
                           ),
                         ),
                         style: TextStyle(color: Colors.white),
@@ -857,6 +876,7 @@ Future<void> _fetchPantryList() async {
     final TextEditingController quantityController = TextEditingController();
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(

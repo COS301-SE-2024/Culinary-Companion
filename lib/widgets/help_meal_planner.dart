@@ -8,10 +8,10 @@ Color getFontColor(BuildContext context) {
       : const Color.fromARGB(255, 255, 255, 255);
 }
 
-class HelpMenu extends StatelessWidget {
+class HelpMealPlanner extends StatelessWidget {
   final VoidCallback onClose;
 
-  HelpMenu({required this.onClose});
+  const HelpMealPlanner({required this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +40,20 @@ class HelpMenu extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset(theme.brightness == Brightness.light ? 'assets/light_helper_chef.png' : 'assets/helper_chef.png', height: 80),
+                        Image.asset(
+                          theme.brightness == Brightness.light
+                              ? 'assets/light_helper_chef.png'
+                              : 'assets/helper_chef.png',
+                          height: 80,
+                        ),
                         SizedBox(height: 10),
                         Text(
                           'How may I help you?',
                           style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: fontColor),
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: fontColor,
+                          ),
                         ),
                         SizedBox(height: 16),
                       ],
@@ -84,11 +90,9 @@ class HelpMenu extends StatelessWidget {
                       onPressed: onClose,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFFDC945F),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       ),
-                      child:
-                          Text('Close', style: TextStyle(color: Colors.white)),
+                      child: Text('Close', style: TextStyle(color: Colors.white)),
                     ),
                   ),
                 ],
@@ -121,12 +125,12 @@ class HelpMenu extends StatelessWidget {
       onTap: () async {
         if (await canLaunch(url)) {
           await launch(url);
-        } else {}
+        }
       },
       child: Text(
         text,
-        style:
-            TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+        style: TextStyle(
+            color: Colors.blue, decoration: TextDecoration.underline),
       ),
     );
   }
@@ -135,25 +139,25 @@ class HelpMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubSectionTitle('Navigating the Saved Recipes Page', fontColor),
+        _buildSubSectionTitle('Using the Meal Planner', fontColor),
         _buildParagraph(
-            'Here’s how you can make the most of your saved recipes:',
+            'Here’s how you can make the most of your Meal Planner:',
             fontColor),
         _buildStep(
             '1',
-            'Scroll through the list to view all your saved recipes. Each card provides an overview including the recipe name, description, prep time, and cook time.',
+            'Fill in your personal information such as gender, height, weight, and age.',
             fontColor),
         _buildStep(
             '2',
-            'Tap on any recipe card to view detailed information about the recipe, including step-by-step instructions, ingredients, and appliances needed.',
+            'Select your meal plan goals, such as weight loss or muscle gain.',
             fontColor),
         _buildStep(
             '3',
-            'To remove a recipe from your saved list, just click the heart icon in the top right corner.',
+            'Tap "Generate Meal Plan" to create a personalized meal plan.',
             fontColor),
         _buildStep(
             '4',
-            'If you want to add ingredients from a saved recipe to your shopping list, tap the "Add to Shopping List" button similar to the Home Page.',
+            'Review and save your meal plans under "My Meal Plans" for future reference.',
             fontColor),
       ],
     );
@@ -198,40 +202,12 @@ class HelpMenu extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFAQ(
-            'Q: How can I edit my dietary preferences?',
-            'A: Go to the "Profile" section and update your dietary preferences. This will help us suggest recipes that match your dietary needs.',
+            'Q: How can I edit my meal plan preferences?',
+            'A: Go to the "Profile" section and update your dietary preferences to ensure your meal plans match your needs.',
             fontColor),
         _buildFAQ(
-            'Q: How do I navigate to the Home page?',
-            'A: Tap on the "Home" section in the navbar to return to the Home page at any time.',
-            fontColor),
-        _buildFAQ(
-            'Q: How do I add a new recipe?',
-            'A: Navigate to the "Add Recipe" section by tapping on the "Add Recipe" tab and fill in the required details to share your recipe with the community.',
-            fontColor),
-        _buildFAQ(
-            'Q: How can I manage my shopping list?',
-            'A: Go to the "Inventory" section to access the "Shopping List" to view and manage your shopping items.',
-            fontColor),
-        _buildFAQ(
-            'Q: How do I keep track of items in my pantry?',
-            'A: Go to the "Inventory" section to access the "Pantry" where you can add, edit, and remove items.',
-            fontColor),
-        _buildFAQ(
-            'Q: Where can I manage my kitchen appliances?',
-            'A: Go to the "Inventory" section to access the "Appliances" tab to view and manage your kitchen appliances.',
-            fontColor),
-        _buildFAQ(
-            'Q: Where can I search for specific recipes?',
-            'A: Go to the "Search Recipes" section to be able to search for recipes by name, ingredients and filter according to your preferences.',
-            fontColor),
-        _buildFAQ(
-            'Q: How do I view my saved recipes?',
-            'A: Navigate to the "Saved Recipes" section by tapping on the "Saved Recipes" tab to see all your saved recipes.',
-            fontColor),
-        _buildFAQ(
-            'Q: How can I update my profile information?',
-            'A: Go to the "Profile" section by tapping on the "Profile" tab to update your profile information.',
+            'Q: How do I view my saved meal plans?',
+            'A: Navigate to the "My Meal Plans" tab in the Meal Planner section to view and manage your saved plans.',
             fontColor),
       ],
     );

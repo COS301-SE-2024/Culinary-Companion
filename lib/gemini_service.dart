@@ -201,10 +201,17 @@ Future<String> fetchIngredientSubstitutionRecipe(
   They should all be Strings.""";
 
   final initialPrompt =
-      """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+  """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   use this substitution $substitute instead of the $substitutedIngredient. 
-  Adjust the recipe keeping the same formatting with the substituted ingredient. Please make any fractions into decimal values.""";
+  Make sure to adjust the quantities of the ingredients so the recipe is still accurate, 
+  take into account the new ingredients liquidity, saltiness, sourness, sweetness, bitterness 
+  as opposed to the previous ingredient and make sure the recipe will still create the same taste.
+  Adjust the recipe keeping the same formatting with the substituted ingredient. 
+  Make sure to adjust the quantities of the ingredients so the recipe is still accurate, 
+  take into account the new ingredients liquidity, saltiness, sourness, sweetness, bitterness 
+  as opposed to the previous ingredient and make sure the recipe will still create the same taste.
+  Please make any fractions into decimal values.""";
 
   final finalPrompt = initialPrompt + formatting;
 
@@ -775,7 +782,7 @@ Future<String> fetchDietaryConstraintRecipe(
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print(jsonString);
+    //print(jsonString);
 
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
@@ -822,18 +829,44 @@ Future<String> fetchDietaryConstraintRecipe(
 }
 
 Future<List<String>> fetchAllowedAppliances() async {
-  // Call the edge function to fetch allowed appliances
-  final response = await http.get(Uri.parse(
-      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'));
+  
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
 
-  if (response.statusCode == 200) {
-    final List<dynamic> appliances = jsonDecode(response.body);
-    return appliances.map((appliance) => appliance['name'] as String).toList();
-  } else {
-    print('Error fetching allowed appliances: ${response.body}');
+  try {
+    
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'action': 'getAllAppliances',  
+      }),
+    );
+    if (response.statusCode == 200) {
+      try {
+        
+        final List<dynamic> appliances = jsonDecode(response.body);
+        //print(response.body);
+        return appliances.map((appliance) => appliance['name'] as String).toList();
+      } catch (e) {
+        print('Error parsing JSON: $e');
+        print('Response body: ${response.body}');
+        return [];
+      }
+    } else {
+      print('Error fetching allowed appliances: ${response.statusCode}');
+      print('Response body: ${response.body}');
+      return [];
+    }
+  } catch (e) {
+    print('Exception during fetch: $e');
     return [];
   }
 }
+
+
 
 ///extract json data for recipe
 Future<Map<String, dynamic>?> extractRecipeData(
@@ -1092,6 +1125,7 @@ Future<String> fetchDietaryConstraintsRecipe(
   // fetch user's dietary constraints
   //print("user id in gem: $userId");
   final String dietaryConstraints = await fetchUserDietaryConstraints(userId);
+  //print("dc: $dietaryConstraints");
 
   // Ensure the data is parsed correctly
   List<String> ingredients = [];
@@ -1205,5 +1239,61 @@ Future<String> fetchDietaryConstraintsRecipe(
     return jsonString;
   } else {
     return 'No response text';
+  }
+}
+
+Future<List<String>> validateRecipe(String name, String description, List<String> steps) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return ['No API_KEY environment variable'];
+  }
+
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final prompt = """
+Validate the following recipe data:
+
+- Name: "$name"
+- Description: "$description"
+- Steps: ${steps.join(', ')}
+
+Ensure that:
+- The name, description, and steps are relevant to cooking.
+- They do not contain inappropriate words or phrases.
+- Do not comment if there are grammar, punctuation or spelling errors
+-Description can be anything as long as it does not contain inappropriate words or phrases.
+-Steps do not have to be extreamly precise or complete as long as they do not contain inappropriate words or phrases and are cooking related
+
+If there are any issues, return a simple list of validation errors like this:
+[
+  "Error 1: The name contains inappropriate words.",
+  "Error 2: Step 2 is not relevant to cooking."
+]
+
+Otherwise, return an empty list if everything is valid.
+  """;
+
+  final content = [Content.text(prompt)];
+  final response = await model.generateContent(content);
+
+  if (response != null && response.text != null) {
+    String responseText = response.text!;
+
+    // Clean up the response
+    responseText = responseText.trim();
+
+    // Ensure the response is a valid JSON array by removing any unwanted text
+    responseText = responseText.replaceAll(RegExp(r'[^\[]*\['), '['); // Remove text before the array
+    responseText = responseText.replaceAll(RegExp(r'\][^\]]*$'), ']'); // Remove text after the array
+
+    // Attempt to parse the cleaned-up JSON response
+    try {
+      List<String> errors = List<String>.from(jsonDecode(responseText));
+      return errors;
+    } catch (e) {
+      print('Error parsing validation response: $e');
+      return ['Failed to parse validation response'];
+    }
+  } else {
+    return ['No response from Gemini'];
   }
 }

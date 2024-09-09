@@ -2,10 +2,11 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
-import 'saved_recipes_screen.dart';
+import 'favorite_recipes_screen.dart';
 import 'profile_screen.dart';
 import 'add_recipe_screen.dart';
 import 'inventory_screen.dart';
+import 'meal_planner.dart';
 import '../widgets/navbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -37,9 +38,10 @@ class _MainScreenState extends State<MainScreen> {
 
   void changeRoute(String newRoute) {
     if (mounted) {
-    setState(() {
-      currentRoute = newRoute;
-    });}
+      setState(() {
+        currentRoute = newRoute;
+      });
+    }
   }
 
   @override
@@ -90,6 +92,8 @@ class _MainScreenState extends State<MainScreen> {
         return AddRecipeScreen();
       case '/inventory-screen':
         return InventoryScreen();
+      case '/meal-planner':
+        return MealPlannerScreen();
       case '/saved-recipes':
         return SavedRecipesScreen();
       case '/profile':
