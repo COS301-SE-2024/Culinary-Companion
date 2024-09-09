@@ -1243,7 +1243,7 @@ Future<String> fetchDietaryConstraintsRecipe(
 }
 
 Future<List<String>> validateRecipe(String name, String description, List<String> steps) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return ['No API_KEY environment variable'];
   }
