@@ -280,6 +280,12 @@ class _PasteRecipeState extends State<PasteRecipe> {
       methodControllers.add(TextEditingController(text: step));
     }
 
+    if (_selectedAppliances.isEmpty) {
+    _selectedAppliances = recipeData['appliances']
+        .map<String>((appliance) => appliance['name'] as String)
+        .toList();
+  }
+
     await showDialog(
       context: context,
       builder: (BuildContext context) {
