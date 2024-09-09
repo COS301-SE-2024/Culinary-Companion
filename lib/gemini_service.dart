@@ -1051,6 +1051,29 @@ Future<List<String>> identifyIngredientFromReceipt(String items) async {
   }
 }
 
+Future<String> findBestMatchingIngredient(String identifiedIngredient, List<String> dbIngredients) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return 'No API_KEY environment variable';
+  }
+
+  // Create the prompt for Gemini
+  final prompt = """Compare the identified ingredient "$identifiedIngredient" to this list of ingredients from the database: ${dbIngredients.join(', ')}.
+  Return the most similar ingredient from the list - based on the name of the identified ingredient - without explanation.""";
+
+  // Initialize the model with your API key
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final content = [Content.text(prompt)];
+  final response = await model.generateContent(content);
+
+  if (response != null && response.text != null) {
+    return response.text!.trim();  // The most similar ingredient
+  } else {
+    return 'No response';
+  }
+}
+
+
 
 // all dietary constraints
 Future<String> fetchDietaryConstraintsRecipe(String userId, String recipeId) async {

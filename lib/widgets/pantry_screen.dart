@@ -563,10 +563,7 @@ Future<List<String>> findSimilarIngredients(String itemName, String identifiedIn
       'identifiedIngredient': identifiedIngredient,
     });
 
-    // Print out the request body for debugging
-    // print('Request Body: $requestBody');
-
-    // Send the POST request to your Supabase Function
+    // Send the POST request to your Supabase Function to get ingredients from the DB
     final response = await http.post(
       Uri.parse(
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'
@@ -575,19 +572,21 @@ Future<List<String>> findSimilarIngredients(String itemName, String identifiedIn
       body: requestBody,
     );
 
-    // Log the response status and body for debugging
-    // print('Response Status Code: ${response.statusCode}');
-    // print('Response Body: ${response.body}');
-
     if (response.statusCode == 200) {
       // Decode the response body as a list of ingredients
-      final List<dynamic> data = jsonDecode(response.body);
+      final List<dynamic> dbIngredients = jsonDecode(response.body);
+
+      // Use Gemini to find the most appropriate ingredient
+      final bestMatch = await findBestMatchingIngredient(identifiedIngredient, dbIngredients.map((e) => e['name'].toString()).toList());
+
+      // Ensure the best match is the first in the list, followed by the rest of the ingredients
+      List<String> sortedIngredients = [bestMatch];
+      sortedIngredients.addAll(dbIngredients.map<String>((ingredient) => ingredient['name'].toString()).where((ingredient) => ingredient != bestMatch).toList());
 
       // Cache the response for offline use (optional)
-      await prefs.setString('cachedSimilarIngredients', jsonEncode(data));
+      await prefs.setString('cachedSimilarIngredients', jsonEncode(dbIngredients));
 
-      // Return a list of ingredient names from the response
-      return data.map<String>((ingredient) => ingredient['name'].toString()).toList();
+      return sortedIngredients;
     } else {
       print('Failed to fetch similar ingredients: ${response.statusCode}');
       return [];
@@ -605,6 +604,7 @@ Future<List<String>> findSimilarIngredients(String itemName, String identifiedIn
     return [];
   }
 }
+
 
 
 
