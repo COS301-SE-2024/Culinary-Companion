@@ -459,21 +459,120 @@ Future<void> _selectImage() async {
   }
 }
 
+// Future<void> _showIngredientDialog(List<String> ingredients) async {
+//   // Initialize the selected ingredients with the first (most accurate) result
+//   List<String> selectedIngredients = List.filled(ingredients.length, '');
+
+//   showDialog(
+//     context: context,
+//     builder: (context) {
+//       return StatefulBuilder(
+//         builder: (context, setState) {
+//           return AlertDialog(
+//             title: Text('Detected Ingredients'),
+//             content: SingleChildScrollView(
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: ingredients.asMap().entries.map((entry) {
+//                   int index = entry.key;
+//                   String itemEntry = entry.value;
+
+//                   // Extract itemName and identifiedIngredient from the entry
+//                   final itemParts = itemEntry.split(',');
+//                   final itemName = itemParts[0].replaceFirst('Item: ', '').trim();
+//                   final identifiedIngredient = itemParts[1].replaceFirst('Ingredient: ', '').trim();
+
+//                   return FutureBuilder<List<String>>(
+//                     future: findSimilarIngredients(itemName, identifiedIngredient), // Call Dart function
+//                     builder: (context, snapshot) {
+//                       if (snapshot.connectionState == ConnectionState.waiting) {
+//                         return ListTile(
+//                           title: Text(itemName),
+//                           trailing: CircularProgressIndicator(),
+//                         );
+//                       } else if (snapshot.hasError) {
+//                         return ListTile(
+//                           title: Text(itemName),
+//                           trailing: Text('Error loading similar ingredients'),
+//                         );
+//                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+//                         return ListTile(
+//                           title: Text(itemName),
+//                           trailing: Text('No similar ingredients found'),
+//                         );
+//                       }
+
+//                       final similarIngredients = snapshot.data!;
+//                       // Set the first suggestion as the default selected ingredient if not already set
+//                       if (selectedIngredients[index].isEmpty && similarIngredients.isNotEmpty) {
+//                         selectedIngredients[index] = similarIngredients.first;
+//                       }
+
+//                       return ListTile(
+//                         title: Text(itemName),
+//                         trailing: DropdownButton<String>(
+//                           value: selectedIngredients[index],
+//                           hint: Text('Select similar ingredient'),
+//                           items: similarIngredients.map((ingredient) {
+//                             return DropdownMenuItem<String>(
+//                               value: ingredient,
+//                               child: Text(ingredient),
+//                             );
+//                           }).toList(),
+//                           onChanged: (newValue) {
+//                             setState(() {
+//                               // Update the selected ingredient in the list
+//                               selectedIngredients[index] = newValue ?? '';
+//                             });
+//                           },
+//                         ),
+//                       );
+//                     },
+//                   );
+//                 }).toList(),
+//               ),
+//             ),
+//             actions: [
+//               ElevatedButton(
+//                 onPressed: () {
+//                   // Handle adding selected ingredients to the pantry
+//                   for (var selected in selectedIngredients) {
+//                     if (selected.isNotEmpty) {
+//                       print('Add $selected to pantry');
+//                       // Call your _addToPantryList function here for each selected ingredient
+//                       // _addToPantryList(userId, selected, quantity, measurementUnit);
+//                     }
+//                   }
+//                   Navigator.of(context).pop();
+//                 },
+//                 child: Text('Add to Pantry'),
+//               ),
+//             ],
+//           );
+//         },
+//       );
+//     },
+//   );
+// }
 Future<void> _showIngredientDialog(List<String> ingredients) async {
+  // Convert the ingredients list to a growable list
+  List<String> growableIngredients = List.from(ingredients); // Make it growable
+  List<String> selectedIngredients = []; // Start with an empty growable list
+
+  // Populate selectedIngredients dynamically based on the initial ingredient list
+  growableIngredients.forEach((_) => selectedIngredients.add(''));
+
   showDialog(
     context: context,
     builder: (context) {
       return StatefulBuilder(
         builder: (context, setState) {
-          // Initialize the selected ingredients with the first (most accurate) result
-          List<String> selectedIngredients = List.filled(ingredients.length, '');
-
           return AlertDialog(
             title: Text('Detected Ingredients'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: ingredients.asMap().entries.map((entry) {
+                children: growableIngredients.asMap().entries.map((entry) {
                   int index = entry.key;
                   String itemEntry = entry.value;
 
@@ -508,23 +607,41 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
                         selectedIngredients[index] = similarIngredients.first;
                       }
 
-                      return ListTile(
-                        title: Text(itemName),
-                        trailing: DropdownButton<String>(
-                          value: selectedIngredients[index],
-                          hint: Text('Select similar ingredient'),
-                          items: similarIngredients.map((ingredient) {
-                            return DropdownMenuItem<String>(
-                              value: ingredient,
-                              child: Text(ingredient),
-                            );
-                          }).toList(),
-                          onChanged: (newValue) {
-                            setState(() {
-                              selectedIngredients[index] = newValue ?? '';
-                            });
-                          },
-                        ),
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: ListTile(
+                              title: Text(itemName),
+                              trailing: DropdownButton<String>(
+                                value: selectedIngredients[index],
+                                hint: Text('Select similar ingredient'),
+                                items: similarIngredients.map((ingredient) {
+                                  return DropdownMenuItem<String>(
+                                    value: ingredient,
+                                    child: Text(ingredient),
+                                  );
+                                }).toList(),
+                                onChanged: (newValue) {
+                                  setState(() {
+                                    // Update the selected ingredient in the list
+                                    selectedIngredients[index] = newValue ?? '';
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.remove_circle, color: Colors.red),
+                            onPressed: () {
+                              setState(() {
+                                // Remove the item from the growable list and refresh the UI
+                                growableIngredients.removeAt(index);
+                                selectedIngredients.removeAt(index); // Make sure the corresponding selected ingredient is removed as well
+                              });
+                            },
+                          ),
+                        ],
                       );
                     },
                   );
@@ -538,6 +655,8 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
                   for (var selected in selectedIngredients) {
                     if (selected.isNotEmpty) {
                       print('Add $selected to pantry');
+                      // Call your _addToPantryList function here for each selected ingredient
+                      // _addToPantryList(userId, selected, quantity, measurementUnit);
                     }
                   }
                   Navigator.of(context).pop();
@@ -551,6 +670,10 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
     },
   );
 }
+
+
+
+
 
 
 Future<List<String>> findSimilarIngredients(String itemName, String identifiedIngredient) async {
