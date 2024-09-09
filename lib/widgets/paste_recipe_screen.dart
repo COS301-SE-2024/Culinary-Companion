@@ -23,6 +23,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
   List<String> _appliances = [];
   List<String> _selectedAppliances = [];
   List<MultiSelectItem<String>> _applianceItems = [];
+  bool _isUploading = false;
 
   @override
   void initState() {
@@ -120,6 +121,10 @@ class _PasteRecipeState extends State<PasteRecipe> {
       return;
     }
 
+    setState(() {
+      _isUploading = true;
+    });
+
     final supabase = Supabase.instance.client;
     final imageBytes = await image.readAsBytes();
     final imageName = '${DateTime.now().millisecondsSinceEpoch}_${image.name}';
@@ -149,6 +154,12 @@ class _PasteRecipeState extends State<PasteRecipe> {
       }
     } catch (error) {
       print('Exception during image upload: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -244,12 +255,12 @@ class _PasteRecipeState extends State<PasteRecipe> {
         TextEditingController(text: recipeData['prepTime'].toString());
 
     //final TextEditingController courseController =
-        TextEditingController(text: recipeData['course']);
+    TextEditingController(text: recipeData['course']);
     final TextEditingController servingAmountController =
         TextEditingController(text: recipeData['servingAmount'].toString());
 
     //final TextEditingController spiceLevelController =
-        TextEditingController(text: recipeData['spiceLevel'].toString());
+    TextEditingController(text: recipeData['spiceLevel'].toString());
 
     final List<TextEditingController> ingredientNameControllers = [];
     final List<TextEditingController> ingredientQuantityControllers = [];
@@ -609,15 +620,36 @@ class _PasteRecipeState extends State<PasteRecipe> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: _pickImage,
+            onPressed: _isUploading
+                ? null
+                : _pickImage, // Disable the button while uploading
             style: ElevatedButton.styleFrom(
-              backgroundColor: isLightTheme ? Colors.white : Color(0xFF1F4539),
-              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
             ),
-            child: Text(
-              'Upload Image',
-              style: TextStyle(color: textColor),
-            ),
+            child: _isUploading
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Uploading...',
+                        style: TextStyle(color: textColor),
+                      ),
+                    ],
+                  )
+                : Text(
+                    _selectedImage != null ? 'Image Uploaded' : 'Upload Image',
+                    style: TextStyle(color: textColor),
+                  ),
           ),
           const SizedBox(height: 10),
           const Text('Or use the preloaded image:'),

@@ -19,6 +19,7 @@ class _RecipeFormState extends State<RecipeForm>
   List<MultiSelectItem<String>> _applianceItems = [];
   List<String> _selectedAppliances = [];
   final List<TextEditingController> _ingredientControllers = [];
+  bool _isUploading = false;
 
   // Add this line inside your class
   List<String> measurementUnits = [
@@ -81,6 +82,10 @@ class _RecipeFormState extends State<RecipeForm>
       return;
     }
 
+    setState(() {
+      _isUploading = true;
+    });
+
     final supabase = Supabase.instance.client;
     final imageBytes = await image.readAsBytes();
     //final imagePath = '/recipe_photos';
@@ -113,6 +118,12 @@ class _RecipeFormState extends State<RecipeForm>
       }
     } catch (error) {
       print('Exception during image upload: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -234,7 +245,8 @@ class _RecipeFormState extends State<RecipeForm>
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
-    final Color backgroundColor = isLightTheme ? Colors.white : Color(0xFF283330);
+    final Color backgroundColor =
+        isLightTheme ? Colors.white : Color(0xFF283330);
 
     showDialog(
       barrierDismissible: false,
@@ -242,7 +254,10 @@ class _RecipeFormState extends State<RecipeForm>
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: backgroundColor,
-          title: Text('Add New Ingredient', style: TextStyle(fontSize: 22, color: textColor),),
+          title: Text(
+            'Add New Ingredient',
+            style: TextStyle(fontSize: 22, color: textColor),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -1145,17 +1160,40 @@ class _RecipeFormState extends State<RecipeForm>
                     _buildAppliancesMultiSelect(),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: _pickImage,
+                      onPressed: _isUploading
+                          ? null
+                          : _pickImage, // Disable the button while uploading
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                             isLightTheme ? Colors.white : Color(0xFF283330),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 20),
                       ),
-                      child: Text(
-                        'Upload Image',
-                        style: TextStyle(color: textColor),
-                      ),
+                      child: _isUploading
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: textColor,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Uploading...',
+                                  style: TextStyle(color: textColor),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              _selectedImage != null
+                                  ? 'Image Uploaded'
+                                  : 'Upload Image',
+                              style: TextStyle(color: textColor),
+                            ),
                     ),
                     const SizedBox(height: 10),
                     const Text('Or use the preloaded image:'),
