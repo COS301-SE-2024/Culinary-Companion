@@ -1,9 +1,9 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls
 
-import '../widgets/chat_widget.dart';
+//import '../widgets/chat_widget.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+//import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../gemini_service.dart'; // LLM
 //import 'package:lottie/lottie.dart';
@@ -52,10 +52,10 @@ class _RecipeCardState extends State<GuestRecipeCard> {
   Map<int, bool> _ingredientChecked = {};
   bool _isFavorite = false;
   //Map<String, bool> _pantryIngredients = {};
-  Map<String, Map<String, dynamic>> _pantryIngredients = {};
-  Map<String, Map<String, dynamic>> _shoppingList = {};
-  String? userId;
-  int _ingredientsInPantry = 0; //number of ingredients that I have
+  //Map<String, Map<String, dynamic>> _pantryIngredients = {};
+  //Map<String, Map<String, dynamic>> _shoppingList = {};
+  //String? userId;
+  //int _ingredientsInPantry = 0; //number of ingredients that I have
   // int _ingredientsNeeded = 0; //number of ingredients I still need to buy
   Map<String, dynamic>? _originalRecipe;
   bool _isAlteredRecipe = false;
@@ -78,21 +78,14 @@ class _RecipeCardState extends State<GuestRecipeCard> {
       'ingredients': widget.ingredients,
     };
 
-    _checkIfFavorite();
-    _fetchShoppingList();
-    _fetchPantryIngredients();
-    _fetchUserId();
+    //_checkIfFavorite();
+    //_fetchShoppingList();
+    //_fetchPantryIngredients();
+    //_fetchUserId();
     //_updateIngredientCounts();
   }
 
-  Future<void> _fetchUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        userId = prefs.getString('userId');
-      });
-    }
-  }
+  
 
   void _showTimerPopup() {
     showDialog(
@@ -156,10 +149,11 @@ class _RecipeCardState extends State<GuestRecipeCard> {
           };
         }).toList();
 
-        //print('Parsed Ingredients: ${widget.ingredients}');
+        print('Parsed Ingredients: ${widget.ingredients}');
         //print('gets here 12');
         _isAlteredRecipe = true;
-        //_showRecipeDetails();
+        Navigator.of(context).pop();
+        _showRecipeDetails();
       });
     }
   }
@@ -182,287 +176,14 @@ class _RecipeCardState extends State<GuestRecipeCard> {
           widget.ingredients =
               List<Map<String, dynamic>>.from(_originalRecipe!['ingredients']);
           _isAlteredRecipe = false;
-          //_showRecipeDetails();
+          Navigator.of(context).pop();
+          _showRecipeDetails();
         });
       }
     }
   }
 
-  void _updateIngredientCounts() {
-    int inPantry = 0;
-    //int needed = 0;
-
-    for (var ingredient in widget.ingredients) {
-      String name = ingredient['name'];
-      double requiredQuantity = ingredient['quantity'];
-
-      if (_pantryIngredients.containsKey(name)) {
-        double availableQuantity = _pantryIngredients[name]!['quantity'];
-        if (availableQuantity >= requiredQuantity) {
-          inPantry++;
-        } else {
-          //needed++;
-        }
-      } else {
-        //needed++;
-      }
-    }
-    if (mounted) {
-      setState(() {
-        _ingredientsInPantry = inPantry;
-        //_ingredientsNeeded = needed;
-      });
-    }
-  }
-
-  Future<void> _addAllToShoppingList() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
-
-    for (var ingredient in widget.ingredients) {
-      String name = ingredient['name'];
-      double requiredQuantity = ingredient['quantity'];
-      String unit = ingredient['measurement_unit'];
-
-      if (_shoppingList.containsKey(name)) {
-        continue; //skip add if the ingredient is already in the shopping list
-      }
-
-      if (_pantryIngredients.containsKey(name)) {
-        double availableQuantity = _pantryIngredients[name]!['quantity'];
-        if (availableQuantity < requiredQuantity) {
-          double remainingQuantity = requiredQuantity - availableQuantity;
-
-          final url = Uri.parse(
-              'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-          final headers = {"Content-Type": "application/json"};
-          final body = jsonEncode({
-            "action": "addToShoppingList",
-            "userId": userId,
-            "ingredientName": name,
-            "quantity": remainingQuantity,
-            "measurementUnit": unit
-          });
-
-          try {
-            final response = await http.post(url, headers: headers, body: body);
-            if (response.statusCode == 200) {
-              if (mounted) {
-                setState(() {
-                  _shoppingList[name] = {
-                    'quantity': remainingQuantity,
-                    'measurementUnit': unit
-                  };
-
-                  // ignore: duplicate_ignore
-                  // ignore: avoid_function_literals_in_foreach_calls
-                  widget.ingredients.forEach((ingredient) {
-                    if (ingredient['name'] == name) {
-                      widget.ingredients[widget.ingredients.indexOf(ingredient)]
-                          ['isInShoppingList'] = true;
-                    }
-                  });
-                });
-              }
-            } else {
-              print('Failed to add $name to shopping list: ${response.body}');
-            }
-          } catch (error) {
-            print('Error adding $name to shopping list: $error');
-          }
-        }
-      } else {
-        final url = Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-        final headers = {"Content-Type": "application/json"};
-        final body = jsonEncode({
-          "action": "addToShoppingList",
-          "userId": userId,
-          "ingredientName": name,
-          "quantity": requiredQuantity,
-          "measurementUnit": unit
-        });
-
-        try {
-          final response = await http.post(url, headers: headers, body: body);
-          if (response.statusCode == 200) {
-            if (mounted) {
-              setState(() {
-                _shoppingList[name] = {
-                  'quantity': requiredQuantity,
-                  'measurementUnit': unit
-                };
-                //update state to show ingredients in the shopping list
-                widget.ingredients.forEach((ingredient) {
-                  if (ingredient['name'] == name) {
-                    widget.ingredients[widget.ingredients.indexOf(ingredient)]
-                        ['isInShoppingList'] = true;
-                  }
-                });
-              });
-            }
-          } else {
-            print('Failed to add $name to shopping list: ${response.body}');
-          }
-        } catch (error) {
-          print('Error adding $name to shopping list: $error');
-        }
-      }
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Added all needed ingredients to shopping list'),
-      ),
-    );
-  }
-
-  void _fetchShoppingList() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
-
-    // final url = Uri.parse(
-    //     'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    // final headers = {"Content-Type": "application/json"};
-    // final body = jsonEncode({"action": "getShoppingList", "userId": userId});
-
-    try {
-      final response = await http.post(
-        Uri.parse(
-            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-        body: jsonEncode({
-          'action': 'getShoppingList',
-          'userId': userId,
-        }),
-        headers: {'Content-Type': 'application/json'},
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final List<dynamic> shoppingList = data['shoppingList'];
-        if (mounted) {
-          setState(() {
-            for (var item in shoppingList) {
-              _shoppingList[item['ingredientName']] = {
-                'quantity': item['quantity'],
-                'measurementUnit': item['measurmentunit']
-              };
-            }
-          });
-        }
-      } else {
-        print('Failed to fetch shopping list: ${response.reasonPhrase}');
-      }
-    } catch (error) {
-      print('Error: $error');
-    }
-    _updateIngredientCounts();
-  }
-
-  Future<void> _removeIngredientsFromPantry() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
-    bool allIngredientsRemoved = true;
-
-    for (var ingredient in widget.ingredients) {
-      final String item = ingredient['name'];
-      final double quantity = ingredient['quantity'];
-      final String measurementUnit = ingredient['measurement_unit'];
-
-      double currentQuantity = _pantryIngredients[item]!['quantity'];
-
-      //calc new quantity
-      double newQuantity = currentQuantity - quantity;
-
-      //determine the action based on quantity
-      String action =
-          newQuantity <= 0 ? 'removeFromPantryList' : 'editPantryItem';
-      double finalQuantity = newQuantity <= 0 ? 0 : newQuantity;
-
-      try {
-        final response = await http.post(
-          Uri.parse(
-              'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-          body: jsonEncode({
-            'action': action,
-            'userId': userId,
-            'ingredientName': item,
-            if (action == 'editPantryItem') 'quantity': finalQuantity,
-            if (action == 'editPantryItem') 'measurementUnit': measurementUnit,
-          }),
-          headers: {'Content-Type': 'application/json'},
-        );
-
-        if (response.statusCode == 200) {
-          if (mounted) {
-            setState(() {
-              if (newQuantity <= 0) {
-                _pantryIngredients.remove(item);
-              } else {
-                _pantryIngredients[item]!['quantity'] = newQuantity;
-              }
-            });
-          }
-          print('Successfully updated $item in pantry');
-        } else {
-          allIngredientsRemoved = false;
-          print('Failed to update $item in pantry: ${response.statusCode}');
-        }
-      } catch (error) {
-        allIngredientsRemoved = false;
-        print('Error updating $item in pantry: $error');
-      }
-    }
-
-    if (allIngredientsRemoved) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Removed ingredients from pantry'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to remove some ingredients from pantry'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
-  void _fetchPantryIngredients() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
-
-    final url = Uri.parse(
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    final headers = {"Content-Type": "application/json"};
-    final body =
-        jsonEncode({"action": "getAvailableIngredients", "userId": userId});
-
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final List<dynamic> pantryIngredients = data['availableIngredients'];
-        if (mounted) {
-          setState(() {
-            for (var ingredient in pantryIngredients) {
-              _pantryIngredients[ingredient['name']] = {
-                'quantity': ingredient['quantity'],
-                'measurementUnit': ingredient['measurmentunit']
-              };
-            }
-          });
-        }
-      } else {
-        //print('Failed to fetch pantry ingredients: ${response.reasonPhrase}');
-      }
-    } catch (error) {
-      print('Error: $error');
-    }
-    _updateIngredientCounts();
-  }
+ 
 
   void _onHover(bool hovering) {
     if (mounted) {
@@ -472,68 +193,8 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     }
   }
 
-  void _checkIfFavorite() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
-    final String recipeId = widget.recipeID;
 
-    final url = Uri.parse(
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({"action": "getUserFavourites", "userId": userId});
-
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-      if (response.statusCode == 200) {
-        final List<dynamic> favoriteRecipes = jsonDecode(response.body);
-        final isFavorite =
-            favoriteRecipes.any((recipe) => recipe['recipeid'] == recipeId);
-        if (mounted) {
-          setState(() {
-            _isFavorite = isFavorite;
-          });
-        }
-      } else {
-        //print('Failed to get favorite status: ${response.reasonPhrase}');
-      }
-    } catch (error) {
-      print('Error: $error');
-    }
-  }
-
-  void _toggleFavorite() async {
-    if (mounted) {
-      setState(() {
-        _isFavorite = !_isFavorite;
-      });
-    }
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
-    final String recipeId = widget.recipeID;
-    final String action =
-        _isFavorite ? "addUserFavorite" : "removeUserFavorite";
-
-    final url = Uri.parse(
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    final headers = {"Content-Type": "application/json"};
-    final body = jsonEncode({
-      "action": action,
-      "userId": userId,
-      "recipeid": recipeId,
-    });
-
-    try {
-      final response = await http.post(url, headers: headers, body: body);
-      if (response.statusCode == 200) {
-        //print('Favorite status updated');
-      } else {
-        //print('Failed to update favorite status: ${response.reasonPhrase}');
-      }
-    } catch (error) {
-      print('Error: $error');
-    }
-  }
+  
 
   void _showMobileRecipeDetails() {
     final theme = Theme.of(context);
@@ -624,52 +285,13 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                           iconSize: screenWidth * 0.05, // Adjust icon size
                           onPressed: () {
                             Navigator.of(context).pop();
-                            _fetchShoppingList(); // Refresh shopping list when dialog is closed
+                            //_fetchShoppingList(); // Refresh shopping list when dialog is closed
                           },
                         ),
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: 20.0, // Adjust position as necessary
-                    right: 10.0, // Adjust position as necessary
-                    child: Container(
-                        width: screenWidth *
-                            0.1, // Adjust width of the circular background
-                        height: screenWidth *
-                            0.1, // Adjust height of the circular background
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.black.withOpacity(
-                              0.5), // Background color of the circle
-                        ),
-                        child: Center(
-                          child:
-                              //   Row(
-                              // children: [
-                              //   IconButton(
-                              //     icon: Icon(
-                              //       Icons.timer,
-                              //       color: Colors.white,
-                              //       size: MediaQuery.of(context).size.width * 0.05,
-
-                              //     ),
-                              //     iconSize: screenWidth * 0.05,
-                              //     onPressed: _showTimerPopup,
-                              //   ),
-                              IconButton(
-                            icon: Icon(
-                              _isFavorite
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: _isFavorite ? Colors.red : Colors.white,
-                            ),
-                            iconSize: screenWidth * 0.05, // Adjust icon size
-                            onPressed: _toggleFavorite,
-                          ),
-                          //],
-                        )),
-                  ),
+                  
                   //),
                   Positioned(
                     bottom: contentHeight +
@@ -979,86 +601,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                                     .size
                                                     .height *
                                                 0.02), // Adjust height to 2% of screen height
-                                        Column(
-                                          children: [
-                                            if (!_isAlteredRecipe)
-                                              ElevatedButton(
-                                                onPressed: () async {
-                                                  if (userId != null) {
-                                                    showDialog(
-                                                      context: context,
-                                                      builder: (BuildContext
-                                                          context) {
-                                                        return AlertDialog(
-                                                          title: Text(
-                                                            'Adjusting recipe...', //loading screen
-                                                            style: TextStyle(
-                                                                color: Colors
-                                                                    .black),
-                                                          ),
-                                                          content:
-                                                              CircularProgressIndicator(),
-                                                          backgroundColor:
-                                                              Colors.white,
-                                                        );
-                                                      },
-                                                    );
-                                                    String alteredRecipeJson =
-                                                        await fetchDietaryConstraintsRecipe(
-                                                            userId!,
-                                                            widget.recipeID);
-
-                                                    //decode json
-                                                    Map<String, dynamic>
-                                                        alteredRecipe =
-                                                        jsonDecode(
-                                                            alteredRecipeJson);
-
-                                                    //update rec
-                                                    _updateRecipe(
-                                                        alteredRecipe);
-                                                    Navigator.of(context)
-                                                        .pop(); //stop loading screen
-                                                    Navigator.of(context).pop();
-                                                    _showMobileRecipeDetails(); //refresh rec
-                                                  }
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor: textColor,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 40,
-                                                      vertical: 20),
-                                                ),
-                                                child: Text(
-                                                  'Adjust recipe to cater to my preferences',
-                                                  style: TextStyle(
-                                                      color: clickColor),
-                                                ),
-                                              )
-                                            else
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  _revertToOriginalRecipe(); //go back to origional rec
-                                                  Navigator.of(context).pop();
-                                                  _showMobileRecipeDetails(); //refresh rec
-                                                },
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor: textColor,
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 40,
-                                                      vertical: 20),
-                                                ),
-                                                child: Text(
-                                                  'Revert to Original Recipe',
-                                                  style: TextStyle(
-                                                      color: clickColor),
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-
+                  
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
@@ -1077,6 +620,23 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                                     .size
                                                     .height *
                                                 0.01), // Adjust height to 1% of screen height
+                                        if (_isAlteredRecipe)
+  ElevatedButton(
+    onPressed: () {
+      _revertToOriginalRecipe();
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Theme.of(context).primaryColor, // Use primary color
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    ),
+    child: Text(
+      'Revert to Original Recipe',
+      style: TextStyle(
+        color: Colors.white, // Button text color
+      ),
+    ),
+  ),
+
                                         ...widget.ingredients
                                             .asMap()
                                             .entries
@@ -1084,56 +644,28 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                           int idx = entry.key;
                                           Map<String, dynamic> ingredient =
                                               entry.value;
-                                          bool isInPantry = _pantryIngredients
-                                              .containsKey(ingredient['name']);
-                                          double availableQuantity = isInPantry
-                                              ? (_pantryIngredients[
-                                                          ingredient['name']]
-                                                      ?['quantity'] ??
-                                                  0.0)
-                                              : 0.0;
-                                          bool isInShoppingList = _shoppingList
-                                              .containsKey(ingredient['name']);
-
+                                          
                                           return CheckableItem(
                                             title:
                                                 '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
                                             requiredQuantity:
                                                 ingredient['quantity'],
                                             requiredUnit:
-                                                ingredient['measurement_unit'],
-                                            onChanged: (bool? value) {
-                                              if (mounted) {
-                                                setState(() {
-                                                  _ingredientChecked[idx] =
-                                                      value ?? false;
-                                                });
-                                              }
-                                            },
-                                            isInPantry: isInPantry,
-                                            availableQuantity:
-                                                availableQuantity,
-                                            isChecked:
-                                                _ingredientChecked[idx] ?? true,
-                                            isInShoppingList: isInShoppingList,
-                                            recipeID: widget.recipeID,
+                                                ingredient['measurement_unit'], recipeID: widget.recipeID,
+                                            // onChanged: (bool? value) {
+                                            //   if (mounted) {
+                                            //     setState(() {
+                                            //       _ingredientChecked[idx] =
+                                            //           value ?? false;
+                                            //     });
+                                            //   }
+                                            // },
+                                            // Pass recipeID here
                                             onRecipeUpdate:
-                                                _updateRecipe, // Pass recipeID here
+                                                _updateRecipe,
                                           );
                                         }),
-                                        if (widget.ingredients.every(
-                                            (ingredient) =>
-                                                _pantryIngredients.containsKey(
-                                                    ingredient['name']) &&
-                                                _pantryIngredients[ingredient[
-                                                        'name']]!['quantity'] >=
-                                                    ingredient['quantity']))
-                                          ElevatedButton(
-                                            onPressed:
-                                                _removeIngredientsFromPantry,
-                                            child: Text(
-                                                'Remove ingredients from pantry'),
-                                          ),
+                                        
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
@@ -1232,17 +764,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                       ],
                                     ),
                                   ),
-                                  Container(
-                                    width: screenWidth * 0.2,
-                                    child: ChatWidget(
-                                      recipeName: widget.name,
-                                      recipeDescription: widget.description,
-                                      ingredients: widget.ingredients,
-                                      steps: widget.steps,
-                                      userId: userId!,
-                                      course: widget.course,
-                                    ),
-                                  ),
+                                  
                                 ],
                               ),
                             ),
@@ -1259,57 +781,17 @@ class _RecipeCardState extends State<GuestRecipeCard> {
       },
     ).then((_) {
       // This will be called when the dialog is dismissed
-      _fetchShoppingList();
+      //_fetchShoppingList();
     });
   }
 
-//   void _showAlteredRecipe(String substitute, String substitutedIngredient) async {
-//   showDialog(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: Text('Loading altered recipe...'),
-//         content: CircularProgressIndicator(),
-//       );
-//     },
-//   );
 
-//   String jsonString = await fetchIngredientSubstitutionRecipe(widget.recipeID, substitute, substitutedIngredient);
-
-//   Navigator.of(context).pop(); // Close the loading dialog
-
-//   showDialog(
-//     context: context,
-//     builder: (BuildContext context) {
-//       return AlertDialog(
-//         title: Text('Altered Recipe'),
-//         content: SingleChildScrollView(
-//           child: Text(jsonString),
-//         ),
-//         actions: [
-//           TextButton(
-//             onPressed: () {
-//               Navigator.of(context).pop(); // Close the dialog
-//             },
-//             child: Text('Close'),
-//           ),
-//         ],
-//       );
-//     },
-//   );
-// }
 
   void _showRecipeDetails() {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
-    int neededIngredientCount = widget.ingredients
-        .where((ingredient) =>
-            (!_pantryIngredients.containsKey(ingredient['name']) ||
-                _pantryIngredients[ingredient['name']]!['quantity'] <
-                    ingredient['quantity']) &&
-            !_shoppingList.containsKey(ingredient['name']))
-        .length;
+    
     final theme = Theme.of(context);
 
     final clickColor = theme.brightness == Brightness.light
@@ -1373,27 +855,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                     ),
                                     onPressed: _showTimerPopup,
                                   ),
-                                  IconButton(
-                                    icon: Icon(
-                                      _isFavorite
-                                          ? Icons.favorite
-                                          : Icons.favorite_border,
-                                      color: _isFavorite
-                                          ? Colors.red
-                                          : Colors.grey,
-                                    ),
-                                    onPressed: _toggleFavorite,
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.close),
-                                    iconSize: screenWidth *
-                                        0.02, // Adjust icon size to 2% of screen width
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-
-                                      _fetchShoppingList(); // Refresh shopping list when dialog is closed
-                                    },
-                                  ),
+                                  
                                 ],
                               ),
                             ],
@@ -1493,75 +955,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                               .size
                                               .height *
                                           0.02), // Adjust height to 2% of screen height
-                                  Column(
-                                    children: [
-                                      if (!_isAlteredRecipe)
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            if (userId != null) {
-                                              showDialog(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) {
-                                                  return AlertDialog(
-                                                    title: Text(
-                                                      'Adjusting recipe...',
-                                                      style: TextStyle(
-                                                          color: Colors.black),
-                                                    ),
-                                                    content:
-                                                        CircularProgressIndicator(),
-                                                    backgroundColor:
-                                                        Colors.white,
-                                                  );
-                                                },
-                                              );
-                                              String alteredRecipeJson =
-                                                  await fetchDietaryConstraintsRecipe(
-                                                      userId!, widget.recipeID);
-
-                                              //decode json
-                                              Map<String, dynamic>
-                                                  alteredRecipe =
-                                                  jsonDecode(alteredRecipeJson);
-
-                                              //update to new recipe
-                                              _updateRecipe(alteredRecipe);
-                                              Navigator.of(context)
-                                                  .pop(); //stop loading screen
-                                              Navigator.of(context).pop();
-                                              _showRecipeDetails(); //refresh recipe card
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: textColor,
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 40, vertical: 20),
-                                          ),
-                                          child: Text(
-                                            'Adjust recipe to cater to my preferences',
-                                            style: TextStyle(color: clickColor),
-                                          ),
-                                        )
-                                      else
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _revertToOriginalRecipe(); //revert to the origional recipe
-                                            Navigator.of(context).pop();
-                                            _showRecipeDetails(); //refresh recipe
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: textColor,
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 40, vertical: 20),
-                                          ),
-                                          child: Text(
-                                            'Revert to Original Recipe',
-                                            style: TextStyle(color: clickColor),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
+                                  
 
                                   SizedBox(
                                       height:
@@ -1575,6 +969,23 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                               .size
                                               .height *
                                           0.01), // Adjust height to 1% of screen height
+                                  if (_isAlteredRecipe)
+  ElevatedButton(
+    onPressed: () {
+      _revertToOriginalRecipe();
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Theme.of(context).primaryColor, // Use primary color
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    ),
+    child: Text(
+      'Revert to Original Recipe',
+      style: TextStyle(
+        color: Colors.white, // Button text color
+      ),
+    ),
+  ),
+
                                   ...widget.ingredients
                                       .asMap()
                                       .entries
@@ -1582,89 +993,24 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                     int idx = entry.key;
                                     Map<String, dynamic> ingredient =
                                         entry.value;
-                                    bool isInPantry = _pantryIngredients
-                                        .containsKey(ingredient['name']);
-                                    double availableQuantity = isInPantry
-                                        ? (_pantryIngredients[
-                                                    ingredient['name']]
-                                                ?['quantity'] ??
-                                            0.0)
-                                        : 0.0;
-                                    bool isInShoppingList = _shoppingList
-                                        .containsKey(ingredient['name']);
+                                    
 
                                     return CheckableItem(
                                       title:
                                           '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
                                       requiredQuantity: ingredient['quantity'],
                                       requiredUnit:
-                                          ingredient['measurement_unit'],
-                                      onChanged: (bool? value) {
-                                        if (mounted) {
-                                          setState(() {
-                                            _ingredientChecked[idx] =
-                                                value ?? false;
-                                          });
-                                        }
-                                      },
-                                      isInPantry: isInPantry,
-                                      availableQuantity: availableQuantity,
-                                      isChecked:
-                                          _ingredientChecked[idx] ?? true,
-                                      isInShoppingList: isInShoppingList,
-                                      recipeID:
-                                          widget.recipeID, // Pass recipeID here
+                                          ingredient['measurement_unit'],recipeID: widget.recipeID,
                                       onRecipeUpdate:
-                                          (Map<String, dynamic> alteredRecipe) {
-                                        _updateRecipe(alteredRecipe);
-                                        if (mounted) {
-                                          dialogSetState(() {});
-                                        } // Update the dialog's state
-                                      },
+                                                _updateRecipe, 
+                                        
+                                      
                                     );
                                   }),
-                                  if (widget.ingredients.every((ingredient) =>
-                                      _pantryIngredients
-                                          .containsKey(ingredient['name']) &&
-                                      _pantryIngredients[ingredient['name']]![
-                                              'quantity'] >=
-                                          ingredient['quantity']))
-                                    ElevatedButton(
-                                      onPressed: _removeIngredientsFromPantry,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: textColor,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 40, vertical: 20),
-                                      ),
-                                      child: Text(
-                                          'Remove ingredients from pantry',
-                                          style: TextStyle(
-                                              color: isLightTheme
-                                                  ? Colors.white
-                                                  : Color(0xFF1F4539))),
-                                    ),
-                                  if (widget.ingredients.any((ingredient) =>
-                                      (!_pantryIngredients.containsKey(
-                                              ingredient['name']) ||
-                                          _pantryIngredients[ingredient[
-                                                  'name']]!['quantity'] <
-                                              ingredient['quantity']) &&
-                                      (neededIngredientCount > 1) &&
-                                      !_shoppingList
-                                          .containsKey(ingredient['name'])))
-                                    ElevatedButton(
-                                      onPressed: _addAllToShoppingList,
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: textColor,
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 40, vertical: 20),
-                                      ),
-                                      child: Text('Add All Ingredients',
-                                          style: TextStyle(
-                                              color: isLightTheme
-                                                  ? Colors.white
-                                                  : Color(0xFF1F4539))),
-                                    ),
+                                  
+                                    
+                                  
+                                    
                                   SizedBox(
                                       height: MediaQuery.of(context)
                                               .size
@@ -1769,7 +1115,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
       },
     ).then((_) {
       // This will be called when the dialog is dismissed
-      _fetchShoppingList();
+      //_fetchShoppingList();
     });
   }
 
@@ -1811,77 +1157,13 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                         BorderRadius.circular(15.0), // Matching border radius
                   ),
                 ),
-                Container(
-                  width: screenWidth * 0.3,
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  child: ChatWidget(
-                    recipeName: widget.name,
-                    recipeDescription: widget.description,
-                    ingredients: widget.ingredients,
-                    steps: widget.steps,
-                    userId: userId!,
-                    course: widget.course,
-                  ),
-                ),
+                
               ],
             ),
           );
         });
 
-    //Code if draggable causes issues
-    // showDialog(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     final double screenWidth = MediaQuery.of(context).size.width;
-    //     return Dialog(
-    //       shape: RoundedRectangleBorder(
-    //         borderRadius:
-    //             BorderRadius.circular(15.0), // Optional: Add rounded corners
-    //       ),
-    // child: Stack(
-    //   children: [
-    //     // Background image with dark overlay
-    //     Container(
-    //       width: screenWidth * 0.3, // Adjust the width as needed
-    //       height: MediaQuery.of(context).size.height *
-    //           0.7, // Adjust the height as needed
-    //       decoration: BoxDecoration(
-    //         image: DecorationImage(
-    //           image: NetworkImage(widget.imagePath),
-    //           fit: BoxFit.cover,
-    //         ),
-    //         borderRadius: BorderRadius.circular(
-    //             15.0), // Optional: Same as the Dialog border radius
-    //       ),
-    //     ),
-    //     // Dark overlay to make text readable
-    //     Container(
-    //       width: screenWidth * 0.3,
-    //       height: MediaQuery.of(context).size.height * 0.7,
-    //       decoration: BoxDecoration(
-    //         color: Color(0xFF1A1A1A)
-    //             .withOpacity(0.95), // Dark overlay with 70% opacity
-    //         borderRadius:
-    //             BorderRadius.circular(15.0), // Matching border radius
-    //       ),
-    //     ),
-    //     Container(
-    //       width: screenWidth * 0.3,
-    //       height: MediaQuery.of(context).size.height * 0.7,
-    //       child: ChatWidget(
-    //         recipeName: widget.name,
-    //         recipeDescription: widget.description,
-    //         ingredients: widget.ingredients,
-    //         steps: widget.steps,
-    //         userId: userId!,
-    //         course: widget.course,
-    //       ),
-    //     ),
-    //   ],
-    //  ),
-    //     );
-    //   },
-    // );
+    
   }
 
   @override
@@ -1963,15 +1245,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       SizedBox(
                           height:
                               5), // Add some spacing between name and counts
-                      Text(
-                        'Pantry: $_ingredientsInPantry/${widget.ingredients.length} ingredients in your pantry',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: fontSizeTitle *
-                              0.8, // Smaller font size for the counts
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
+                      
                     ],
                   ),
                 ),
@@ -2234,16 +1508,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       SizedBox(
                         height: MediaQuery.of(context).size.width * 0.006,
                       ), // Add some spacing between name and counts
-                      Text(
-                        'Pantry: $_ingredientsInPantry/${widget.ingredients.length} ingredients in your pantry',
-                        // 'Needed: $_ingredientsNeeded',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize:
-                              fontSizeDescription, // Smaller font size for the counts
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
+                      
                     ],
                   ),
                 ),
@@ -2261,14 +1526,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       ),
                       onPressed: _showTimerPopup,
                     ),
-                    IconButton(
-                      icon: Icon(
-                        _isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: _isFavorite ? Colors.red : Colors.white,
-                        size: MediaQuery.of(context).size.width * 0.017,
-                      ),
-                      onPressed: _toggleFavorite,
-                    ),
+                    
                   ],
                 )),
           ],
@@ -2285,11 +1543,11 @@ class CheckableItem extends StatefulWidget {
   final String title;
   final double requiredQuantity;
   final String requiredUnit;
-  final ValueChanged<bool?> onChanged;
-  final bool isInPantry;
-  final double availableQuantity;
-  final bool isChecked;
-  bool isInShoppingList;
+  // final ValueChanged<bool?> onChanged;
+  // final bool isInPantry;
+  // final double availableQuantity;
+  // final bool isChecked;
+  // bool isInShoppingList;
   final String recipeID;
   final Function(Map<String, dynamic>) onRecipeUpdate;
 
@@ -2297,11 +1555,11 @@ class CheckableItem extends StatefulWidget {
     required this.title,
     required this.requiredQuantity,
     required this.requiredUnit,
-    required this.onChanged,
-    required this.isInPantry,
-    required this.availableQuantity,
-    required this.isChecked,
-    required this.isInShoppingList,
+    // required this.onChanged,
+    // required this.isInPantry,
+    // required this.availableQuantity,
+    // required this.isChecked,
+    // required this.isInShoppingList,
     required this.recipeID,
     required this.onRecipeUpdate,
   });
@@ -2423,6 +1681,7 @@ class _CheckableItemState extends State<CheckableItem> {
               ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
+                
               },
               child: Text(
                 'Close',
@@ -2466,6 +1725,7 @@ class _CheckableItemState extends State<CheckableItem> {
     Map<String, dynamic> alteredRecipe = jsonDecode(jsonString);
 
     //update the altered recipe
+    print("here $alteredRecipe");
     widget.onRecipeUpdate(alteredRecipe);
 
     if (mounted) {
@@ -2478,24 +1738,14 @@ class _CheckableItemState extends State<CheckableItem> {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
     final Color textColor =
         isLightTheme ? Color.fromARGB(255, 19, 20, 20) : Colors.white;
-    bool isSufficient = widget.isInPantry &&
-        widget.availableQuantity >= widget.requiredQuantity;
+    // bool isSufficient = widget.isInPantry &&
+    //     widget.availableQuantity >= widget.requiredQuantity;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            if (isSufficient)
-              Checkbox(
-                value: widget.isChecked,
-                onChanged: widget.onChanged,
-                activeColor: Color(0XFFDC945F),
-                checkColor: textColor,
-              )
-            else
-              SizedBox(
-                width: 24.0, // to keep alignment when checkbox is missing
-              ),
+            
             Flexible(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2518,146 +1768,11 @@ class _CheckableItemState extends State<CheckableItem> {
             ),
           ],
         ),
-        if (!isSufficient && !(widget.isInShoppingList || _isAdded))
-          Padding(
-            padding: EdgeInsets.only(left: 27),
-            child: TextButton(
-              onPressed: () => _addToShoppingList(
-                widget.title,
-                widget.requiredQuantity - widget.availableQuantity,
-                widget.requiredUnit,
-              ),
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '+ ',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                    TextSpan(
-                      text: '${widget.title.split(" (")[0]}',
-                      style: TextStyle(color: Color(0xFF89AA4A)),
-                    ),
-                    TextSpan(
-                      text: ' to shopping list',
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          )
-        else if (widget.isInShoppingList || _isAdded)
-          Padding(
-            padding: EdgeInsets.only(left: 27, top: 0),
-            child: TextButton(
-              onPressed: null,
-              child: Text('In Shopping List'),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.green,
-              ),
-            ),
-          )
-        else if (isSufficient)
-          Padding(
-            padding: EdgeInsets.only(left: 27, top: 0),
-            child: TextButton(
-              onPressed: null,
-              child: Text('In Pantry List'),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.green,
-              ),
-            ),
-          )
+        
+        
       ],
     );
   }
 
-  void _addToShoppingList(
-      String ingredientString, double remainingQuantity, String unit) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
-
-    //extract ingredient name
-    final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
-    final match = regex.firstMatch(ingredientString);
-    final ingredientName =
-        match != null ? match.group(1) ?? ingredientString : ingredientString;
-
-    //check if the ingredient is in the db
-    final addIngredientUrl = Uri.parse(
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    final headers = {"Content-Type": "application/json"};
-    final addIngredientBody = jsonEncode({
-      "action": "addIngredientIfNotExists",
-      "ingredientName": ingredientName,
-      "measurementUnit": unit,
-    });
-
-    try {
-      final addIngredientResponse = await http.post(addIngredientUrl,
-          headers: headers, body: addIngredientBody);
-      if (addIngredientResponse.statusCode != 200) {
-        print(
-            'Failed to ensure ingredient exists: ${addIngredientResponse.body}');
-        return;
-      }
-    } catch (error) {
-      print('Error ensuring ingredient exists: $error');
-      return;
-    }
-
-    //add to shopping list
-    final url = Uri.parse(
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    final addShoppingListBody = jsonEncode({
-      "action": "addToShoppingList",
-      "userId": userId,
-      "ingredientName": ingredientName,
-      "quantity": remainingQuantity,
-      "measurementUnit": unit
-    });
-
-    try {
-      final response =
-          await http.post(url, headers: headers, body: addShoppingListBody);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            _isAdded = true;
-            _updateShoppingList(ingredientName, remainingQuantity, unit);
-          });
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Added remaining $ingredientName to shopping list'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'Failed to add $ingredientName to shopping list: ${response.body}'),
-          ),
-        );
-      }
-    } catch (error) {
-      print('Error: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text('Error adding $ingredientName to shopping list: $error'),
-        ),
-      );
-    }
-  }
-
-  void _updateShoppingList(
-      String ingredientName, double quantity, String measurementUnit) {
-    if (mounted) {
-      setState(() {
-        widget.isInShoppingList = true;
-      });
-    }
-  }
+  
 }
