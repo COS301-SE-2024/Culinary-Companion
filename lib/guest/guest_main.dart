@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/guest/guest_navbar.dart';
 import 'package:flutter_application_1/guest/guest_search_screen.dart';
+import 'package:flutter_application_1/screens/login_screen.dart';
 import 'guest_home_screen.dart';
 //import 'guest_search_screen.dart';
 
@@ -73,6 +74,8 @@ class _MainScreenState extends State<MainScreen2> {
         return GuestHomeScreen();
       case '/search':
         return GuestSearchScreen();
+      case '/login':
+        return LoginScreen();
       default:
         return Container(); // Guests have limited access, no extra screens
     }

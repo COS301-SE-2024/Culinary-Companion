@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/screens/landing_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GuestNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String currentRoute;
@@ -42,6 +44,33 @@ class GuestNavbar extends StatelessWidget implements PreferredSizeWidget {
                       _buildNavItem(context, 'Home', '/', currentRoute == '/'),
                       _buildNavItem(context, 'Search Recipes', '/search',
                           currentRoute == '/search'),
+                      OutlinedButton(
+                        onPressed: () async {
+                          // Clear shared preferences
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.clear();
+
+                          // Navigate to LandingScreen
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LandingScreen()),
+                            (route) => false,
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          foregroundColor: const Color(0xFFDC945F),
+                        ),
+                        child: Text(
+                          'Sign Up',
+                          
+                        ),
+                      ),
                     ],
                   ),
                 ),
