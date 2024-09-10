@@ -212,7 +212,8 @@ Future<String> fetchIngredientSubstitutionRecipe(
   Make sure to adjust the quantities of the ingredients so the recipe is still accurate, 
   take into account the new ingredients liquidity, saltiness, sourness, sweetness, bitterness 
   as opposed to the previous ingredient and make sure the recipe will still create the same taste.
-  Please make any fractions into decimal values.""";
+  Please make any fractions into decimal values. Before you give me a response take your time and think really hard, 
+  and double check the response and formatting of the output before sending it""";
 
   final finalPrompt = initialPrompt + formatting;
 
