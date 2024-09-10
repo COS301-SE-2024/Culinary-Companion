@@ -1400,13 +1400,14 @@ class _RecipeCardState extends State<RecipeCard> {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                    gradient: RadialGradient(
+                        // begin: Alignment.topCenter,
+                        // end: Alignment.bottomCenter,
                         colors: [
                           Color.fromARGB(0, 0, 0, 0),
-                          Color.fromARGB(179, 0, 0, 0),
-                        ]),
+                          Color.fromARGB(129, 0, 0, 0),
+                        ],
+                        radius: 0.99),
                     //color: Colors.white.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(10),
                   ),

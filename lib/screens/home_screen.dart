@@ -658,8 +658,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     'Main',
                     'Breakfast',
                     'Appetizer',
-                    'Dessert',
-                    'Suggested'
+                    'Dessert'
+                    //'Suggested'
                   ].map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
@@ -669,10 +669,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   onChanged: (String? newValue) {
                     if (newValue != null) {
                       setState(() {
-                        if (newValue == 'suggestedRecipes') {
-                          filteredRecipes = suggestedRecipes;
-                        }
-
                         selectedCourse = newValue; // Update selected course
                       });
                     }
