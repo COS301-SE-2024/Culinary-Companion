@@ -762,7 +762,7 @@ class _RecipeCardState extends State<RecipeCard> {
                       padding: const EdgeInsets.all(16.0),
                       child: Container(
                         width: screenWidth,
-                        height: MediaQuery.of(context).size.height * 0.5,
+                        height: MediaQuery.of(context).size.height * 0.8,
                         child: ChatWidget(
                           recipeName: widget.name,
                           recipeDescription: widget.description,

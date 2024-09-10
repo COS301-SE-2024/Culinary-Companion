@@ -145,6 +145,16 @@ class _ChatWidgetState extends State<ChatWidget> {
         await _saveConversation(); // Save conversation after user sends a message
       }
 
+      Future.delayed(Duration(milliseconds: 100), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+
       var content = [
         Content.text("Recipe Name: ${widget.recipeName}\n"
             "Description: ${widget.recipeDescription}\n"
@@ -204,6 +214,15 @@ class _ChatWidgetState extends State<ChatWidget> {
         }).toList());
       });
     }
+    Future.delayed(Duration(milliseconds: 50), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   // Future<void> _clearConversation() async {
