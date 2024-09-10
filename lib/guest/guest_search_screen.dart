@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
-import '../widgets/recipe_card.dart';
+import '../guest/guest_recipe_card.dart';
 import '../widgets/help_search.dart';
 
 class GuestSearchScreen extends StatefulWidget {
@@ -722,7 +722,7 @@ class _GuestSearchScreenState extends State<GuestSearchScreen> {
                                 (recipes[index]['steps'] as String).split('<');
                           }
 
-                          return RecipeCard(
+                          return GuestRecipeCard(
                             recipeID: recipes[index]['recipeId'] ?? '',
                             name: recipes[index]['name'] ?? '',
                             description: recipes[index]['description'] ?? '',
