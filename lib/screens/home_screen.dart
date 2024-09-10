@@ -614,7 +614,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return PageView.builder(
       controller: _pageController,
-      scrollDirection: Axis.vertical, // To make it scroll vertically
+      scrollDirection: Axis.vertical,
       itemCount: filteredRecipes.length,
       itemBuilder: (context, index) {
         final recipe = filteredRecipes[index];
@@ -622,31 +622,55 @@ class _HomeScreenState extends State<HomeScreen> {
         List<String> steps = recipe['steps'] != null
             ? (recipe['steps'] as String).split('<')
             : [];
-        return Stack(children: [
-          DropdownMenu(dropdownMenuEntries: dropdownMenuEntries)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.80,
-              child: RecipeCard(
-                recipeID: recipe['recipeId'] ?? '',
-                name: recipe['name'] ?? '',
-                description: recipe['description'] ?? '',
-                imagePath: recipe['photo'] ?? 'assets/emptyPlate.jpg',
-                prepTime: recipe['preptime'] ?? 0,
-                cookTime: recipe['cooktime'] ?? 0,
-                cuisine: recipe['cuisine'] ?? '',
-                spiceLevel: recipe['spicelevel'] ?? 0,
-                course: recipe['course'] ?? '',
-                servings: recipe['servings'] ?? 0,
-                steps: steps,
-                appliances: List<String>.from(recipe['appliances']),
-                ingredients:
-                    List<Map<String, dynamic>>.from(recipe['ingredients']),
+        return Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.80,
+                child: RecipeCard(
+                  recipeID: recipe['recipeId'] ?? '',
+                  name: recipe['name'] ?? '',
+                  description: recipe['description'] ?? '',
+                  imagePath: recipe['photo'] ?? 'assets/emptyPlate.jpg',
+                  prepTime: recipe['preptime'] ?? 0,
+                  cookTime: recipe['cooktime'] ?? 0,
+                  cuisine: recipe['cuisine'] ?? '',
+                  spiceLevel: recipe['spicelevel'] ?? 0,
+                  course: recipe['course'] ?? '',
+                  servings: recipe['servings'] ?? 0,
+                  steps: steps,
+                  appliances: List<String>.from(recipe['appliances']),
+                  ingredients:
+                      List<Map<String, dynamic>>.from(recipe['ingredients']),
+                ),
               ),
             ),
-          )
-        ]);
+            Positioned(
+              top: 23,
+              left: 8,
+              right: 8,
+              child: DropdownButton<String>(
+                value: title, // Default selected value
+                items: <String>[
+                  'Mains',
+                  'Breakfast',
+                  'Appetizer',
+                  'Dessert',
+                  'Suggested'
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  // Dropdown functionality will go here
+                },
+              ),
+            )
+          ],
+        );
       },
     );
   }

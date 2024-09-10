@@ -556,421 +556,445 @@ class _RecipeCardState extends State<RecipeCard> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Scaffold(
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                  height:
-                      imageHeight, // Define a specific height for the container
-                  width: double.infinity,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height:
-                            imageHeight, // 50% of dialog height for the image
-                        child: ClipRRect(
-                          borderRadius:
-                              BorderRadius.vertical(top: Radius.circular(20)),
-                          child: Image.network(
-                            widget
-                                .imagePath, // Replace with your background image path
-                            fit: BoxFit.cover, // Adjust fit as necessary
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: imageHeight,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Color.fromARGB(0, 0, 0, 0),
-                                Color.fromARGB(179, 0, 0, 0),
-                              ],
-                            ),
-                            borderRadius:
-                                BorderRadius.vertical(top: Radius.circular(20)),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 20.0, // Adjust position as necessary
-                        left: 10.0, // Adjust position as necessary
-                        child: Container(
-                          width: screenWidth *
-                              0.1, // Adjust width of the circular background
-                          height: screenWidth *
-                              0.1, // Adjust height of the circular background
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.black.withOpacity(
-                                0.5), // Background color of the circle
-                          ),
-                          child: Center(
-                            child: IconButton(
-                              icon: Icon(Icons.arrow_back, color: Colors.white),
-                              iconSize: screenWidth * 0.05, // Adjust icon size
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                _fetchShoppingList(); // Refresh shopping list when dialog is closed
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                          top: 20.0, // Adjust position as necessary
-                          right: 10.0, // Adjust position as necessary
-                          child: Container(
-                              width: screenWidth *
-                                  0.1, // Adjust width of the circular background
-                              height: screenWidth *
-                                  0.1, // Adjust height of the circular background
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.black.withOpacity(
-                                    0.5), // Background color of the circle
-                              ),
-                              child: Center(
-                                child: IconButton(
-                                  icon: Icon(
-                                    _isFavorite
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color:
-                                        _isFavorite ? Colors.red : Colors.white,
-                                  ),
-                                  iconSize:
-                                      screenWidth * 0.05, // Adjust icon size
-                                  onPressed: _toggleFavorite,
-                                ),
-                                //],
-                              ))),
-                      Positioned(
-                        bottom: contentHeight +
-                            10, // Adjust position to be at the bottom of the image
-                        left: 20.0,
-                        child: Text(
-                          widget.name,
-                          style: TextStyle(
-                            fontSize: fontSizeTitle,
-                            fontWeight: FontWeight.bold,
-                            color: Colors
-                                .white, // Ensure the text is visible on the image
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
-                  )),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-              //   children: [
-              //     TextButton(
-              //       onPressed: () => setState(() => selectedTab = 0),
-              //       child: Text("Details",
-              //           style: TextStyle(
-              //             color:
-              //                 selectedTab == 0 ? Color(0xFFDC945F) : textColor,
-              //           )),
-              //     ),
-              //     TextButton(
-              //       onPressed: () => setState(() => selectedTab = 1),
-              //       child: Text("Instructions",
-              //           style: TextStyle(
-              //             color:
-              //                 selectedTab == 1 ? Color(0xFFDC945F) : textColor,
-              //           )),
-              //     ),
-              //     TextButton(
-              //       onPressed: () => setState(() => selectedTab = 2),
-              //       child: Text("Chat Bot",
-              //           style: TextStyle(
-              //             color:
-              //                 selectedTab == 2 ? Color(0xFFDC945F) : textColor,
-              //           )),
-              //     ),
-              //   ],
-              // ),
-              // // Content section that changes based on the selected tab
-              // if (selectedTab == 0)
-              Padding(
-                  padding: const EdgeInsets.all(16.0),
+          builder: (context) => Scaffold(
+                body: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Description:",
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFFDC945F),
-                          fontWeight: FontWeight
-                              .bold, // Optionally set the thickness of the underline
-                        ),
-                      ),
-                      SizedBox(
+                      Container(
                           height:
-                              6.0), // Add spacing between title and description
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 16.0), // Adjust the left padding as needed
-                        child: Text(
-                          widget.description,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 15.0,
-                      ),
-                      buildTimeInfoRow(context, '${widget.prepTime}',
-                          '${widget.cookTime}', textColor),
-
-                      buildDetailsColumn(
-                          context,
-                          '${widget.cuisine}',
-                          '${widget.spiceLevel}',
-                          '${widget.course}',
-                          '${widget.servings}'),
-                      SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.02),
-                      Column(
-                        children: [
-                          if (!_isAlteredRecipe)
-                            ElevatedButton(
-                              onPressed: () async {
-                                if (userId != null) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: Text(
-                                          'Adjusting recipe...', //loading screen
-                                          style: TextStyle(color: Colors.black),
+                              imageHeight, // Define a specific height for the container
+                          width: double.infinity,
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                height:
+                                    imageHeight, // 50% of dialog height for the image
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20)),
+                                  child: Image.network(
+                                    widget
+                                        .imagePath, // Replace with your background image path
+                                    fit:
+                                        BoxFit.cover, // Adjust fit as necessary
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                height: imageHeight,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Color.fromARGB(0, 0, 0, 0),
+                                        Color.fromARGB(179, 0, 0, 0),
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.vertical(
+                                        top: Radius.circular(20)),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                top: 20.0, // Adjust position as necessary
+                                left: 10.0, // Adjust position as necessary
+                                child: Container(
+                                  width: screenWidth *
+                                      0.1, // Adjust width of the circular background
+                                  height: screenWidth *
+                                      0.1, // Adjust height of the circular background
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.black.withOpacity(
+                                        0.5), // Background color of the circle
+                                  ),
+                                  child: Center(
+                                    child: IconButton(
+                                      icon: Icon(Icons.arrow_back,
+                                          color: Colors.white),
+                                      iconSize: screenWidth *
+                                          0.05, // Adjust icon size
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        _fetchShoppingList(); // Refresh shopping list when dialog is closed
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                  top: 20.0, // Adjust position as necessary
+                                  right: 10.0, // Adjust position as necessary
+                                  child: Container(
+                                      width: screenWidth *
+                                          0.1, // Adjust width of the circular background
+                                      height: screenWidth *
+                                          0.1, // Adjust height of the circular background
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.black.withOpacity(
+                                            0.5), // Background color of the circle
+                                      ),
+                                      child: Center(
+                                        child: IconButton(
+                                          icon: Icon(
+                                            _isFavorite
+                                                ? Icons.favorite
+                                                : Icons.favorite_border,
+                                            color: _isFavorite
+                                                ? Colors.red
+                                                : Colors.white,
+                                          ),
+                                          iconSize: screenWidth *
+                                              0.05, // Adjust icon size
+                                          onPressed: _toggleFavorite,
                                         ),
-                                        content: CircularProgressIndicator(),
-                                        backgroundColor: Colors.white,
-                                      );
-                                    },
-                                  );
-                                  String alteredRecipeJson =
-                                      await fetchDietaryConstraintsRecipe(
-                                          userId!, widget.recipeID);
-
-                                  //decode json
-                                  Map<String, dynamic> alteredRecipe =
-                                      jsonDecode(alteredRecipeJson);
-
-                                  //update rec
-                                  _updateRecipe(alteredRecipe);
-                                  Navigator.of(context)
-                                      .pop(); //stop loading screen
-                                  Navigator.of(context).pop();
-                                  _showMobileRecipeDetails(); //refresh rec
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: textColor,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 20),
+                                        //],
+                                      ))),
+                              Positioned(
+                                bottom: contentHeight +
+                                    10, // Adjust position to be at the bottom of the image
+                                left: 20.0,
+                                child: Text(
+                                  widget.name,
+                                  style: TextStyle(
+                                    fontSize: fontSizeTitle,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors
+                                        .white, // Ensure the text is visible on the image
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
-                              child: Text(
-                                'Adjust recipe to cater to my preferences',
-                                style: TextStyle(color: clickColor),
+                            ],
+                          )),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //   children: [
+                      //     TextButton(
+                      //       onPressed: () => setState(() => selectedTab = 0),
+                      //       child: Text("Details",
+                      //           style: TextStyle(
+                      //             color:
+                      //                 selectedTab == 0 ? Color(0xFFDC945F) : textColor,
+                      //           )),
+                      //     ),
+                      //     TextButton(
+                      //       onPressed: () => setState(() => selectedTab = 1),
+                      //       child: Text("Instructions",
+                      //           style: TextStyle(
+                      //             color:
+                      //                 selectedTab == 1 ? Color(0xFFDC945F) : textColor,
+                      //           )),
+                      //     ),
+                      //     TextButton(
+                      //       onPressed: () => setState(() => selectedTab = 2),
+                      //       child: Text("Chat Bot",
+                      //           style: TextStyle(
+                      //             color:
+                      //                 selectedTab == 2 ? Color(0xFFDC945F) : textColor,
+                      //           )),
+                      //     ),
+                      //   ],
+                      // ),
+                      // // Content section that changes based on the selected tab
+                      // if (selectedTab == 0)
+                      Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Description:",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Color(0xFFDC945F),
+                                  fontWeight: FontWeight
+                                      .bold, // Optionally set the thickness of the underline
+                                ),
                               ),
-                            )
-                          else
-                            ElevatedButton(
-                              onPressed: () {
-                                _revertToOriginalRecipe(); //go back to origional rec
-                                Navigator.of(context).pop();
-                                _showMobileRecipeDetails(); //refresh rec
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: textColor,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 40, vertical: 20),
+                              SizedBox(
+                                  height:
+                                      6.0), // Add spacing between title and description
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left:
+                                        16.0), // Adjust the left padding as needed
+                                child: Text(
+                                  widget.description,
+                                  style: TextStyle(fontSize: 16),
+                                ),
                               ),
-                              child: Text(
-                                'Revert to Original Recipe',
-                                style: TextStyle(color: clickColor),
+                              SizedBox(
+                                height: 15.0,
                               ),
-                            ),
-                          //   ],
-                          // ),
+                              buildTimeInfoRow(context, '${widget.prepTime}',
+                                  '${widget.cookTime}', textColor),
 
-                          SizedBox(
-                              height:
-                                  MediaQuery.of(context).size.height * 0.02),
-                          Text(
-                            "Ingredients:",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFFDC945F),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(
-                              height: MediaQuery.of(context).size.height *
-                                  0.01), // Adjust height to 1% of screen height
-                          ...widget.ingredients.asMap().entries.map((entry) {
-                            int idx = entry.key;
-                            Map<String, dynamic> ingredient = entry.value;
-                            bool isInPantry = _pantryIngredients
-                                .containsKey(ingredient['name']);
-                            double availableQuantity = isInPantry
-                                ? (_pantryIngredients[ingredient['name']]
-                                        ?['quantity'] ??
-                                    0.0)
-                                : 0.0;
-                            bool isInShoppingList =
-                                _shoppingList.containsKey(ingredient['name']);
+                              buildDetailsColumn(
+                                  context,
+                                  '${widget.cuisine}',
+                                  '${widget.spiceLevel}',
+                                  '${widget.course}',
+                                  '${widget.servings}'),
+                              SizedBox(
+                                  height: MediaQuery.of(context).size.height *
+                                      0.02),
+                              Column(
+                                children: [
+                                  if (!_isAlteredRecipe)
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        if (userId != null) {
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                title: Text(
+                                                  'Adjusting recipe...', //loading screen
+                                                  style: TextStyle(
+                                                      color: Colors.black),
+                                                ),
+                                                content:
+                                                    CircularProgressIndicator(),
+                                                backgroundColor: Colors.white,
+                                              );
+                                            },
+                                          );
+                                          String alteredRecipeJson =
+                                              await fetchDietaryConstraintsRecipe(
+                                                  userId!, widget.recipeID);
 
-                            return CheckableItem(
-                              title:
-                                  '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-                              requiredQuantity: ingredient['quantity'],
-                              requiredUnit: ingredient['measurement_unit'],
-                              onChanged: (bool? value) {
-                                if (mounted) {
-                                  setState(() {
-                                    _ingredientChecked[idx] = value ?? false;
-                                  });
-                                }
-                              },
-                              isInPantry: isInPantry,
-                              availableQuantity: availableQuantity,
-                              isChecked: _ingredientChecked[idx] ?? true,
-                              isInShoppingList: isInShoppingList,
-                              recipeID: widget.recipeID,
-                              onRecipeUpdate:
-                                  _updateRecipe, // Pass recipeID here
-                            );
-                          }),
-                          if (widget.ingredients.every((ingredient) =>
-                              _pantryIngredients
-                                  .containsKey(ingredient['name']) &&
-                              _pantryIngredients[ingredient['name']]![
-                                      'quantity'] >=
-                                  ingredient['quantity']))
-                            ElevatedButton(
-                              onPressed: _removeIngredientsFromPantry,
-                              child: Text('Remove ingredients from pantry'),
-                            ),
-                          SizedBox(
-                              height: MediaQuery.of(context).size.height *
-                                  0.02), // Adjust height to 2% of screen height
-                          Text(
-                            "Appliances:",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Color(
-                                  0xFFDC945F), // Optionally set the thickness of the underline
-                            ),
-                          ),
-                          SizedBox(
-                              height:
-                                  MediaQuery.of(context).size.height * 0.01),
-                          ...widget.appliances.map(
-                            (appliance) => Padding(
-                              padding: EdgeInsets.only(
-                                  left:
-                                      16.0), // Add 16 pixels of padding to the left
-                              child: Text(appliance),
-                            ),
-                          )
-                        ],
-                        //                     ),
-                      ),
+                                          //decode json
+                                          Map<String, dynamic> alteredRecipe =
+                                              jsonDecode(alteredRecipeJson);
+
+                                          //update rec
+                                          _updateRecipe(alteredRecipe);
+                                          Navigator.of(context)
+                                              .pop(); //stop loading screen
+                                          Navigator.of(context).pop();
+                                          _showMobileRecipeDetails(); //refresh rec
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: textColor,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40, vertical: 20),
+                                      ),
+                                      child: Text(
+                                        'Adjust recipe to cater to my preferences',
+                                        style: TextStyle(color: clickColor),
+                                      ),
+                                    )
+                                  else
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _revertToOriginalRecipe(); //go back to origional rec
+                                        Navigator.of(context).pop();
+                                        _showMobileRecipeDetails(); //refresh rec
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: textColor,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 40, vertical: 20),
+                                      ),
+                                      child: Text(
+                                        'Revert to Original Recipe',
+                                        style: TextStyle(color: clickColor),
+                                      ),
+                                    ),
+                                  //   ],
+                                  // ),
+
+                                  SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.02),
+                                  Text(
+                                    "Ingredients:",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFFDC945F),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                      height: MediaQuery.of(context)
+                                              .size
+                                              .height *
+                                          0.01), // Adjust height to 1% of screen height
+                                  ...widget.ingredients
+                                      .asMap()
+                                      .entries
+                                      .map((entry) {
+                                    int idx = entry.key;
+                                    Map<String, dynamic> ingredient =
+                                        entry.value;
+                                    bool isInPantry = _pantryIngredients
+                                        .containsKey(ingredient['name']);
+                                    double availableQuantity = isInPantry
+                                        ? (_pantryIngredients[
+                                                    ingredient['name']]
+                                                ?['quantity'] ??
+                                            0.0)
+                                        : 0.0;
+                                    bool isInShoppingList = _shoppingList
+                                        .containsKey(ingredient['name']);
+
+                                    return CheckableItem(
+                                      title:
+                                          '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
+                                      requiredQuantity: ingredient['quantity'],
+                                      requiredUnit:
+                                          ingredient['measurement_unit'],
+                                      onChanged: (bool? value) {
+                                        if (mounted) {
+                                          setState(() {
+                                            _ingredientChecked[idx] =
+                                                value ?? false;
+                                          });
+                                        }
+                                      },
+                                      isInPantry: isInPantry,
+                                      availableQuantity: availableQuantity,
+                                      isChecked:
+                                          _ingredientChecked[idx] ?? true,
+                                      isInShoppingList: isInShoppingList,
+                                      recipeID: widget.recipeID,
+                                      onRecipeUpdate:
+                                          _updateRecipe, // Pass recipeID here
+                                    );
+                                  }),
+                                  if (widget.ingredients.every((ingredient) =>
+                                      _pantryIngredients
+                                          .containsKey(ingredient['name']) &&
+                                      _pantryIngredients[ingredient['name']]![
+                                              'quantity'] >=
+                                          ingredient['quantity']))
+                                    ElevatedButton(
+                                      onPressed: _removeIngredientsFromPantry,
+                                      child: Text(
+                                          'Remove ingredients from pantry'),
+                                    ),
+                                  SizedBox(
+                                      height: MediaQuery.of(context)
+                                              .size
+                                              .height *
+                                          0.02), // Adjust height to 2% of screen height
+                                  Text(
+                                    "Appliances:",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(
+                                          0xFFDC945F), // Optionally set the thickness of the underline
+                                    ),
+                                  ),
+                                  SizedBox(
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.01),
+                                  ...widget.appliances.map(
+                                    (appliance) => Padding(
+                                      padding: EdgeInsets.only(
+                                          left:
+                                              16.0), // Add 16 pixels of padding to the left
+                                      child: Text(appliance),
+                                    ),
+                                  )
+                                ],
+                                //                     ),
+                              ),
+                            ],
+                          ))
+                      // else if (selectedTab == 1)
+                      //   Padding(
+                      //     padding: const EdgeInsets.all(16.0),
+                      //     child: Column(
+                      //       crossAxisAlignment: CrossAxisAlignment.start,
+                      //       children: [
+                      //         Text(
+                      //           'Instructions:',
+                      //           style: TextStyle(
+                      //               fontSize: 16,
+                      //               fontWeight: FontWeight.bold,
+                      //               color: Color(0xFFDC945F)),
+                      //         ),
+                      //         SizedBox(height: 8.0),
+                      //         ...widget.steps.expand((step) {
+                      //           return step.split('<').map((subStep) {
+                      //             return Padding(
+                      //               padding: EdgeInsets.only(
+                      //                   bottom: 8.0), // Space between each step
+                      //               child: Row(
+                      //                 crossAxisAlignment: CrossAxisAlignment.start,
+                      //                 children: [
+                      //                   Container(
+                      //                     width: 24.0, // Diameter of the circle
+                      //                     height: 24.0, // Diameter of the circle
+                      //                     decoration: BoxDecoration(
+                      //                       shape: BoxShape.circle,
+                      //                       color: Color.fromARGB(115, 220, 147,
+                      //                           95), // Color of the circle
+                      //                     ),
+                      //                     alignment: Alignment.center,
+                      //                     child: Text(
+                      //                       '${widget.steps.indexOf(step) + 1}',
+                      //                       style: TextStyle(
+                      //                         fontSize: 16,
+                      //                         color:
+                      //                             Colors.white, // Color of the number
+                      //                       ),
+                      //                     ),
+                      //                   ),
+                      //                   SizedBox(
+                      //                       width:
+                      //                           8.0), // Adjust this value to control the indent
+                      //                   Expanded(
+                      //                     child: Text(
+                      //                       subStep,
+                      //                       style: TextStyle(
+                      //                           fontSize: 16), // Style for each step
+                      //                     ),
+                      //                   ),
+                      //                   SizedBox(height: 8.0),
+                      //                 ],
+                      //               ),
+                      //             );
+                      //           }).toList();
+                      //         })
+                      //       ],
+                      //     ),
+                      //   )
+                      // else if (selectedTab == 2)
+                      //   Padding(
+                      //     padding: const EdgeInsets.all(16.0),
+                      //     child: Text(
+                      //       "Description 3: Yet another long block of text for scrolling test. "
+                      //       "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+                      //       style: TextStyle(
+                      //         fontSize: 16,
+                      //         color: Color(0xFFDC945F),
+                      //         fontWeight: FontWeight.bold,
+                      //       ),
+                      //     ),
+                      //   ),
                     ],
-                  ))
-              // else if (selectedTab == 1)
-              //   Padding(
-              //     padding: const EdgeInsets.all(16.0),
-              //     child: Column(
-              //       crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: [
-              //         Text(
-              //           'Instructions:',
-              //           style: TextStyle(
-              //               fontSize: 16,
-              //               fontWeight: FontWeight.bold,
-              //               color: Color(0xFFDC945F)),
-              //         ),
-              //         SizedBox(height: 8.0),
-              //         ...widget.steps.expand((step) {
-              //           return step.split('<').map((subStep) {
-              //             return Padding(
-              //               padding: EdgeInsets.only(
-              //                   bottom: 8.0), // Space between each step
-              //               child: Row(
-              //                 crossAxisAlignment: CrossAxisAlignment.start,
-              //                 children: [
-              //                   Container(
-              //                     width: 24.0, // Diameter of the circle
-              //                     height: 24.0, // Diameter of the circle
-              //                     decoration: BoxDecoration(
-              //                       shape: BoxShape.circle,
-              //                       color: Color.fromARGB(115, 220, 147,
-              //                           95), // Color of the circle
-              //                     ),
-              //                     alignment: Alignment.center,
-              //                     child: Text(
-              //                       '${widget.steps.indexOf(step) + 1}',
-              //                       style: TextStyle(
-              //                         fontSize: 16,
-              //                         color:
-              //                             Colors.white, // Color of the number
-              //                       ),
-              //                     ),
-              //                   ),
-              //                   SizedBox(
-              //                       width:
-              //                           8.0), // Adjust this value to control the indent
-              //                   Expanded(
-              //                     child: Text(
-              //                       subStep,
-              //                       style: TextStyle(
-              //                           fontSize: 16), // Style for each step
-              //                     ),
-              //                   ),
-              //                   SizedBox(height: 8.0),
-              //                 ],
-              //               ),
-              //             );
-              //           }).toList();
-              //         })
-              //       ],
-              //     ),
-              //   )
-              // else if (selectedTab == 2)
-              //   Padding(
-              //     padding: const EdgeInsets.all(16.0),
-              //     child: Text(
-              //       "Description 3: Yet another long block of text for scrolling test. "
-              //       "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-              //       style: TextStyle(
-              //         fontSize: 16,
-              //         color: Color(0xFFDC945F),
-              //         fontWeight: FontWeight.bold,
-              //       ),
-              //     ),
-              //   ),
-            ],
-          ),
-        ),
-      ),
+                  ),
+                ),
+              )),
     );
   }
 
