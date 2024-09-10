@@ -49,8 +49,8 @@ class GuestRecipeCard extends StatefulWidget {
 
 class _RecipeCardState extends State<GuestRecipeCard> {
   bool _hovered = false;
-  Map<int, bool> _ingredientChecked = {};
-  bool _isFavorite = false;
+  //Map<int, bool> _ingredientChecked = {};
+  //bool _isFavorite = false;
   //Map<String, bool> _pantryIngredients = {};
   //Map<String, Map<String, dynamic>> _pantryIngredients = {};
   //Map<String, Map<String, dynamic>> _shoppingList = {};
@@ -84,8 +84,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     //_fetchUserId();
     //_updateIngredientCounts();
   }
-
-  
 
   void _showTimerPopup() {
     showDialog(
@@ -183,8 +181,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     }
   }
 
- 
-
   void _onHover(bool hovering) {
     if (mounted) {
       setState(() {
@@ -192,9 +188,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
       });
     }
   }
-
-
-  
 
   void _showMobileRecipeDetails() {
     final theme = Theme.of(context);
@@ -291,7 +284,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       ),
                     ),
                   ),
-                  
+
                   //),
                   Positioned(
                     bottom: contentHeight +
@@ -601,7 +594,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                                     .size
                                                     .height *
                                                 0.02), // Adjust height to 2% of screen height
-                  
+
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
@@ -621,37 +614,43 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                                     .height *
                                                 0.01), // Adjust height to 1% of screen height
                                         if (_isAlteredRecipe)
-  ElevatedButton(
-    onPressed: () {
-      _revertToOriginalRecipe();
-    },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Theme.of(context).primaryColor, // Use primary color
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-    ),
-    child: Text(
-      'Revert to Original Recipe',
-      style: TextStyle(
-        color: Colors.white, // Button text color
-      ),
-    ),
-  ),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              _revertToOriginalRecipe();
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Theme.of(context)
+                                                  .primaryColor, // Use primary color
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 20,
+                                                      vertical: 10),
+                                            ),
+                                            child: Text(
+                                              'Revert to Original Recipe',
+                                              style: TextStyle(
+                                                color: Colors
+                                                    .white, // Button text color
+                                              ),
+                                            ),
+                                          ),
 
                                         ...widget.ingredients
                                             .asMap()
                                             .entries
                                             .map((entry) {
-                                          int idx = entry.key;
+                                          // int idx = entry.key;
                                           Map<String, dynamic> ingredient =
                                               entry.value;
-                                          
+
                                           return CheckableItem(
                                             title:
                                                 '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
                                             requiredQuantity:
                                                 ingredient['quantity'],
                                             requiredUnit:
-                                                ingredient['measurement_unit'], recipeID: widget.recipeID,
+                                                ingredient['measurement_unit'],
+                                            recipeID: widget.recipeID,
                                             // onChanged: (bool? value) {
                                             //   if (mounted) {
                                             //     setState(() {
@@ -661,11 +660,10 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                             //   }
                                             // },
                                             // Pass recipeID here
-                                            onRecipeUpdate:
-                                                _updateRecipe,
+                                            onRecipeUpdate: _updateRecipe,
                                           );
                                         }),
-                                        
+
                                         SizedBox(
                                             height: MediaQuery.of(context)
                                                     .size
@@ -764,7 +762,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                       ],
                                     ),
                                   ),
-                                  
                                 ],
                               ),
                             ),
@@ -785,13 +782,10 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     });
   }
 
-
-
   void _showRecipeDetails() {
-    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    //final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
+    //final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
-    
     final theme = Theme.of(context);
 
     final clickColor = theme.brightness == Brightness.light
@@ -855,7 +849,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                     ),
                                     onPressed: _showTimerPopup,
                                   ),
-                                  
                                 ],
                               ),
                             ],
@@ -955,7 +948,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                               .size
                                               .height *
                                           0.02), // Adjust height to 2% of screen height
-                                  
 
                                   SizedBox(
                                       height:
@@ -970,47 +962,44 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                               .height *
                                           0.01), // Adjust height to 1% of screen height
                                   if (_isAlteredRecipe)
-  ElevatedButton(
-    onPressed: () {
-      _revertToOriginalRecipe();
-    },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Theme.of(context).primaryColor, // Use primary color
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-    ),
-    child: Text(
-      'Revert to Original Recipe',
-      style: TextStyle(
-        color: Colors.white, // Button text color
-      ),
-    ),
-  ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        _revertToOriginalRecipe();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Theme.of(context)
+                                            .primaryColor, // Use primary color
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 20, vertical: 10),
+                                      ),
+                                      child: Text(
+                                        'Revert to Original Recipe',
+                                        style: TextStyle(
+                                          color:
+                                              Colors.white, // Button text color
+                                        ),
+                                      ),
+                                    ),
 
                                   ...widget.ingredients
                                       .asMap()
                                       .entries
                                       .map((entry) {
-                                    int idx = entry.key;
+                                    // int idx = entry.key;
                                     Map<String, dynamic> ingredient =
                                         entry.value;
-                                    
 
                                     return CheckableItem(
                                       title:
                                           '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
                                       requiredQuantity: ingredient['quantity'],
                                       requiredUnit:
-                                          ingredient['measurement_unit'],recipeID: widget.recipeID,
-                                      onRecipeUpdate:
-                                                _updateRecipe, 
-                                        
-                                      
+                                          ingredient['measurement_unit'],
+                                      recipeID: widget.recipeID,
+                                      onRecipeUpdate: _updateRecipe,
                                     );
                                   }),
-                                  
-                                    
-                                  
-                                    
+
                                   SizedBox(
                                       height: MediaQuery.of(context)
                                               .size
@@ -1157,13 +1146,10 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                         BorderRadius.circular(15.0), // Matching border radius
                   ),
                 ),
-                
               ],
             ),
           );
         });
-
-    
   }
 
   @override
@@ -1245,7 +1231,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       SizedBox(
                           height:
                               5), // Add some spacing between name and counts
-                      
                     ],
                   ),
                 ),
@@ -1508,7 +1493,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       SizedBox(
                         height: MediaQuery.of(context).size.width * 0.006,
                       ), // Add some spacing between name and counts
-                      
                     ],
                   ),
                 ),
@@ -1526,7 +1510,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       ),
                       onPressed: _showTimerPopup,
                     ),
-                    
                   ],
                 )),
           ],
@@ -1569,7 +1552,7 @@ class CheckableItem extends StatefulWidget {
 }
 
 class _CheckableItemState extends State<CheckableItem> {
-  bool _isAdded = false;
+  //bool _isAdded = false;
 
   void _showSubstitutesDialog() async {
     //loading screen
@@ -1681,7 +1664,6 @@ class _CheckableItemState extends State<CheckableItem> {
               ),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
-                
               },
               child: Text(
                 'Close',
@@ -1745,7 +1727,6 @@ class _CheckableItemState extends State<CheckableItem> {
       children: [
         Row(
           children: [
-            
             Flexible(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1768,11 +1749,7 @@ class _CheckableItemState extends State<CheckableItem> {
             ),
           ],
         ),
-        
-        
       ],
     );
   }
-
-  
 }

@@ -1305,13 +1305,6 @@ class _RecipeCardState extends State<RecipeCard> {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
-    int neededIngredientCount = widget.ingredients
-        .where((ingredient) =>
-            (!_pantryIngredients.containsKey(ingredient['name']) ||
-                _pantryIngredients[ingredient['name']]!['quantity'] <
-                    ingredient['quantity']) &&
-            !_shoppingList.containsKey(ingredient['name']))
-        .length;
     final theme = Theme.of(context);
 
     final clickColor = theme.brightness == Brightness.light
