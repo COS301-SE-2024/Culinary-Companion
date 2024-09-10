@@ -1106,7 +1106,7 @@ Future<void> addExtractedRecipeToDatabase(
       print('Failed to add recipe: ${response.statusCode} ${response.body}');
     }
   } catch (e) {
-    print('Error adding recipe to database: $e');
+    //print('Error adding recipe to database: $e');
   }
 }
 

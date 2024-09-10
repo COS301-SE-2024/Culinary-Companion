@@ -59,7 +59,6 @@ class _RecipeFormState extends State<RecipeForm>
 
   String _imageUrl = "";
   String? _selectedImage;
-  bool _isImageUploaded = false;
 
   @override
   void initState() {
@@ -111,7 +110,6 @@ class _RecipeFormState extends State<RecipeForm>
 
         if (mounted) {
           setState(() {
-            _isImageUploaded = true;
             _selectedImage = _imageUrl;
           });
         }
@@ -1210,7 +1208,6 @@ class _RecipeFormState extends State<RecipeForm>
                           onTap: () {
                             if (mounted) {
                               setState(() {
-                                _isImageUploaded = false;
                                 _selectedImage = image;
                               });
                             }
