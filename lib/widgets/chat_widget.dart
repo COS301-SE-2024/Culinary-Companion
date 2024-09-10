@@ -35,6 +35,8 @@ class _ChatWidgetState extends State<ChatWidget> {
   final List<Map<String, String>> _messages = [];
   late final GenerativeModel model;
 
+  final ScrollController _scrollController = ScrollController();
+
   int? _spiceLevel;
   String? _profilePhoto;
   List<String>? _dietaryConstraints;
@@ -46,6 +48,12 @@ class _ChatWidgetState extends State<ChatWidget> {
     _initializeChat();
     _loadConversation();
     //_generateSuggestedPrompts();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _initializeChat() async {
@@ -157,6 +165,16 @@ class _ChatWidgetState extends State<ChatWidget> {
         });
         await _saveConversation(); // Save conversation after receiving a response
       }
+
+      Future.delayed(Duration(milliseconds: 100), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
     }
   }
 
@@ -298,6 +316,7 @@ class _ChatWidgetState extends State<ChatWidget> {
           ),
           Expanded(
             child: SingleChildScrollView(
+              controller: _scrollController,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
