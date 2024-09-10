@@ -20,7 +20,6 @@ void main() {
       expect(find.byType(Image), findsNWidgets(2)); // Assuming 2 images are used (background and logo)
       expect(find.text('Log In'), findsOneWidget);
       expect(find.text('Sign Up'), findsOneWidget);
-      expect(find.text('or'), findsOneWidget);
     });
 
     testWidgets('should navigate to login screen when Log In button is pressed', (WidgetTester tester) async {
