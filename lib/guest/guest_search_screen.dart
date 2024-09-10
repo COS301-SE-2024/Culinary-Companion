@@ -5,23 +5,34 @@ import 'dart:convert';
 import 'package:lottie/lottie.dart';
 import '../widgets/recipe_card.dart';
 import '../widgets/help_search.dart';
-import '../widgets/filter_recipes.dart';
-import 'dart:async';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class SearchScreen extends StatefulWidget {
+class GuestSearchScreen extends StatefulWidget {
   @override
-  _SearchScreenState createState() => _SearchScreenState();
+  _GuestSearchScreenState createState() => _GuestSearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _GuestSearchScreenState extends State<GuestSearchScreen> {
   TextEditingController _searchController = TextEditingController();
   OverlayEntry? _helpMenuOverlay;
 
   final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
+
   List<String> cuisineType = [];
-  List<String> dietaryOptions = [];
-Timer? _debounce;
+
+  List<String> dietaryOptions = [
+    'Vegan'
+        'Vegetarian',
+    'Gluten-Free',
+    'Lactose-Free',
+    'No Banana',
+    'No Nuts',
+    'High Protein',
+    'High Calorie',
+    'Low Calorie',
+    'Low Carb',
+    'Low Sugar'
+  ]; //Change these so it is fetched from database!!!
+
   // List<String> ingredientOptions = [
   //   'Need 1 Extra Ingredient',
   //   'Mostly in My Pantry',
@@ -35,19 +46,7 @@ Timer? _debounce;
     'Hot',
     'Extra Hot' //5
   ];
-void _onSearchChanged(String query) {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
-      // Perform the search only when the user has stopped typing for 500ms
-      _performSearch(query);
-    });
-  }
 
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
-  }
   @override
   void initState() {
     super.initState();
@@ -55,10 +54,9 @@ void _onSearchChanged(String query) {
   }
 
   Future<void> _initializeData() async {
-    await fetchAllRecipes();
     await _loadCuisines();
     await _loadDietaryConstraints();
-    
+    await fetchAllRecipes();
   }
 
   Future<void> fetchAllRecipes() async {
@@ -68,50 +66,31 @@ void _onSearchChanged(String query) {
     final body = jsonEncode({'action': 'getAllRecipes'});
 
     try {
-      // Load cached recipes to avoid re-fetching if already available
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? cachedRecipes = prefs.getString('cached_all_recipes');
-
-      if (cachedRecipes != null && recipes.isEmpty) {
-        setState(() {
-          recipes = List<Map<String, dynamic>>.from(jsonDecode(cachedRecipes));
-        });
-      }
-
-      // Fetch fresh recipes from Supabase
       final response =
           await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
-        // Clear the recipes list to avoid duplication
-        recipes.clear();
-
-        // Fetch recipe details in parallel using Future.wait for faster results
-        List<Future<void>> detailFetches = fetchedRecipes.map((recipe) {
+        // Fetch details concurrently
+        final detailFetches = fetchedRecipes.map((recipe) {
           final String recipeId = recipe['recipeid'];
-          return fetchRecipeDetails(recipeId); // Fetch in parallel
+          return fetchRecipeDetails(recipeId);
         }).toList();
 
         await Future.wait(detailFetches);
-
-        // Cache the fetched recipes
-        await prefs.setString('cached_all_recipes', jsonEncode(recipes));
       } else {
         print('Failed to load recipes: ${response.statusCode}');
       }
     } catch (error) {
       print('Error fetching recipes: $error');
     }
-
     if (mounted) {
       setState(() {
-        _isLoading = false; // Hide loading indicator
+        _isLoading = false;
       });
     }
   }
-
 
   Future<void> _loadDietaryConstraints() async {
     final url =
@@ -127,13 +106,6 @@ void _onSearchChanged(String query) {
             dietaryOptions = data.map<String>((constraint) {
               return constraint['name'].toString();
             }).toList();
-
-            // Sort the dietary constraints alphabetically, but put "None" at the end
-            dietaryOptions.sort((a, b) {
-              if (a.toLowerCase() == 'none') return 1; // Put "None" at the end
-              if (b.toLowerCase() == 'none') return -1;
-              return a.toLowerCase().compareTo(b.toLowerCase());
-            });
           });
         }
         //print('here');
@@ -165,13 +137,6 @@ void _onSearchChanged(String query) {
             cuisineType = data.map<String>((cuisine) {
               return cuisine['name'].toString();
             }).toList();
-
-            // Sort cuisines alphabetically, but put "None" at the end
-            cuisineType.sort((a, b) {
-              if (a.toLowerCase() == 'none') return 1; // Put "None" at the end
-              if (b.toLowerCase() == 'none') return -1;
-              return a.toLowerCase().compareTo(b.toLowerCase());
-            });
           });
         }
         //print(_cuisines);
@@ -231,23 +196,22 @@ void _onSearchChanged(String query) {
     final body = jsonEncode({'action': 'searchRecipes', 'searchTerm': query});
 
     try {
-      // Load search results from Supabase
       final response =
           await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
-        setState(() {
-          recipes.clear(); // Clear the current list of recipes
-        });
+        if (mounted) {
+          setState(() {
+            recipes.clear(); //clear recipes
+          });
+        }
 
-        // Fetch recipe details in parallel for search results
-        final detailFetches = fetchedRecipeIds.map((recipe) {
-          final String recipeId = recipe['recipeid'];
-          return fetchRecipeDetails(recipeId);
-        }).toList();
-
-        await Future.wait(detailFetches);
+        for (var recipe in fetchedRecipeIds) {
+          final String recipeId =
+              recipe['recipeid']; //fetch rec details for each rec
+          await fetchRecipeDetails(recipeId);
+        }
       } else {
         print('Failed to load search results: ${response.statusCode}');
       }
@@ -269,42 +233,15 @@ void _onSearchChanged(String query) {
       });
     }
 
-    // Perform filtering on cached recipes when possible
     Filters filters = Filters(
       course: selectedCourseTypeOptions,
       spiceLevel:
           selectedSpiceLevel != null ? int.tryParse(selectedSpiceLevel!) : null,
       cuisine: selectedCuisineType,
       dietaryOptions: selectedDietaryOptions,
+      ingredientOption: selectedIngredientOption,
     );
 
-    // Filter recipes locally first
-    List<Map<String, dynamic>> filteredRecipes = recipes.where((recipe) {
-      bool matchesCourse = selectedCourseTypeOptions.isEmpty ||
-          selectedCourseTypeOptions.contains(recipe['course']);
-      bool matchesCuisine = selectedCuisineType.isEmpty ||
-          selectedCuisineType.contains(recipe['cuisine']);
-      bool matchesSpiceLevel = selectedSpiceLevel == null ||
-          recipe['spicelevel'] == int.tryParse(selectedSpiceLevel!);
-      bool matchesDietary = selectedDietaryOptions.isEmpty ||
-          selectedDietaryOptions
-              .any((option) => recipe['dietary'].contains(option));
-
-      return matchesCourse &&
-          matchesCuisine &&
-          matchesSpiceLevel &&
-          matchesDietary;
-    }).toList();
-
-    if (filteredRecipes.isNotEmpty) {
-      setState(() {
-        recipes = filteredRecipes; // Update with locally filtered recipes
-        _isLoading = false;
-      });
-      return;
-    }
-
-    // If no local matches, fetch filtered recipes from Supabase
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     final headers = <String, String>{'Content-Type': 'application/json'};
@@ -319,17 +256,17 @@ void _onSearchChanged(String query) {
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
-        setState(() {
-          recipes.clear(); // Clear the current recipes
-        });
+        if (mounted) {
+          setState(() {
+            recipes.clear(); //clear the current recipes
+          });
+        }
 
-        // Fetch recipe details for filtered results
-        List<Future<void>> detailFetches = fetchedRecipeIds.map((recipe) {
-          final String recipeId = recipe['recipeid'];
-          return fetchRecipeDetails(recipeId); // Fetch in parallel
-        }).toList();
-
-        await Future.wait(detailFetches);
+        for (var recipe in fetchedRecipeIds) {
+          final String recipeId =
+              recipe['recipeid']; //fetch recpe details for each recipe
+          await fetchRecipeDetails(recipeId);
+        }
       } else {
         print('Failed to load filtered recipes: ${response.statusCode}');
       }
@@ -343,7 +280,6 @@ void _onSearchChanged(String query) {
       }
     }
   }
-
 
   void _openFilterModal() {
     final theme = Theme.of(context);
@@ -365,7 +301,7 @@ void _onSearchChanged(String query) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
             return Padding(
-              padding: EdgeInsets.all(25),
+              padding: EdgeInsets.all(16.0),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,10 +312,8 @@ void _onSearchChanged(String query) {
                     SizedBox(height: 15),
                     Text('Dietary Constraints:',
                         style: TextStyle(fontSize: 16)),
-                    SizedBox(height: 10),
                     Wrap(
                       spacing: 8.0,
-                      runSpacing: 8,
                       children: dietaryOptions.map((option) {
                         return ChoiceChip(
                           label: Text(option),
@@ -396,12 +330,10 @@ void _onSearchChanged(String query) {
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     Text('Course Type:', style: TextStyle(fontSize: 16)),
-                    SizedBox(height: 10),
                     Wrap(
                       spacing: 8.0,
-                      runSpacing: 8,
                       children: _courses.map((option) {
                         return ChoiceChip(
                           label: Text(option),
@@ -418,12 +350,10 @@ void _onSearchChanged(String query) {
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     Text('Cuisine Type:', style: TextStyle(fontSize: 16)),
-                    SizedBox(height: 10),
                     Wrap(
                       spacing: 8.0,
-                      runSpacing: 8,
                       children: cuisineType.map((option) {
                         return ChoiceChip(
                           label: Text(option),
@@ -440,12 +370,10 @@ void _onSearchChanged(String query) {
                         );
                       }).toList(),
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 15),
                     Text('Spice Level:', style: TextStyle(fontSize: 16)),
-                    SizedBox(height: 10),
                     Wrap(
                       spacing: 8.0,
-                      runSpacing: 8,
                       children: spiceLevelOptions.map((option) {
                         return ChoiceChip(
                           label: Text(option),
@@ -530,7 +458,7 @@ void _onSearchChanged(String query) {
     );
   }
 
-  // Helper function to convert spice level string to int
+// Helper function to convert spice level string to int
   int? _spiceLevelToInt(String? spiceLevel) {
     if (spiceLevel == null) return null;
     switch (spiceLevel) {
@@ -729,7 +657,7 @@ void _onSearchChanged(String query) {
           // Main content
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(30.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -753,7 +681,7 @@ void _onSearchChanged(String query) {
                             suffixIcon: IconButton(
                               icon: Icon(Icons.search),
                               onPressed: () =>
-                                  _onSearchChanged(_searchController.text),
+                                  _performSearch(_searchController.text),
                             ),
                           ),
                         ),
@@ -831,5 +759,31 @@ void _onSearchChanged(String query) {
         ],
       ),
     );
+  }
+}
+
+class Filters {
+  List<String>? course;
+  int? spiceLevel;
+  List<String>? cuisine;
+  List<String>? dietaryOptions;
+  String? ingredientOption;
+
+  Filters({
+    this.course,
+    this.spiceLevel,
+    this.cuisine,
+    this.dietaryOptions,
+    this.ingredientOption,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'course': course,
+      'spiceLevel': spiceLevel,
+      'cuisine': cuisine,
+      'dietaryOptions': dietaryOptions,
+      'ingredientOption': ingredientOption,
+    };
   }
 }
