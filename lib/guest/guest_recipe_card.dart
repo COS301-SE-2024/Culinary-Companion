@@ -1109,48 +1109,40 @@ class _RecipeCardState extends State<GuestRecipeCard> {
   }
 
   void _chatbotPopup() {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    showDialog(
-        barrierColor: Color.fromARGB(158, 0, 0, 0),
-        barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return FloatingDialog(
-            onClose: () {
+  showDialog(
+    barrierColor: Color.fromARGB(158, 0, 0, 0),
+    barrierDismissible: false,
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text(
+          "Access Restricted",
+          style: TextStyle(color: Colors.black),
+        ),
+        content: Text(
+          "Sign up to access the full functionality.",
+          style: TextStyle(color: Colors.black),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
               Navigator.of(context).pop();
             },
-            child: Stack(
-              children: [
-                // Background image with dark overlay
-                Container(
-                  width: screenWidth * 0.3, // Adjust the width as needed
-                  height: MediaQuery.of(context).size.height *
-                      0.7, // Adjust the height as needed
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(widget.imagePath),
-                      fit: BoxFit.cover,
-                    ),
-                    borderRadius: BorderRadius.circular(
-                        15.0), // Optional: Same as the Dialog border radius
-                  ),
-                ),
-                // Dark overlay to make text readable
-                Container(
-                  width: screenWidth * 0.3,
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF1A1A1A)
-                        .withOpacity(0.95), // Dark overlay with 70% opacity
-                    borderRadius:
-                        BorderRadius.circular(15.0), // Matching border radius
-                  ),
-                ),
-              ],
+            child: Text(
+              "Close",
+              style: TextStyle(color: Color(0xFFDC945F)),
             ),
-          );
-        });
-  }
+          ),
+        ],
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
