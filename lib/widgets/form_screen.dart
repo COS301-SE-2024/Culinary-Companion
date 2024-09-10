@@ -59,6 +59,7 @@ class _RecipeFormState extends State<RecipeForm>
 
   String _imageUrl = "";
   String? _selectedImage;
+  bool _isImageUploaded = false;
 
   @override
   void initState() {
@@ -77,6 +78,7 @@ class _RecipeFormState extends State<RecipeForm>
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
     if (image == null) {
       print('No image selected.');
       return;
@@ -106,15 +108,22 @@ class _RecipeFormState extends State<RecipeForm>
       if (response.isNotEmpty) {
         _imageUrl =
             supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
-        //print('here1: $_imageUrl');
+
         if (mounted) {
           setState(() {
+            _isImageUploaded = true;
             _selectedImage = _imageUrl;
           });
         }
-        //print('here2: $_selectedImage');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image uploaded successfully!')),
+        );
       } else {
         print('Error uploading image: $response');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image. Please try again.')),
+        );
       }
     } catch (error) {
       print('Exception during image upload: $error');
@@ -247,6 +256,8 @@ class _RecipeFormState extends State<RecipeForm>
     final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
     final Color backgroundColor =
         isLightTheme ? Colors.white : Color(0xFF283330);
+    final Color backgroundColor =
+        isLightTheme ? Colors.white : Color(0xFF283330);
 
     showDialog(
       barrierDismissible: false,
@@ -315,7 +326,7 @@ class _RecipeFormState extends State<RecipeForm>
               child: const Text(
                 'Add',
                 style: TextStyle(
-                  color: Colors.white, // Set the color to orange
+                  color: Colors.white,
                 ),
               ),
               onPressed: () async {
@@ -686,8 +697,6 @@ class _RecipeFormState extends State<RecipeForm>
           return;
         }
 
-// print("dietaryConstraints");
-// print(dietaryConstraints);
         // Filter dietary constraints that are "yes" or "true"
         final filteredConstraints = dietaryConstraints.entries
             .where((entry) =>
@@ -696,8 +705,6 @@ class _RecipeFormState extends State<RecipeForm>
             .map((entry) => entry.key)
             .toList();
 
-        // print("filteredConstraints");
-        // print(filteredConstraints);
         // Convert the filtered constraints to a comma-separated string
         final constraintsString = filteredConstraints.join(',');
 
@@ -1205,6 +1212,7 @@ class _RecipeFormState extends State<RecipeForm>
                           onTap: () {
                             if (mounted) {
                               setState(() {
+                                _isImageUploaded = false;
                                 _selectedImage = image;
                               });
                             }
@@ -1213,7 +1221,7 @@ class _RecipeFormState extends State<RecipeForm>
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: _selectedImage == image
-                                    ? Colors.blue
+                                    ? Color.fromARGB(255, 215, 120, 61)
                                     : Colors.transparent,
                                 width: 3,
                               ),
