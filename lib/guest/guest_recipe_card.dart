@@ -9,7 +9,6 @@ import '../gemini_service.dart'; // LLM
 //import 'package:lottie/lottie.dart';
 import 'package:flutter_application_1/widgets/timer_popup.dart';
 
-import 'package:floating_dialog/floating_dialog.dart';
 
 // ignore: must_be_immutable
 class GuestRecipeCard extends StatefulWidget {

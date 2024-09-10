@@ -29,7 +29,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
   void clearFieldsAfterSuccess() {
     setState(() {
       _recipeTextController.clear(); // Clear the text field
-      _isImageUploaded = false; // Hide the icon
+// Hide the icon
     });
   }
 
@@ -107,7 +107,6 @@ class _PasteRecipeState extends State<PasteRecipe> {
 
   String _imageUrl = ""; //state variable to store the uploaded image URL
   String? _selectedImage;
-  bool _isImageUploaded = false; //state variable to track image upload status
 
   final List<String> _preloadedImages = [
     'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z'
@@ -127,7 +126,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image == null) {
-      print('No image selected.');
+      //print('No image selected.');
       return;
     }
 
@@ -157,7 +156,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
 
         if (mounted) {
           setState(() {
-            _isImageUploaded = true; //set flag to true when image is uploaded
+//set flag to true when image is uploaded
             _selectedImage = _imageUrl;
           });
         }
@@ -714,7 +713,6 @@ class _PasteRecipeState extends State<PasteRecipe> {
                 onTap: () {
                   if (mounted) {
                     setState(() {
-                      _isImageUploaded = false;
                       _selectedImage = image;
                     });
                   }

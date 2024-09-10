@@ -42,7 +42,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image == null) {
-      print('No image selected.');
+      //print('No image selected.');
       return;
     }
 

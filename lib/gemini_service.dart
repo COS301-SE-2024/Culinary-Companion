@@ -880,7 +880,7 @@ Future<Map<String, dynamic>?> extractRecipeData(
     return null;
   }
 
-  print(" image: $selectedImage");
+  //print(" image: $selectedImage");
 
   final allowedAppliances = await fetchAllowedAppliances();
 

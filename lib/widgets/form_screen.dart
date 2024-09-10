@@ -80,7 +80,7 @@ class _RecipeFormState extends State<RecipeForm>
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image == null) {
-      print('No image selected.');
+      //print('No image selected.');
       return;
     }
 
@@ -254,8 +254,6 @@ class _RecipeFormState extends State<RecipeForm>
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
-    final Color backgroundColor =
-        isLightTheme ? Colors.white : Color(0xFF283330);
     final Color backgroundColor =
         isLightTheme ? Colors.white : Color(0xFF283330);
 
