@@ -3,8 +3,6 @@ import 'package:flutter_application_1/guest/guest_navbar.dart';
 import 'package:flutter_application_1/guest/guest_search_screen.dart';
 import 'guest_home_screen.dart';
 //import 'guest_search_screen.dart';
-import 'guest_navbar.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MainScreen2 extends StatefulWidget {
   final bool isGuest; // Add a flag for guest users

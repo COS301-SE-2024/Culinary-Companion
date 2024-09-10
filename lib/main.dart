@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'screens/landing_screen.dart'; // Import the new landing screen
 import 'screens/login_screen.dart'; // Import the new login screen
 import 'screens/signup_screen.dart';
-import 'guest/guest_home_screen.dart';
 import 'screens/tutorial_pages.dart';
 import 'screens/confirm_details.dart'; //Import the confirm details, a.k.a Signup 2 page
 import 'screens/main.dart'; // Import the main screen
