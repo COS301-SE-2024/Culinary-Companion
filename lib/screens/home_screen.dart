@@ -30,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Set<String> _addedToSuggestedRecipesIds =
       {}; //recipes in the suggestedRecipes list
 
+  String selectedCourse = 'Main';
+
   // String _generatedText = '';  // LLM
 
   // Future<void> _loadContent() async {  // LLM
@@ -566,7 +568,8 @@ class _HomeScreenState extends State<HomeScreen> {
           if (constraints.maxWidth < 450) {
             return _isLoading
                 ? Center(child: Lottie.asset('assets/loading.json'))
-                : _buildMobileView('Mains', _filterRecipesByCourse('Main'));
+                : _buildMobileView(
+                    selectedCourse, _filterRecipesByCourse(selectedCourse));
           } else {
             // Generate the existing mobile page for smaller screens
             return _isLoading
@@ -647,27 +650,33 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Positioned(
-              top: 23,
-              left: 8,
-              right: 8,
+              top: 10,
+              left: 20,
               child: DropdownButton<String>(
-                value: title, // Default selected value
-                items: <String>[
-                  'Mains',
-                  'Breakfast',
-                  'Appetizer',
-                  'Dessert',
-                  'Suggested'
-                ].map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  // Dropdown functionality will go here
-                },
-              ),
+                  value: title, // Default selected value
+                  items: <String>[
+                    'Main',
+                    'Breakfast',
+                    'Appetizer',
+                    'Dessert',
+                    'Suggested'
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        if (newValue == 'suggestedRecipes') {
+                          filteredRecipes = suggestedRecipes;
+                        }
+
+                        selectedCourse = newValue; // Update selected course
+                      });
+                    }
+                  }),
             )
           ],
         );

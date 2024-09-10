@@ -548,8 +548,6 @@ class _RecipeCardState extends State<RecipeCard> {
 
     double fontSizeTitle = screenWidth * 0.05;
 
-    final clickColor =
-        theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
     final textColor =
         theme.brightness == Brightness.light ? Color(0xFF283330) : Colors.white;
     int selectedTab = 0;
@@ -1975,7 +1973,7 @@ class _RecipeCardState extends State<RecipeCard> {
             recipeID: widget.recipeID,
             onRecipeUpdate: _updateRecipe, // Pass recipeID here
           );
-        }).toList(),
+        }),
         if (widget.ingredients.every((ingredient) =>
             _pantryIngredients.containsKey(ingredient['name']) &&
             _pantryIngredients[ingredient['name']]!['quantity'] >=
@@ -2006,12 +2004,10 @@ class _RecipeCardState extends State<RecipeCard> {
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.01,
         ),
-        ...widget.appliances
-            .map((appliance) => Padding(
-                  padding: EdgeInsets.only(left: 16.0),
-                  child: Text(appliance),
-                ))
-            .toList(),
+        ...widget.appliances.map((appliance) => Padding(
+              padding: EdgeInsets.only(left: 16.0),
+              child: Text(appliance),
+            )),
       ],
     );
   }
