@@ -986,7 +986,7 @@ $pastedText
         recipeData['appliances'] = appliances;
       }
 
-      print("rec data: $recipeData");
+      //print("rec data: $recipeData");
       return recipeData;
     } catch (e) {
       print('Error parsing JSON response: $e');
@@ -1019,7 +1019,7 @@ Future<void> addExtractedRecipeToDatabase(
     );
 
     if (response.statusCode == 200) {
-      print('Recipe added successfully!');
+      //print('Recipe added successfully!');
 
       // Fetch the recipe ID using the recipe name
       final recipeIdResponse = await http.post(
@@ -1058,7 +1058,7 @@ Future<void> addExtractedRecipeToDatabase(
         );
 
         if (addKeywordsResponse.statusCode == 200) {
-          print('Keywords added successfully');
+          //print('Keywords added successfully');
         } else {
           print('Failed to add keywords');
         }
@@ -1095,7 +1095,7 @@ Future<void> addExtractedRecipeToDatabase(
         );
 
         if (addDietaryConstraintsResponse.statusCode == 200) {
-          print('Dietary constraints added successfully');
+          //print('Dietary constraints added successfully');
         } else {
           print('Failed to add dietary constraints');
         }

@@ -676,7 +676,7 @@ class _RecipeFormState extends State<RecipeForm>
         print("after adding keywords");
 
         if (addKeywordsResponse.statusCode == 200) {
-          print('Keywords added successfully');
+          //print('Keywords added successfully');
         } else {
           print('Failed to add keywords');
         }
@@ -721,7 +721,7 @@ class _RecipeFormState extends State<RecipeForm>
         );
 
         if (addDietaryConstraintsResponse.statusCode == 200) {
-          print('Dietary constraints added successfully');
+          //print('Dietary constraints added successfully');
         } else {
           print('Failed to add dietary constraints');
         }

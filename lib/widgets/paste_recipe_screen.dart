@@ -236,7 +236,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
     try {
       final extractedRecipeData = await extractRecipeData(
           pastedText, _selectedImage ?? _preloadedImages[0]);
-      print("extracted data: $extractedRecipeData");
+      //print("extracted data: $extractedRecipeData");
 
       if (extractedRecipeData != null &&
           !extractedRecipeData.containsKey('error')) {
@@ -612,7 +612,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
 
                     // close popup
                     Navigator.of(context).pop();
-                    print("final rec: $recipeData");
+                    //print("final rec: $recipeData");
                     // submit rec
                     await addExtractedRecipeToDatabase(recipeData, _userId!);
                   },
