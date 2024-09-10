@@ -50,7 +50,7 @@ void initState() {
 
 Future<void> _loadUserIdAndFetchRecipes() async {
   setState(() {
-    _isLoading = false; //if it takes too long remove this line slow
+    _isLoading = true; //if it takes too long remove this line slow
   });
 
   await _loadUserId();
@@ -90,7 +90,7 @@ Future<void> _loadUserId() async {
     if (_userId == null) return;
     if (mounted) {
       setState(() {
-        //_isLoading = true; // Show loading indicator
+        _isLoading = true; // Show loading indicator
       });
     }
 
@@ -146,7 +146,7 @@ Future<void> _loadUserId() async {
     } finally {
       if (mounted) {
         setState(() {
-          //_isLoading = false; // Stop loading indicator
+          _isLoading = false; // Stop loading indicator
         });
       }
     }
