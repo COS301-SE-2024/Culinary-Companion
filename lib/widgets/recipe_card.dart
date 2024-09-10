@@ -680,85 +680,16 @@ class _RecipeCardState extends State<RecipeCard> {
                           ),
                         ],
                       )),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      // Details Tab
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selectedTab == 0
-                                ? Color.fromARGB(69, 220, 147, 95)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(2.0),
-                          ),
-                          child: TextButton(
-                            onPressed: () => setState(() => selectedTab = 0),
-                            child: Center(
-                              // Center text inside the button
-                              child: Text(
-                                "Details",
-                                style: TextStyle(
-                                  color: textColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
 
-                      // Instructions Tab
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selectedTab == 1
-                                ? Color.fromARGB(69, 220, 147, 95)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(2.0),
-                          ),
-                          child: TextButton(
-                            onPressed: () => setState(() => selectedTab = 1),
-                            child: Center(
-                              // Center text inside the button
-                              child: Text(
-                                "Instructions",
-                                style: TextStyle(
-                                  color: selectedTab == 1
-                                      ? Color(0xFFDC945F)
-                                      : textColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-
-                      // Chat Bot Tab
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: selectedTab == 2
-                                ? Color.fromARGB(69, 220, 147, 95)
-                                : Colors.transparent,
-                            borderRadius: BorderRadius.circular(2.0),
-                          ),
-                          child: TextButton(
-                            onPressed: () => setState(() => selectedTab = 2),
-                            child: Center(
-                              // Center text inside the button
-                              child: Text(
-                                "Chat Bot",
-                                style: TextStyle(
-                                  color: selectedTab == 2
-                                      ? Color(0xFFDC945F)
-                                      : textColor,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  SizedBox(height: 6.0),
+                  buildTabRow(
+                    selectedTab,
+                    textColor,
+                    (int newTab) {
+                      setState(() {
+                        selectedTab = newTab;
+                      });
+                    },
                   ),
                   // Content section that changes based on the selected tab
                   if (selectedTab == 0)
@@ -793,6 +724,9 @@ class _RecipeCardState extends State<RecipeCard> {
                             ),
                             buildTimeInfoRow(context, '${widget.prepTime}',
                                 '${widget.cookTime}', textColor),
+                            SizedBox(
+                              height: 16.0,
+                            ),
                             buildDetailsColumn(
                                 context,
                                 '${widget.cuisine}',
@@ -848,332 +782,6 @@ class _RecipeCardState extends State<RecipeCard> {
       _fetchShoppingList();
     });
   }
-
-  // void _showMobileRecipeDetails() {
-  //   final theme = Theme.of(context);
-  //   double screenWidth = MediaQuery.of(context).size.width;
-  //   double screenHeight = MediaQuery.of(context).size.height;
-
-  //   double dialogHeight =
-  //       screenHeight * 0.8; // 80% of screen height for the dialog
-  //   double imageHeight =
-  //       dialogHeight * 0.5; // 50% of dialog height for the image
-  //   double contentHeight =
-  //       dialogHeight * 0.5; // 50% of dialog height for the content
-
-  //   double fontSizeTitle = screenWidth * 0.05;
-
-  //   final clickColor =
-  //       theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
-  //   final textColor =
-  //       theme.brightness == Brightness.light ? Color(0xFF283330) : Colors.white;
-
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       int selectedTab = 0; // Track the selected section
-
-  //       return StatefulBuilder(
-  //         builder: (context, setState) {
-  //           return Dialog(
-  //             backgroundColor: Color(0xFF283330),
-  //             child: SingleChildScrollView(
-  //               child: Column(
-  //                 crossAxisAlignment: CrossAxisAlignment.start,
-  //                 children: [
-  //                   Container(
-  //                       height:
-  //                           imageHeight, // Define a specific height for the container
-  //                       width: double.infinity,
-  //                       child: Stack(
-  //                         children: [
-  //                           Positioned(
-  //                             top: 0,
-  //                             left: 0,
-  //                             right: 0,
-  //                             height:
-  //                                 imageHeight, // 50% of dialog height for the image
-  //                             child: ClipRRect(
-  //                               borderRadius: BorderRadius.vertical(
-  //                                   top: Radius.circular(20)),
-  //                               child: Image.network(
-  //                                 widget
-  //                                     .imagePath, // Replace with your background image path
-  //                                 fit: BoxFit.cover, // Adjust fit as necessary
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           Positioned(
-  //                             top: 0,
-  //                             left: 0,
-  //                             right: 0,
-  //                             height: imageHeight,
-  //                             child: Container(
-  //                               decoration: BoxDecoration(
-  //                                 gradient: LinearGradient(
-  //                                   begin: Alignment.topCenter,
-  //                                   end: Alignment.bottomCenter,
-  //                                   colors: [
-  //                                     Color.fromARGB(0, 0, 0, 0),
-  //                                     Color.fromARGB(179, 0, 0, 0),
-  //                                   ],
-  //                                 ),
-  //                                 borderRadius: BorderRadius.vertical(
-  //                                     top: Radius.circular(20)),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           Positioned(
-  //                             top: 20.0, // Adjust position as necessary
-  //                             left: 10.0, // Adjust position as necessary
-  //                             child: Container(
-  //                               width: screenWidth *
-  //                                   0.1, // Adjust width of the circular background
-  //                               height: screenWidth *
-  //                                   0.1, // Adjust height of the circular background
-  //                               decoration: BoxDecoration(
-  //                                 shape: BoxShape.circle,
-  //                                 color: Colors.black.withOpacity(
-  //                                     0.5), // Background color of the circle
-  //                               ),
-  //                               child: Center(
-  //                                 child: IconButton(
-  //                                   icon: Icon(Icons.arrow_back,
-  //                                       color: Colors.white),
-  //                                   iconSize:
-  //                                       screenWidth * 0.05, // Adjust icon size
-  //                                   onPressed: () {
-  //                                     Navigator.of(context).pop();
-  //                                     _fetchShoppingList(); // Refresh shopping list when dialog is closed
-  //                                   },
-  //                                 ),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           Positioned(
-  //                               top: 20.0, // Adjust position as necessary
-  //                               right: 10.0, // Adjust position as necessary
-  //                               child: Container(
-  //                                   width: screenWidth *
-  //                                       0.1, // Adjust width of the circular background
-  //                                   height: screenWidth *
-  //                                       0.1, // Adjust height of the circular background
-  //                                   decoration: BoxDecoration(
-  //                                     shape: BoxShape.circle,
-  //                                     color: Colors.black.withOpacity(
-  //                                         0.5), // Background color of the circle
-  //                                   ),
-  //                                   child: Center(
-  //                                     child: IconButton(
-  //                                       icon: Icon(
-  //                                         _isFavorite
-  //                                             ? Icons.favorite
-  //                                             : Icons.favorite_border,
-  //                                         color: _isFavorite
-  //                                             ? Colors.red
-  //                                             : Colors.white,
-  //                                       ),
-  //                                       iconSize: screenWidth *
-  //                                           0.05, // Adjust icon size
-  //                                       onPressed: _toggleFavorite,
-  //                                     ),
-  //                                     //],
-  //                                   ))),
-  //                           Positioned(
-  //                             bottom: contentHeight +
-  //                                 10, // Adjust position to be at the bottom of the image
-  //                             left: 20.0,
-  //                             child: Text(
-  //                               widget.name,
-  //                               style: TextStyle(
-  //                                 fontSize: fontSizeTitle,
-  //                                 fontWeight: FontWeight.bold,
-  //                                 color: Colors
-  //                                     .white, // Ensure the text is visible on the image
-  //                               ),
-  //                               maxLines: 2,
-  //                               overflow: TextOverflow.ellipsis,
-  //                               textAlign: TextAlign.center,
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       )),
-  //                   Row(
-  //                     mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //                     children: [
-  //                       TextButton(
-  //                         onPressed: () => setState(() => selectedTab = 0),
-  //                         child: Text("Details",
-  //                             style: TextStyle(
-  //                               color: selectedTab == 0
-  //                                   ? Color(0xFFDC945F)
-  //                                   : textColor,
-  //                             )),
-  //                       ),
-  //                       TextButton(
-  //                         onPressed: () => setState(() => selectedTab = 1),
-  //                         child: Text("Instructions",
-  //                             style: TextStyle(
-  //                               color: selectedTab == 1
-  //                                   ? Color(0xFFDC945F)
-  //                                   : textColor,
-  //                             )),
-  //                       ),
-  //                       TextButton(
-  //                         onPressed: () => setState(() => selectedTab = 2),
-  //                         child: Text("Chat Bot",
-  //                             style: TextStyle(
-  //                               color: selectedTab == 2
-  //                                   ? Color(0xFFDC945F)
-  //                                   : textColor,
-  //                             )),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                   // Content section that changes based on the selected tab
-  //                   if (selectedTab == 0)
-  //                     Padding(
-  //                         padding: const EdgeInsets.all(16.0),
-  //                         child: Column(
-  //                           crossAxisAlignment: CrossAxisAlignment.start,
-  //                           children: [
-  //                             Text(
-  //                               "Description:",
-  //                               style: TextStyle(
-  //                                 fontSize: 16,
-  //                                 color: Color(0xFFDC945F),
-  //                                 fontWeight: FontWeight
-  //                                     .bold, // Optionally set the thickness of the underline
-  //                               ),
-  //                             ),
-  //                             SizedBox(
-  //                                 height:
-  //                                     6.0), // Add spacing between title and description
-  //                             Padding(
-  //                               padding: EdgeInsets.only(
-  //                                   left:
-  //                                       16.0), // Adjust the left padding as needed
-  //                               child: Text(
-  //                                 widget.description,
-  //                                 style: TextStyle(fontSize: 16),
-  //                               ),
-  //                             ),
-  //                             SizedBox(
-  //                               height: 15.0,
-  //                             ),
-  //                             buildTimeInfoRow(context, '${widget.prepTime}',
-  //                                 '${widget.cookTime}', textColor),
-  //                             buildDetailsColumn(
-  //                                 context,
-  //                                 '${widget.cuisine}',
-  //                                 '${widget.spiceLevel}',
-  //                                 '${widget.course}',
-  //                                 '${widget.servings}'),
-  //                             SizedBox(
-  //                                 height: MediaQuery.of(context).size.height *
-  //                                     0.02),
-  //                             Column(
-  //                               crossAxisAlignment: CrossAxisAlignment.start,
-  //                               children: [
-  //                                 buildActionButton(context),
-  //                                 SizedBox(
-  //                                     height:
-  //                                         MediaQuery.of(context).size.height *
-  //                                             0.02),
-  //                                 // Adjust height to 2% of screen heightbuild
-  //                                 buildIngredientsSection(context),
-  //                                 buildAppliancesSection(context)
-  //                               ],
-  //                               //                     ),
-  //                             ),
-  //                           ],
-  //                         ))
-  //                   else if (selectedTab == 1)
-  //                     Padding(
-  //                       padding: const EdgeInsets.all(16.0),
-  //                       child: Column(
-  //                         crossAxisAlignment: CrossAxisAlignment.start,
-  //                         children: [
-  //                           Text(
-  //                             'Instructions:',
-  //                             style: TextStyle(
-  //                                 fontSize: 16,
-  //                                 fontWeight: FontWeight.bold,
-  //                                 color: Color(0xFFDC945F)),
-  //                           ),
-  //                           SizedBox(height: 8.0),
-  //                           ...widget.steps.expand((step) {
-  //                             return step.split('<').map((subStep) {
-  //                               return Padding(
-  //                                 padding: EdgeInsets.only(
-  //                                     bottom: 8.0), // Space between each step
-  //                                 child: Row(
-  //                                   crossAxisAlignment:
-  //                                       CrossAxisAlignment.start,
-  //                                   children: [
-  //                                     Container(
-  //                                       width: 24.0, // Diameter of the circle
-  //                                       height: 24.0, // Diameter of the circle
-  //                                       decoration: BoxDecoration(
-  //                                         shape: BoxShape.circle,
-  //                                         color: Color.fromARGB(115, 220, 147,
-  //                                             95), // Color of the circle
-  //                                       ),
-  //                                       alignment: Alignment.center,
-  //                                       child: Text(
-  //                                         '${widget.steps.indexOf(step) + 1}',
-  //                                         style: TextStyle(
-  //                                           fontSize: 16,
-  //                                           color: Colors
-  //                                               .white, // Color of the number
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                     SizedBox(
-  //                                         width:
-  //                                             8.0), // Adjust this value to control the indent
-  //                                     Expanded(
-  //                                       child: Text(
-  //                                         subStep,
-  //                                         style: TextStyle(
-  //                                             fontSize:
-  //                                                 16), // Style for each step
-  //                                       ),
-  //                                     ),
-  //                                     SizedBox(height: 8.0),
-  //                                   ],
-  //                                 ),
-  //                               );
-  //                             }).toList();
-  //                           })
-  //                         ],
-  //                       ),
-  //                     )
-  //                   else if (selectedTab == 2)
-  //                     Padding(
-  //                       padding: const EdgeInsets.all(16.0),
-  //                       child: Text(
-  //                         "Description 3: Yet another long block of text for scrolling test. "
-  //                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  //                         style: TextStyle(
-  //                           fontSize: 16,
-  //                           color: Color(0xFFDC945F),
-  //                           fontWeight: FontWeight.bold,
-  //                         ),
-  //                       ),
-  //                     ),
-  //                 ],
-  //               ),
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     },
-  //   ).then((_) {
-  //     // This will be called when the dialog is dismissed
-  //     _fetchShoppingList();
-  //   });
-  // }
 
   void _showAlteredRecipe(
       String substitute, String substitutedIngredient) async {
@@ -2164,7 +1772,7 @@ class _RecipeCardState extends State<RecipeCard> {
                       'Prep Time:',
                       style: TextStyle(
                         color: textColor,
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -2179,7 +1787,7 @@ class _RecipeCardState extends State<RecipeCard> {
                         '$prepTime mins',
                         style: TextStyle(
                           color: textColor,
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -2209,7 +1817,7 @@ class _RecipeCardState extends State<RecipeCard> {
                       'Cook Time:',
                       style: TextStyle(
                         color: textColor,
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -2224,7 +1832,7 @@ class _RecipeCardState extends State<RecipeCard> {
                         '$cookTime mins',
                         style: TextStyle(
                           color: textColor,
-                          fontSize: 12,
+                          fontSize: 14,
                         ),
                       ),
                     ),
@@ -2258,7 +1866,7 @@ class _RecipeCardState extends State<RecipeCard> {
               'Total Time:',
               style: TextStyle(
                 color: textColor,
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -2273,7 +1881,7 @@ class _RecipeCardState extends State<RecipeCard> {
                 '${int.parse(prepTime) + int.parse(cookTime)} mins',
                 style: TextStyle(
                   color: textColor,
-                  fontSize: 12,
+                  fontSize: 14,
                 ),
               ),
             ),
@@ -2290,15 +1898,30 @@ class _RecipeCardState extends State<RecipeCard> {
       children: [
         Padding(
           padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
-          child: Text('Cuisine: $cuisine'),
+          child: Text(
+            'Cuisine: $cuisine',
+            style: TextStyle(
+              fontSize: 14,
+            ),
+          ),
         ),
         Padding(
           padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
-          child: Text('Spice Level: $spiceLevel'),
+          child: Text(
+            'Spice Level: $spiceLevel',
+            style: TextStyle(
+              fontSize: 14,
+            ),
+          ),
         ),
         Padding(
           padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
-          child: Text('Course: $course'),
+          child: Text(
+            'Course: $course',
+            style: TextStyle(
+              fontSize: 14,
+            ),
+          ),
         ),
         Padding(
           padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
@@ -2501,6 +2124,86 @@ class _RecipeCardState extends State<RecipeCard> {
             : 'Adjust recipe to cater to my preferences',
         style: TextStyle(color: clickColor),
       ),
+    );
+  }
+
+  Widget buildTabRow(
+      int selectedTab, Color textColor, Function(int) onTabSelected) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        // Details Tab
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: selectedTab == 0
+                  ? Color.fromARGB(69, 220, 147, 95)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+            child: TextButton(
+              onPressed: () => onTabSelected(0),
+              child: Center(
+                child: Text(
+                  "Details",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // Instructions Tab
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: selectedTab == 1
+                  ? Color.fromARGB(69, 220, 147, 95)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+            child: TextButton(
+              onPressed: () => onTabSelected(1),
+              child: Center(
+                child: Text(
+                  "Instructions",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // Chat Bot Tab
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: selectedTab == 2
+                  ? Color.fromARGB(69, 220, 147, 95)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+            child: TextButton(
+              onPressed: () => onTabSelected(2),
+              child: Center(
+                child: Text(
+                  "Chat Bot",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
