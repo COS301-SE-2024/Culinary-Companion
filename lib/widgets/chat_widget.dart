@@ -127,6 +127,7 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   void _sendMessage({String? message}) async {
     String text = message ?? _controller.text;
+    _controller.clear();
 
     if (text.isNotEmpty) {
       if (mounted) {
@@ -156,7 +157,6 @@ class _ChatWidgetState extends State<ChatWidget> {
         });
         await _saveConversation(); // Save conversation after receiving a response
       }
-      _controller.clear();
     }
   }
 
@@ -185,8 +185,6 @@ class _ChatWidgetState extends State<ChatWidget> {
               value.toString())); // Ensure both key and value are strings
         }).toList());
       });
-    } else {
-      print('No saved messages found.');
     }
   }
 

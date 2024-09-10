@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadUserIdAndFetchRecipes() async {
     setState(() {
-      _isLoading = true; //if it takes too long remove this line slow
+      _isLoading = false; //if it takes too long remove this line slow
     });
 
     await _loadUserId();
