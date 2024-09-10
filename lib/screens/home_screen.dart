@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadUserIdAndFetchRecipes() async {
     setState(() {
-      _isLoading = false; //if it takes too long remove this line slow
+      _isLoading = true; //if it takes too long remove this line slow
     });
 
     await _loadUserId();
@@ -566,7 +566,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (constraints.maxWidth < 450) {
             return _isLoading
                 ? Center(child: Lottie.asset('assets/loading.json'))
-                : _buildMobileView(_filterRecipesByCourse('Main'));
+                : _buildMobileView('Mains', _filterRecipesByCourse('Main'));
           } else {
             // Generate the existing mobile page for smaller screens
             return _isLoading
@@ -602,35 +602,52 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildMobileView(List<Map<String, dynamic>> filteredRecipes) {
+  Widget _buildMobileView(
+      String title, List<Map<String, dynamic>> filteredRecipes) {
     if (filteredRecipes.isEmpty) {
       return Center(
         child: Text('No recipes available'),
       );
     }
 
-    // Get the first recipe
-    final recipe = filteredRecipes[0];
+    PageController _pageController = PageController(viewportFraction: 1.0);
 
-    List<String> steps = [];
-    if (recipe['steps'] != null) {
-      steps = (recipe['steps'] as String).split(',');
-    }
+    return PageView.builder(
+      controller: _pageController,
+      scrollDirection: Axis.vertical, // To make it scroll vertically
+      itemCount: filteredRecipes.length,
+      itemBuilder: (context, index) {
+        final recipe = filteredRecipes[index];
 
-    return RecipeCard(
-      recipeID: recipe['recipeId'] ?? '',
-      name: recipe['name'] ?? '',
-      description: recipe['description'] ?? '',
-      imagePath: recipe['photo'] ?? 'assets/emptyPlate.jpg',
-      prepTime: recipe['preptime'] ?? 0,
-      cookTime: recipe['cooktime'] ?? 0,
-      cuisine: recipe['cuisine'] ?? '',
-      spiceLevel: recipe['spicelevel'] ?? 0,
-      course: recipe['course'] ?? '',
-      servings: recipe['servings'] ?? 0,
-      steps: steps,
-      appliances: List<String>.from(recipe['appliances']),
-      ingredients: List<Map<String, dynamic>>.from(recipe['ingredients']),
+        List<String> steps = recipe['steps'] != null
+            ? (recipe['steps'] as String).split('<')
+            : [];
+        return Stack(children: [
+          DropdownMenu(dropdownMenuEntries: dropdownMenuEntries)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.80,
+              child: RecipeCard(
+                recipeID: recipe['recipeId'] ?? '',
+                name: recipe['name'] ?? '',
+                description: recipe['description'] ?? '',
+                imagePath: recipe['photo'] ?? 'assets/emptyPlate.jpg',
+                prepTime: recipe['preptime'] ?? 0,
+                cookTime: recipe['cooktime'] ?? 0,
+                cuisine: recipe['cuisine'] ?? '',
+                spiceLevel: recipe['spicelevel'] ?? 0,
+                course: recipe['course'] ?? '',
+                servings: recipe['servings'] ?? 0,
+                steps: steps,
+                appliances: List<String>.from(recipe['appliances']),
+                ingredients:
+                    List<Map<String, dynamic>>.from(recipe['ingredients']),
+              ),
+            ),
+          )
+        ]);
+      },
     );
   }
 }
