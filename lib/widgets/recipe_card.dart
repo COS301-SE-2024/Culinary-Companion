@@ -631,6 +631,27 @@ class _RecipeCardState extends State<RecipeCard> {
                             ),
                           ),
                           Positioned(
+                            top: 20.0, // Adjust position as necessary
+                            right: 60.0, // Adjust position as necessary
+                            child: Container(
+                              width: screenWidth *
+                                  0.1, // Adjust width of the circular background
+                              height: screenWidth *
+                                  0.1, // Adjust height of the circular background
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.black.withOpacity(
+                                    0.5), // Background color of the circle
+                              ),
+                              child: Center(
+                                  child: IconButton(
+                                icon: Icon(Icons.timer, color: Colors.white),
+                                iconSize: screenWidth * 0.05,
+                                onPressed: _showTimerPopup,
+                              )),
+                            ),
+                          ),
+                          Positioned(
                               top: 20.0, // Adjust position as necessary
                               right: 10.0, // Adjust position as necessary
                               child: Container(
@@ -660,7 +681,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                     //],
                                   ))),
                           Positioned(
-                            bottom: contentHeight +
+                            bottom:
                                 10, // Adjust position to be at the bottom of the image
                             left: 20.0,
                             child: Text(
@@ -762,7 +783,7 @@ class _RecipeCardState extends State<RecipeCard> {
                       padding: const EdgeInsets.all(16.0),
                       child: Container(
                         width: screenWidth,
-                        height: MediaQuery.of(context).size.height * 0.8,
+                        height: MediaQuery.of(context).size.height,
                         child: ChatWidget(
                           recipeName: widget.name,
                           recipeDescription: widget.description,
@@ -886,7 +907,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                 children: [
                                   IconButton(
                                     icon: Icon(
-                                      Icons.timer,
+                                      Icons.timer_outlined,
                                       color: Colors.white,
                                       size: MediaQuery.of(context).size.width *
                                           0.017,
@@ -1725,14 +1746,14 @@ class _RecipeCardState extends State<RecipeCard> {
                 right: MediaQuery.of(context).size.width * 0.01,
                 child: Row(
                   children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.timer,
-                        color: Colors.white,
-                        size: iconSize,
-                      ),
-                      onPressed: _showTimerPopup,
-                    ),
+                    // IconButton(
+                    //   icon: Icon(
+                    //     Icons.timer,
+                    //     color: Colors.white,
+                    //     size: iconSize,
+                    //   ),
+                    //   onPressed: _showTimerPopup,
+                    // ),
                     IconButton(
                       icon: Icon(
                         _isFavorite ? Icons.favorite : Icons.favorite_border,

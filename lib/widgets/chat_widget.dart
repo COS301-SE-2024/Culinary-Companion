@@ -231,6 +231,8 @@ class _ChatWidgetState extends State<ChatWidget> {
   // }
 
   Widget _buildMessageBubble(String sender, String text) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
     bool isUser = sender == "You";
 
     return Align(
@@ -240,9 +242,9 @@ class _ChatWidgetState extends State<ChatWidget> {
         children: [
           if (!isUser)
             Image.asset(
-              'assets/chef.png', // Replace with your asset path
-              width: 50, // Adjust size as needed
-              height: 50, // Adjust size as needed
+              isLightTheme ? 'assets/chef-dark.png' : 'assets/chef.png',
+              width: 50,
+              height: 50,
               fit: BoxFit.cover,
             ),
           SizedBox(width: 8.0),
@@ -298,6 +300,8 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
     return Container(
       decoration: BoxDecoration(
         color: Colors.transparent,
@@ -315,7 +319,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Image.asset(
-                    'assets/chef.png',
+                    isLightTheme ? 'assets/chef-dark.png' : 'assets/chef.png',
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,
@@ -344,7 +348,9 @@ class _ChatWidgetState extends State<ChatWidget> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Image.asset(
-                        'assets/chef.png',
+                        isLightTheme
+                            ? 'assets/chef-dark.png'
+                            : 'assets/chef.png',
                         width: 50,
                         height: 50,
                         fit: BoxFit.cover,
