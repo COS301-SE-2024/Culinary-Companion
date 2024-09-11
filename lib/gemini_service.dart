@@ -212,7 +212,8 @@ Future<String> fetchIngredientSubstitutionRecipe(
   Make sure to adjust the quantities of the ingredients so the recipe is still accurate, 
   take into account the new ingredients liquidity, saltiness, sourness, sweetness, bitterness 
   as opposed to the previous ingredient and make sure the recipe will still create the same taste.
-  Please make any fractions into decimal values.""";
+  Please make any fractions into decimal values. Before you give me a response take your time and think really hard, 
+  and double check the response and formatting of the output before sending it""";
 
   final finalPrompt = initialPrompt + formatting;
 
@@ -879,7 +880,7 @@ Future<Map<String, dynamic>?> extractRecipeData(
     return null;
   }
 
-  print(" image: $selectedImage");
+  //print(" image: $selectedImage");
 
   final allowedAppliances = await fetchAllowedAppliances();
 
@@ -985,7 +986,7 @@ $pastedText
         recipeData['appliances'] = appliances;
       }
 
-      print("rec data: $recipeData");
+      //print("rec data: $recipeData");
       return recipeData;
     } catch (e) {
       print('Error parsing JSON response: $e');
@@ -1018,7 +1019,7 @@ Future<void> addExtractedRecipeToDatabase(
     );
 
     if (response.statusCode == 200) {
-      print('Recipe added successfully!');
+      //print('Recipe added successfully!');
 
       // Fetch the recipe ID using the recipe name
       final recipeIdResponse = await http.post(
@@ -1057,7 +1058,7 @@ Future<void> addExtractedRecipeToDatabase(
         );
 
         if (addKeywordsResponse.statusCode == 200) {
-          print('Keywords added successfully');
+          //print('Keywords added successfully');
         } else {
           print('Failed to add keywords');
         }
@@ -1094,7 +1095,7 @@ Future<void> addExtractedRecipeToDatabase(
         );
 
         if (addDietaryConstraintsResponse.statusCode == 200) {
-          print('Dietary constraints added successfully');
+          //print('Dietary constraints added successfully');
         } else {
           print('Failed to add dietary constraints');
         }
@@ -1105,7 +1106,7 @@ Future<void> addExtractedRecipeToDatabase(
       print('Failed to add recipe: ${response.statusCode} ${response.body}');
     }
   } catch (e) {
-    print('Error adding recipe to database: $e');
+    //print('Error adding recipe to database: $e');
   }
 }
 

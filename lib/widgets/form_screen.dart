@@ -19,6 +19,7 @@ class _RecipeFormState extends State<RecipeForm>
   List<MultiSelectItem<String>> _applianceItems = [];
   List<String> _selectedAppliances = [];
   final List<TextEditingController> _ingredientControllers = [];
+  bool _isUploading = false;
 
   // Add this line inside your class
   List<String> measurementUnits = [
@@ -58,7 +59,6 @@ class _RecipeFormState extends State<RecipeForm>
 
   String _imageUrl = "";
   String? _selectedImage;
-  bool _isImageUploaded = false;
 
   @override
   void initState() {
@@ -79,9 +79,13 @@ class _RecipeFormState extends State<RecipeForm>
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image == null) {
-      print('No image selected.');
+      //print('No image selected.');
       return;
     }
+
+    setState(() {
+      _isUploading = true;
+    });
 
     final supabase = Supabase.instance.client;
     final imageBytes = await image.readAsBytes();
@@ -106,7 +110,6 @@ class _RecipeFormState extends State<RecipeForm>
 
         if (mounted) {
           setState(() {
-            _isImageUploaded = true;
             _selectedImage = _imageUrl;
           });
         }
@@ -122,6 +125,12 @@ class _RecipeFormState extends State<RecipeForm>
       }
     } catch (error) {
       print('Exception during image upload: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -667,7 +676,7 @@ class _RecipeFormState extends State<RecipeForm>
         print("after adding keywords");
 
         if (addKeywordsResponse.statusCode == 200) {
-          print('Keywords added successfully');
+          //print('Keywords added successfully');
         } else {
           print('Failed to add keywords');
         }
@@ -712,7 +721,7 @@ class _RecipeFormState extends State<RecipeForm>
         );
 
         if (addDietaryConstraintsResponse.statusCode == 200) {
-          print('Dietary constraints added successfully');
+          //print('Dietary constraints added successfully');
         } else {
           print('Failed to add dietary constraints');
         }
@@ -1153,30 +1162,41 @@ class _RecipeFormState extends State<RecipeForm>
                     const SizedBox(height: 24),
                     _buildAppliancesMultiSelect(),
                     const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: _pickImage,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                isLightTheme ? Colors.white : Color(0xFF283330),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 20),
-                          ),
-                          child: Text(
-                            'Upload Image',
-                            style: TextStyle(color: textColor),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        if (_isImageUploaded) // Show icon if the image is uploaded
-                          Icon(
-                            Icons.check_circle,
-                            color: Color.fromARGB(255, 215, 120, 61),
-                            size: 30,
-                          ),
-                      ],
+                    ElevatedButton(
+                      onPressed: _isUploading
+                          ? null
+                          : _pickImage, // Disable the button while uploading
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            isLightTheme ? Colors.white : Color(0xFF283330),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 20),
+                      ),
+                      child: _isUploading
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: textColor,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Uploading...',
+                                  style: TextStyle(color: textColor),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              _selectedImage != null
+                                  ? 'Image Uploaded'
+                                  : 'Upload Image',
+                              style: TextStyle(color: textColor),
+                            ),
                     ),
                     const SizedBox(height: 10),
                     const Text('Or use the preloaded image:'),
@@ -1188,7 +1208,6 @@ class _RecipeFormState extends State<RecipeForm>
                           onTap: () {
                             if (mounted) {
                               setState(() {
-                                _isImageUploaded = false;
                                 _selectedImage = image;
                               });
                             }

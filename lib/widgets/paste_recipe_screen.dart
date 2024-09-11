@@ -23,12 +23,13 @@ class _PasteRecipeState extends State<PasteRecipe> {
   List<String> _appliances = [];
   List<String> _selectedAppliances = [];
   List<MultiSelectItem<String>> _applianceItems = [];
+  bool _isUploading = false;
 
   // Add these two to manage the clearing of the text field and icon visibility
   void clearFieldsAfterSuccess() {
     setState(() {
       _recipeTextController.clear(); // Clear the text field
-      _isImageUploaded = false; // Hide the icon
+// Hide the icon
     });
   }
 
@@ -106,7 +107,6 @@ class _PasteRecipeState extends State<PasteRecipe> {
 
   String _imageUrl = ""; //state variable to store the uploaded image URL
   String? _selectedImage;
-  bool _isImageUploaded = false; //state variable to track image upload status
 
   final List<String> _preloadedImages = [
     'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z'
@@ -126,9 +126,13 @@ class _PasteRecipeState extends State<PasteRecipe> {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image == null) {
-      print('No image selected.');
+      //print('No image selected.');
       return;
     }
+
+    setState(() {
+      _isUploading = true;
+    });
 
     final supabase = Supabase.instance.client;
     final imageBytes = await image.readAsBytes();
@@ -152,7 +156,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
 
         if (mounted) {
           setState(() {
-            _isImageUploaded = true; //set flag to true when image is uploaded
+//set flag to true when image is uploaded
             _selectedImage = _imageUrl;
           });
         }
@@ -168,9 +172,12 @@ class _PasteRecipeState extends State<PasteRecipe> {
       }
     } catch (error) {
       print('Exception during image upload: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Exception during image upload.')),
-      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -229,7 +236,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
     try {
       final extractedRecipeData = await extractRecipeData(
           pastedText, _selectedImage ?? _preloadedImages[0]);
-      print("extracted data: $extractedRecipeData");
+      //print("extracted data: $extractedRecipeData");
 
       if (extractedRecipeData != null &&
           !extractedRecipeData.containsKey('error')) {
@@ -290,6 +297,12 @@ class _PasteRecipeState extends State<PasteRecipe> {
     for (var step in recipeData['methods']) {
       methodControllers.add(TextEditingController(text: step));
     }
+
+    if (_selectedAppliances.isEmpty) {
+    _selectedAppliances = recipeData['appliances']
+        .map<String>((appliance) => appliance['name'] as String)
+        .toList();
+  }
 
     await showDialog(
       barrierDismissible: false,
@@ -599,7 +612,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
 
                     // close popup
                     Navigator.of(context).pop();
-                    print("final rec: $recipeData");
+                    //print("final rec: $recipeData");
                     // submit rec
                     await addExtractedRecipeToDatabase(recipeData, _userId!);
                   },
@@ -658,28 +671,37 @@ class _PasteRecipeState extends State<PasteRecipe> {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: _pickImage,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      isLightTheme ? Colors.white : Color(0xFF1F4539),
-                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                ),
-                child: Text(
-                  'Upload Image',
-                  style: TextStyle(color: textColor),
-                ),
-              ),
-              if (_isImageUploaded) // Show icon if the image is uploaded
-                Icon(
-                  Icons.check_circle,
-                  color: Color.fromARGB(255, 215, 120, 61),
-                  size: 30,
-                ),
-            ],
+          ElevatedButton(
+            onPressed: _isUploading
+                ? null
+                : _pickImage, // Disable the button while uploading
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+            ),
+            child: _isUploading
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Uploading...',
+                        style: TextStyle(color: textColor),
+                      ),
+                    ],
+                  )
+                : Text(
+                    _selectedImage != null ? 'Image Uploaded' : 'Upload Image',
+                    style: TextStyle(color: textColor),
+                  ),
           ),
           const SizedBox(height: 10),
           const Text('Or use the preloaded image:'),
@@ -691,7 +713,6 @@ class _PasteRecipeState extends State<PasteRecipe> {
                 onTap: () {
                   if (mounted) {
                     setState(() {
-                      _isImageUploaded = false;
                       _selectedImage = image;
                     });
                   }
