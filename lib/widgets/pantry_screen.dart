@@ -320,6 +320,33 @@ Future<void> _fetchPantryList() async {
     }
   }
 
+  Future<String> _getIngredientDetails(String ingredientName) async {
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'getIngredientDetails', 
+          'ingredientName': ingredientName,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        print('it worked lol');
+        final String ingredientDetails = jsonDecode(response.body);
+        return ingredientDetails;
+      } else {
+        print('Failed: ${response.statusCode}');
+        return '';
+      }
+    } catch (error) {
+      print('Error adding $ingredientName to pantry list: $error');
+      return '';
+    }
+  }
+
+
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
       builder: (context) => HelpMenu(
@@ -554,13 +581,135 @@ Future<void> _selectImage() async {
 //     },
 //   );
 // }
-Future<void> _showIngredientDialog(List<String> ingredients) async {
-  // Convert the ingredients list to a growable list
-  List<String> growableIngredients = List.from(ingredients); // Make it growable
-  List<String> selectedIngredients = []; // Start with an empty growable list
 
-  // Populate selectedIngredients dynamically based on the initial ingredient list
-  growableIngredients.forEach((_) => selectedIngredients.add(''));
+
+// Future<void> _showIngredientDialog(List<String> ingredients) async {
+//   // Convert the ingredients list to a growable list
+//   List<String> growableIngredients = List.from(ingredients); // Make it growable
+//   List<String> selectedIngredients = []; // Start with an empty growable list
+
+//   // Populate selectedIngredients dynamically based on the initial ingredient list
+//   growableIngredients.forEach((_) => selectedIngredients.add(''));
+
+//   showDialog(
+//     context: context,
+//     builder: (context) {
+//       return StatefulBuilder(
+//         builder: (context, setState) {
+//           return AlertDialog(
+//             title: Text('Detected Ingredients'),
+//             content: SingleChildScrollView(
+//               child: Column(
+//                 mainAxisSize: MainAxisSize.min,
+//                 children: growableIngredients.asMap().entries.map((entry) {
+//                   int index = entry.key;
+//                   String itemEntry = entry.value;
+
+//                   // Extract itemName and identifiedIngredient from the entry
+//                   final itemParts = itemEntry.split(',');
+//                   final itemName = itemParts[0].replaceFirst('Item: ', '').trim();
+//                   final identifiedIngredient = itemParts[1].replaceFirst('Ingredient: ', '').trim();
+
+//                   return FutureBuilder<List<String>>(
+//                     future: findSimilarIngredients(itemName, identifiedIngredient), // Call Dart function
+//                     builder: (context, snapshot) {
+//                       if (snapshot.connectionState == ConnectionState.waiting) {
+//                         return ListTile(
+//                           title: Text(itemName),
+//                           trailing: CircularProgressIndicator(),
+//                         );
+//                       } else if (snapshot.hasError) {
+//                         return ListTile(
+//                           title: Text(itemName),
+//                           trailing: Text('Error loading similar ingredients'),
+//                         );
+//                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+//                         return ListTile(
+//                           title: Text(itemName),
+//                           trailing: Text('No similar ingredients found'),
+//                         );
+//                       }
+
+//                       final similarIngredients = snapshot.data!;
+//                       // Set the first suggestion as the default selected ingredient if not already set
+//                       if (selectedIngredients[index].isEmpty && similarIngredients.isNotEmpty) {
+//                         selectedIngredients[index] = similarIngredients.first;
+//                       }
+
+//                       return Row(
+//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                         children: [
+//                           Expanded(
+//                             child: ListTile(
+//                               title: Text(itemName),
+//                               trailing: DropdownButton<String>(
+//                                 value: selectedIngredients[index],
+//                                 hint: Text('Select similar ingredient'),
+//                                 items: similarIngredients.map((ingredient) {
+//                                   return DropdownMenuItem<String>(
+//                                     value: ingredient,
+//                                     child: Text(ingredient),
+//                                   );
+//                                 }).toList(),
+//                                 onChanged: (newValue) {
+//                                   setState(() {
+//                                     // Update the selected ingredient in the list
+//                                     selectedIngredients[index] = newValue ?? '';
+//                                   });
+//                                 },
+//                               ),
+//                             ),
+//                           ),
+//                           IconButton(
+//                             icon: Icon(Icons.remove_circle, color: Colors.red),
+//                             onPressed: () {
+//                               setState(() {
+//                                 // Remove the item from the growable list and refresh the UI
+//                                 growableIngredients.removeAt(index);
+//                                 selectedIngredients.removeAt(index); // Make sure the corresponding selected ingredient is removed as well
+//                               });
+//                             },
+//                           ),
+//                         ],
+//                       );
+//                     },
+//                   );
+//                 }).toList(),
+//               ),
+//             ),
+//             actions: [
+//               ElevatedButton(
+//                 onPressed: () {
+//                   // Handle adding selected ingredients to the pantry
+//                   for (var selected in selectedIngredients) {
+//                     if (selected.isNotEmpty) {
+//                       print('Add $selected to pantry');
+//                       // Call your _addToPantryList function here for each selected ingredient
+//                       // _addToPantryList(userId, selected, quantity, measurementUnit);
+//                     }
+//                   }
+//                   Navigator.of(context).pop();
+//                 },
+//                 child: Text('Add to Pantry'),
+//               ),
+//             ],
+//           );
+//         },
+//       );
+//     },
+//   );
+// }
+
+Future<void> _showIngredientDialog(List<String> ingredients) async {
+  List<String> growableIngredients = List.from(ingredients); // Make it growable
+  List<String> selectedIngredients = []; // Store selected ingredients
+  List<String> quantities = []; // Store quantities
+
+  // Populate selectedIngredients and quantities dynamically
+  growableIngredients.forEach((_) {
+    selectedIngredients.add(''); // Initialize with empty values
+    quantities.add(''); // Initialize with empty quantities
+  });
 
   showDialog(
     context: context,
@@ -602,7 +751,6 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
                       }
 
                       final similarIngredients = snapshot.data!;
-                      // Set the first suggestion as the default selected ingredient if not already set
                       if (selectedIngredients[index].isEmpty && similarIngredients.isNotEmpty) {
                         selectedIngredients[index] = similarIngredients.first;
                       }
@@ -611,6 +759,7 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
+                            flex: 2,
                             child: ListTile(
                               title: Text(itemName),
                               trailing: DropdownButton<String>(
@@ -624,8 +773,27 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
                                 }).toList(),
                                 onChanged: (newValue) {
                                   setState(() {
-                                    // Update the selected ingredient in the list
                                     selectedIngredients[index] = newValue ?? '';
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: TextField(
+                                decoration: InputDecoration(
+                                  hintText: 'Qty',
+                                  border: OutlineInputBorder(),
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                                ),
+                                keyboardType: TextInputType.number,
+                                onChanged: (newQuantity) {
+                                  setState(() {
+                                    quantities[index] = newQuantity;
                                   });
                                 },
                               ),
@@ -635,9 +803,9 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
                             icon: Icon(Icons.remove_circle, color: Colors.red),
                             onPressed: () {
                               setState(() {
-                                // Remove the item from the growable list and refresh the UI
                                 growableIngredients.removeAt(index);
-                                selectedIngredients.removeAt(index); // Make sure the corresponding selected ingredient is removed as well
+                                selectedIngredients.removeAt(index);
+                                quantities.removeAt(index); // Remove the quantity as well
                               });
                             },
                           ),
@@ -651,11 +819,16 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
             actions: [
               ElevatedButton(
                 onPressed: () {
-                  // Handle adding selected ingredients to the pantry
-                  for (var selected in selectedIngredients) {
-                    if (selected.isNotEmpty) {
-                      print('Add $selected to pantry');
-                      // Call your _addToPantryList function here for each selected ingredient
+                  // Handle adding selected ingredients and their quantities to the pantry
+                  for (var i = 0; i < selectedIngredients.length; i++) {
+                    final selected = selectedIngredients[i];
+                    final quantity = quantities[i];
+                    if (selected.isNotEmpty) { // add me back lol:  && quantity.isNotEmpty
+                      print('Add $selected with quantity $quantity to pantry');
+                      // Call your _addToPantryList function here for each selected ingredient and quantity
+                      
+                      Future<String> ingredientDetails = _getIngredientDetails(selectedIngredients[i]);
+                      print(ingredientDetails); // fix me, choose me, love me
                       // _addToPantryList(userId, selected, quantity, measurementUnit);
                     }
                   }
@@ -670,7 +843,6 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
     },
   );
 }
-
 
 
 

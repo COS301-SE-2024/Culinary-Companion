@@ -130,7 +130,9 @@ Deno.serve(async (req) => {
             case 'getSuggestedFavorites':
                 return getSuggestedFavorites(userId, corsHeaders);
             case 'findSimilarIngredients':
-                return findSimilarIngredients(itemName, identifiedIngredient, corsHeaders);                
+                return findSimilarIngredients(itemName, identifiedIngredient, corsHeaders);
+            case 'getIngredientDetails':
+                return getIngredientDetails(ingredientName, corsHeaders);                
             default:
                 return new Response(JSON.stringify({ error: 'Invalid action' }), {
                     status: 400,
@@ -2015,6 +2017,40 @@ async function addRecipeKeywords(recipeid: string, keywords: string, corsHeaders
         status: 200,
         headers: corsHeaders,
     });
+}
+
+async function getIngredientDetails(ingredientName : string, corsHeaders : HeadersInit) {
+    try {
+        if (!ingredientName) {
+            throw new Error('Ingredient name is required');
+        }
+
+        const { data: ingredientData, error: ingredientError } = await supabase
+            .from('ingredient')
+            .select('ingredientid, name, measurement_unit')
+            .eq('name', ingredientName)
+            .single();
+
+        if (ingredientError) {
+            throw new Error(`Error fetching ingredient ID: ${ingredientError.message}`);
+        }
+
+        if (!ingredientData) {
+            throw new Error(`Ingredient not found for name: ${ingredientData}`);
+        }
+
+        // const recipeId = ingredientData.recipeid;
+
+        return new Response(JSON.stringify({ ingredientData }, null, 2), {
+            status: 200,
+            headers: corsHeaders,
+        });
+    } catch (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: corsHeaders,
+        });
+    }
 }
 
 async function getRecipeId(recipeName: string, corsHeaders: HeadersInit) {
