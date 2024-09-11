@@ -548,21 +548,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0),
-            child: IconButton(
-              icon: Icon(Icons.help),
-              onPressed: _showHelpMenu,
-              iconSize: 35,
-            ),
-          ),
-        ],
-      ),
+      appBar: screenWidth > 450
+          ? AppBar(
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.transparent,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: IconButton(
+                    icon: Icon(Icons.help),
+                    onPressed: _showHelpMenu,
+                    iconSize: 35,
+                  ),
+                ),
+              ],
+            )
+          : null,
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth < 450) {
@@ -630,7 +633,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: SizedBox(
-                height: MediaQuery.of(context).size.height * 0.80,
+                height: MediaQuery.of(context).size.height * 0.90,
                 child: RecipeCard(
                   recipeID: recipe['recipeId'] ?? '',
                   name: recipe['name'] ?? '',
@@ -673,6 +676,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       });
                     }
                   }),
+            ),
+            Positioned(
+              top: 10,
+              right: 60,
+              child: IconButton(
+                icon: Icon(Icons.help, color: Colors.white),
+                onPressed: _showHelpMenu,
+                iconSize: 35,
+              ),
             )
           ],
         );

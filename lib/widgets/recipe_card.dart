@@ -541,10 +541,8 @@ class _RecipeCardState extends State<RecipeCard> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    double imageHeight =
-        screenHeight * 0.5; // 50% of screen height for the image
-    double contentHeight =
-        screenHeight * 0.5; // 50% of screen height for the content
+    double imageHeight = screenHeight *
+        0.5; // 50% of screen height for the image// 50% of screen height for the content
 
     double fontSizeTitle = screenWidth * 0.05;
 
