@@ -2026,10 +2026,11 @@ async function getIngredientDetails(ingredientName : string, corsHeaders : Heade
         }
 
         const { data: ingredientData, error: ingredientError } = await supabase
-            .from('ingredient')
-            .select('ingredientid, name, measurement_unit')
-            .eq('name', ingredientName)
-            .single();
+        .from('ingredient')
+        .select('ingredientid, name, measurement_unit')
+        .ilike('name', ingredientName.trim())  // Case-insensitive and trimmed
+        .limit(1);  // Limit to only one result
+    
 
         if (ingredientError) {
             throw new Error(`Error fetching ingredient ID: ${ingredientError.message}`);
