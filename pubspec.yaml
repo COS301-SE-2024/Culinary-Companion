@@ -50,6 +50,8 @@ dependencies:
   shared_preferences: ^2.0.13
   flutter_markdown: ^0.6.3
   floating_dialog: ^1.1.0+1
+  file_picker: ^8.1.2
+  syncfusion_flutter_pdf: ^20.2.38
 
 dev_dependencies:
   flutter_test:
