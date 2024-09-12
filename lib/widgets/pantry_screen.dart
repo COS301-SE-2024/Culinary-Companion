@@ -16,6 +16,7 @@ import 'dart:io' show Platform;
 // import 'dart:io';
 import '../widgets/theme_utils.dart';
 import '../gemini_service.dart'; // LLM
+//import 'dart:convert';
 
 
 class PantryScreen extends StatefulWidget {
@@ -338,8 +339,12 @@ Future<String> _getIngredientDetails(String ingredientName) async {
         final Map<String, dynamic> ingredientDetails = jsonDecode(response.body);
         print('Ingredient Details: $ingredientDetails');
 
-        // Convert the measurement_unit to a string if it's not already
-        final String measurementUnit = ingredientDetails['measurement_unit'].toString();
+        final List<dynamic> ingredientData = ingredientDetails['ingredientData'];
+
+        // Access the first ingredient's measurement unit
+        final String measurementUnit = ingredientData[0]['measurement_unit'].toString();
+
+        print('Ingredient Measurement Unit: $measurementUnit');
 
         return measurementUnit;
       } else {
@@ -765,8 +770,6 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
                         selectedIngredients[index] = similarIngredients.first;
                       }
 
-                      print("SELECTED INGREDIENTS[INDEX]: $selectedIngredients[$index]");
-
                       return FutureBuilder<String>(
                         future: _getIngredientDetails(selectedIngredients[index]),
                         builder: (context, detailsSnapshot) {
@@ -780,78 +783,46 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
                               title: Text(itemName),
                               trailing: Text('Error fetching details'),
                             );
-                          }
-                          String measurementUnit = 'unit'; // Default value
-
-                          if (detailsSnapshot.hasData && detailsSnapshot.data!.isNotEmpty) {
-                            try {
-                              final dataString = detailsSnapshot.data!;
-                              
-                              // Log the raw response for debugging
-                              print('Raw ingredient details response: $dataString');
-                              
-                              if (dataString.isNotEmpty) {
-                                final decodedData = jsonDecode(dataString);
-                                
-                                if (decodedData != null && decodedData is Map && decodedData.containsKey('ingredientData')) {
-                                  final ingredientData = decodedData['ingredientData'];
-                                  
-                                  // Log the decoded ingredient data for debugging
-                                  print('Decoded ingredient data: $ingredientData');
-                                  
-                                  if (ingredientData != null && ingredientData is List && ingredientData.isNotEmpty) {
-                                    final ingredientDetails = ingredientData[0];
-                                    
-                                    // Safely extract 'measurement_unit' and check if it exists
-                                    if (ingredientDetails is Map && ingredientDetails.containsKey('measurement_unit')) {
-                                      measurementUnit = ingredientDetails['measurement_unit'] ?? 'N/A';
-                                    } else {
-                                      print('Error: measurement_unit not found in ingredientDetails');
-                                    }
-                                  } else {
-                                    print('Error: ingredientData is either empty or not a valid list');
-                                  }
-                                } else {
-                                  print('Error: ingredientData not found or not a valid structure in decodedData');
-                                }
-                              } else {
-                                print('Error: dataString is empty');
-                              }
-                            } catch (e) {
-                              print('Error parsing ingredient details: $e');
-                            }
-                          } else {
-                            print('Error: detailsSnapshot has no data or is empty');
+                          } else if (!detailsSnapshot.hasData || detailsSnapshot.data!.isEmpty) {
+                            return ListTile(
+                              title: Text(itemName),
+                              trailing: Text('No details found'),
+                            );
                           }
 
+                          // Extract the measurement unit from the ingredient details
+                          String measurementUnit = detailsSnapshot.data ?? 'unit'; // Default to 'unit' if no data
+
+                          // Store the measurement unit in the list for later use
                           measurementUnits[index] = measurementUnit;
 
                           return Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Expanded(
-      flex: 2,
-      child: ListTile(
-        title: Text(itemName),
-        trailing: DropdownButton<String>(
-          value: selectedIngredients[index].isNotEmpty && similarIngredients.contains(selectedIngredients[index]) 
-                 ? selectedIngredients[index] 
-                 : null, // If value is not in the list, set it to null
-          hint: Text('Select similar ingredient'),
-          items: similarIngredients.toSet().map((ingredient) { // Convert to Set to ensure uniqueness
-            return DropdownMenuItem<String>(
-              value: ingredient,
-              child: Text(ingredient),
-            );
-          }).toList(),
-          onChanged: (newValue) {
-            setState(() {
-              selectedIngredients[index] = newValue ?? ''; // Handle null case
-            });
-          },
-        ),
-      ),
-    ),
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                flex: 2,
+                                child: ListTile(
+                                  title: Text(itemName),
+                                  trailing: DropdownButton<String>(
+                                    value: selectedIngredients[index].isNotEmpty &&
+                                            similarIngredients.contains(selectedIngredients[index])
+                                        ? selectedIngredients[index]
+                                        : null, // If value is not in the list, set it to null
+                                    hint: Text('Select similar ingredient'),
+                                    items: similarIngredients.map((ingredient) {
+                                      return DropdownMenuItem<String>(
+                                        value: ingredient,
+                                        child: Text(ingredient),
+                                      );
+                                    }).toList(),
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        selectedIngredients[index] = newValue ?? '';
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
                               Expanded(
                                 flex: 1,
                                 child: Padding(
@@ -896,19 +867,20 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
             actions: [
               ElevatedButton(
                 onPressed: () {
-                  // Handle adding selected ingredients and their quantities to the pantry
-                  for (var i = 0; i < selectedIngredients.length; i++) {
-                    final selected = selectedIngredients[i];
-                    final quantity = quantities[i];
-                    final measurementUnit = measurementUnits[i];
-                    if (selected.isNotEmpty && quantity.isNotEmpty) {
-                      print('Add $selected with quantity $quantity $measurementUnit to pantry');
-                      // Call your _addToPantryList function here for each selected ingredient and quantity
-                      // _addToPantryList(userId, selected, quantity, measurementUnit);
-                    }
-                  }
-                  Navigator.of(context).pop();
-                },
+  // Loop through all selected ingredients and add them to the pantry
+  for (var i = 0; i < selectedIngredients.length; i++) {
+    final selected = selectedIngredients[i];
+    final quantity = quantities[i];
+    final measurementUnit = measurementUnits[i];
+
+    // Ensure valid ingredient and quantity are provided before adding to pantry
+    if (selected.isNotEmpty && quantity.isNotEmpty && measurementUnit.isNotEmpty) {
+      _addToPantryList(_userId, selected, double.parse(quantity), measurementUnit);
+    }
+  }
+  Navigator.of(context).pop(); // Close the dialog after adding to pantry
+},
+
                 child: Text('Add to Pantry'),
               ),
             ],
@@ -918,6 +890,9 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
     },
   );
 }
+
+
+
 
 
 Future<List<String>> findSimilarIngredients(String itemName, String identifiedIngredient) async {
