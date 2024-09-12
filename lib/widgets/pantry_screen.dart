@@ -867,21 +867,21 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
             actions: [
               ElevatedButton(
                 onPressed: () async {
-  // Loop through all selected ingredients and add them to the pantry
-  for (var i = 0; i < selectedIngredients.length; i++) {
-    final selected = selectedIngredients[i];
-    final quantity = quantities[i];
-    final measurementUnit = measurementUnits[i];
+                    // Loop through all selected ingredients and add them to the pantry
+                    for (var i = 0; i < selectedIngredients.length; i++) {
+                      final selected = selectedIngredients[i];
+                      final quantity = quantities[i];
+                      final measurementUnit = measurementUnits[i];
 
-    // Ensure valid ingredient and quantity are provided before adding to pantry
-    if (selected.isNotEmpty && quantity.isNotEmpty && measurementUnit.isNotEmpty) {
-      await _addToPantryList(_userId, selected, double.parse(quantity), measurementUnit);
-    }
-  }
+                      // Ensure valid ingredient and quantity are provided before adding to pantry
+                      if (selected.isNotEmpty && quantity.isNotEmpty && measurementUnit.isNotEmpty) {
+                        await _addToPantryList(_userId, selected, double.parse(quantity), measurementUnit);
+                      }
+                    }
 
-  Navigator.of(context).pop(); // Close the dialog after adding to pantry
-  await _fetchPantryList();
-},
+                    Navigator.of(context).pop(); // Close the dialog after adding to pantry
+                    await _fetchPantryList();
+                  },
 
                 child: Text('Add to Pantry'),
               ),
