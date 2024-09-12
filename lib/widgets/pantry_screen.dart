@@ -149,7 +149,7 @@ Future<void> _fetchPantryList() async {
           for (var item in pantryList) {
             final ingredientName = item['name'].toString();
             final quantity = item['quantity'].toString();
-            final measurementUnit = item['measurementunit'].toString();
+            final measurementUnit = item['measurmentunit'].toString();
             final category = item['category'] ?? 'Other';
             final displayText = '$ingredientName ($quantity $measurementUnit)';
 
@@ -175,7 +175,7 @@ Future<void> _fetchPantryList() async {
           for (var item in pantryList) {
             final ingredientName = item['name'].toString();
             final quantity = item['quantity'].toString();
-            final measurementUnit = item['measurementunit'].toString();
+            final measurementUnit = item['measurmentunit'].toString();
             final category = item['category'] ?? 'Other';
             final displayText = '$ingredientName ($quantity $measurementUnit)';
 
