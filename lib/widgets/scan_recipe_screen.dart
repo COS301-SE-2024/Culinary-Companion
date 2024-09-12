@@ -143,26 +143,26 @@ class _ScanRecipeState extends State<ScanRecipe> {
 //     });
 //   }
 
-  // Pick PDF file and extract text
+  // pick pdf file
   Future<void> _pickPDF() async {
   FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
   
   if (result != null && result.files.isNotEmpty) {
     if (result.files.single.bytes != null) {
-      // For web, use bytes
+      //for web, use bytes
       Uint8List? fileBytes = result.files.single.bytes;
       if (fileBytes != null) {
         setState(() {
-          _pdfFilePath = result.files.single.name; // Display the file name
+          _pdfFilePath = result.files.single.name; 
         });
         _extractTextFromPDF(fileBytes);
       }
     } else if (result.files.single.path != null) {
-      // For mobile, use the file path
+      //for mobile, use the file path
       setState(() {
         _pdfFilePath = result.files.single.path;
       });
-      _extractTextFromPDF(null); // Pass null, indicating that we'll use the path
+      _extractTextFromPDF(null); 
     }
   }
 }
@@ -171,26 +171,26 @@ Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
   try {
     PdfDocument document;
     if (fileBytes != null) {
-      // Use bytes (for web)
+      //use bytes (for web)
       document = PdfDocument(inputBytes: fileBytes);
     } else if (_pdfFilePath != null) {
-      // Use file path (for mobile)
+      //use file path (for mobile)
       final file = File(_pdfFilePath!);
       document = PdfDocument(inputBytes: file.readAsBytesSync());
     } else {
       throw Exception("No file data available");
     }
 
-    // Extract text from the PDF
+    // extract the text from pdf
     String extractedText = PdfTextExtractor(document).extractText();
 
     setState(() {
-      _extractedText = extractedText; // Use this text for recipe processing
+      _extractedText = extractedText; 
     });
 
-    print("extracted text $_extractedText");
+    //print("extracted text $_extractedText");
 
-    document.dispose(); // Clean up after extraction
+    document.dispose(); 
   } catch (e) {
     print('Error extracting text from PDF: $e');
   }
@@ -248,11 +248,27 @@ Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
     );
 
     try {
-      final extractedRecipeData = await extractRecipeData(_extractedText, _selectedImage ?? _preloadedImages[0]);
-      if (extractedRecipeData != null && !extractedRecipeData.containsKey('error')) {
+      final extractedRecipeData = await extractRecipeData(
+          _extractedText, _selectedImage ?? _preloadedImages[0]);
+      print("extracted data: $extractedRecipeData");
+
+      if (extractedRecipeData != null &&
+          !extractedRecipeData.containsKey('error')) {
+        // split steps
+        if (extractedRecipeData.containsKey('methods')) {
+          extractedRecipeData['methods'] =
+              extractedRecipeData['methods'].split('<');
+        }
+
+        // if cusine is null
+        extractedRecipeData['cuisine'] =
+            extractedRecipeData['cuisine'] ?? 'American';
+
         await _showRecipeConfirmationDialog(context, extractedRecipeData);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to extract recipe data.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to extract recipe data.')),
+        );
       }
     } finally {
       Navigator.of(context).pop();
