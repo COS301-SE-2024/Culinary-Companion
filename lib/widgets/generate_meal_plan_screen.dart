@@ -55,8 +55,8 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
     final url = Uri.parse(
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
 
-    print("userid $userId");
-    print("rec details $recipes");
+   // print("userid $userId");
+   // print("rec details $recipes");
 
 
     final response = await http.post(
@@ -544,7 +544,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                       _selectedMeals.join(","), 
                     );
 
-                    print("gem res $result"); //result from gemini
+                   // print("gem res $result"); //result from gemini
 
                     // add to user meal plan
                     if (result.isNotEmpty && result != 'Error parsing JSON') {
