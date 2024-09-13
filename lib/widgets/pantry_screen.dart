@@ -387,56 +387,6 @@ Future<String> _getIngredientDetails(String ingredientName) async {
     Overlay.of(context).insert(_helpMenuOverlay!);
   }
 
-
-// final ImagePicker _picker = ImagePicker();
-  // Future<XFile?> _pickImage() async {
-  //   final ImagePicker picker = ImagePicker();
-  // XFile? pickedFile;
-
-  // if (kIsWeb) {
-  //   // For Web, only allow picking an image from gallery
-  //   pickedFile = await picker.pickImage(source: ImageSource.gallery);
-  // } else {
-  //   if (Platform.isAndroid || Platform.isIOS) {
-  //     if (await _requestPermissions(context)) {
-  //       pickedFile = await showModalBottomSheet<XFile?>(
-  //         context: context,
-  //         builder: (context) {
-  //           return SafeArea(
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: <Widget>[
-  //                 ListTile(
-  //                   leading: Icon(Icons.camera_alt),
-  //                   title: Text('Take a picture'),
-  //                   onTap: () async {
-  //                     Navigator.of(context).pop(await picker.pickImage(source: ImageSource.camera));
-  //                   },
-  //                 ),
-  //                 ListTile(
-  //                   leading: Icon(Icons.photo_library),
-  //                   title: Text('Upload from gallery'),
-  //                   onTap: () async {
-  //                     Navigator.of(context).pop(await picker.pickImage(source: ImageSource.gallery));
-  //                   },
-  //                 ),
-  //               ],
-  //             ),
-  //           );
-  //         },
-  //       );
-  //     } else {
-  //       _showPermissionDeniedMessage(context);
-  //       return null;
-  //     }
-  //   } else {
-  //     throw UnsupportedError('This platform is not supported');
-  //   }
-  // }
-
-  // return pickedFile;
-  // }
-
   Future<void> _scanImage() async {
   if (kIsWeb) {
     // Web-specific code
@@ -1128,29 +1078,6 @@ Future<void> _showNoIngredientsFoundDialog() async {
   );
 }
 
-  // Future<bool> _requestPermissions(BuildContext context) async {
-  //   PermissionStatus cameraPermission = await Permission.camera.request();
-  //   PermissionStatus galleryPermission = await Permission.photos.request();
-
-  //   if (cameraPermission != PermissionStatus.granted ||
-  //       galleryPermission != PermissionStatus.granted) {
-  //     // Handle permission denied scenario
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //       content: Text('Camera or gallery permission is required.'),
-  //     ));
-  //     return true;
-  //   } else {
-  //     return false;
-  //   }
-  // }
-
-  // void _showPermissionDeniedMessage(BuildContext context) {
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(
-  //       content: Text('Permission denied. You cannot use the camera.'),
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -1240,9 +1167,7 @@ Future<void> _showNoIngredientsFoundDialog() async {
                               ),
                               ElevatedButton(
                                 key: ValueKey('UploadPhoto'),
-                                onPressed: () {
-                                  _pickImage();
-                                },
+                                onPressed: _selectImage,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
                                       Color.fromARGB(255, 195, 108, 46),
@@ -1264,60 +1189,6 @@ Future<void> _showNoIngredientsFoundDialog() async {
             ),
     );
   }
-
-void _showImageSourceSelection() {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text('Select Image Source'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _scanImage(); // Use camera
-            },
-            child: Text('Take Photo'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _selectImage(); // Use gallery
-            },
-            child: Text('Choose from Gallery'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-void _showImageSourceSelection() {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text('Select Image Source'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _scanImage(); // Use camera
-            },
-            child: Text('Take Photo'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              _selectImage(); // Use gallery
-            },
-            child: Text('Choose from Gallery'),
-          ),
-        ],
-      );
-    },
-  );
-}
 
 // Helper method to build a category header
   Widget _buildCategoryHeader(String title) {
