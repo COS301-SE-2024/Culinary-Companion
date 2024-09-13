@@ -73,55 +73,63 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
   }
 
   Future<void> _fetchIngredientNames() async {
-  final prefs = await SharedPreferences.getInstance();
-  try {
-    final response = await http.post(
-      Uri.parse(
-          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: '{"action": "getIngredientNames"}',
-      headers: {'Content-Type': 'application/json'},
-    );
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: '{"action": "getIngredientNames"}',
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
 
-      // Cache the response for offline use
-      await prefs.setString('cachedIngredients', jsonEncode(data));
+        // Cache the response for offline use
+        await prefs.setString('cachedIngredients', jsonEncode(data));
+        if (mounted) {
+          setState(() {
+            _items = data
+                .map((item) => {
+                      'id': item['id'].toString(),
+                      'name': item['name'].toString(),
+                      'category': item['category'].toString(),
+                      'measurementUnit': item['measurementUnit'].toString(),
+                    })
+                .toList();
 
-      setState(() {
-        _items = data
-            .map((item) => {
-                  'id': item['id'].toString(),
-                  'name': item['name'].toString(),
-                  'category': item['category'].toString(),
-                  'measurementUnit': item['measurementUnit'].toString(),
-                })
-            .toList();
-      });
-    } else {
-      print('Failed to fetch ingredient names: ${response.statusCode}');
-    }
-  } catch (error) {
-    //print('Error fetching ingredient names: $error');
+            // Sort items alphabetically by name
+            _items.sort((a, b) => a['name']!.compareTo(b['name']!));
+          });
+        }
+      } else {
+        print('Failed to fetch ingredient names: ${response.statusCode}');
+      }
+    } catch (error) {
+      //print('Error fetching ingredient names: $error');
 
-    // Load from cache if the network fails
-    final cachedData = prefs.getString('cachedIngredients');
-    if (cachedData != null) {
-      final List<dynamic> data = jsonDecode(cachedData);
-      setState(() {
-        _items = data
-            .map((item) => {
-                  'id': item['id'].toString(),
-                  'name': item['name'].toString(),
-                  'category': item['category'].toString(),
-                  'measurementUnit': item['measurementUnit'].toString(),
-                })
-            .toList();
-      });
+      // Load from cache if the network fails
+      final cachedData = prefs.getString('cachedIngredients');
+      if (cachedData != null) {
+        final List<dynamic> data = jsonDecode(cachedData);
+        if (mounted) {
+          setState(() {
+            _items = data
+                .map((item) => {
+                      'id': item['id'].toString(),
+                      'name': item['name'].toString(),
+                      'category': item['category'].toString(),
+                      'measurementUnit': item['measurementUnit'].toString(),
+                    })
+                .toList();
+
+            // Sort items alphabetically by name
+            _items.sort((a, b) => a['name']!.compareTo(b['name']!));
+          });
+        }
+      }
     }
   }
-}
-
 
   Future<void> _fetchShoppingList() async {
     final prefs = await SharedPreferences.getInstance();
@@ -139,7 +147,10 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         final List<dynamic> shoppingList = data['shoppingList'];
+
+        // Cache the shopping list data
         await prefs.setString('cachedShoppingList', jsonEncode(shoppingList));
+
         if (mounted) {
           setState(() {
             _shoppingList.clear();
@@ -153,6 +164,11 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               _shoppingList.putIfAbsent(category, () => []);
               _shoppingList[category]?.add(displayText);
             }
+
+            // Sort items within each category alphabetically
+            _shoppingList.forEach((category, items) {
+              items.sort((a, b) => a.compareTo(b));
+            });
           });
         }
       } else {
@@ -162,9 +178,9 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
       //print('Error fetching shopping list: $error');
 
       final cachedData = prefs.getString('cachedShoppingList');
-    if (cachedData != null) {
-      final List<dynamic> shoppingList = jsonDecode(cachedData);
-      if (mounted) {
+      if (cachedData != null) {
+        final List<dynamic> shoppingList = jsonDecode(cachedData);
+        if (mounted) {
           setState(() {
             _shoppingList.clear();
             for (var item in shoppingList) {
@@ -177,9 +193,14 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
               _shoppingList.putIfAbsent(category, () => []);
               _shoppingList[category]?.add(displayText);
             }
+
+            // Sort items within each category alphabetically
+            _shoppingList.forEach((category, items) {
+              items.sort((a, b) => a.compareTo(b));
+            });
           });
         }
-    }
+      }
     }
   }
 
@@ -393,7 +414,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         title: Padding(
-          padding: EdgeInsets.only(top: 30, left: 38.0),
+          padding: EdgeInsets.only(top: 30, left: 30.0),
           child: Text(
             'Shopping List',
             style: TextStyle(
@@ -569,7 +590,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                 _toggleCheckbox(category, item);
               }
             },
-            activeColor: Colors.orange,
+            activeColor: Color(0xFFDC945F),
             checkColor: Colors.white,
           ),
           title: Text(
@@ -616,6 +637,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
     final TextEditingController quantityController = TextEditingController();
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return Theme(
@@ -761,6 +783,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         TextEditingController(text: quantity.toString());
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
@@ -768,7 +791,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
             'Edit Item',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: unshade(context),
+          backgroundColor: Color(0xFF283330),
           content: SingleChildScrollView(
             child: Form(
               key: formKey,
@@ -785,7 +808,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
                         borderSide: BorderSide(color: Colors.white),
                       ),
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.orange),
+                        borderSide: BorderSide(color: Color(0xFFDC945F)),
                       ),
                     ),
                     style: TextStyle(color: Colors.white),

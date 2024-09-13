@@ -70,78 +70,85 @@ class _PantryScreenState extends State<PantryScreen> {
     }
   }
 
-Future<void> _fetchIngredientNames() async {
-  final prefs = await SharedPreferences.getInstance();
-  try {
-    final response = await http.post(
-      Uri.parse(
-          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: '{"action": "getIngredientNames"}',
-      headers: {'Content-Type': 'application/json'},
-    );
+  Future<void> _fetchIngredientNames() async {
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: '{"action": "getIngredientNames"}',
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
 
-      // Cache the response for offline use
-      await prefs.setString('cachedIngredients', jsonEncode(data));
+        // Cache the response for offline use
+        await prefs.setString('cachedIngredients', jsonEncode(data));
+        if (mounted) {
+          setState(() {
+            _items = data
+                .map((item) => {
+                      'id': item['id'].toString(),
+                      'name': item['name'].toString(),
+                      'category': item['category'].toString(),
+                      'measurementUnit': item['measurementUnit'].toString(),
+                    })
+                .toList();
 
-      setState(() {
-        _items = data
-            .map((item) => {
-                  'id': item['id'].toString(),
-                  'name': item['name'].toString(),
-                  'category': item['category'].toString(),
-                  'measurementUnit': item['measurementUnit'].toString(),
-                })
-            .toList();
-      });
-    } else {
-      print('Failed to fetch ingredient names: ${response.statusCode}');
-    }
-  } catch (error) {
-    //print('Error fetching ingredient names: $error');
+            // Sort items alphabetically by name
+            _items.sort((a, b) => a['name']!.compareTo(b['name']!));
+          });
+        }
+      } else {
+        print('Failed to fetch ingredient names: ${response.statusCode}');
+      }
+    } catch (error) {
+      //print('Error fetching ingredient names: $error');
 
-    // Load from cache if the network fails
-    final cachedData = prefs.getString('cachedIngredients');
-    if (cachedData != null) {
-      final List<dynamic> data = jsonDecode(cachedData);
-      setState(() {
-        _items = data
-            .map((item) => {
-                  'id': item['id'].toString(),
-                  'name': item['name'].toString(),
-                  'category': item['category'].toString(),
-                  'measurementUnit': item['measurementUnit'].toString(),
-                })
-            .toList();
-      });
+      // Load from cache if the network fails
+      final cachedData = prefs.getString('cachedIngredients');
+      if (cachedData != null) {
+        final List<dynamic> data = jsonDecode(cachedData);
+        if(mounted){
+        setState(() {
+          _items = data
+              .map((item) => {
+                    'id': item['id'].toString(),
+                    'name': item['name'].toString(),
+                    'category': item['category'].toString(),
+                    'measurementUnit': item['measurementUnit'].toString(),
+                  })
+              .toList();
+
+          // Sort items alphabetically by name
+          _items.sort((a, b) => a['name']!.compareTo(b['name']!));
+        });}
+      }
     }
   }
-}
-
-
+  
 Future<void> _fetchPantryList() async {
-  final prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
-  try {
-    // Fetch data from the API
-    final response = await http.post(
-      Uri.parse(
-          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
-      body: jsonEncode({
-        'action': 'getAvailableIngredients',
-        'userId': _userId,
-      }),
-      headers: {'Content-Type': 'application/json'},
-    );
+    try {
+      // Fetch data from the API
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'getAvailableIngredients',
+          'userId': _userId,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final List<dynamic> pantryList = data['availableIngredients'];
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final List<dynamic> pantryList = data['availableIngredients'];
 
-      // Cache the response data
-      await prefs.setString('cachedPantryList', jsonEncode(pantryList));
+        // Cache the response data
+        await prefs.setString('cachedPantryList', jsonEncode(pantryList));
 
       // Process and update the pantry list
       if (mounted) {
@@ -154,21 +161,24 @@ Future<void> _fetchPantryList() async {
             final category = item['category'] ?? 'Other';
             final displayText = '$ingredientName ($quantity $measurementUnit)';
 
-            _pantryList.putIfAbsent(category, () => []);
-            _pantryList[category]?.add(displayText);
-          }
-        });
-      }
-    } else {
-      print('Failed to fetch pantry list: ${response.statusCode}');
-    }
-  } catch (error) {
-    //print('Error fetching pantry list: $error');
+              _pantryList.putIfAbsent(category, () => []);
+              _pantryList[category]?.add(displayText);
+            }
 
-    // Load cached data if the network request fails
-    final cachedData = prefs.getString('cachedPantryList');
-    if (cachedData != null) {
-      final List<dynamic> pantryList = jsonDecode(cachedData);
+            // Sort items within each category alphabetically
+            _pantryList.forEach((category, items) {
+              items.sort((a, b) => a.compareTo(b));
+            });
+          });
+        }
+      } else {
+        print('Failed to fetch pantry list: ${response.statusCode}');
+      }
+    } catch (error) {
+      // Print error and use cached data if network request fails
+      final cachedData = prefs.getString('cachedPantryList');
+      if (cachedData != null) {
+        final List<dynamic> pantryList = jsonDecode(cachedData);
 
       if (mounted) {
         setState(() {
@@ -180,14 +190,19 @@ Future<void> _fetchPantryList() async {
             final category = item['category'] ?? 'Other';
             final displayText = '$ingredientName ($quantity $measurementUnit)';
 
-            _pantryList.putIfAbsent(category, () => []);
-            _pantryList[category]?.add(displayText);
-          }
-        });
+              _pantryList.putIfAbsent(category, () => []);
+              _pantryList[category]?.add(displayText);
+            }
+
+            // Sort items within each category alphabetically
+            _pantryList.forEach((category, items) {
+              items.sort((a, b) => a.compareTo(b));
+            });
+          });
+        }
       }
     }
   }
-}
 
 
   Future<void> _addToPantryList(String? userId, String ingredientName,
@@ -236,6 +251,7 @@ Future<void> _fetchPantryList() async {
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
+
             final displayText = '$item ($quantity $measurementUnit)';
             if (_pantryList[category] != null) {
               final index = _pantryList[category]!
@@ -1136,116 +1152,143 @@ Future<void> _showNoIngredientsFoundDialog() async {
   //   );
   // }
 
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      automaticallyImplyLeading: false,
-      backgroundColor: Colors.transparent,
-      title: Padding(
-        padding: EdgeInsets.only(top: 30, left: 38.0),
-        child: Text(
-          'Pantry',
-          style: TextStyle(
-            fontSize: 24.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 20.0),
-          child: IconButton(
-            key: Key('help_button'),
-            icon: Icon(Icons.help),
-            onPressed: _showHelpMenu,
-            iconSize: 35,
-          ),
-        ),
-      ],
-    ),
-    body: _isLoading
-        ? Center(child: Lottie.asset('assets/loading.json'))
-        : Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(height: 30.0),
-                      Expanded(
-                        child: _pantryList.isEmpty
-                            ? Center(
-                                child: Text(
-                                  "No ingredients have been added. Click the plus icon to add your first ingredient!",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              )
-                            : ListView(
-                                children: _pantryList.entries.expand((entry) {
-                                  return [
-                                    if (entry.value.isNotEmpty) ...[
-                                      _buildCategoryHeader(entry.key),
-                                    ],
-                                    ...entry.value.asMap().entries.map(
-                                        (item) => _buildCheckableListItem(
-                                            entry.key,
-                                            item.value,
-                                            item.key % 2 == 1)),
-                                  ];
-                                }).toList(),
-                              ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            ElevatedButton(
-                              key: ValueKey('Pantry'),
-                              onPressed: () {
-                                _showAddItemDialog(context);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFDC945F),
-                                foregroundColor: Colors.white,
-                                fixedSize: const Size(48.0, 48.0),
-                                shape: const CircleBorder(),
-                                padding: EdgeInsets.all(0),
-                              ),
-                              child: const Icon(Icons.add, size: 32.0),
-                            ),
-                            ElevatedButton(
-                              key: ValueKey('UploadPhoto'),
-                              onPressed: () {
-                                _showImageSourceSelection(); // Added method to choose image source
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromARGB(255, 195, 108, 46),
-                                foregroundColor: Colors.white,
-                                fixedSize: const Size(48.0, 48.0),
-                                shape: const CircleBorder(),
-                                padding: EdgeInsets.all(0),
-                              ),
-                              child: const Icon(Icons.camera_alt, size: 32.0),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.transparent,
+        title: Padding(
+          padding: EdgeInsets.only(top: 30, left: 30.0),
+          child: Text(
+            'Pantry',
+            style: TextStyle(
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
             ),
           ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20.0),
+            child: IconButton(
+              key: Key('help_button'),
+              icon: Icon(Icons.help),
+              onPressed: _showHelpMenu,
+              iconSize: 35,
+            ),
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? Center(child: Lottie.asset('assets/loading.json'))
+          : Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(height: 30.0),
+                        Expanded(
+                          child: _pantryList.isEmpty
+                              ? Center(
+                                  child: Text(
+                                    "No ingredients have been added. Click the plus icon to add your first ingredient!",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                )
+                              : ListView(
+                                  children: _pantryList.entries.expand((entry) {
+                                    return [
+                                      if (entry.value.isNotEmpty) ...[
+                                        _buildCategoryHeader(entry.key),
+                                      ],
+                                      ...entry.value.asMap().entries.map(
+                                          (item) => _buildCheckableListItem(
+                                              entry.key,
+                                              item.value,
+                                              item.key % 2 == 1)),
+                                    ];
+                                  }).toList(),
+                                ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              ElevatedButton(
+                                key: ValueKey('Pantry'),
+                                onPressed: () {
+                                  _showAddItemDialog(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFDC945F),
+                                  foregroundColor: Colors.white,
+                                  fixedSize: const Size(48.0, 48.0),
+                                  shape: const CircleBorder(),
+                                  padding: EdgeInsets.all(0),
+                                ),
+                                child: const Icon(Icons.add, size: 32.0),
+                              ),
+                              ElevatedButton(
+                                key: ValueKey('UploadPhoto'),
+                                onPressed: () {
+                                  _pickImage();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor:
+                                      Color.fromARGB(255, 195, 108, 46),
+                                  foregroundColor: Colors.white,
+                                  fixedSize: const Size(48.0, 48.0),
+                                  shape: const CircleBorder(),
+                                  padding: EdgeInsets.all(0),
+                                ),
+                                child: const Icon(Icons.camera_alt, size: 32.0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
+void _showImageSourceSelection() {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Select Image Source'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _scanImage(); // Use camera
+            },
+            child: Text('Take Photo'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _selectImage(); // Use gallery
+            },
+            child: Text('Choose from Gallery'),
+          ),
+        ],
+      );
+    },
   );
 }
 
@@ -1395,6 +1438,7 @@ void _showImageSourceSelection() {
         TextEditingController(text: quantity.toString());
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -1404,7 +1448,7 @@ void _showImageSourceSelection() {
                 'Edit Item',
                 style: TextStyle(color: Colors.white),
               ),
-              backgroundColor: unshade(context),
+              backgroundColor: Color(0xFF283330),
               content: SingleChildScrollView(
                 child: Form(
                   key: formKey,
@@ -1421,7 +1465,7 @@ void _showImageSourceSelection() {
                             borderSide: BorderSide(color: Colors.white),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.orange),
+                            borderSide: BorderSide(color: Color(0xFFDC945F)),
                           ),
                         ),
                         style: TextStyle(color: Colors.white),
@@ -1493,7 +1537,9 @@ void _showImageSourceSelection() {
     final TextEditingController categoryController = TextEditingController();
     final TextEditingController quantityController = TextEditingController();
 
+  //print($measurementUnit);
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -1566,6 +1612,7 @@ void _showImageSourceSelection() {
                         ),
                         SizedBox(height: 16.0), // Add spacing for better UI
                         Text(
+                          
                             'Measurement Unit: $measurementUnit'), // Display the measurement unit
                       ],
                     ),

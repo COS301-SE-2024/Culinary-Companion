@@ -1,39 +1,20 @@
-//main2.dart
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
-import 'search_screen.dart';
-import 'favorite_recipes_screen.dart';
-import 'profile_screen.dart';
-import 'add_recipe_screen.dart';
-import 'inventory_screen.dart';
-import 'meal_planner.dart';
-import '../widgets/navbar.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_application_1/guest/guest_navbar.dart';
+import 'package:flutter_application_1/guest/guest_search_screen.dart';
+import 'package:flutter_application_1/screens/login_screen.dart';
+import 'guest_home_screen.dart';
+//import 'guest_search_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(
-    url: 'https://gsnhwvqprmdticzglwdf.supabase.co',
-    anonKey: 'YOUR_ANON_KEY',
-  );
-  runApp(CulinaryCompanionApp());
-}
-
-class CulinaryCompanionApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MainScreen(),
-    );
-  }
-}
-
-class MainScreen extends StatefulWidget {
+class MainScreen2 extends StatefulWidget {
+  final bool isGuest; // Add a flag for guest users
+  
+  MainScreen2({this.isGuest = false}); // Default to false for regular users
+  
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen2> {
   String currentRoute = '/';
 
   void changeRoute(String newRoute) {
@@ -68,6 +49,7 @@ class _MainScreenState extends State<MainScreen> {
                 child: ExpandableNavbar(
                   currentRoute: currentRoute,
                   onChange: changeRoute,
+                  isGuest: widget.isGuest, // Pass guest flag
                 ),
               ),
             ),
@@ -76,7 +58,11 @@ class _MainScreenState extends State<MainScreen> {
       );
     } else {
       return Scaffold(
-        appBar: Navbar(currentRoute: currentRoute, onChange: changeRoute),
+        appBar: GuestNavbar(
+          currentRoute: currentRoute,
+          onChange: changeRoute,
+          isGuest: widget.isGuest, // Pass guest flag
+        ),
         body: _buildScreen(currentRoute),
       );
     }
@@ -85,21 +71,13 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildScreen(String route) {
     switch (route) {
       case '/':
-        return HomeScreen();
+        return GuestHomeScreen();
       case '/search':
-        return SearchScreen();
-      case '/scan-recipe':
-        return AddRecipeScreen();
-      case '/inventory-screen':
-        return InventoryScreen();
-      case '/meal-planner':
-        return MealPlannerScreen();
-      case '/saved-recipes':
-        return SavedRecipesScreen();
-      case '/profile':
-        return ProfileScreen();
+        return GuestSearchScreen();
+      case '/login':
+        return LoginScreen();
       default:
-        return Container();
+        return Container(); // Guests have limited access, no extra screens
     }
   }
 }

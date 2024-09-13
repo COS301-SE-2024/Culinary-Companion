@@ -3,10 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'screens/landing_screen.dart'; // Import the new landing screen
 import 'screens/login_screen.dart'; // Import the new login screen
-import 'screens/signup_screen.dart'; // Import the new signup screen
+import 'screens/signup_screen.dart';
 import 'screens/tutorial_pages.dart';
 import 'screens/confirm_details.dart'; //Import the confirm details, a.k.a Signup 2 page
 import 'screens/main.dart'; // Import the main screen
+import 'guest/guest_main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; //LLM
@@ -45,10 +46,15 @@ class CulinaryCompanionApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Culinary Companion',
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xFFDC945F), // Replace this with your seed color
+          brightness: Brightness.light, // or Brightness.dark for dark theme
+        ),
+        useMaterial3: true,
         textTheme: GoogleFonts.interTextTheme(),
         primarySwatch: Colors.green,
         brightness: Brightness.light,
-        scaffoldBackgroundColor: Colors.white,
+        scaffoldBackgroundColor: Color(0xFFEDEDED),
         inputDecorationTheme: const InputDecorationTheme(
           border: OutlineInputBorder(),
           filled: true,
@@ -56,6 +62,10 @@ class CulinaryCompanionApp extends StatelessWidget {
         ),
       ),
       darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xFFEDEDED), // Replace this with your seed color
+          brightness: Brightness.dark, // or Brightness.dark for dark theme
+        ),
         textTheme: GoogleFonts.interTextTheme().apply(
           bodyColor: Color(0xFFD9D9D9),
           displayColor: Color(0xFFD9D9D9),
@@ -85,6 +95,7 @@ class CulinaryCompanionApp extends StatelessWidget {
         '/home': (context) => MainScreen(), // Rename the home route
         '/confirm': (context) => ConfirmDetailsScreen(),
         '/tutorial': (context) => TutorialPages(),
+        '/guest_home': (context) => MainScreen2(),
       },
     );
   }

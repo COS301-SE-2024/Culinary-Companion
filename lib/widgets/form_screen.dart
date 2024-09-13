@@ -19,17 +19,18 @@ class _RecipeFormState extends State<RecipeForm>
   List<MultiSelectItem<String>> _applianceItems = [];
   List<String> _selectedAppliances = [];
   final List<TextEditingController> _ingredientControllers = [];
+  bool _isUploading = false;
 
   // Add this line inside your class
   List<String> measurementUnits = [
-    'unit',
+    'units',
     'kg',
     'g',
     'lbs',
     'oz',
-    'ml',
+    'milliliters',
     'fl oz',
-    'cup',
+    'cups',
     'tbsp',
     'tsp',
     'quart',
@@ -76,10 +77,15 @@ class _RecipeFormState extends State<RecipeForm>
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
     if (image == null) {
-      print('No image selected.');
+      //print('No image selected.');
       return;
     }
+
+    setState(() {
+      _isUploading = true;
+    });
 
     final supabase = Supabase.instance.client;
     final imageBytes = await image.readAsBytes();
@@ -101,18 +107,30 @@ class _RecipeFormState extends State<RecipeForm>
       if (response.isNotEmpty) {
         _imageUrl =
             supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
-        //print('here1: $_imageUrl');
+
         if (mounted) {
           setState(() {
             _selectedImage = _imageUrl;
           });
         }
-        //print('here2: $_selectedImage');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image uploaded successfully!')),
+        );
       } else {
         print('Error uploading image: $response');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image. Please try again.')),
+        );
       }
     } catch (error) {
       print('Exception during image upload: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -180,6 +198,10 @@ class _RecipeFormState extends State<RecipeForm>
                       'measurementUnit': item['measurementUnit'].toString(),
                     })
                 .toList();
+
+            // Sort items alphabetically by name
+            _availableIngredients
+                .sort((a, b) => a['name']!.compareTo(b['name']!));
           });
         }
       } else {
@@ -220,6 +242,146 @@ class _RecipeFormState extends State<RecipeForm>
       }
     } catch (e) {
       throw Exception('Error fetching appliances: $e');
+    }
+  }
+
+  void _showAddIngredientDialog(int index) {
+    //popup for users to add ingredients that arent in db
+    String newIngredientName = '';
+    String selectedUnit = measurementUnits.first;
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
+    final Color backgroundColor =
+        isLightTheme ? Colors.white : Color(0xFF283330);
+
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: backgroundColor,
+          title: Text(
+            'Add New Ingredient',
+            style: TextStyle(fontSize: 22, color: textColor),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 15),
+              TextField(
+                decoration: InputDecoration(
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    labelText: 'Ingredient Name'),
+                onChanged: (value) {
+                  newIngredientName = value;
+                },
+              ),
+              SizedBox(height: 10),
+              DropdownButtonFormField<String>(
+                value: selectedUnit,
+                onChanged: (value) {
+                  selectedUnit = value!;
+                },
+                items: measurementUnits.map((unit) {
+                  return DropdownMenuItem<String>(
+                    value: unit,
+                    child: Text(unit),
+                  );
+                }).toList(),
+                decoration: InputDecoration(labelText: 'Measurement Unit'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                side: const BorderSide(
+                  color: Color(0xFFDC945F),
+                  width: 1.5, // Border thickness
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color(0xFFDC945F), // Set the color to orange
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Color(0xFFDC945F),
+                side: const BorderSide(
+                  color: Color(0xFFDC945F),
+                  width: 1.5, // Border thickness
+                ),
+              ),
+              child: const Text(
+                'Add',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
+              onPressed: () async {
+                //capitalize new ingredient
+                newIngredientName = capitalizeEachWord(newIngredientName);
+
+                //add ingredient to db
+                await addIngredientIfNotExists(newIngredientName, selectedUnit);
+
+                if (mounted) {
+                  setState(() {
+                    _ingredients[index]['name'] = newIngredientName;
+                    _ingredients[index]['unit'] = selectedUnit;
+                    _ingredientControllers[index].text = newIngredientName;
+                    _availableIngredients.add({
+                      'name': newIngredientName,
+                      'measurementUnit': selectedUnit,
+                    });
+                  });
+                }
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String capitalizeEachWord(String input) {
+    return input.split(' ').map((word) {
+      if (word.isEmpty) return word;
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }).join(' ');
+  }
+
+  Future<void> addIngredientIfNotExists(
+      String ingredientName, String measurementUnit) async {
+    //make sure each first letter of a word is capitalized
+    String formattedIngredientName = capitalizeEachWord(ingredientName);
+
+    final response = await http.post(
+      Uri.parse(
+          'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'action': 'addIngredientIfNotExists',
+        'ingredientName': formattedIngredientName,
+        'measurementUnit': measurementUnit,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      print('Failed to add ingredient: ${response.body}');
+    } else {
+      print('Ingredient added successfully');
     }
   }
 
@@ -293,12 +455,127 @@ class _RecipeFormState extends State<RecipeForm>
     }
   }
 
+  void _showErrorPopup(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Validation Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _validateIngredients() {
+    //make sure all ingredients have a valid name and quantity
+    for (int i = 0; i < _ingredients.length; i++) {
+      if (_ingredients[i]['name'] == null || _ingredients[i]['name']!.isEmpty) {
+        _showErrorPopup(
+            'Please provide a valid ingredient name for ingredient ${i + 1}.');
+        return;
+      }
+      if (_ingredients[i]['quantity'] == null ||
+          _ingredients[i]['quantity']!.isEmpty) {
+        _showErrorPopup(
+            'Please provide a valid quantity for ingredient ${i + 1}.');
+        return;
+      }
+    }
+  }
+
   Future<void> _submitRecipe() async {
+    // ignore: prefer_conditional_assignment
+    if (_spiceLevel == null) {
+      _spiceLevel = 1; // Default spice level
+    }
+
+    if (_servingAmountController.text.isEmpty) {
+      _servingAmountController.text = '1'; // default servig
+    }
+
+    if (_selectedCuisine.isEmpty) {
+      _selectedCuisine = _cuisines.first; // default cuisine
+    }
+
+    if (_selectedCourse.isEmpty) {
+      _selectedCourse = _courses.first; // default course
+    }
+
+    if (_selectedAppliances.isEmpty) {
+      _selectedAppliances = []; // if none selected
+    }
+
+    // ensure steps and ingredients are not empty
+    if (_methods.isEmpty || _methods.any((method) => method.isEmpty)) {
+      _showErrorPopup('Please provide at least one valid step.');
+      return;
+    }
+
+    if (_ingredients.isEmpty ||
+        _ingredients.any((ingredient) =>
+            ingredient['name']!.isEmpty || ingredient['quantity']!.isEmpty)) {
+      _showErrorPopup(
+          'Please provide at least one valid ingredient with quantity.');
+      return;
+    }
+
+    _validateIngredients();
+
+//////////form validation method dont remove///////
+    //   //validate recipebefore submission
+    // final validationErrors = await validateRecipe(
+    //   _nameController.text,
+    //   _descriptionController.text,
+    //   _methods,
+    // );
+
+    // if (validationErrors.isNotEmpty) {
+    //   //if recipe is not valid show popup
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: const Text('Validation Errors'),
+    //         content: Column(
+    //           mainAxisSize: MainAxisSize.min,
+    //           children: validationErrors.map((error) {
+    //             return Text(error);
+    //           }).toList(),
+    //         ),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () {
+    //               Navigator.of(context).pop();
+    //             },
+    //             child: const Text('Close'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    //   return;
+    // }
+
     print("ingredients: $_ingredients");
     List<Map<String, String>> appliancesData =
         _selectedAppliances.map((appliance) {
       return {'name': appliance};
     }).toList();
+
+    // ignore: avoid_function_literals_in_foreach_calls
+    _ingredients.forEach((ingredient) {
+      ingredient['name'] = capitalizeEachWord(ingredient['name']!);
+    });
+
     final recipeData = {
       'name': _nameController.text,
       'description': _descriptionController.text,
@@ -319,6 +596,8 @@ class _RecipeFormState extends State<RecipeForm>
       'appliances': appliancesData,
       'photo': _selectedImage,
     };
+
+    print('rec data form:$recipeData');
 
     final response = await http.post(
       Uri.parse(
@@ -397,7 +676,7 @@ class _RecipeFormState extends State<RecipeForm>
         print("after adding keywords");
 
         if (addKeywordsResponse.statusCode == 200) {
-          print('Keywords added successfully');
+          //print('Keywords added successfully');
         } else {
           print('Failed to add keywords');
         }
@@ -414,8 +693,6 @@ class _RecipeFormState extends State<RecipeForm>
           return;
         }
 
-// print("dietaryConstraints");
-// print(dietaryConstraints);
         // Filter dietary constraints that are "yes" or "true"
         final filteredConstraints = dietaryConstraints.entries
             .where((entry) =>
@@ -424,8 +701,6 @@ class _RecipeFormState extends State<RecipeForm>
             .map((entry) => entry.key)
             .toList();
 
-        // print("filteredConstraints");
-        // print(filteredConstraints);
         // Convert the filtered constraints to a comma-separated string
         final constraintsString = filteredConstraints.join(',');
 
@@ -446,7 +721,7 @@ class _RecipeFormState extends State<RecipeForm>
         );
 
         if (addDietaryConstraintsResponse.statusCode == 200) {
-          print('Dietary constraints added successfully');
+          //print('Dietary constraints added successfully');
         } else {
           print('Failed to add dietary constraints');
         }
@@ -483,7 +758,7 @@ class _RecipeFormState extends State<RecipeForm>
   InputDecoration _buildInputDecoration(String labelText, {IconData? icon}) {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
     return InputDecoration(
       labelText: labelText,
       labelStyle: TextStyle(color: textColor),
@@ -579,18 +854,18 @@ class _RecipeFormState extends State<RecipeForm>
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(30.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Recipe Details',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             Card(
               color: theme.brightness == Brightness.light
                   ? Color.fromARGB(255, 223, 223, 223)
-                  : Color.fromARGB(255, 21, 48, 39),
+                  : Color.fromARGB(255, 52, 68, 64),
               elevation: 4,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -742,57 +1017,75 @@ class _RecipeFormState extends State<RecipeForm>
                           children: [
                             Expanded(
                               child: TypeAheadFormField<String>(
-  textFieldConfiguration: TextFieldConfiguration(
-    cursorColor: textColor,
-    controller: _ingredientControllers[index],
-    decoration: _buildInputDecoration(
-      'Ingredient',
-    ),
-    onChanged: (value) {
-      // Update the ingredient's name with the user input
-      if (mounted) {
-        setState(() {
-          _ingredients[index]['name'] = value;
-        });
-      }
-    },
-  ),
-  suggestionsCallback: (pattern) {
-    return _availableIngredients
-        .where((ingredient) => ingredient['name']!
-            .toLowerCase()
-            .contains(pattern.toLowerCase()))
-        .map((ingredient) => ingredient['name']!)
-        .toList();
-  },
-  itemBuilder: (context, String suggestion) {
-    return ListTile(
-      title: Text(suggestion),
-    );
-  },
-  onSuggestionSelected: (String suggestion) {
-    if (mounted) {
-      setState(() {
-        _ingredients[index]['name'] = suggestion;
-        final selectedIngredient = _availableIngredients.firstWhere(
-            (ingredient) => ingredient['name'] == suggestion);
-        _ingredients[index]['unit'] =
-            selectedIngredient['measurementUnit'] ?? measurementUnits.first;
-        _ingredientControllers[index].text = suggestion;
-      });
-    }
-  },
-  validator: (value) {
-    if (value!.isEmpty) {
-      return 'Please select an ingredient';
-    }
-    return null;
-  },
-  onSaved: (value) {
-    _ingredients[index]['name'] = value!;
-  },
-),
+                                textFieldConfiguration: TextFieldConfiguration(
+                                  cursorColor: textColor,
+                                  controller: _ingredientControllers[index],
+                                  decoration: _buildInputDecoration(
+                                    'Ingredient',
+                                  ),
+                                  onChanged: (value) {
+                                    // Update the ingredient's name with the user input
+                                    if (mounted) {
+                                      setState(() {
+                                        _ingredients[index]['name'] = value;
+                                      });
+                                    }
+                                  },
+                                ),
+                                suggestionsCallback: (pattern) {
+                                  final suggestions = _availableIngredients
+                                      .where((ingredient) => ingredient['name']!
+                                          .toLowerCase()
+                                          .contains(pattern.toLowerCase()))
+                                      .map((ingredient) => ingredient['name']!)
+                                      .toList();
 
+                                  if (suggestions.isEmpty) {
+                                    suggestions.add(
+                                        'No items found, add new ingredient');
+                                  }
+
+                                  return suggestions;
+                                },
+                                itemBuilder: (context, String suggestion) {
+                                  return ListTile(
+                                    title: Text(suggestion),
+                                  );
+                                },
+                                onSuggestionSelected: (String suggestion) {
+                                  if (suggestion ==
+                                      'No items found, add new ingredient') {
+                                    _showAddIngredientDialog(index);
+                                  } else {
+                                    if (mounted) {
+                                      setState(() {
+                                        _ingredients[index]['name'] =
+                                            suggestion;
+                                        final selectedIngredient =
+                                            _availableIngredients.firstWhere(
+                                                (ingredient) =>
+                                                    ingredient['name'] ==
+                                                    suggestion);
+                                        _ingredients[index]['unit'] =
+                                            selectedIngredient[
+                                                    'measurementUnit'] ??
+                                                measurementUnits.first;
+                                        _ingredientControllers[index].text =
+                                            suggestion;
+                                      });
+                                    }
+                                  }
+                                },
+                                validator: (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Please select an ingredient';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  _ingredients[index]['name'] = value!;
+                                },
+                              ),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
@@ -870,17 +1163,40 @@ class _RecipeFormState extends State<RecipeForm>
                     _buildAppliancesMultiSelect(),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: _pickImage,
+                      onPressed: _isUploading
+                          ? null
+                          : _pickImage, // Disable the button while uploading
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            isLightTheme ? Colors.white : Color(0xFF1F4539),
+                            isLightTheme ? Colors.white : Color(0xFF283330),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 20),
                       ),
-                      child: Text(
-                        'Upload Image',
-                        style: TextStyle(color: textColor),
-                      ),
+                      child: _isUploading
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: textColor,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Uploading...',
+                                  style: TextStyle(color: textColor),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              _selectedImage != null
+                                  ? 'Image Uploaded'
+                                  : 'Upload Image',
+                              style: TextStyle(color: textColor),
+                            ),
                     ),
                     const SizedBox(height: 10),
                     const Text('Or use the preloaded image:'),
@@ -900,7 +1216,7 @@ class _RecipeFormState extends State<RecipeForm>
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: _selectedImage == image
-                                    ? Colors.blue
+                                    ? Color.fromARGB(255, 215, 120, 61)
                                     : Colors.transparent,
                                 width: 3,
                               ),
