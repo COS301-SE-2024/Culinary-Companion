@@ -65,6 +65,7 @@ Deno.serve(async (req) => {
       filters,
       keywords,
       dietaryConstraints,
+      recipes // for meal planner
     } = await req.json();
 
     switch (action) {
@@ -171,6 +172,8 @@ Deno.serve(async (req) => {
         );
       case "getSuggestedFavorites":
         return getSuggestedFavorites(userId, corsHeaders);
+      case "addToMealPlanner":
+        return addToMealPlanner(userId, recipes, corsHeaders);
       default:
         return new Response(JSON.stringify({ error: "Invalid action" }), {
           status: 400,
@@ -2328,6 +2331,48 @@ async function addRecipeDietaryConstraints(
     }
   );
 }
+
+async function addToMealPlanner(
+  userid: string,
+  recipes: string,
+  corsHeaders: HeadersInit
+) {
+  if (!userid || !recipes) {
+    console.error("Missing user ID or recipes.");
+    return new Response(
+      JSON.stringify({ error: "Missing user ID or recipes" }),
+      {
+        status: 400,
+        headers: corsHeaders,
+      }
+    );
+  }
+
+  const { error: mealPlannerError } = await supabase
+    .from("mealPlanner")
+    .insert([{ userid, recipes }]);
+
+  if (mealPlannerError) {
+    console.error("Error adding to meal planner:", mealPlannerError);
+    return new Response(
+      JSON.stringify({ error: mealPlannerError.message }),
+      {
+        status: 400,
+        headers: corsHeaders,
+      }
+    );
+  }
+
+  return new Response(
+    JSON.stringify({ success: "Recipe added to meal planner successfully" }),
+    {
+      status: 200,
+      headers: corsHeaders,
+    }
+  );
+}
+
+
 
 /* To invoke locally:
 
