@@ -1167,7 +1167,9 @@ Future<void> _showNoIngredientsFoundDialog() async {
                               ),
                               ElevatedButton(
                                 key: ValueKey('UploadPhoto'),
-                                onPressed: _selectImage,
+                                 onPressed: () {
+                                _showImageSourceSelection(); // Added method to choose image source
+                              },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
                                       Color.fromARGB(255, 195, 108, 46),
@@ -1189,6 +1191,33 @@ Future<void> _showNoIngredientsFoundDialog() async {
             ),
     );
   }
+
+  void _showImageSourceSelection() {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Select Image Source'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _scanImage(); // Use camera
+            },
+            child: Text('Take Photo'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _selectImage(); // Use gallery
+            },
+            child: Text('Choose from Gallery'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
 // Helper method to build a category header
   Widget _buildCategoryHeader(String title) {
