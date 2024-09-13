@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '../widgets/recipe_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lottie/lottie.dart';
 
 class MyMealPlansScreen extends StatefulWidget {
   @override
@@ -84,9 +85,11 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
 
         // fetch recipe details
         await fetchAllRecipeDetails();
-        setState(() {
-          _isLoading = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       } else {
         print('Failed to fetch meal plans: ${response.statusCode}');
       }
@@ -191,7 +194,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
       ),
       body: _isLoading
           ? Center(
-              child: CircularProgressIndicator(), // Loading spinner
+              child: Lottie.asset('assets/planner_load.json'), // Loading spinner
             )
           : ListView(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),

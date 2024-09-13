@@ -295,7 +295,7 @@ Future<String> fetchMealPlannerRecipes(
 
   if (response != null && response.text != null) {
     String jsonString = response.text!;
-    print("gem res1 $jsonString");
+    //print("gem res1 $jsonString");
 
     // Clean up the JSON string
     try {
