@@ -174,6 +174,8 @@ Deno.serve(async (req) => {
         return getSuggestedFavorites(userId, corsHeaders);
       case "addToMealPlanner":
         return addToMealPlanner(userId, recipes, corsHeaders);
+      case "getAllMealPlanners":
+        return getAllMealPlanners(userId, corsHeaders);
       default:
         return new Response(JSON.stringify({ error: "Invalid action" }), {
           status: 400,
@@ -2372,6 +2374,45 @@ async function addToMealPlanner(
   );
 }
 
+async function getAllMealPlanners(
+  userid: string,
+  corsHeaders: HeadersInit
+) {
+  if (!userid) {
+    console.error("Missing user ID.");
+    return new Response(
+      JSON.stringify({ error: "Missing user ID" }),
+      {
+        status: 400,
+        headers: corsHeaders,
+      }
+    );
+  }
+
+  const { data: mealPlanners, error: mealPlannerError } = await supabase
+    .from("mealPlanner")
+    .select("*") 
+    .eq("userid", userid);
+
+  if (mealPlannerError) {
+    console.error("Error retrieving meal planners:", mealPlannerError);
+    return new Response(
+      JSON.stringify({ error: mealPlannerError.message }),
+      {
+        status: 400,
+        headers: corsHeaders,
+      }
+    );
+  }
+
+  return new Response(
+    JSON.stringify({ mealPlanners }),
+    {
+      status: 200,
+      headers: corsHeaders,
+    }
+  );
+}
 
 
 /* To invoke locally:
