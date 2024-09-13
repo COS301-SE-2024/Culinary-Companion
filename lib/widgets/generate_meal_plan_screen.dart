@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import '../gemini_service.dart'; // LLM
+
 
 class GenerateMealPlanScreen extends StatefulWidget {
   final TabController tabController;
@@ -449,7 +451,9 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
               ),
               SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                final result = await fetchMealPlannerRecipes("f1d41f9c-6a34-4847-a292-96ec0dfeb871", "female", "52", "kg", "160", "cm", 21, "Lightly Active", "Eat Healthy", "3", "Breakfast,Main");
+                print(result); // dummy data for testing 
                   if (_formKey.currentState?.validate() ?? false) {
                     _formKey.currentState?.save();
                     // You can process the form data here
