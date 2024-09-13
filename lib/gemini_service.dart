@@ -201,58 +201,81 @@ Future<String> fetchMealPlannerRecipes(
     ${courseRecipes.entries.map((entry) => '- ${entry.key} Recipes: ${jsonEncode(entry.value)}').join('\n')}
   """;
 
+//   final format = """
+//     Return the meal planner in JSON using the following structure:
+//     {
+//   "Monday": [
+//     {
+//       "mealNum": "1",
+//       "course": "course",
+//       "recipeId": "recipeId",
+//       "recipeName": "recipeName",
+//       "ingredients": [
+//         {
+//           "ingredientName": "ingredientName",
+//           "quantity": "quantity",
+//           "unit": "unit"
+//         }
+//       ]
+//     },
+//     {
+//       "mealNum": "2",
+//       "course": "course",
+//       "recipeId": "recipeId",
+//       "recipeName": "recipeName",
+//       "ingredients": [
+//         {
+//           "ingredientName": "ingredientName",
+//           "quantity": "quantity",
+//           "unit": "unit"
+//         }
+//       ]
+//     },
+//     {
+//       "mealNum": "3",
+//       "course": "course",
+//       "recipeId": "recipeId",
+//       "recipeName": "recipeName",
+//       "ingredients": [
+//         {
+//           "ingredientName": "ingredientName",
+//           "quantity": "quantity",
+//           "unit": "unit"
+//         }
+//       ]
+//     }
+//   ],
+//   "Tuesday": [...],
+//   "Wednesday": [...],
+//   "Thursday": [...],
+//   "Friday": [...],
+//   "Saturday": [...],
+//   "Sunday": [...]
+// }
+//     Give valid JSON and don't add any explanations.
+//   """;
+
   final format = """
     Return the meal planner in JSON using the following structure:
     {
-  "Monday": [
-    {
-      "mealNum": "1",
-      "course": "course",
-      "recipeId": "recipeId",
-      "recipeName": "recipeName",
-      "ingredients": [
-        {
-          "ingredientName": "ingredientName",
-          "quantity": "quantity",
-          "unit": "unit"
-        }
-      ]
-    },
-    {
-      "mealNum": "2",
-      "course": "course",
-      "recipeId": "recipeId",
-      "recipeName": "recipeName",
-      "ingredients": [
-        {
-          "ingredientName": "ingredientName",
-          "quantity": "quantity",
-          "unit": "unit"
-        }
-      ]
-    },
-    {
-      "mealNum": "3",
-      "course": "course",
-      "recipeId": "recipeId",
-      "recipeName": "recipeName",
-      "ingredients": [
-        {
-          "ingredientName": "ingredientName",
-          "quantity": "quantity",
-          "unit": "unit"
-        }
-      ]
+        "Meals" : 
+        [
+            "Monday": 
+              [
+                "recipeid1": "\$recipeid1",
+                "recipeid2": "\$recipeid2",
+                "recipeid3": "\$recipeid3",
+                ...
+              ],
+            "Tuesday": [...],
+            "Wednesday": [...],
+            "Thursday": [...],
+            "Friday": [...],
+            "Saturday": [...],
+            "Sunday": [...]
+        ]
     }
-  ],
-  "Tuesday": [...],
-  "Wednesday": [...],
-  "Thursday": [...],
-  "Friday": [...],
-  "Saturday": [...],
-  "Sunday": [...]
-}
-    Give valid JSON and don't add any explanations.
+    Give valid JSON and don't add any explanations. The recipeids are NOT the names, rather uuid strings.
   """;
 
   final prompt = initialPrompt + format;
