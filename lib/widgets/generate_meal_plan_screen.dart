@@ -66,7 +66,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
       },
       body: jsonEncode({
         'action': 'addToMealPlanner',
-        'userid': userId,
+        'userId': userId,
         'recipes': recipes,
       }),
     );
