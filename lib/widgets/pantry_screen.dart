@@ -12,7 +12,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io' show Platform;
+// import 'dart:io' show Platform;
 // import 'dart:io';
 import '../widgets/theme_utils.dart';
 import '../gemini_service.dart'; // LLM
@@ -373,53 +373,53 @@ Future<String> _getIngredientDetails(String ingredientName) async {
 
 
 // final ImagePicker _picker = ImagePicker();
-  Future<XFile?> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-  XFile? pickedFile;
+  // Future<XFile?> _pickImage() async {
+  //   final ImagePicker picker = ImagePicker();
+  // XFile? pickedFile;
 
-  if (kIsWeb) {
-    // For Web, only allow picking an image from gallery
-    pickedFile = await picker.pickImage(source: ImageSource.gallery);
-  } else {
-    if (Platform.isAndroid || Platform.isIOS) {
-      if (await _requestPermissions(context)) {
-        pickedFile = await showModalBottomSheet<XFile?>(
-          context: context,
-          builder: (context) {
-            return SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ListTile(
-                    leading: Icon(Icons.camera_alt),
-                    title: Text('Take a picture'),
-                    onTap: () async {
-                      Navigator.of(context).pop(await picker.pickImage(source: ImageSource.camera));
-                    },
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.photo_library),
-                    title: Text('Upload from gallery'),
-                    onTap: () async {
-                      Navigator.of(context).pop(await picker.pickImage(source: ImageSource.gallery));
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      } else {
-        _showPermissionDeniedMessage(context);
-        return null;
-      }
-    } else {
-      throw UnsupportedError('This platform is not supported');
-    }
-  }
+  // if (kIsWeb) {
+  //   // For Web, only allow picking an image from gallery
+  //   pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  // } else {
+  //   if (Platform.isAndroid || Platform.isIOS) {
+  //     if (await _requestPermissions(context)) {
+  //       pickedFile = await showModalBottomSheet<XFile?>(
+  //         context: context,
+  //         builder: (context) {
+  //           return SafeArea(
+  //             child: Column(
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: <Widget>[
+  //                 ListTile(
+  //                   leading: Icon(Icons.camera_alt),
+  //                   title: Text('Take a picture'),
+  //                   onTap: () async {
+  //                     Navigator.of(context).pop(await picker.pickImage(source: ImageSource.camera));
+  //                   },
+  //                 ),
+  //                 ListTile(
+  //                   leading: Icon(Icons.photo_library),
+  //                   title: Text('Upload from gallery'),
+  //                   onTap: () async {
+  //                     Navigator.of(context).pop(await picker.pickImage(source: ImageSource.gallery));
+  //                   },
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         },
+  //       );
+  //     } else {
+  //       _showPermissionDeniedMessage(context);
+  //       return null;
+  //     }
+  //   } else {
+  //     throw UnsupportedError('This platform is not supported');
+  //   }
+  // }
 
-  return pickedFile;
-  }
+  // return pickedFile;
+  // }
 
   Future<void> _scanImage() async {
   if (kIsWeb) {
@@ -498,219 +498,6 @@ Future<void> _selectImage() async {
   }
 }
 
-// Future<void> _showIngredientDialog(List<String> ingredients) async {
-//   // Initialize the selected ingredients with the first (most accurate) result
-//   List<String> selectedIngredients = List.filled(ingredients.length, '');
-
-//   showDialog(
-//     context: context,
-//     builder: (context) {
-//       return StatefulBuilder(
-//         builder: (context, setState) {
-//           return AlertDialog(
-//             title: Text('Detected Ingredients'),
-//             content: SingleChildScrollView(
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: ingredients.asMap().entries.map((entry) {
-//                   int index = entry.key;
-//                   String itemEntry = entry.value;
-
-//                   // Extract itemName and identifiedIngredient from the entry
-//                   final itemParts = itemEntry.split(',');
-//                   final itemName = itemParts[0].replaceFirst('Item: ', '').trim();
-//                   final identifiedIngredient = itemParts[1].replaceFirst('Ingredient: ', '').trim();
-
-//                   return FutureBuilder<List<String>>(
-//                     future: findSimilarIngredients(itemName, identifiedIngredient), // Call Dart function
-//                     builder: (context, snapshot) {
-//                       if (snapshot.connectionState == ConnectionState.waiting) {
-//                         return ListTile(
-//                           title: Text(itemName),
-//                           trailing: CircularProgressIndicator(),
-//                         );
-//                       } else if (snapshot.hasError) {
-//                         return ListTile(
-//                           title: Text(itemName),
-//                           trailing: Text('Error loading similar ingredients'),
-//                         );
-//                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-//                         return ListTile(
-//                           title: Text(itemName),
-//                           trailing: Text('No similar ingredients found'),
-//                         );
-//                       }
-
-//                       final similarIngredients = snapshot.data!;
-//                       // Set the first suggestion as the default selected ingredient if not already set
-//                       if (selectedIngredients[index].isEmpty && similarIngredients.isNotEmpty) {
-//                         selectedIngredients[index] = similarIngredients.first;
-//                       }
-
-//                       return ListTile(
-//                         title: Text(itemName),
-//                         trailing: DropdownButton<String>(
-//                           value: selectedIngredients[index],
-//                           hint: Text('Select similar ingredient'),
-//                           items: similarIngredients.map((ingredient) {
-//                             return DropdownMenuItem<String>(
-//                               value: ingredient,
-//                               child: Text(ingredient),
-//                             );
-//                           }).toList(),
-//                           onChanged: (newValue) {
-//                             setState(() {
-//                               // Update the selected ingredient in the list
-//                               selectedIngredients[index] = newValue ?? '';
-//                             });
-//                           },
-//                         ),
-//                       );
-//                     },
-//                   );
-//                 }).toList(),
-//               ),
-//             ),
-//             actions: [
-//               ElevatedButton(
-//                 onPressed: () {
-//                   // Handle adding selected ingredients to the pantry
-//                   for (var selected in selectedIngredients) {
-//                     if (selected.isNotEmpty) {
-//                       print('Add $selected to pantry');
-//                       // Call your _addToPantryList function here for each selected ingredient
-//                       // _addToPantryList(userId, selected, quantity, measurementUnit);
-//                     }
-//                   }
-//                   Navigator.of(context).pop();
-//                 },
-//                 child: Text('Add to Pantry'),
-//               ),
-//             ],
-//           );
-//         },
-//       );
-//     },
-//   );
-// }
-
-
-// Future<void> _showIngredientDialog(List<String> ingredients) async {
-//   // Convert the ingredients list to a growable list
-//   List<String> growableIngredients = List.from(ingredients); // Make it growable
-//   List<String> selectedIngredients = []; // Start with an empty growable list
-
-//   // Populate selectedIngredients dynamically based on the initial ingredient list
-//   growableIngredients.forEach((_) => selectedIngredients.add(''));
-
-//   showDialog(
-//     context: context,
-//     builder: (context) {
-//       return StatefulBuilder(
-//         builder: (context, setState) {
-//           return AlertDialog(
-//             title: Text('Detected Ingredients'),
-//             content: SingleChildScrollView(
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: growableIngredients.asMap().entries.map((entry) {
-//                   int index = entry.key;
-//                   String itemEntry = entry.value;
-
-//                   // Extract itemName and identifiedIngredient from the entry
-//                   final itemParts = itemEntry.split(',');
-//                   final itemName = itemParts[0].replaceFirst('Item: ', '').trim();
-//                   final identifiedIngredient = itemParts[1].replaceFirst('Ingredient: ', '').trim();
-
-//                   return FutureBuilder<List<String>>(
-//                     future: findSimilarIngredients(itemName, identifiedIngredient), // Call Dart function
-//                     builder: (context, snapshot) {
-//                       if (snapshot.connectionState == ConnectionState.waiting) {
-//                         return ListTile(
-//                           title: Text(itemName),
-//                           trailing: CircularProgressIndicator(),
-//                         );
-//                       } else if (snapshot.hasError) {
-//                         return ListTile(
-//                           title: Text(itemName),
-//                           trailing: Text('Error loading similar ingredients'),
-//                         );
-//                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-//                         return ListTile(
-//                           title: Text(itemName),
-//                           trailing: Text('No similar ingredients found'),
-//                         );
-//                       }
-
-//                       final similarIngredients = snapshot.data!;
-//                       // Set the first suggestion as the default selected ingredient if not already set
-//                       if (selectedIngredients[index].isEmpty && similarIngredients.isNotEmpty) {
-//                         selectedIngredients[index] = similarIngredients.first;
-//                       }
-
-//                       return Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                         children: [
-//                           Expanded(
-//                             child: ListTile(
-//                               title: Text(itemName),
-//                               trailing: DropdownButton<String>(
-//                                 value: selectedIngredients[index],
-//                                 hint: Text('Select similar ingredient'),
-//                                 items: similarIngredients.map((ingredient) {
-//                                   return DropdownMenuItem<String>(
-//                                     value: ingredient,
-//                                     child: Text(ingredient),
-//                                   );
-//                                 }).toList(),
-//                                 onChanged: (newValue) {
-//                                   setState(() {
-//                                     // Update the selected ingredient in the list
-//                                     selectedIngredients[index] = newValue ?? '';
-//                                   });
-//                                 },
-//                               ),
-//                             ),
-//                           ),
-//                           IconButton(
-//                             icon: Icon(Icons.remove_circle, color: Colors.red),
-//                             onPressed: () {
-//                               setState(() {
-//                                 // Remove the item from the growable list and refresh the UI
-//                                 growableIngredients.removeAt(index);
-//                                 selectedIngredients.removeAt(index); // Make sure the corresponding selected ingredient is removed as well
-//                               });
-//                             },
-//                           ),
-//                         ],
-//                       );
-//                     },
-//                   );
-//                 }).toList(),
-//               ),
-//             ),
-//             actions: [
-//               ElevatedButton(
-//                 onPressed: () {
-//                   // Handle adding selected ingredients to the pantry
-//                   for (var selected in selectedIngredients) {
-//                     if (selected.isNotEmpty) {
-//                       print('Add $selected to pantry');
-//                       // Call your _addToPantryList function here for each selected ingredient
-//                       // _addToPantryList(userId, selected, quantity, measurementUnit);
-//                     }
-//                   }
-//                   Navigator.of(context).pop();
-//                 },
-//                 child: Text('Add to Pantry'),
-//               ),
-//             ],
-//           );
-//         },
-//       );
-//     },
-//   );
-// }
 Future<void> _showIngredientDialog(List<String> ingredients) async {
   List<String> growableIngredients = List.from(ingredients); // Make it growable
   List<String> selectedIngredients = []; // Store selected ingredients
@@ -719,12 +506,12 @@ Future<void> _showIngredientDialog(List<String> ingredients) async {
   List<TextEditingController> controllers = []; // List of controllers for quantities
 
   // Populate selectedIngredients, quantities, measurementUnits, and controllers dynamically
-  growableIngredients.forEach((_) {
+  for (var _ in growableIngredients) {
     selectedIngredients.add(''); // Initialize with empty values
     quantities.add(''); // Initialize with empty quantities
     measurementUnits.add(''); // Initialize with empty measurement units
     controllers.add(TextEditingController()); // Add a new controller for each ingredient
-  });
+  }
 
   showDialog(
     context: context,
@@ -1325,29 +1112,29 @@ Future<void> _showNoIngredientsFoundDialog() async {
   );
 }
 
-  Future<bool> _requestPermissions(BuildContext context) async {
-    PermissionStatus cameraPermission = await Permission.camera.request();
-    PermissionStatus galleryPermission = await Permission.photos.request();
+  // Future<bool> _requestPermissions(BuildContext context) async {
+  //   PermissionStatus cameraPermission = await Permission.camera.request();
+  //   PermissionStatus galleryPermission = await Permission.photos.request();
 
-    if (cameraPermission != PermissionStatus.granted ||
-        galleryPermission != PermissionStatus.granted) {
-      // Handle permission denied scenario
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Camera or gallery permission is required.'),
-      ));
-      return true;
-    } else {
-      return false;
-    }
-  }
+  //   if (cameraPermission != PermissionStatus.granted ||
+  //       galleryPermission != PermissionStatus.granted) {
+  //     // Handle permission denied scenario
+  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+  //       content: Text('Camera or gallery permission is required.'),
+  //     ));
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
-  void _showPermissionDeniedMessage(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Permission denied. You cannot use the camera.'),
-      ),
-    );
-  }
+  // void _showPermissionDeniedMessage(BuildContext context) {
+  //   ScaffoldMessenger.of(context).showSnackBar(
+  //     SnackBar(
+  //       content: Text('Permission denied. You cannot use the camera.'),
+  //     ),
+  //   );
+  // }
 
  @override
 Widget build(BuildContext context) {
