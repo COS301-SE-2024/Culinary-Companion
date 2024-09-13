@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../gemini_service.dart'; // LLM
-
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class GenerateMealPlanScreen extends StatefulWidget {
   final TabController tabController;
@@ -14,6 +16,12 @@ class GenerateMealPlanScreen extends StatefulWidget {
 }
 
 class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
   final _formKey = GlobalKey<FormState>();
   String? _gender;
   double? _height;
@@ -32,6 +40,43 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
     'Dessert'
   ];
   List<String> _selectedMeals = [];
+
+  String? _userId;
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+      });
+    }
+  }
+
+  Future<void> addToMealPlanner(String userId, String recipes) async {
+    final url = Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
+
+    print("userid $userId");
+    print("rec details $recipes");
+
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'action': 'addToMealPlanner',
+        'userid': userId,
+        'recipes': recipes,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print('Meal plan added successfully');
+    } else {
+      print('Failed to add meal plan: ${response.body}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,10 +101,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                 decoration: InputDecoration(
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   labelText: 'Gender:',
-                  labelStyle: TextStyle(
-                    fontSize: 20,
-                    color: textColor,
-                  ),
+                  labelStyle: TextStyle(fontSize: 20, color: textColor),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
                     borderSide: const BorderSide(
@@ -86,16 +128,21 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                           value: label,
                         ))
                     .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _gender = value; // Save the selected gender
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please select your gender';
                   }
                   return null;
                 },
-                onChanged: (value) {},
               ),
               const SizedBox(height: 16),
-              // Height
+
+// Height
               Row(
                 children: [
                   Expanded(
@@ -105,10 +152,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                       decoration: InputDecoration(
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         labelText: 'Height:',
-                        labelStyle: TextStyle(
-                          fontSize: 20,
-                          color: textColor,
-                        ),
+                        labelStyle: TextStyle(fontSize: 20, color: textColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
@@ -129,13 +173,18 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                         ),
                       ),
                       keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        setState(() {
+                          _height =
+                              double.tryParse(value); // Save the entered height
+                        });
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your height';
                         }
                         return null;
                       },
-                      onSaved: (value) {},
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -172,13 +221,17 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                               ))
                           .toList(),
                       onChanged: (value) {
-                        _heightUnit = value!;
+                        setState(() {
+                          _heightUnit = value!; // Save the selected height unit
+                        });
                       },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
+
+// Weight
               Row(
                 children: [
                   Expanded(
@@ -188,10 +241,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                       decoration: InputDecoration(
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         labelText: 'Weight:',
-                        labelStyle: TextStyle(
-                          fontSize: 20,
-                          color: textColor,
-                        ),
+                        labelStyle: TextStyle(fontSize: 20, color: textColor),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
                           borderSide: const BorderSide(
@@ -212,13 +262,18 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                         ),
                       ),
                       keyboardType: TextInputType.number,
+                      onChanged: (value) {
+                        setState(() {
+                          _weight =
+                              double.tryParse(value); // Save the entered weight
+                        });
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your weight';
                         }
                         return null;
                       },
-                      onSaved: (value) {},
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -255,38 +310,35 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                               ))
                           .toList(),
                       onChanged: (value) {
-                        _weightUnit = value!;
+                        setState(() {
+                          _weightUnit = value!; // Save the selected weight unit
+                        });
                       },
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              // Age -add years text at end
+
+// Age
               TextFormField(
                 cursorColor: textColor,
                 decoration: InputDecoration(
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   labelText: 'Age:',
-                  labelStyle: TextStyle(
-                    fontSize: 20,
-                    color: textColor,
-                  ),
+                  labelStyle: TextStyle(fontSize: 20, color: textColor),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                        8.0), // Adjust the border radius as needed
+                    borderRadius: BorderRadius.circular(8.0),
                     borderSide: const BorderSide(
-                      color: Color(0xFFA9B8AC), // Set the border color
-                      width: 2.0, // Adjust the border thickness as needed
+                      color: Color(0xFFA9B8AC),
+                      width: 2.0,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(
-                        8.0), // Ensure the border radius matches
+                    borderRadius: BorderRadius.circular(8.0),
                     borderSide: const BorderSide(
-                      color: Color(
-                          0xFFDC945F), // Set the border color when the field is focused
-                      width: 2.0, // Adjust the border thickness as needed
+                      color: Color(0xFFDC945F),
+                      width: 2.0,
                     ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
@@ -295,16 +347,21 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                   ),
                 ),
                 keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  setState(() {
+                    _age = int.tryParse(value); // Save the entered age
+                  });
+                },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your age';
                   }
                   return null;
                 },
-                onSaved: (value) {},
               ),
               const SizedBox(height: 16),
-              // Activity Level - Slider
+
+// Activity Level - Slider
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -312,7 +369,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                     'Activity Level:',
                     style: TextStyle(fontSize: 16),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Slider(
                     value: _activityLevel.toDouble(),
                     min: 1,
@@ -320,16 +377,16 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                     divisions: 3,
                     label: _getActivityLevelDescription(_activityLevel),
                     onChanged: (value) {
-                      if (mounted) {
-                        setState(() {
-                          _activityLevel = value.toInt();
-                        });
-                      }
+                      setState(() {
+                        _activityLevel =
+                            value.toInt(); // Save the activity level
+                      });
                     },
                     activeColor: Color(0xFFDC945F),
                   ),
                 ],
               ),
+
               SizedBox(height: 24),
               Text('Meal Plan Goals',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
@@ -452,20 +509,8 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
               SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () async {
-                final result = await fetchMealPlannerRecipes("f1d41f9c-6a34-4847-a292-96ec0dfeb871", "female", "52", "kg", "160", "cm", 21, "Lightly Active", "Eat Healthy", "3", "Breakfast,Main");
-                print(result); // dummy data for testing 
                   if (_formKey.currentState?.validate() ?? false) {
                     _formKey.currentState?.save();
-                    // You can process the form data here
-                    // For example, save the data to a database or use it to generate meal plans
-                    print("Gender: $_gender");
-                    print("Height: $_height");
-                    print("Weight: $_weight");
-                    print("Age: $_age");
-                    print("Activity Level: $_activityLevel");
-                    print("Goal: $_goal");
-                    print("Meal Frequency: $_mealFrequency");
-                    print("Selected Meals: $_selectedMeals");
 
                     // Show loading dialog with Lottie animation
                     showDialog(
@@ -483,13 +528,32 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                       },
                     );
 
-                    // Simulate meal plan generation with a delay
-                    Future.delayed(Duration(seconds: 10), () {
-                      Navigator.of(context).pop();
+                    // call gemini function to generate recipes 
+                    final result = await fetchMealPlannerRecipes(
+                      _userId ?? "", 
+                      _gender ?? "", 
+                      _weight?.toString() ?? "", 
+                      _weightUnit, 
+                      _height?.toString() ?? "", 
+                      _heightUnit, 
+                      _age ?? 0, 
+                      _getActivityLevelDescription(
+                          _activityLevel), 
+                      _goal ?? "", 
+                      _mealFrequency.toString(), 
+                      _selectedMeals.join(","), 
+                    );
 
-                      // Switch to "My Meal Plans" tab
-                      widget.tabController.animateTo(1);
-                    });
+                    print("gem res $result"); //result from gemini
+
+                    // add to user meal plan
+                    if (result.isNotEmpty && result != 'Error parsing JSON') {
+                      await addToMealPlanner(_userId ?? "", result);
+                    }
+
+                    // Close loading dialog and switch to "My Meal Plans" tab
+                    Navigator.of(context).pop();
+                    widget.tabController.animateTo(1);
                   }
                 },
                 style: ElevatedButton.styleFrom(

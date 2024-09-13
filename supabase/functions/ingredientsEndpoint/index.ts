@@ -174,6 +174,8 @@ Deno.serve(async (req) => {
         return getSuggestedFavorites(userId, corsHeaders);
       case "addToMealPlanner":
         return addToMealPlanner(userId, recipes, corsHeaders);
+      // case "addToMealPlanner":
+      //   return addToMealPlanner(req, corsHeaders);
       case "getAllMealPlanners":
         return getAllMealPlanners(userId, corsHeaders);
       default:
@@ -2334,45 +2336,96 @@ async function addRecipeDietaryConstraints(
   );
 }
 
+// async function addToMealPlanner(
+//   userid: string,
+//   recipes: string,
+//   corsHeaders: HeadersInit
+// ) 
+// {
+//   if (!userid || !recipes) {
+//     console.error("Missing user ID or recipes.");
+//     return new Response(
+//       JSON.stringify({ error: "Missing user ID or recipes" }),
+//       {
+//         status: 400,
+//         headers: corsHeaders,
+//       }
+//     );
+//   }
+
+//   const { error: mealPlannerError } = await supabase
+//     .from("mealPlanner")
+//     .insert({ userid: userid, recipes: recipes})
+
+//   if (mealPlannerError) {
+//     console.error("Error adding to meal planner:", mealPlannerError);
+//     return new Response(
+//       JSON.stringify({ error: mealPlannerError.message }),
+//       {
+//         status: 400,
+//         headers: corsHeaders,
+//       }
+//     );
+//   }
+
+//   return new Response(
+//     JSON.stringify({ success: "Recipe added to meal planner successfully" }),
+//     {
+//       status: 200,
+//       headers: corsHeaders,
+//     }
+//   );
+// }
+
 async function addToMealPlanner(
-  userid: string,
-  recipes: string,
+  userId: string,
+  recipes: object,
   corsHeaders: HeadersInit
 ) {
-  if (!userid || !recipes) {
-    console.error("Missing user ID or recipes.");
-    return new Response(
-      JSON.stringify({ error: "Missing user ID or recipes" }),
-      {
-        status: 400,
-        headers: corsHeaders,
-      }
-    );
-  }
+  try {
+    // Debug: Log inputs to verify they are received correctly
+    console.log("UserID:", userId);
+    console.log("Recipes:", recipes);
 
-  const { error: mealPlannerError } = await supabase
-    .from("mealPlanner")
-    .insert([{ userid, recipes }]);
-
-  if (mealPlannerError) {
-    console.error("Error adding to meal planner:", mealPlannerError);
-    return new Response(
-      JSON.stringify({ error: mealPlannerError.message }),
-      {
-        status: 400,
-        headers: corsHeaders,
-      }
-    );
-  }
-
-  return new Response(
-    JSON.stringify({ success: "Recipe added to meal planner successfully" }),
-    {
-      status: 200,
-      headers: corsHeaders,
+    // Ensure userId and recipes are provided
+    if (!userId ) {
+      throw new Error("User ID required");
     }
-  );
+    if (!recipes || Object.keys(recipes).length === 0) {
+      throw new Error("Recipes are required");
+    }
+
+    // Insert the meal planner record
+    const { error: mealPlannerError } = await supabase
+      .from("mealPlanner")
+      .insert({ userid: userId, recipes: recipes })
+      .select("*")
+      .single();
+
+    if (mealPlannerError) {
+      console.error("Error adding meal planner:", mealPlannerError);
+      return new Response(JSON.stringify({ error: mealPlannerError.message }), {
+        status: 400,
+        headers: corsHeaders,
+      });
+    }
+
+    return new Response(
+      JSON.stringify({ message: "Meal planner added successfully" }),
+      {
+        status: 200,
+        headers: corsHeaders,
+      }
+    );
+  } catch (error) {
+    console.error("Error in addUserMealPlanner function:", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: corsHeaders,
+    });
+  }
 }
+
 
 async function getAllMealPlanners(
   userid: string,

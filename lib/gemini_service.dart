@@ -171,6 +171,12 @@ Future<String> fetchMealPlannerRecipes(
       case 'Main':
         courseRecipes['Main'] = await fetchRecipesByCourse('Main');
         break;
+      case 'Lunch':
+        courseRecipes['Main'] = await fetchRecipesByCourse('Main');
+        break;
+      case 'Dinner':
+        courseRecipes['Main'] = await fetchRecipesByCourse('Main');
+        break;
       case 'Appetizer':
         courseRecipes['Appetizer'] = await fetchRecipesByCourse('Appetizer');
         break;
@@ -255,28 +261,31 @@ Future<String> fetchMealPlannerRecipes(
 //     Give valid JSON and don't add any explanations.
 //   """;
 
-  final format = """
-    Return the meal planner in JSON using the following structure:
-    {
-        "Meals" : 
-        [
-            "Monday": 
-              [
-                "recipeid1": "\$recipeid1",
-                "recipeid2": "\$recipeid2",
-                "recipeid3": "\$recipeid3",
-                ...
-              ],
-            "Tuesday": [...],
-            "Wednesday": [...],
-            "Thursday": [...],
-            "Friday": [...],
-            "Saturday": [...],
-            "Sunday": [...]
-        ]
+ final format = """
+  Return the meal planner in JSON using the following structure:
+  {
+    "Meals": {
+      "Monday": [
+        { "recipeid": "\$recipeid1" },
+        { "recipeid": "\$recipeid2" },
+        { "recipeid": "\$recipeid3" }
+      ],
+      "Tuesday": [
+        { "recipeid": "\$recipeid4" },
+        { "recipeid": "\$recipeid5" },
+        { "recipeid": "\$recipeid6" }
+      ],
+      "Wednesday": [...],
+      "Thursday": [...],
+      "Friday": [...],
+      "Saturday": [...],
+      "Sunday": [...]
     }
-    Give valid JSON and don't add any explanations. The recipeids are NOT the names, rather uuid strings.
-  """;
+  }
+  Ensure the recipe IDs are provided as individual objects in the correct structure.
+  Give valid JSON and don't add any explanations. The recipeids are NOT the names, rather uuid strings.
+""";
+
 
   final prompt = initialPrompt + format;
 
@@ -286,6 +295,7 @@ Future<String> fetchMealPlannerRecipes(
 
   if (response != null && response.text != null) {
     String jsonString = response.text!;
+    print("gem res1 $jsonString");
 
     // Clean up the JSON string
     try {
