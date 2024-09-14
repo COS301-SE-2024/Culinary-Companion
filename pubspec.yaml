@@ -47,9 +47,11 @@ dependencies:
   google_fonts: ^6.2.1
   flutter_svg: ^1.0.3
   animate_do: ^2.1.0
-
+  shared_preferences: ^2.0.13
   flutter_markdown: ^0.6.3
   floating_dialog: ^1.1.0+1
+  file_picker: ^8.1.2
+  syncfusion_flutter_pdf: ^20.2.38
 
 dev_dependencies:
   flutter_test:
@@ -58,7 +60,6 @@ dev_dependencies:
   build_runner: ^2.0.0
   image_picker: ^1.1.2
   permission_handler: ^10.2.0
-  shared_preferences: ^2.0.0
   flutter_driver:
     sdk: flutter
   test: ^1.17.12

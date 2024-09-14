@@ -52,9 +52,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
 ///////////fetch the users profile details/////////
   Future<void> _fetchUserDetails() async {
     if (_userId == null) return;
+
     if (mounted) {
       setState(() {
         _isLoading = true; // Show loading indicator
+      });
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? cachedUserDetails = prefs.getString('cached_user_details');
+
+    if (cachedUserDetails != null && _userDetails == null) {
+      setState(() {
+        _userDetails = jsonDecode(cachedUserDetails);
       });
     }
 
@@ -70,31 +80,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         if (data.isNotEmpty) {
-          if (mounted) {
-            setState(() {
-              _userDetails = data[0]; // Get the first item in the list
-            });
-          }
-        } else {
-          if (mounted) {
-            setState(() {
-              _errorMessage = 'No user details found';
-            });
-          }
-        }
-      } else {
-        if (mounted) {
           setState(() {
-            _errorMessage = 'Failed to load user details';
+            _userDetails = data[0]; // Get the first item in the list
+          });
+
+          // Cache user details for future use
+          await prefs.setString(
+              'cached_user_details', jsonEncode(_userDetails));
+        } else {
+          setState(() {
+            _errorMessage = 'No user details found';
           });
         }
-      }
-    } catch (error) {
-      if (mounted) {
+      } else {
         setState(() {
-          _errorMessage = 'Error fetching user details';
+          _errorMessage = 'Failed to load user details';
         });
       }
+    } catch (error) {
+      setState(() {
+        _errorMessage = 'Error fetching user details';
+      });
     } finally {
       if (mounted) {
         setState(() {
@@ -104,6 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+
   Future<void> fetchRecipes() async {
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
@@ -111,23 +118,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final body = jsonEncode({'action': 'getUserRecipes', 'userId': _userId});
 
     try {
+      // Load cached recipes first
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? cachedRecipes = prefs.getString('cached_user_recipes');
+
+      if (cachedRecipes != null) {
+        if (recipes.isEmpty) {
+          setState(() {
+            recipes =
+                List<Map<String, dynamic>>.from(jsonDecode(cachedRecipes));
+          });
+        }
+      }
+
+      // Fetch fresh recipes from Supabase
       final response =
           await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
+        // Clear the recipes list to avoid duplication
+        recipes.clear();
+
+        // Fetch recipe details in parallel
+        List<Future<void>> recipeFutures = [];
         for (var recipe in fetchedRecipes) {
           final String recipeId = recipe['recipeid'];
-          await fetchRecipeDetails(recipeId);
+          recipeFutures.add(fetchRecipeDetails(recipeId));
         }
+
+        await Future.wait(recipeFutures);
+
+        // Cache the fetched recipes
+        await prefs.setString('cached_user_recipes', jsonEncode(recipes));
       } else {
         print('Failed to load recipes: ${response.statusCode}');
       }
     } catch (error) {
       print('Error fetching recipes: $error');
     }
+
+    // Ensure loading spinner is hidden once data is fetched
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
+
 
   Future<void> fetchRecipeDetails(String recipeId) async {
     final url =

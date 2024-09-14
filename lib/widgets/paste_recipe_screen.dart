@@ -23,6 +23,15 @@ class _PasteRecipeState extends State<PasteRecipe> {
   List<String> _appliances = [];
   List<String> _selectedAppliances = [];
   List<MultiSelectItem<String>> _applianceItems = [];
+  bool _isUploading = false;
+
+  // Add these two to manage the clearing of the text field and icon visibility
+  void clearFieldsAfterSuccess() {
+    setState(() {
+      _recipeTextController.clear(); // Clear the text field
+// Hide the icon
+    });
+  }
 
   @override
   void initState() {
@@ -96,7 +105,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
     }
   }
 
-  String _imageUrl = "";
+  String _imageUrl = ""; //state variable to store the uploaded image URL
   String? _selectedImage;
 
   final List<String> _preloadedImages = [
@@ -115,10 +124,15 @@ class _PasteRecipeState extends State<PasteRecipe> {
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
     if (image == null) {
-      print('No image selected.');
+      //print('No image selected.');
       return;
     }
+
+    setState(() {
+      _isUploading = true;
+    });
 
     final supabase = Supabase.instance.client;
     final imageBytes = await image.readAsBytes();
@@ -139,16 +153,31 @@ class _PasteRecipeState extends State<PasteRecipe> {
       if (response.isNotEmpty) {
         _imageUrl =
             supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
+
         if (mounted) {
           setState(() {
+//set flag to true when image is uploaded
             _selectedImage = _imageUrl;
           });
         }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image uploaded successfully!')),
+        );
       } else {
         print('Error uploading image: $response');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image. Please try again.')),
+        );
       }
     } catch (error) {
       print('Exception during image upload: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -207,7 +236,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
     try {
       final extractedRecipeData = await extractRecipeData(
           pastedText, _selectedImage ?? _preloadedImages[0]);
-      print("extracted data: $extractedRecipeData");
+      //print("extracted data: $extractedRecipeData");
 
       if (extractedRecipeData != null &&
           !extractedRecipeData.containsKey('error')) {
@@ -244,12 +273,12 @@ class _PasteRecipeState extends State<PasteRecipe> {
         TextEditingController(text: recipeData['prepTime'].toString());
 
     //final TextEditingController courseController =
-        TextEditingController(text: recipeData['course']);
+    TextEditingController(text: recipeData['course']);
     final TextEditingController servingAmountController =
         TextEditingController(text: recipeData['servingAmount'].toString());
 
     //final TextEditingController spiceLevelController =
-        TextEditingController(text: recipeData['spiceLevel'].toString());
+    TextEditingController(text: recipeData['spiceLevel'].toString());
 
     final List<TextEditingController> ingredientNameControllers = [];
     final List<TextEditingController> ingredientQuantityControllers = [];
@@ -269,7 +298,14 @@ class _PasteRecipeState extends State<PasteRecipe> {
       methodControllers.add(TextEditingController(text: step));
     }
 
+    if (_selectedAppliances.isEmpty) {
+    _selectedAppliances = recipeData['appliances']
+        .map<String>((appliance) => appliance['name'] as String)
+        .toList();
+  }
+
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -280,14 +316,17 @@ class _PasteRecipeState extends State<PasteRecipe> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 16),
                     TextField(
                       controller: nameController,
                       decoration: InputDecoration(labelText: 'Recipe Name'),
                     ),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: descriptionController,
                       decoration: InputDecoration(labelText: 'Description'),
                     ),
+                    const SizedBox(height: 20),
                     DropdownButtonFormField<String>(
                       value: _selectedCuisine ??
                           recipeData[
@@ -309,18 +348,21 @@ class _PasteRecipeState extends State<PasteRecipe> {
                       },
                       decoration: InputDecoration(labelText: 'Cuisine'),
                     ),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: cookTimeController,
                       decoration:
                           InputDecoration(labelText: 'Cook Time (minutes)'),
                       keyboardType: TextInputType.number,
                     ),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: prepTimeController,
                       decoration:
                           InputDecoration(labelText: 'Prep Time (minutes)'),
                       keyboardType: TextInputType.number,
                     ),
+                    const SizedBox(height: 20),
                     DropdownButtonFormField<String>(
                       value: recipeData[
                           'course'], // Initialize selected value from recipeData
@@ -340,11 +382,13 @@ class _PasteRecipeState extends State<PasteRecipe> {
                       },
                       decoration: InputDecoration(labelText: 'Course'),
                     ),
+                    const SizedBox(height: 20),
                     TextField(
                       controller: servingAmountController,
                       decoration: InputDecoration(labelText: 'Serving Amount'),
                       keyboardType: TextInputType.number,
                     ),
+                    const SizedBox(height: 20),
                     DropdownButtonFormField<int>(
                       value: recipeData['spiceLevel'] is int
                           ? recipeData['spiceLevel']
@@ -369,56 +413,65 @@ class _PasteRecipeState extends State<PasteRecipe> {
                       },
                       decoration: InputDecoration(labelText: 'Spice Level'),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     const Text(
                       'Ingredients:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 15),
                     Column(
                       children: List.generate(
                         ingredientNameControllers.length,
-                        (index) => Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller:
-                                        ingredientNameControllers[index],
-                                    decoration: InputDecoration(
-                                        labelText: 'Ingredient Name'),
-                                  ),
+                        (index) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 3,
+                                child: TextField(
+                                  controller: ingredientNameControllers[index],
+                                  decoration: InputDecoration(
+                                      labelText: 'Ingredient Name'),
                                 ),
-                                IconButton(
-                                  icon: Icon(Icons.delete),
-                                  onPressed: () {
-                                    setState(() {
-                                      ingredientNameControllers.removeAt(index);
-                                      ingredientQuantityControllers
-                                          .removeAt(index);
-                                      ingredientUnitControllers.removeAt(index);
-                                    });
-                                  },
+                              ),
+                              SizedBox(width: 6),
+                              Expanded(
+                                flex: 2,
+                                child: TextField(
+                                  controller:
+                                      ingredientQuantityControllers[index],
+                                  decoration:
+                                      InputDecoration(labelText: 'Quantity'),
+                                  keyboardType: TextInputType.number,
                                 ),
-                              ],
-                            ),
-                            TextField(
-                              controller: ingredientQuantityControllers[index],
-                              decoration:
-                                  InputDecoration(labelText: 'Quantity'),
-                              keyboardType: TextInputType.number,
-                            ),
-                            TextField(
-                              controller: ingredientUnitControllers[index],
-                              decoration: InputDecoration(labelText: 'Unit'),
-                            ),
-                            const SizedBox(height: 8),
-                          ],
+                              ),
+                              SizedBox(width: 6),
+                              Expanded(
+                                flex: 2,
+                                child: TextField(
+                                  controller: ingredientUnitControllers[index],
+                                  decoration:
+                                      InputDecoration(labelText: 'Unit'),
+                                ),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  setState(() {
+                                    ingredientNameControllers.removeAt(index);
+                                    ingredientQuantityControllers
+                                        .removeAt(index);
+                                    ingredientUnitControllers.removeAt(index);
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
+                    SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
@@ -432,36 +485,41 @@ class _PasteRecipeState extends State<PasteRecipe> {
                       },
                       child: Text('Add Ingredient'),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     const Text(
                       'Methods:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 15),
                     Column(
                       children: List.generate(
                         methodControllers.length,
-                        (index) => Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: methodControllers[index],
-                                decoration: InputDecoration(
-                                    labelText: 'Step ${index + 1}'),
+                        (index) => Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: methodControllers[index],
+                                  decoration: InputDecoration(
+                                      labelText: 'Step ${index + 1}'),
+                                ),
                               ),
-                            ),
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                setState(() {
-                                  methodControllers.removeAt(index);
-                                });
-                              },
-                            ),
-                          ],
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  setState(() {
+                                    methodControllers.removeAt(index);
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
+                    SizedBox(height: 10),
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
@@ -470,13 +528,16 @@ class _PasteRecipeState extends State<PasteRecipe> {
                       },
                       child: Text('Add Step'),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     const Text(
                       'Appliances:',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     MultiSelectDialogField<String>(
+                      checkColor: Colors.white,
+                      selectedColor: Color(0xFF20493C),
+                      backgroundColor: Color(0xFFDC945F),
                       items: _applianceItems,
                       initialValue: _selectedAppliances.isEmpty
                           ? recipeData['appliances']
@@ -485,7 +546,6 @@ class _PasteRecipeState extends State<PasteRecipe> {
                               .toList()
                           : _selectedAppliances,
                       title: Text("Appliances"),
-                      selectedColor: Colors.blue,
                       onConfirm: (results) {
                         setState(() {
                           _selectedAppliances = results;
@@ -547,9 +607,12 @@ class _PasteRecipeState extends State<PasteRecipe> {
                       SnackBar(content: Text('Recipe added successfully!')),
                     );
 
+                    // Clear the Paste Recipe text field and hide the icon
+                    clearFieldsAfterSuccess();
+
                     // close popup
                     Navigator.of(context).pop();
-                    print("final rec: $recipeData");
+                    //print("final rec: $recipeData");
                     // submit rec
                     await addExtractedRecipeToDatabase(recipeData, _userId!);
                   },
@@ -609,15 +672,36 @@ class _PasteRecipeState extends State<PasteRecipe> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: _pickImage,
+            onPressed: _isUploading
+                ? null
+                : _pickImage, // Disable the button while uploading
             style: ElevatedButton.styleFrom(
-              backgroundColor: isLightTheme ? Colors.white : Color(0xFF1F4539),
-              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
+              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
             ),
-            child: Text(
-              'Upload Image',
-              style: TextStyle(color: textColor),
-            ),
+            child: _isUploading
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        'Uploading...',
+                        style: TextStyle(color: textColor),
+                      ),
+                    ],
+                  )
+                : Text(
+                    _selectedImage != null ? 'Image Uploaded' : 'Upload Image',
+                    style: TextStyle(color: textColor),
+                  ),
           ),
           const SizedBox(height: 10),
           const Text('Or use the preloaded image:'),
@@ -637,7 +721,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
                   decoration: BoxDecoration(
                     border: Border.all(
                       color: _selectedImage == image
-                          ? Colors.blue
+                          ? Color.fromARGB(255, 215, 120, 61)
                           : Colors.transparent,
                       width: 3,
                     ),

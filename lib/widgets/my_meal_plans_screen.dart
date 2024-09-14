@@ -1,7 +1,11 @@
 // ignore_for_file: unnecessary_to_list_in_spreads
 
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import '../widgets/recipe_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:lottie/lottie.dart';
 
 class MyMealPlansScreen extends StatefulWidget {
   @override
@@ -9,38 +13,162 @@ class MyMealPlansScreen extends StatefulWidget {
 }
 
 class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
+  String? _userId;
+  List<Map<String, dynamic>> mealPlans = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+        // //print('Login successful: $_userId');
+        // if (_userId != null) {
+        //   //print('here 1');
+        //   fetchRecipes(); // Call fetchRecipes only if userId is loaded successfully
+        // }
+        fetchMealPlans();
+      });
+    }
+  }
+
+  Future<void> fetchMealPlans() async {
+    if (_userId == null) return;
+
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = {'Content-Type': 'application/json'};
+    final body =
+        jsonEncode({'action': 'getAllMealPlanners', 'userId': _userId});
+
+    try {
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        //print('here 1 $responseData');
+        final List<dynamic> fetchedMealPlans = responseData['mealPlanners'];
+        //print('here 2 $fetchedMealPlans');
+
+        setState(() {
+          mealPlans = fetchedMealPlans.asMap().entries.map((entry) {
+            int index = entry.key;
+            Map<String, dynamic> mealPlan = entry.value;
+
+            final parsedRecipes = jsonDecode(mealPlan['recipes'])['Meals']
+                as Map<String, dynamic>;
+
+            Map<String, List<Map<String, dynamic>>> days =
+                parsedRecipes.map((day, recipes) {
+              return MapEntry(
+                day,
+                List<Map<String, dynamic>>.from(recipes.map((recipe) => {
+                      'recipeId': recipe['recipeid'],
+                    })),
+              );
+            });
+
+            return {
+              'title': 'Meal Plan ${index + 1}',
+              'isExpanded': false,
+              'days': days,
+            };
+          }).toList();
+        });
+
+        // fetch recipe details
+        await fetchAllRecipeDetails();
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      } else {
+        print('Failed to fetch meal plans: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching meal plans: $e');
+    }
+  }
+
+  Future<void> fetchAllRecipeDetails() async {
+    List<Future<void>> recipeFutures = [];
+
+    for (var mealPlan in mealPlans) {
+      for (var dayRecipes in mealPlan['days'].values) {
+        for (var recipe in dayRecipes) {
+          final String recipeId = recipe['recipeId'];
+          recipeFutures.add(fetchRecipeDetails(recipeId, recipe));
+        }
+      }
+    }
+
+    await Future.wait(recipeFutures);
+  }
+
+  Future<void> fetchRecipeDetails(
+      String recipeId, Map<String, dynamic> recipe) async {
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final body = jsonEncode({'action': 'getRecipe', 'recipeid': recipeId});
+
+    try {
+      //print('Fetching recipe details for recipeId: $recipeId');
+
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> fetchedRecipe = jsonDecode(response.body);
+        recipe.addAll(fetchedRecipe);
+      } else {
+        print('Failed to load recipe details: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching recipe details: $error');
+    }
+  }
+
   // Placeholder recipe data for each day of the week
   // Placeholder data for multiple meal plans
-  final List<Map<String, dynamic>> mealPlans = [
-    {
-      'title': 'Meal Plan 1',
-      'isExpanded': false,
-      'days': {
-        'Monday': <Map<String,
-            dynamic>>[], // Correcting type to List<Map<String, dynamic>>
-        'Tuesday': <Map<String, dynamic>>[],
-        'Wednesday': <Map<String, dynamic>>[],
-        'Thursday': <Map<String, dynamic>>[],
-        'Friday': <Map<String, dynamic>>[],
-        'Saturday': <Map<String, dynamic>>[],
-        'Sunday': <Map<String, dynamic>>[],
-      },
-    },
-    {
-      'title': 'Meal Plan 2',
-      'isExpanded': false,
-      'days': {
-        'Monday': <Map<String,
-            dynamic>>[], // Correcting type to List<Map<String, dynamic>>
-        'Tuesday': <Map<String, dynamic>>[],
-        'Wednesday': <Map<String, dynamic>>[],
-        'Thursday': <Map<String, dynamic>>[],
-        'Friday': <Map<String, dynamic>>[],
-        'Saturday': <Map<String, dynamic>>[],
-        'Sunday': <Map<String, dynamic>>[],
-      },
-    },
-  ];
+  // final List<Map<String, dynamic>> mealPlans = [
+  //   {
+  //     'title': 'Meal Plan 1',
+  //     'isExpanded': false,
+  //     'days': {
+  //       'Monday': <Map<String,
+  //           dynamic>>[], // Correcting type to List<Map<String, dynamic>>
+  //       'Tuesday': <Map<String, dynamic>>[],
+  //       'Wednesday': <Map<String, dynamic>>[],
+  //       'Thursday': <Map<String, dynamic>>[],
+  //       'Friday': <Map<String, dynamic>>[],
+  //       'Saturday': <Map<String, dynamic>>[],
+  //       'Sunday': <Map<String, dynamic>>[],
+  //     },
+  //   },
+  //   {
+  //     'title': 'Meal Plan 2',
+  //     'isExpanded': false,
+  //     'days': {
+  //       'Monday': <Map<String,
+  //           dynamic>>[], // Correcting type to List<Map<String, dynamic>>
+  //       'Tuesday': <Map<String, dynamic>>[],
+  //       'Wednesday': <Map<String, dynamic>>[],
+  //       'Thursday': <Map<String, dynamic>>[],
+  //       'Friday': <Map<String, dynamic>>[],
+  //       'Saturday': <Map<String, dynamic>>[],
+  //       'Sunday': <Map<String, dynamic>>[],
+  //     },
+  //   },
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -64,52 +192,55 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
           ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 30.0),
-        children: [
-          SizedBox(
-            height: 24.0,
-          ),
-          ExpansionPanelList(
-            elevation: 1,
-            expandedHeaderPadding: EdgeInsets.zero,
-            expansionCallback: (int index, bool isExpanded) {
-              setState(() {
-                mealPlans[index]['isExpanded'] = isExpanded;
-              });
-            },
-            children: mealPlans.map<ExpansionPanel>((mealPlan) {
-              return ExpansionPanel(
-                backgroundColor: backgroundColor,
-                headerBuilder: (BuildContext context, bool isExpanded) {
-                  return ListTile(
-                    title: Text(
-                      mealPlan['title'],
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  );
-                },
-                body: buildMealPlanContent(
-                  mealPlan['days'] as Map<String, List<Map<String, dynamic>>>,
-                  context,
+      body: _isLoading
+          ? Center(
+              child: Lottie.asset('assets/planner_load.json'), // Loading spinner
+            )
+          : ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
+              children: [
+                SizedBox(
+                  height: 24.0,
                 ),
-                isExpanded: mealPlan['isExpanded'],
-              );
-            }).toList(),
-          ),
-        ],
-      ),
+                ExpansionPanelList(
+                  elevation: 1,
+                  expandedHeaderPadding: EdgeInsets.zero,
+                  expansionCallback: (int index, bool isExpanded) {
+                    setState(() {
+                      mealPlans[index]['isExpanded'] = isExpanded;
+                    });
+                  },
+                  children: mealPlans.map<ExpansionPanel>((mealPlan) {
+                    return ExpansionPanel(
+                      backgroundColor: backgroundColor,
+                      headerBuilder: (BuildContext context, bool isExpanded) {
+                        return ListTile(
+                          title: Text(
+                            mealPlan['title'],
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      },
+                      body: buildMealPlanContent(
+                        mealPlan['days']
+                            as Map<String, List<Map<String, dynamic>>>,
+                        context,
+                      ),
+                      isExpanded: mealPlan['isExpanded'],
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
     );
   }
 
   Widget buildMealPlanContent(
       Map<String, List<Map<String, dynamic>>> days, BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
-    // Define card dimensions based on screen size
     double cardWidth = screenWidth > 600 ? 300 : 150;
     double cardHeight = screenWidth > 600 ? 400 : 200;
 
@@ -152,83 +283,57 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: Row(
-                    children: [
-                      // ...recipes.map((recipe) {
-                      //   return Padding(
-                      //       padding: const EdgeInsets.only(right: 8.0),
-                      //       child: SizedBox(
-                      //         width: cardWidth,
-                      //         height: cardHeight,
-                      //         child: RecipeCard(
-                      //           recipeID: recipe['recipeId'] ?? '',
-                      //           name: recipe['name'] ?? 'Recipe Name',
-                      //           description:
-                      //               recipe['description'] ?? 'Description here',
-                      //           imagePath: recipe['photo'] ??
-                      //               'assets/placeholder_image.jpg',
-                      //           prepTime: recipe['preptime'] ?? 0,
-                      //           cookTime: recipe['cooktime'] ?? 0,
-                      //           cuisine: recipe['cuisine'] ?? 'Cuisine',
-                      //           spiceLevel: recipe['spicelevel'] ?? 0,
-                      //           course: recipe['course'] ?? 'Main Course',
-                      //           servings: recipe['servings'] ?? 1,
-                      //           steps: ['Step 1', 'Step 2'],
-                      //           appliances: ['Oven', 'Stove'],
-                      //           ingredients: [
-                      //             {'name': 'Ingredient 1', 'quantity': '100g'}
-                      //           ],
-                      //         ),
-                      //       ));
-                      // }).toList(),
-                      ...recipes.asMap().entries.map((entry) {
-                        int index = entry.key;
-                        Map<String, dynamic> recipe = entry.value;
+                    children: recipes.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      Map<String, dynamic> recipe = entry.value;
 
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: Stack(
-                            children: [
-                              SizedBox(
-                                width: cardWidth,
-                                height: cardHeight,
-                                child: RecipeCard(
-                                  recipeID: recipe['recipeId'] ?? '',
-                                  name: recipe['name'] ?? 'Recipe Name',
-                                  description: recipe['description'] ??
-                                      'Description here',
-                                  imagePath: recipe['photo'] ??
-                                      'assets/placeholder_image.jpg',
-                                  prepTime: recipe['preptime'] ?? 0,
-                                  cookTime: recipe['cooktime'] ?? 0,
-                                  cuisine: recipe['cuisine'] ?? 'Cuisine',
-                                  spiceLevel: recipe['spicelevel'] ?? 0,
-                                  course: recipe['course'] ?? 'Main Course',
-                                  servings: recipe['servings'] ?? 1,
-                                  steps: ['Step 1', 'Step 2'],
-                                  appliances: ['Oven', 'Stove'],
-                                  ingredients: [
-                                    {'name': 'Ingredient 1', 'quantity': '100g'}
-                                  ],
-                                ),
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Stack(
+                          children: [
+                            SizedBox(
+                              width: cardWidth,
+                              height: cardHeight,
+                              child: RecipeCard(
+                                recipeID: recipe['recipeId'] ?? '',
+                                name: recipe['name'] ?? 'Unknown Recipe',
+                                description: recipe['description'] ??
+                                    'No description available',
+                                imagePath:
+                                    recipe['photo'] ?? 'assets/emptyPlate.jpg',
+                                prepTime: recipe['preptime'] ?? 0,
+                                cookTime: recipe['cooktime'] ?? 0,
+                                cuisine: recipe['cuisine'] ?? 'Unknown Cuisine',
+                                spiceLevel: recipe['spicelevel'] ?? 0,
+                                course: recipe['course'] ?? 'Unknown Course',
+                                servings: recipe['servings'] ?? 1,
+                                steps: (recipe['steps'] != null &&
+                                        recipe['steps'] is String)
+                                    ? (recipe['steps'] as String).split('<')
+                                    : ['Step 1', 'Step 2'],
+                                appliances: List<String>.from(
+                                    recipe['appliances'] ??
+                                        ['Unknown Appliance']),
+                                ingredients: List<Map<String, dynamic>>.from(
+                                    recipe['ingredients'] ??
+                                        [
+                                          {
+                                            'name': 'Unknown Ingredient',
+                                            'quantity': 'Unknown'
+                                          }
+                                        ]), // Handle null case
                               ),
-                              // Conditionally add the arrow icon
-                              if (index < 2 && hasMoreThanTwoMeals)
-                                Positioned(
-                                  right: 0,
-                                  top: cardHeight / 2 -
-                                      20, // Center the arrow vertically
-                                  child: Icon(Icons.arrow_forward_ios),
-                                ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                      if (recipes.isEmpty)
-                        ...List.generate(
-                            3,
-                            (index) => PlaceholderRecipeCard(
-                                width: cardWidth, height: cardHeight)).toList(),
-                    ],
+                            ),
+                            if (index < 2 && hasMoreThanTwoMeals)
+                              Positioned(
+                                right: 0,
+                                top: cardHeight / 2 - 20,
+                                child: Icon(Icons.arrow_forward_ios),
+                              ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
@@ -236,33 +341,6 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
           ),
         );
       }).toList(),
-    );
-  }
-}
-
-class PlaceholderRecipeCard extends StatelessWidget {
-  final double width;
-  final double height;
-
-  PlaceholderRecipeCard({required this.width, required this.height});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      margin: EdgeInsets.only(right: 10),
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Center(
-        child: Text(
-          'Placeholder Recipe',
-          style: TextStyle(color: Colors.grey[500]),
-          textAlign: TextAlign.center,
-        ),
-      ),
     );
   }
 }

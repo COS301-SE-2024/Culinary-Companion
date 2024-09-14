@@ -53,6 +53,34 @@ Future<Map<String, dynamic>?> fetchRecipeDetails(String recipeId) async {
   }
 }
 
+Future<List<dynamic>?> fetchRecipesByCourse(String course) async {
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final headers = <String, String>{'Content-Type': 'application/json'};
+  final body = jsonEncode({'action': 'getRecipesByCourse', 'course': course});
+
+  try {
+    final response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      final dynamic fetchedRecipes = jsonDecode(response.body);
+
+      // Check if the fetchedRecipes is a list
+      if (fetchedRecipes is List<dynamic>) {
+        return fetchedRecipes;
+      } else {
+        print('Expected a JSON array but got something else.');
+        return null;
+      }
+    } else {
+      print('Failed to load recipes: ${response.statusCode}');
+      return null;
+    }
+  } catch (error) {
+    print('Error fetching recipes: $error');
+    return null;
+  }
+}
+
 Future<String> fetchUserDietaryConstraints(String userId) async {
   final url = Uri.parse(
       'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint');
@@ -117,6 +145,180 @@ Future<List<Map<String, String>>> fetchPantryList(String userId) async {
   } catch (error) {
     print('Error fetching pantry list: $error');
     return [];
+  }
+}
+
+Future<String> fetchMealPlannerRecipes(
+  String userid, String gender, String weight, String weightUnit, 
+  String height, String heightUnit, int age, String activityLevel, 
+  String dietGoal, String mealFreq, String courses
+) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return 'No API_KEY environment variable';
+  }
+
+  List<String> selectedCourses = courses.split(',').map((course) => course.trim()).toList();
+
+  Map<String, dynamic> courseRecipes = {};
+
+  for (String course in selectedCourses) {
+    switch (course) {
+      case 'Breakfast':
+        courseRecipes['Breakfast'] = await fetchRecipesByCourse('Breakfast');
+        break;
+      case 'Main':
+        courseRecipes['Main'] = await fetchRecipesByCourse('Main');
+        break;
+      case 'Lunch':
+        courseRecipes['Main'] = await fetchRecipesByCourse('Main');
+        break;
+      case 'Dinner':
+        courseRecipes['Main'] = await fetchRecipesByCourse('Main');
+        break;
+      case 'Appetizer':
+        courseRecipes['Appetizer'] = await fetchRecipesByCourse('Appetizer');
+        break;
+      case 'Dessert':
+        courseRecipes['Dessert'] = await fetchRecipesByCourse('Dessert');
+        break;
+      default:
+        print('Unknown course: $course');
+    }
+  }
+
+  final String dietaryConstraints = await fetchUserDietaryConstraints(userid);
+
+
+  final initialPrompt = """
+    Create a meal planner for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday
+    for the person with these details:
+      - Gender: $gender
+      - Weight: $weight $weightUnit
+      - Height: $height $heightUnit
+      - Age: $age
+      - Activity Level: $activityLevel
+      - Diet Goal: $dietGoal
+      - Meal Frequency: $mealFreq
+      - Dietary Constraints: $dietaryConstraints
+
+    Here are the available recipes for the selected courses:
+    ${courseRecipes.entries.map((entry) => '- ${entry.key} Recipes: ${jsonEncode(entry.value)}').join('\n')}
+  """;
+
+//   final format = """
+//     Return the meal planner in JSON using the following structure:
+//     {
+//   "Monday": [
+//     {
+//       "mealNum": "1",
+//       "course": "course",
+//       "recipeId": "recipeId",
+//       "recipeName": "recipeName",
+//       "ingredients": [
+//         {
+//           "ingredientName": "ingredientName",
+//           "quantity": "quantity",
+//           "unit": "unit"
+//         }
+//       ]
+//     },
+//     {
+//       "mealNum": "2",
+//       "course": "course",
+//       "recipeId": "recipeId",
+//       "recipeName": "recipeName",
+//       "ingredients": [
+//         {
+//           "ingredientName": "ingredientName",
+//           "quantity": "quantity",
+//           "unit": "unit"
+//         }
+//       ]
+//     },
+//     {
+//       "mealNum": "3",
+//       "course": "course",
+//       "recipeId": "recipeId",
+//       "recipeName": "recipeName",
+//       "ingredients": [
+//         {
+//           "ingredientName": "ingredientName",
+//           "quantity": "quantity",
+//           "unit": "unit"
+//         }
+//       ]
+//     }
+//   ],
+//   "Tuesday": [...],
+//   "Wednesday": [...],
+//   "Thursday": [...],
+//   "Friday": [...],
+//   "Saturday": [...],
+//   "Sunday": [...]
+// }
+//     Give valid JSON and don't add any explanations.
+//   """;
+
+ final format = """
+  Return the meal planner in JSON using the following structure:
+  {
+    "Meals": {
+      "Monday": [
+        { "recipeid": "\$recipeid1" },
+        { "recipeid": "\$recipeid2" },
+        { "recipeid": "\$recipeid3" }
+      ],
+      "Tuesday": [
+        { "recipeid": "\$recipeid4" },
+        { "recipeid": "\$recipeid5" },
+        { "recipeid": "\$recipeid6" }
+      ],
+      "Wednesday": [...],
+      "Thursday": [...],
+      "Friday": [...],
+      "Saturday": [...],
+      "Sunday": [...]
+    }
+  }
+  Ensure the recipe IDs are provided as individual objects in the correct structure.
+  Give valid JSON and don't add any explanations. The recipeids are NOT the names, rather uuid strings.
+""";
+
+
+  final prompt = initialPrompt + format;
+
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final content = [Content.text(prompt)];
+  final response = await model.generateContent(content);
+
+  if (response != null && response.text != null) {
+    String jsonString = response.text!;
+    //print("gem res1 $jsonString");
+
+    // Clean up the JSON string
+    try {
+      jsonString = jsonString.replaceAll("'", '"'); // Ensure proper JSON format
+      jsonString = jsonString.replaceAll(RegExp(r'\s+'), ' '); // Remove extra whitespace
+
+      // Remove unnecessary code block markers if present
+      if (jsonString.startsWith('```json')) {
+        jsonString = jsonString.substring(7).trim(); // Remove starting code block marker
+      }
+      if (jsonString.endsWith('```')) {
+        jsonString = jsonString.substring(0, jsonString.length - 3).trim(); // Remove ending code block marker
+      }
+
+      // Try to parse JSON to ensure it's valid
+      final jsonData = jsonDecode(jsonString);
+
+      return jsonEncode(jsonData); // Return the formatted JSON string
+    } catch (e) {
+      print('Failed to parse JSON: $e');
+      return 'Error parsing JSON';
+    }
+  } else {
+    return 'No response text';
   }
 }
 
@@ -211,7 +413,8 @@ Future<String> fetchIngredientSubstitutionRecipe(
   Make sure to adjust the quantities of the ingredients so the recipe is still accurate, 
   take into account the new ingredients liquidity, saltiness, sourness, sweetness, bitterness 
   as opposed to the previous ingredient and make sure the recipe will still create the same taste.
-  Please make any fractions into decimal values.""";
+  Please make any fractions into decimal values. Before you give me a response take your time and think really hard, 
+  and double check the response and formatting of the output before sending it""";
 
   final finalPrompt = initialPrompt + formatting;
 
@@ -877,7 +1080,7 @@ Future<Map<String, dynamic>?> extractRecipeData(
     return null;
   }
 
-  print(" image: $selectedImage");
+  //print(" image: $selectedImage");
 
   final allowedAppliances = await fetchAllowedAppliances();
 
@@ -983,7 +1186,7 @@ $pastedText
         recipeData['appliances'] = appliances;
       }
 
-      print("rec data: $recipeData");
+      //print("rec data: $recipeData");
       return recipeData;
     } catch (e) {
       print('Error parsing JSON response: $e');
@@ -1016,7 +1219,7 @@ Future<void> addExtractedRecipeToDatabase(
     );
 
     if (response.statusCode == 200) {
-      print('Recipe added successfully!');
+      //print('Recipe added successfully!');
 
       // Fetch the recipe ID using the recipe name
       final recipeIdResponse = await http.post(
@@ -1055,7 +1258,7 @@ Future<void> addExtractedRecipeToDatabase(
         );
 
         if (addKeywordsResponse.statusCode == 200) {
-          print('Keywords added successfully');
+          //print('Keywords added successfully');
         } else {
           print('Failed to add keywords');
         }
@@ -1092,7 +1295,7 @@ Future<void> addExtractedRecipeToDatabase(
         );
 
         if (addDietaryConstraintsResponse.statusCode == 200) {
-          print('Dietary constraints added successfully');
+          //print('Dietary constraints added successfully');
         } else {
           print('Failed to add dietary constraints');
         }
@@ -1103,7 +1306,7 @@ Future<void> addExtractedRecipeToDatabase(
       print('Failed to add recipe: ${response.statusCode} ${response.body}');
     }
   } catch (e) {
-    print('Error adding recipe to database: $e');
+    //print('Error adding recipe to database: $e');
   }
 }
 

@@ -149,7 +149,8 @@ Future<void> _fetchPantryList() async {
             for (var item in pantryList) {
               final ingredientName = item['name'].toString();
               final quantity = item['quantity'].toString();
-              final measurementUnit = item['measurementunit'].toString();
+              final measurementUnit = item['measurmentunit']?.toString() ??
+                  'unit'; // Ensure 'measurementUnit' is used and fallback to 'unit' if null
               final category = item['category'] ?? 'Other';
               final displayText =
                   '$ingredientName ($quantity $measurementUnit)';
@@ -168,9 +169,7 @@ Future<void> _fetchPantryList() async {
         print('Failed to fetch pantry list: ${response.statusCode}');
       }
     } catch (error) {
-      //print('Error fetching pantry list: $error');
-
-      // Load cached data if the network request fails
+      // Print error and use cached data if network request fails
       final cachedData = prefs.getString('cachedPantryList');
       if (cachedData != null) {
         final List<dynamic> pantryList = jsonDecode(cachedData);
@@ -181,7 +180,8 @@ Future<void> _fetchPantryList() async {
             for (var item in pantryList) {
               final ingredientName = item['name'].toString();
               final quantity = item['quantity'].toString();
-              final measurementUnit = item['measurementunit'].toString();
+              final measurementUnit = item['measurementUnit']?.toString() ??
+                  'unit'; // Ensure 'measurementUnit' is used and fallback to 'unit' if null
               final category = item['category'] ?? 'Other';
               final displayText =
                   '$ingredientName ($quantity $measurementUnit)';
@@ -199,6 +199,7 @@ Future<void> _fetchPantryList() async {
       }
     }
   }
+
 
   Future<void> _addToPantryList(String? userId, String ingredientName,
       double quantity, String measurementUnit) async {
@@ -246,6 +247,7 @@ Future<void> _fetchPantryList() async {
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
+
             final displayText = '$item ($quantity $measurementUnit)';
             if (_pantryList[category] != null) {
               final index = _pantryList[category]!
@@ -875,6 +877,7 @@ Future<void> _fetchPantryList() async {
     final TextEditingController categoryController = TextEditingController();
     final TextEditingController quantityController = TextEditingController();
 
+  //print($measurementUnit);
     await showDialog(
       barrierDismissible: false,
       context: context,
@@ -949,6 +952,7 @@ Future<void> _fetchPantryList() async {
                         ),
                         SizedBox(height: 16.0), // Add spacing for better UI
                         Text(
+                          
                             'Measurement Unit: $measurementUnit'), // Display the measurement unit
                       ],
                     ),
