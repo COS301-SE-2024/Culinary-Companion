@@ -153,7 +153,7 @@ Future<String> fetchMealPlannerRecipes(
   String height, String heightUnit, int age, String activityLevel, 
   String dietGoal, String mealFreq, String courses
 ) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  final apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
