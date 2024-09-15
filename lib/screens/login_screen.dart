@@ -16,8 +16,13 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _email = '';
-  String _password = '';
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final FocusNode _emailFocusNode = FocusNode();
+  final FocusNode _passwordFocusNode = FocusNode();
+
+  String get _email => _emailController.text;
+  String get _password => _passwordController.text;
 
   final String edgeFunctionUrl =
       'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/hello-world';
@@ -62,23 +67,24 @@ Future<void> loginUser(String email, String password, String action) async {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
-    final FocusNode passwordFocusNode = FocusNode();
     final double screenWidth = MediaQuery.of(context).size.width;
     final bool isMobile = screenWidth < 800;
 
     return Scaffold(
       body: Stack(
         children: [
-          //Background image
           Positioned.fill(
             child: Image.asset(
               isMobile
-                  ? (isLightTheme ? 'assets/MobileLightMode.png' : 'assets/MobileDarkMode.png')
-                  : (isLightTheme ? 'assets/Lightmode.png' : 'assets/Darkermode.png'),
+                  ? (isLightTheme
+                      ? 'assets/MobileLightMode.png'
+                      : 'assets/MobileDarkMode.png')
+                  : (isLightTheme
+                      ? 'assets/Lightmode.png'
+                      : 'assets/Darkermode.png'),
               fit: BoxFit.cover,
             ),
           ),
-          //Foreground content
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -87,7 +93,6 @@ Future<void> loginUser(String email, String password, String action) async {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    //Logo and welcome text
                     Column(
                       children: [
                         Image.asset(
@@ -115,42 +120,32 @@ Future<void> loginUser(String email, String password, String action) async {
                       height: 70,
                       child: TextFormField(
                         key: ValueKey('email'),
+                        controller: _emailController,
+                        focusNode: _emailFocusNode,
                         cursorColor: textColor,
+                        keyboardType: TextInputType.emailAddress,
+                        autocorrect: false,
+                        enableSuggestions: false,
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Email:',
-                          labelStyle: TextStyle(
-                            fontSize: 20,
-                            color: textColor,
-                          ),
+                          labelStyle: TextStyle(fontSize: 20, color: textColor),
                           hintText: 'example@gmail.com',
                           hintStyle: const TextStyle(color: Color(0xFF778579)),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                                8.0), // Adjust the border radius as needed
+                            borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(
-                              color: Color(0xFFA9B8AC), // Set the border color
-                              width:
-                                  2.0, // Adjust the border thickness as needed
-                            ),
+                                color: Color(0xFFA9B8AC), width: 2.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                                8.0), // Ensure the border radius matches
+                            borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(
-                              color: Color(
-                                  0xFFDC945F), // Set the border color when the field is focused
-                              width:
-                                  2.0, // Adjust the border thickness as needed
-                            ),
+                                color: Color(0xFFDC945F), width: 2.0),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            vertical: 12.0,
-                            horizontal: 12.0,
-                          ), // Adjust padding to ensure label text sits above the border
-                          filled: false, // Ensure the filled property is false
-                          fillColor: Colors
-                              .transparent, // Set fillColor to transparent if needed
+                              vertical: 12.0, horizontal: 12.0),
+                          filled: false,
+                          fillColor: Colors.transparent,
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -158,67 +153,24 @@ Future<void> loginUser(String email, String password, String action) async {
                           }
                           return null;
                         },
-                        onChanged: (value) => _email = value,
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context)
+                              .requestFocus(_passwordFocusNode);
+                        },
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Container(
-                    //   width: 365,
-                    //   height: 70,
-                    //   child: TextFormField(
-                    //     key: ValueKey('password'),
-                    //     obscureText: true,
-                    //     decoration: InputDecoration(
-                    //       floatingLabelBehavior: FloatingLabelBehavior.always,
-                    //       labelText: 'Password:',
-                    //       labelStyle: TextStyle(fontSize: 20, color: textColor),
-                    //       hintText: '••••••••••',
-                    //       hintStyle: const TextStyle(color: Color(0xFF778579)),
-                    //       border: OutlineInputBorder(
-                    //         borderRadius: BorderRadius.circular(
-                    //             8.0), // Adjust the border radius as needed
-                    //         borderSide: const BorderSide(
-                    //           color: Color(0xFFA9B8AC), // Set the border color
-                    //           width:
-                    //               2.0, // Adjust the border thickness as needed
-                    //         ),
-                    //       ),
-                    //       focusedBorder: OutlineInputBorder(
-                    //         borderRadius: BorderRadius.circular(
-                    //             8.0), // Ensure the border radius matches
-                    //         borderSide: const BorderSide(
-                    //           color: Color(
-                    //               0xFFE2954F), // Set the border color when the field is focused
-                    //           width:
-                    //               2.0, // Adjust the border thickness as needed
-                    //         ),
-                    //       ),
-                    //       contentPadding: const EdgeInsets.symmetric(
-                    //         vertical: 12.0,
-                    //         horizontal: 12.0,
-                    //       ), // Adjust padding to ensure label text sits above the border
-                    //       filled: false, // Ensure the filled property is false
-                    //       fillColor: Colors
-                    //           .transparent, // Set fillColor to transparent if needed
-                    //     ),
-                    //     validator: (value) {
-                    //       if (value == null || value.isEmpty) {
-                    //         return 'Please enter your password';
-                    //       }
-                    //       return null;
-                    //     },
-                    //     onChanged: (value) => _password = value,
-                    //   ),
-                    // ),
                     Container(
                       width: 365,
                       height: 70,
                       child: TextFormField(
                         key: ValueKey('password'),
+                        controller: _passwordController,
+                        focusNode: _passwordFocusNode,
                         cursorColor: textColor,
                         obscureText: true,
-                        focusNode: passwordFocusNode,
-                        onFieldSubmitted: (value) => _handleLogin(),
+                        autocorrect: false,
+                        enableSuggestions: false,
                         decoration: InputDecoration(
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           labelText: 'Password:',
@@ -226,31 +178,19 @@ Future<void> loginUser(String email, String password, String action) async {
                           hintText: '••••••••••',
                           hintStyle: const TextStyle(color: Color(0xFF778579)),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                                8.0), // Adjust the border radius as needed
+                            borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(
-                              color: Color(0xFFA9B8AC), // Set the border color
-                              width:
-                                  2.0, // Adjust the border thickness as needed
-                            ),
+                                color: Color(0xFFA9B8AC), width: 2.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                                8.0), // Ensure the border radius matches
+                            borderRadius: BorderRadius.circular(8.0),
                             borderSide: const BorderSide(
-                              color: Color(
-                                  0xFFE2954F), // Set the border color when the field is focused
-                              width:
-                                  2.0, // Adjust the border thickness as needed
-                            ),
+                                color: Color(0xFFE2954F), width: 2.0),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                            vertical: 12.0,
-                            horizontal: 12.0,
-                          ), // Adjust padding to ensure label text sits above the border
-                          filled: false, // Ensure the filled property is false
-                          fillColor: Colors
-                              .transparent, // Set fillColor to transparent if needed
+                              vertical: 12.0, horizontal: 12.0),
+                          filled: false,
+                          fillColor: Colors.transparent,
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -258,22 +198,9 @@ Future<void> loginUser(String email, String password, String action) async {
                           }
                           return null;
                         },
-                        onChanged: (value) => _password = value,
+                        onFieldSubmitted: (_) => _handleLogin(),
                       ),
                     ),
-                    // SizedBox(height: 4),
-                    // Align(
-                    //   alignment: Alignment.center,
-                    //   child: TextButton(
-                    //     onPressed: () {
-                    //       //Handle forgot password
-                    //     },
-                    //     child: Text(
-                    //       'Forgot password?',
-                    //       style: TextStyle(color: Colors.white),
-                    //     ),
-                    //   ),
-                    // ),
                     const SizedBox(height: 24),
                     Container(
                       width: 365,
@@ -281,112 +208,26 @@ Future<void> loginUser(String email, String password, String action) async {
                       child: ElevatedButton(
                         key: ValueKey('Login'),
                         onPressed: _handleLogin,
-                        focusNode: passwordFocusNode,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                              0xFFDC945F), // Button background color
+                          backgroundColor: const Color(0xFFDC945F),
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(8.0), // Border radius
+                            borderRadius: BorderRadius.circular(8.0),
                           ),
                           side: const BorderSide(
-                            color: Colors.transparent, // Border color
-                            width: 2.0, // Border thickness
+                            color: Colors.transparent,
+                            width: 2.0,
                           ),
                         ),
                         child: const Text(
                           'Login',
                           style: TextStyle(
-                            color: Colors.white, // Text color
-                            fontSize: 16, // Text size
+                            color: Colors.white,
+                            fontSize: 16,
                           ),
                         ),
                       ),
                     ),
-                    // Container(
-                    //   width: 365,
-                    //   height: 46,
-                    //   child: ElevatedButton(
-                    //     key: ValueKey('Login'),
-                    //     onPressed: _handleLogin,
-                    //     style: ElevatedButton.styleFrom(
-                    //       backgroundColor: const Color(
-                    //           0xFFDC945F), // Button background color
-                    //       foregroundColor: Colors.white,
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius:
-                    //             BorderRadius.circular(8.0), // Border radius
-                    //       ),
-                    //       side: const BorderSide(
-                    //         color: Colors.transparent, // Border color
-                    //         width: 2.0, // Border thickness
-                    //       ),
-                    //     ),
-                    //     child: const Text(
-                    //       'Login',
-                    //       style: TextStyle(
-                    //         color: Colors.white, // Text color
-                    //         fontSize: 16, // Text size
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    const SizedBox(height: 16),
-                    //Line with "or" text
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.center,
-                    //   children: [
-                    //     Container(
-                    //       width: 160,
-                    //       height: 1,
-                    //       color: Colors.white,
-                    //     ),
-                    //     const Padding(
-                    //       padding: EdgeInsets.symmetric(horizontal: 10),
-                    //       child: Text(
-                    //         'or',
-                    //         style: TextStyle(color: Colors.white, fontSize: 18),
-                    //       ),
-                    //     ),
-                    //     Container(
-                    //       width: 160,
-                    //       height: 1,
-                    //       color: Colors.white,
-                    //     ),
-                    //   ],
-                    // ),
-                    // const SizedBox(height: 16),
-                    // Container(
-                    //   width: 365,
-                    //   height: 46,
-                    //   child: ElevatedButton.icon(
-                    //     onPressed: () {
-                    //       // Handle Google login
-                    //     },
-                    //     icon: Image.asset(
-                    //       'google.png',
-                    //       height: 24,
-                    //     ),
-                    //     label: const Text(
-                    //       'Log in with Google',
-                    //       style: TextStyle(
-                    //         color: Colors.black,
-                    //         fontSize: 16,
-                    //       ),
-                    //     ),
-                    //     style: ElevatedButton.styleFrom(
-                    //       backgroundColor: Colors.white,
-                    //       shape: RoundedRectangleBorder(
-                    //         borderRadius: BorderRadius.circular(8.0),
-                    //       ),
-                    //       side: const BorderSide(
-                    //         color: Colors.transparent,
-                    //         width: 2.0,
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
                     const SizedBox(height: 16),
                     TextButton(
                       key: ValueKey('signupLink'),
