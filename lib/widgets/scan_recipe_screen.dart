@@ -11,7 +11,6 @@ import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import '../gemini_service.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:flutter_dropzone/flutter_dropzone.dart';
 
 class ScanRecipe extends StatefulWidget {
   @override
@@ -31,7 +30,6 @@ class _ScanRecipeState extends State<ScanRecipe> {
   bool _isUploading = false;
   String _imageUrl = "";
   String? _selectedImage;
-  late DropzoneViewController _controller;
   bool _isHighlighted = false;
 
   final List<String> _preloadedImages = [
@@ -671,110 +669,62 @@ class _ScanRecipeState extends State<ScanRecipe> {
             ),
           ),
           SizedBox(
-            height: 50,
+            height: 30,
           ),
           Center(
               child: Column(
             children: [
-              // Drag and Drop Area
-              // Drag and Drop Area
-              Stack(
-                children: [
-                  DropzoneView(
-                    onCreated: (DropzoneViewController ctrl) =>
-                        _controller = ctrl,
-                    onDrop: (dynamic event) async {
-                      setState(() {
-                        _isHighlighted = false;
-                      });
-                      final String? fileName = event.name;
-                      if (fileName != null && fileName.endsWith('.pdf')) {
-                        setState(() {
-                          _pdfFilePath = fileName;
-                        });
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text('Please drop a valid PDF file.')),
-                        );
-                      }
-                    },
-                    onHover: () {
-                      setState(() {
-                        _isHighlighted = true;
-                      });
-                    },
-                    onLeave: () {
-                      setState(() {
-                        _isHighlighted = false;
-                      });
-                    },
+              GestureDetector(
+                onTap: _pickPDF,
+                child: Container(
+                  width: screenWidth * 0.9,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: isLightTheme ? Colors.grey : Colors.white,
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  GestureDetector(
-                    onTap: _pickPDF,
-                    child: Container(
-                      height: 150,
-                      width: screenWidth * 0.8,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color:
-                              isLightTheme ? Color(0xFF20493C) : Colors.white,
-                          width: 2,
-                          style: BorderStyle.solid,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.picture_as_pdf,
+                          size: 50,
+                          color: isLightTheme ? Colors.grey : Colors.white,
                         ),
-                        color: _isHighlighted
-                            ? Colors.green.withOpacity(0.1)
-                            : isLightTheme
-                                ? Color(0xFFF1F1F1)
-                                : Color(0xFF283330),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.upload_file,
-                            color:
-                                isLightTheme ? Color(0xFF20493C) : Colors.white,
-                            size: 50,
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: _pickPDF,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: textColor,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 40, vertical: 20),
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Drag and drop your PDF here\nor click to select a file',
-                            textAlign: TextAlign.center,
+                          child: Text(
+                            _pdfFilePath != null
+                                ? 'PDF Selected'
+                                : 'Upload PDF',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: isLightTheme
-                                  ? Color(0xFF20493C)
-                                  : Colors.white,
-                            ),
+                                color: isLightTheme
+                                    ? Colors.white
+                                    : Color(0xFF283330)),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 30),
-              // ElevatedButton(
-              //   onPressed: _pickPDF,
-              //   style: ElevatedButton.styleFrom(
-              //     backgroundColor:
-              //         isLightTheme ? Colors.white : Color(0xFF283330),
-              //     padding:
-              //         const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-              //   ),
-              //   child: Text(
-              //     _pdfFilePath != null ? 'PDF Selected' : 'Upload PDF',
-              //     style: TextStyle(color: textColor),
-              //   ),
-              // ),
-              // const SizedBox(height: 10),
+              const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: _isUploading ? null : _pickImage,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      isLightTheme ? Colors.white : Color(0xFF283330),
+                  backgroundColor: isLightTheme
+                      ? Colors.white
+                      : Color.fromARGB(255, 65, 85, 80),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 ),
@@ -800,7 +750,7 @@ class _ScanRecipeState extends State<ScanRecipe> {
                         style: TextStyle(color: textColor),
                       ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 50),
               ElevatedButton(
                 onPressed: _processRecipe,
                 style: ElevatedButton.styleFrom(
