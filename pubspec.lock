@@ -395,30 +395,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_dropzone:
-    dependency: "direct dev"
-    description:
-      name: flutter_dropzone
-      sha256: e6873c787b11be408d915892d3fa90c731dc898e503a4e2a46d2ef4b63a727fe
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
-  flutter_dropzone_platform_interface:
-    dependency: transitive
-    description:
-      name: flutter_dropzone_platform_interface
-      sha256: b4e2df75364bab2f4c3ca32b87193267d786b6e158c3f345c3a1daeb911d82b9
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.6"
-  flutter_dropzone_web:
-    dependency: transitive
-    description:
-      name: flutter_dropzone_web
-      sha256: "5cbe824471466dc16a8f8fc8902b2018a841d79b0d2a98f1c53b25e0af480a54"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.1"
   flutter_keyboard_visibility:
     dependency: transitive
     description:
