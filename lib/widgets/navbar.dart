@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import './theme_notifier.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String currentRoute;
@@ -53,6 +56,16 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                     ],
                   ),
                 ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                icon: Icon(isLightTheme ? Icons.dark_mode : Icons.light_mode),
+                onPressed: () {
+                  Provider.of<ThemeNotifier>(context, listen: false)
+                      .toggleTheme();
+                },
               ),
             ),
           ],
@@ -113,6 +126,24 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(120);
 }
+
+// // This class will be used to notify the app to rebuild with the new theme.
+// class ThemeNotifier extends InheritedWidget {
+//   final ThemeMode themeMode;
+//   final Function(ThemeMode) setTheme;
+
+//   ThemeNotifier({required this.themeMode, required this.setTheme, required Widget child})
+//       : super(child: child);
+
+//   static ThemeNotifier of(BuildContext context) {
+//     return context.dependOnInheritedWidgetOfExactType<ThemeNotifier>()!;
+//   }
+
+//   @override
+//   bool updateShouldNotify(ThemeNotifier oldWidget) {
+//     return oldWidget.themeMode != themeMode;
+//   }
+// }
 
 class ExpandableNavbar extends StatefulWidget implements PreferredSizeWidget {
   final String currentRoute;
@@ -279,9 +310,10 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
 
   void _toggleExpanded() {
     if (mounted) {
-    setState(() {
-      _isExpanded = !_isExpanded;
-    });}
+      setState(() {
+        _isExpanded = !_isExpanded;
+      });
+    }
   }
 
   @override
