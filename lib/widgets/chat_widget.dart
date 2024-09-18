@@ -263,6 +263,10 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.transparent,
@@ -291,7 +295,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: textColor,
                     ),
                   ),
                 ],
@@ -389,10 +393,10 @@ class _ChatWidgetState extends State<ChatWidget> {
                       fillColor: Colors.transparent,
                       filled: true,
                       labelStyle: TextStyle(
-                        color: Colors.white,
+                        color: textColor,
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.white),
+                        borderSide: BorderSide(color: textColor),
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
