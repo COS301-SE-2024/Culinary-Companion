@@ -11,7 +11,7 @@ import 'dart:convert';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 import '../gemini_service.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-
+import 'package:flutter_dropzone/flutter_dropzone.dart';
 
 class ScanRecipe extends StatefulWidget {
   @override
@@ -20,17 +20,19 @@ class ScanRecipe extends StatefulWidget {
 
 class _ScanRecipeState extends State<ScanRecipe> {
   String? _userId;
-  String? _pdfFilePath; 
+  String? _pdfFilePath;
   //PDFDoc? _pdfDoc; // For PDF text extraction
-  String _extractedText = ''; 
+  String _extractedText = '';
   List<String> _cuisines = [];
   String? _selectedCuisine;
   List<String> _appliances = [];
   List<String> _selectedAppliances = [];
   List<MultiSelectItem<String>> _applianceItems = [];
   bool _isUploading = false;
-  String _imageUrl = ""; 
+  String _imageUrl = "";
   String? _selectedImage;
+  late DropzoneViewController _controller;
+  bool _isHighlighted = false;
 
   final List<String> _preloadedImages = [
     'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z'
@@ -51,7 +53,7 @@ class _ScanRecipeState extends State<ScanRecipe> {
     });
   }
 
-   Future<void> _loadAppliances() async {
+  Future<void> _loadAppliances() async {
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
     try {
@@ -145,58 +147,57 @@ class _ScanRecipeState extends State<ScanRecipe> {
 
   // pick pdf file
   Future<void> _pickPDF() async {
-  FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
-  
-  if (result != null && result.files.isNotEmpty) {
-    if (result.files.single.bytes != null) {
-      //for web, use bytes
-      Uint8List? fileBytes = result.files.single.bytes;
-      if (fileBytes != null) {
+    FilePickerResult? result = await FilePicker.platform
+        .pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
+
+    if (result != null && result.files.isNotEmpty) {
+      if (result.files.single.bytes != null) {
+        //for web, use bytes
+        Uint8List? fileBytes = result.files.single.bytes;
+        if (fileBytes != null) {
+          setState(() {
+            _pdfFilePath = result.files.single.name;
+          });
+          _extractTextFromPDF(fileBytes);
+        }
+      } else if (result.files.single.path != null) {
+        //for mobile, use the file path
         setState(() {
-          _pdfFilePath = result.files.single.name; 
+          _pdfFilePath = result.files.single.path;
         });
-        _extractTextFromPDF(fileBytes);
+        _extractTextFromPDF(null);
       }
-    } else if (result.files.single.path != null) {
-      //for mobile, use the file path
+    }
+  }
+
+  Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
+    try {
+      PdfDocument document;
+      if (fileBytes != null) {
+        //use bytes (for web)
+        document = PdfDocument(inputBytes: fileBytes);
+      } else if (_pdfFilePath != null) {
+        //use file path (for mobile)
+        final file = File(_pdfFilePath!);
+        document = PdfDocument(inputBytes: file.readAsBytesSync());
+      } else {
+        throw Exception("No file data available");
+      }
+
+      // extract the text from pdf
+      String extractedText = PdfTextExtractor(document).extractText();
+
       setState(() {
-        _pdfFilePath = result.files.single.path;
+        _extractedText = extractedText;
       });
-      _extractTextFromPDF(null); 
+
+      //print("extracted text $_extractedText");
+
+      document.dispose();
+    } catch (e) {
+      print('Error extracting text from PDF: $e');
     }
   }
-}
-
-Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
-  try {
-    PdfDocument document;
-    if (fileBytes != null) {
-      //use bytes (for web)
-      document = PdfDocument(inputBytes: fileBytes);
-    } else if (_pdfFilePath != null) {
-      //use file path (for mobile)
-      final file = File(_pdfFilePath!);
-      document = PdfDocument(inputBytes: file.readAsBytesSync());
-    } else {
-      throw Exception("No file data available");
-    }
-
-    // extract the text from pdf
-    String extractedText = PdfTextExtractor(document).extractText();
-
-    setState(() {
-      _extractedText = extractedText; 
-    });
-
-    //print("extracted text $_extractedText");
-
-    document.dispose(); 
-  } catch (e) {
-    print('Error extracting text from PDF: $e');
-  }
-}
-
-
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -213,13 +214,18 @@ Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
     final imagePath = 'recipe_photos/$imageName';
 
     try {
-      final response = await supabase.storage.from('recipe_photos').uploadBinary(imagePath, imageBytes, fileOptions: FileOptions(upsert: true, contentType: 'image/*'));
+      final response = await supabase.storage
+          .from('recipe_photos')
+          .uploadBinary(imagePath, imageBytes,
+              fileOptions: FileOptions(upsert: true, contentType: 'image/*'));
       if (response.isNotEmpty) {
-        _imageUrl = supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
+        _imageUrl =
+            supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
         setState(() {
           _selectedImage = _imageUrl;
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Image uploaded successfully!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Image uploaded successfully!')));
       }
     } finally {
       setState(() {
@@ -230,12 +236,14 @@ Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
 
   Future<void> _processRecipe() async {
     if (_userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('User ID is not available. Please login first.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('User ID is not available. Please login first.')));
       return;
     }
 
     if (_extractedText.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please upload a PDF to extract the recipe.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Please upload a PDF to extract the recipe.')));
       return;
     }
 
@@ -275,7 +283,7 @@ Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
     }
   }
 
-    Future<void> _showRecipeConfirmationDialog(
+  Future<void> _showRecipeConfirmationDialog(
       BuildContext context, Map<String, dynamic> recipeData) async {
     final TextEditingController nameController =
         TextEditingController(text: recipeData['name']);
@@ -313,10 +321,10 @@ Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
     }
 
     if (_selectedAppliances.isEmpty) {
-    _selectedAppliances = recipeData['appliances']
-        .map<String>((appliance) => appliance['name'] as String)
-        .toList();
-  }
+      _selectedAppliances = recipeData['appliances']
+          .map<String>((appliance) => appliance['name'] as String)
+          .toList();
+    }
 
     await showDialog(
       barrierDismissible: false,
@@ -621,7 +629,6 @@ Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
                       SnackBar(content: Text('Recipe added successfully!')),
                     );
 
-                    
                     //clearFieldsAfterSuccess();
 
                     // close popup
@@ -649,7 +656,8 @@ Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
 
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Padding(
             padding: EdgeInsets.all(30.0),
@@ -662,54 +670,152 @@ Future<void> _extractTextFromPDF(Uint8List? fileBytes) async {
               ],
             ),
           ),
-          ElevatedButton(
-            onPressed: _pickPDF,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-            ),
-            child: Text(
-              _pdfFilePath != null ? 'PDF Selected' : 'Upload PDF',
-              style: TextStyle(color: textColor),
-            ),
+          SizedBox(
+            height: 50,
           ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: _isUploading ? null : _pickImage,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-            ),
-            child: _isUploading
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: textColor),
-                      ),
-                      const SizedBox(width: 10),
-                      Text('Uploading...', style: TextStyle(color: textColor)),
-                    ],
-                  )
-                : Text(
-                    _selectedImage != null ? 'Image Uploaded' : 'Upload Image',
-                    style: TextStyle(color: textColor),
+          Center(
+              child: Column(
+            children: [
+              // Drag and Drop Area
+              // Drag and Drop Area
+              Stack(
+                children: [
+                  DropzoneView(
+                    onCreated: (DropzoneViewController ctrl) =>
+                        _controller = ctrl,
+                    onDrop: (dynamic event) async {
+                      setState(() {
+                        _isHighlighted = false;
+                      });
+                      final String? fileName = event.name;
+                      if (fileName != null && fileName.endsWith('.pdf')) {
+                        setState(() {
+                          _pdfFilePath = fileName;
+                        });
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text('Please drop a valid PDF file.')),
+                        );
+                      }
+                    },
+                    onHover: () {
+                      setState(() {
+                        _isHighlighted = true;
+                      });
+                    },
+                    onLeave: () {
+                      setState(() {
+                        _isHighlighted = false;
+                      });
+                    },
                   ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _processRecipe,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC945F),
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.09, vertical: 20),
-            ),
-            child: Text(
-              'Add Recipe',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-          ),
+                  GestureDetector(
+                    onTap: _pickPDF,
+                    child: Container(
+                      height: 150,
+                      width: screenWidth * 0.8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color:
+                              isLightTheme ? Color(0xFF20493C) : Colors.white,
+                          width: 2,
+                          style: BorderStyle.solid,
+                        ),
+                        color: _isHighlighted
+                            ? Colors.green.withOpacity(0.1)
+                            : isLightTheme
+                                ? Color(0xFFF1F1F1)
+                                : Color(0xFF283330),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.upload_file,
+                            color:
+                                isLightTheme ? Color(0xFF20493C) : Colors.white,
+                            size: 50,
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Drag and drop your PDF here\nor click to select a file',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: isLightTheme
+                                  ? Color(0xFF20493C)
+                                  : Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              // ElevatedButton(
+              //   onPressed: _pickPDF,
+              //   style: ElevatedButton.styleFrom(
+              //     backgroundColor:
+              //         isLightTheme ? Colors.white : Color(0xFF283330),
+              //     padding:
+              //         const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              //   ),
+              //   child: Text(
+              //     _pdfFilePath != null ? 'PDF Selected' : 'Upload PDF',
+              //     style: TextStyle(color: textColor),
+              //   ),
+              // ),
+              // const SizedBox(height: 10),
+              ElevatedButton(
+                onPressed: _isUploading ? null : _pickImage,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      isLightTheme ? Colors.white : Color(0xFF283330),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                ),
+                child: _isUploading
+                    ? Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: textColor),
+                          ),
+                          const SizedBox(width: 10),
+                          Text('Uploading...',
+                              style: TextStyle(color: textColor)),
+                        ],
+                      )
+                    : Text(
+                        _selectedImage != null
+                            ? 'Image Uploaded'
+                            : 'Upload Image',
+                        style: TextStyle(color: textColor),
+                      ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _processRecipe,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFDC945F),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: screenWidth * 0.09, vertical: 20),
+                ),
+                child: Text(
+                  'Add Recipe',
+                  style: TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ))
         ],
       ),
     );
