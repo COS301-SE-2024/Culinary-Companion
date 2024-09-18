@@ -207,63 +207,10 @@ Future<String> fetchMealPlannerRecipes(
     ${courseRecipes.entries.map((entry) => '- ${entry.key} Recipes: ${jsonEncode(entry.value)}').join('\n')}
   """;
 
-//   final format = """
-//     Return the meal planner in JSON using the following structure:
-//     {
-//   "Monday": [
-//     {
-//       "mealNum": "1",
-//       "course": "course",
-//       "recipeId": "recipeId",
-//       "recipeName": "recipeName",
-//       "ingredients": [
-//         {
-//           "ingredientName": "ingredientName",
-//           "quantity": "quantity",
-//           "unit": "unit"
-//         }
-//       ]
-//     },
-//     {
-//       "mealNum": "2",
-//       "course": "course",
-//       "recipeId": "recipeId",
-//       "recipeName": "recipeName",
-//       "ingredients": [
-//         {
-//           "ingredientName": "ingredientName",
-//           "quantity": "quantity",
-//           "unit": "unit"
-//         }
-//       ]
-//     },
-//     {
-//       "mealNum": "3",
-//       "course": "course",
-//       "recipeId": "recipeId",
-//       "recipeName": "recipeName",
-//       "ingredients": [
-//         {
-//           "ingredientName": "ingredientName",
-//           "quantity": "quantity",
-//           "unit": "unit"
-//         }
-//       ]
-//     }
-//   ],
-//   "Tuesday": [...],
-//   "Wednesday": [...],
-//   "Thursday": [...],
-//   "Friday": [...],
-//   "Saturday": [...],
-//   "Sunday": [...]
-// }
-//     Give valid JSON and don't add any explanations.
-//   """;
-
  final format = """
   Return the meal planner in JSON using the following structure:
   {
+    "Description": "\$description";
     "Meals": {
       "Monday": [
         { "recipeid": "\$recipeid1" },
@@ -284,6 +231,8 @@ Future<String> fetchMealPlannerRecipes(
   }
   Ensure the recipe IDs are provided as individual objects in the correct structure.
   Give valid JSON and don't add any explanations. The recipeids are NOT the names, rather uuid strings.
+  For the description, please mention the user's activity level, diet goal and dietary constraints and 
+  how the recipes were chosen considering these.
 """;
 
 
