@@ -299,10 +299,10 @@ class _PasteRecipeState extends State<PasteRecipe> {
     }
 
     if (_selectedAppliances.isEmpty) {
-    _selectedAppliances = recipeData['appliances']
-        .map<String>((appliance) => appliance['name'] as String)
-        .toList();
-  }
+      _selectedAppliances = recipeData['appliances']
+          .map<String>((appliance) => appliance['name'] as String)
+          .toList();
+    }
 
     await showDialog(
       barrierDismissible: false,
@@ -676,7 +676,7 @@ class _PasteRecipeState extends State<PasteRecipe> {
                 ? null
                 : _pickImage, // Disable the button while uploading
             style: ElevatedButton.styleFrom(
-              backgroundColor: isLightTheme ? Colors.white : Color(0xFF283330),
+              backgroundColor: isLightTheme ? Colors.white : Color.fromARGB(255, 52, 68, 64),
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
             ),
             child: _isUploading

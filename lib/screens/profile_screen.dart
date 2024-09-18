@@ -110,7 +110,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-
   Future<void> fetchRecipes() async {
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
@@ -166,7 +165,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       });
     }
   }
-
 
   Future<void> fetchRecipeDetails(String recipeId) async {
     final url =
@@ -233,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         title: Padding(
-          padding: EdgeInsets.only(top: 80, left: 30.0, bottom: 70),
+          padding: EdgeInsets.only(top: 100, left: 30.0, bottom: 70),
           child: Text(
             'Account',
             style: TextStyle(
@@ -244,7 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 20.0),
+            padding: const EdgeInsets.only(top: 10,right: 20.0),
             child: IconButton(
               icon: Icon(Icons.help),
               onPressed: _showHelpMenu,
@@ -282,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 SizedBox(height: screenHeight * 20 / 730),
                                 //buildPreferences(),
                                 // SizedBox(height: screenHeight * 20 / 730),
-                               buildMyRecipes(),
+                                buildMyRecipes(),
                               ],
                             );
                           } else {
@@ -545,8 +543,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final double containerWidth = screenWidth > 937
         ? screenWidth * 0.6
         : screenWidth < 738
-            ? screenWidth * 0.5
-            : screenWidth * 0.5;
+            ? screenWidth * 0.87
+            : screenWidth * 0.87;
 
     return Container(
       //height: screenHeight * 300 / 730,
@@ -670,12 +668,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             double crossAxisSpacing = 8.0;
             double mainAxisSpacing = 8.0;
 
+            // Determine the number of columns based on screen width
+            int crossAxisCount = 4; // Default for larger screens
+            if (width < 600) {
+              crossAxisCount = 3; // Mobile view with smaller width
+            }
+
             return GridView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               itemCount: recipes.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
+                crossAxisCount: crossAxisCount,
                 crossAxisSpacing: crossAxisSpacing,
                 mainAxisSpacing: mainAxisSpacing,
                 childAspectRatio: aspectRatio,

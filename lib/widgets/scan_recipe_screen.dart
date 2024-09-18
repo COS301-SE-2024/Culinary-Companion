@@ -30,7 +30,6 @@ class _ScanRecipeState extends State<ScanRecipe> {
   bool _isUploading = false;
   String _imageUrl = "";
   String? _selectedImage;
-  bool _isHighlighted = false;
 
   final List<String> _preloadedImages = [
     'https://gsnhwvqprmdticzglwdf.supabase.co/storage/v1/object/public/recipe_photos/default.jpg?t=2024-07-23T07%3A29%3A02.690Z'
@@ -650,7 +649,10 @@ class _ScanRecipeState extends State<ScanRecipe> {
     final double screenWidth = MediaQuery.of(context).size.width;
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
+    final backColor = isLightTheme
+        ? Color.fromARGB(75, 255, 255, 255)
+        : Color.fromARGB(108, 55, 70, 66);
 
     return Center(
       child: Column(
@@ -672,7 +674,8 @@ class _ScanRecipeState extends State<ScanRecipe> {
             height: 30,
           ),
           Center(
-              child: Column(
+              child: SingleChildScrollView(
+                  child: Column(
             children: [
               GestureDetector(
                 onTap: _pickPDF,
@@ -680,8 +683,9 @@ class _ScanRecipeState extends State<ScanRecipe> {
                   width: screenWidth * 0.9,
                   height: 200,
                   decoration: BoxDecoration(
+                    color: backColor,
                     border: Border.all(
-                      color: isLightTheme ? Colors.grey : Colors.white,
+                      color: textColor,
                       width: 2,
                     ),
                     borderRadius: BorderRadius.circular(10),
@@ -693,7 +697,7 @@ class _ScanRecipeState extends State<ScanRecipe> {
                         Icon(
                           Icons.picture_as_pdf,
                           size: 50,
-                          color: isLightTheme ? Colors.grey : Colors.white,
+                          color: textColor,
                         ),
                         const SizedBox(height: 20),
                         ElevatedButton(
@@ -724,7 +728,7 @@ class _ScanRecipeState extends State<ScanRecipe> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isLightTheme
                       ? Colors.white
-                      : Color.fromARGB(255, 65, 85, 80),
+                      : Color.fromARGB(255, 52, 68, 64),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
                 ),
@@ -750,7 +754,40 @@ class _ScanRecipeState extends State<ScanRecipe> {
                         style: TextStyle(color: textColor),
                       ),
               ),
-              const SizedBox(height: 50),
+              // const SizedBox(height: 10),
+              // const Text('Or use the preloaded image:'),
+              // const SizedBox(height: 10),
+              // Wrap(
+              //   spacing: 10,
+              //   children: _preloadedImages.map((image) {
+              //     return GestureDetector(
+              //       onTap: () {
+              //         if (mounted) {
+              //           setState(() {
+              //             _selectedImage = image;
+              //           });
+              //         }
+              //       },
+              //       child: Container(
+              //         decoration: BoxDecoration(
+              //           border: Border.all(
+              //             color: _selectedImage == image
+              //                 ? Color.fromARGB(255, 215, 120, 61)
+              //                 : Colors.transparent,
+              //             width: 3,
+              //           ),
+              //         ),
+              //         child: Image.network(
+              //           image,
+              //           width: 100,
+              //           height: 100,
+              //           fit: BoxFit.cover,
+              //         ),
+              //       ),
+              //     );
+              //   }).toList(),
+              // ),
+              const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _processRecipe,
                 style: ElevatedButton.styleFrom(
@@ -765,7 +802,7 @@ class _ScanRecipeState extends State<ScanRecipe> {
                 ),
               ),
             ],
-          ))
+          )))
         ],
       ),
     );
