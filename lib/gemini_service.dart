@@ -1286,7 +1286,7 @@ Future<void> addExtractedRecipeToDatabase(
 }
 
 Future<List<String>> identifyIngredientFromReceipt(String items) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return ['No API_KEY environment variable'];
   }
@@ -1349,7 +1349,7 @@ Future<List<String>> identifyIngredientFromReceipt(String items) async {
 
 Future<String> findBestMatchingIngredient(
     String identifiedIngredient, List<String> dbIngredients) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }

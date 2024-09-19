@@ -10,7 +10,7 @@ import 'dart:io'; // For mobile
 import 'package:lottie/lottie.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'package:flutter_dotenv/flutter_dotenv.dart';
 // import 'dart:io' show Platform;
 // import 'dart:io';
 import '../widgets/theme_utils.dart';
@@ -675,7 +675,7 @@ Future<List<String>> findSimilarIngredients(String itemName, String identifiedIn
 
 
 Future<String> _extractTextFromImage(dynamic imageData) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
