@@ -135,6 +135,7 @@ flutter:
     - assets/savour.png
     - assets/sounds/Alarm1.wav
     - assets/chef.png
+    - assets/chef-dark.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Set<String> _addedRecipeIds = {}; //recipes in the recipes list
   Set<String> _addedToSuggestedRecipesIds =
       {}; //recipes in the suggestedRecipes list
+  String selectedCourse = 'Main';
 
   // String _generatedText = '';  // LLM
 
@@ -65,7 +66,6 @@ class _HomeScreenState extends State<HomeScreen> {
     // }
 
     // Then fetch all recipes
-    //await fetchAllRecipes();
 
     if (mounted) {
       setState(() {
@@ -220,7 +220,6 @@ class _HomeScreenState extends State<HomeScreen> {
       'cuisine': [_userDetails?['cuisine'] ?? 'Mexican'],
       'dietaryConstraints': _userDetails?['dietaryConstraints'] ?? []
     });
-
     try {
       final response =
           await http.post(Uri.parse(url), headers: headers, body: body);
@@ -572,62 +571,147 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: Colors.transparent,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20.0),
-            child: IconButton(
-              icon: Icon(Icons.help),
-              onPressed: _showHelpMenu,
-              iconSize: 35,
-            ),
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? Center(child: Lottie.asset('assets/loading.json'))
-          : _isGridView
-              ? SingleChildScrollView(
-                  child: _buildGridView(),
-                )
-              : SingleChildScrollView(
-                  child: Padding(
-                    key: ValueKey('Home'),
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // SizedBox(height: 24),
-                        //    Text(
-                        //   _generatedText,
-                        //   style: TextStyle(fontSize: 18),
-                        //   textAlign: TextAlign.center,
-                        // ),
-                        // SizedBox(height: 16),
-                        // Text(_generatedText), // LLM
-                        // SizedBox(height: 20),
-                        // ElevatedButton(
-                        //   onPressed: _loadContent,
-                        //   child: Text('Fetch Content'),
-                        // ),
-                        SizedBox(height: 24),
-                        _buildRecipeList(
-                            'Mains', _filterRecipesByCourse('Main')),
-                        _buildRecipeList(
-                            'Breakfast', _filterRecipesByCourse('Breakfast')),
-                        _buildRecipeList(
-                            'Appetizer', _filterRecipesByCourse('Appetizer')),
-                        _buildRecipeList(
-                            'Dessert', _filterRecipesByCourse('Dessert')),
-                        _buildRecipeList('Suggested', suggestedRecipes),
-                        //_buildRecipeList('Suggested', suggestedFavoriteRecipes),
-                      ],
-                    ),
+      appBar: screenWidth > 450
+          ? AppBar(
+              automaticallyImplyLeading: false,
+              backgroundColor: Colors.transparent,
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 20.0),
+                  child: IconButton(
+                    icon: Icon(Icons.help),
+                    onPressed: _showHelpMenu,
+                    iconSize: 35,
                   ),
                 ),
+              ],
+            )
+          : null,
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 450) {
+            return _isLoading
+                ? Center(child: Lottie.asset('assets/loading.json'))
+                : _buildMobileView(
+                    selectedCourse, _filterRecipesByCourse(selectedCourse));
+          } else {
+            // Generate the existing mobile page for smaller screens
+            return _isLoading
+                ? Center(child: Lottie.asset('assets/loading.json'))
+                : _isGridView
+                    ? SingleChildScrollView(
+                        child: _buildGridView(),
+                      )
+                    : SingleChildScrollView(
+                        child: Padding(
+                          key: ValueKey('Home'),
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 24),
+                              _buildRecipeList(
+                                  'Mains', _filterRecipesByCourse('Main')),
+                              _buildRecipeList('Breakfast',
+                                  _filterRecipesByCourse('Breakfast')),
+                              _buildRecipeList('Appetizer',
+                                  _filterRecipesByCourse('Appetizer')),
+                              _buildRecipeList(
+                                  'Dessert', _filterRecipesByCourse('Dessert')),
+                              _buildRecipeList('Suggested', suggestedRecipes),
+                            ],
+                          ),
+                        ),
+                      );
+          }
+        },
+      ),
+    );
+  }
+
+  Widget _buildMobileView(
+      String title, List<Map<String, dynamic>> filteredRecipes) {
+    if (filteredRecipes.isEmpty) {
+      return Center(
+        child: Text('No recipes available'),
+      );
+    }
+
+    PageController pageController = PageController(viewportFraction: 1.0);
+
+    return PageView.builder(
+      controller: pageController,
+      scrollDirection: Axis.vertical,
+      itemCount: filteredRecipes.length,
+      itemBuilder: (context, index) {
+        final recipe = filteredRecipes[index];
+
+        List<String> steps = recipe['steps'] != null
+            ? (recipe['steps'] as String).split('<')
+            : [];
+        return Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.90,
+                child: RecipeCard(
+                  recipeID: recipe['recipeId'] ?? '',
+                  name: recipe['name'] ?? '',
+                  description: recipe['description'] ?? '',
+                  imagePath: recipe['photo'] ?? 'assets/emptyPlate.jpg',
+                  prepTime: recipe['preptime'] ?? 0,
+                  cookTime: recipe['cooktime'] ?? 0,
+                  cuisine: recipe['cuisine'] ?? '',
+                  spiceLevel: recipe['spicelevel'] ?? 0,
+                  course: recipe['course'] ?? '',
+                  servings: recipe['servings'] ?? 0,
+                  steps: steps,
+                  appliances: List<String>.from(recipe['appliances']),
+                  ingredients:
+                      List<Map<String, dynamic>>.from(recipe['ingredients']),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 10,
+              left: 20,
+              child: DropdownButton<String>(
+                  value: title, // Default selected value
+                  items: <String>[
+                    'Main',
+                    'Breakfast',
+                    'Appetizer',
+                    'Dessert'
+                    //'Suggested'
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        selectedCourse = newValue; // Update selected course
+                      });
+                    }
+                  }),
+            ),
+            Positioned(
+              top: 10,
+              right: 60,
+              child: IconButton(
+                icon: Icon(Icons.help, color: Colors.white),
+                onPressed: _showHelpMenu,
+                iconSize: 35,
+              ),
+            )
+          ],
+        );
+      },
     );
   }
 }
