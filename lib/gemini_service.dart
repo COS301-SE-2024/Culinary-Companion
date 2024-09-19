@@ -879,7 +879,7 @@ Future<String> fetchRecipeFromPantryIngredients(String userId) async {
 
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
-      final jsonMap = jsonDecode(jsonString);
+      //final jsonMap = jsonDecode(jsonString);
       //print('Parsed JSON: $jsonMap');
     } catch (e) {
       print('Failed to parse JSON: $e');

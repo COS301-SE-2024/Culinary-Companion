@@ -1,6 +1,6 @@
 // lib/web_utils.dart
 
-import 'package:flutter/foundation.dart' show kIsWeb;
+//import 'package:flutter/foundation.dart' show kIsWeb;
 
 class WebUtils {
   void uploadImage(Function(String) onImageUploaded) {
