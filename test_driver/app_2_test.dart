@@ -95,10 +95,15 @@ test('Open and close Pantry help menu', () async {
           "No ingredients have been added. Click the plus icon to add your first ingredient!"));
     });
     test('Open and close Shopping List help menu', () async {
-      await driver.tap(find.byType('IconButton'));
-      await driver.waitFor(find.byType('HelpMenu'));
+      await driver.tap(find.byValueKey('shopping_help_button'));
+
+      await driver.waitFor(find.byType('HelpMenu'),
+          timeout: Duration(seconds: 5));
+
       await driver.tap(find.byValueKey('close_help_menu'));
-      await driver.waitForAbsent(find.byType('HelpMenu'));
+
+      await driver.waitForAbsent(find.byType('HelpMenu'),
+          timeout: Duration(seconds: 5));
     });
 
     // test('Navigate to Appliances screen', () async {

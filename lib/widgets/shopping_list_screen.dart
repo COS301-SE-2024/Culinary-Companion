@@ -427,7 +427,7 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
             child: IconButton(
-              key: Key('help_button'),
+              key: ValueKey('shopping_help_button'),
               icon: Icon(Icons.help),
               onPressed: _showHelpMenu,
               iconSize: 35,
