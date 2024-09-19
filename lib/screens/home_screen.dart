@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (mounted) {
       setState(() {
-        _isLoading = false; // Stop loading once everything is loaded
+        _isLoading = true; // Stop loading once everything is loaded
       });
     }
   }
