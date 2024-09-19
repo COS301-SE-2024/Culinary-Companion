@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'widgets/theme_notifier.dart'; // Import your ThemeNotifier
 import 'screens/landing_screen.dart'; // Import the new landing screen
 import 'screens/login_screen.dart'; // Import the new login screen
 import 'screens/signup_screen.dart';
@@ -42,62 +44,74 @@ class CulinaryCompanionApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Culinary Companion',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xFF89AA4A), // Replace this with your seed color
-          brightness: Brightness.light, // or Brightness.dark for dark theme
-        ),
-        useMaterial3: true,
-        textTheme: GoogleFonts.interTextTheme(),
-        primarySwatch: Colors.green,
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: Color(0xFFEDEDED),
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-          filled: true,
-          fillColor: Colors.black12,
-        ),
+    return ChangeNotifierProvider(
+      create: (context) => ThemeNotifier(prefs: sharedPreferences),
+      child: Consumer<ThemeNotifier>(
+        builder: (context, themeNotifier, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Culinary Companion',
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor:
+                    Color(0xFFDC945F), // Replace this with your seed color
+                brightness:
+                    Brightness.light, // or Brightness.dark for dark theme
+              ),
+              useMaterial3: true,
+              textTheme: GoogleFonts.interTextTheme(),
+              primarySwatch: Colors.green,
+              brightness: Brightness.light,
+              scaffoldBackgroundColor: Color(0xFFEDEDED),
+              inputDecorationTheme: const InputDecorationTheme(
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.black12,
+              ),
+            ),
+            darkTheme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+                seedColor:
+                    Color(0xFFEDEDED), // Replace this with your seed color
+                brightness:
+                    Brightness.dark, // or Brightness.dark for dark theme
+              ),
+              textTheme: GoogleFonts.interTextTheme().apply(
+                bodyColor: Color(0xFFD9D9D9),
+                displayColor: Color(0xFFD9D9D9),
+              ),
+              primarySwatch: Colors.green,
+              brightness: Brightness.dark,
+              scaffoldBackgroundColor: const Color(0xFF283330),
+              inputDecorationTheme: const InputDecorationTheme(
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.white12,
+              ),
+            ),
+            themeMode: themeNotifier.currentTheme,
+            // themeMode: ThemeMode.system, // Use system theme setting
+            //themeMode: ThemeMode.light,
+            //themeMode: ThemeMode.dark,
+            initialRoute:
+                '/landing', // Set the initial route to the landing screen
+            routes: {
+              '/landing': (context) =>
+                  LandingScreen(), // Add the landing screen route
+              '/login': (context) =>
+                  LoginScreen(), // Add the login screen route
+              '/signup': (context) => SignupScreen(
+                    httpClient: httpClient,
+                    sharedPreferences: sharedPreferences,
+                  ), // Add the signup screen route
+              '/home': (context) => MainScreen(), // Rename the home route
+              '/confirm': (context) => ConfirmDetailsScreen(),
+              '/tutorial': (context) => TutorialPages(),
+              '/guest_home': (context) => MainScreen2(),
+            },
+          );
+        },
       ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xFF89AA4A), // Replace this with your seed color
-          brightness: Brightness.dark, // or Brightness.dark for dark theme
-        ),
-        //colorSchemeSeed: Color(0xFF89AA4A),
-        textTheme: GoogleFonts.interTextTheme().apply(
-          bodyColor: Color(0xFFD9D9D9),
-          displayColor: Color(0xFFD9D9D9),
-        ),
-        primarySwatch: Colors.green,
-        brightness: Brightness.dark,
-        //scaffoldBackgroundColor: const Color(0xFF20493C),
-        scaffoldBackgroundColor: const Color(0xFF283330),
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-          filled: true,
-          fillColor: Colors.white12,
-        ),
-      ),
-      themeMode: ThemeMode.system, // Use system theme setting
-      //themeMode: ThemeMode.light,
-      //themeMode: ThemeMode.dark,
-      initialRoute: '/landing', // Set the initial route to the landing screen
-      routes: {
-        '/landing': (context) =>
-            LandingScreen(), // Add the landing screen route
-        '/login': (context) => LoginScreen(), // Add the login screen route
-        '/signup': (context) => SignupScreen(
-              httpClient: httpClient,
-              sharedPreferences: sharedPreferences,
-            ), // Add the signup screen route
-        '/home': (context) => MainScreen(), // Rename the home route
-        '/confirm': (context) => ConfirmDetailsScreen(),
-        '/tutorial': (context) => TutorialPages(),
-        '/guest_home': (context) => MainScreen2(),
-      },
     );
   }
 }

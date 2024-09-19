@@ -566,7 +566,7 @@ Future<void> _fetchPantryList() async {
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
             child: IconButton(
-              key: Key('help_button'),
+              key: ValueKey('pantry_help_button'),
               icon: Icon(Icons.help),
               onPressed: _showHelpMenu,
               iconSize: 35,
