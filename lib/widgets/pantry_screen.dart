@@ -262,8 +262,8 @@ Future<void> _fetchPantryList() async {
             }
           });
         }
-        print(
-            'Successfully edited $item in pantry list with quantity $quantity $measurementUnit');
+       // print(
+            //'Successfully edited $item in pantry list with quantity $quantity $measurementUnit');
       } else {
         print('Failed to edit $item in pantry list: ${response.statusCode}');
       }
@@ -298,7 +298,7 @@ Future<void> _fetchPantryList() async {
             }
           });
         }
-        print('Successfully removed $ingredientName from pantry list');
+        //print('Successfully removed $ingredientName from pantry list');
       } else {
         print(
             'Failed to remove $ingredientName from pantry list: ${response.statusCode}');
@@ -338,7 +338,7 @@ Future<void> _fetchPantryList() async {
   }
 
 Future<String> _getIngredientDetails(String ingredientName) async {
-    print("in _getIngredientDetails function");
+    //print("in _getIngredientDetails function");
     try {
       final response = await http.post(
         Uri.parse(
@@ -351,16 +351,16 @@ Future<String> _getIngredientDetails(String ingredientName) async {
       );
 
       if (response.statusCode == 200) {
-        print('it worked lol');
+       // print('it worked lol');
         final Map<String, dynamic> ingredientDetails = jsonDecode(response.body);
-        print('Ingredient Details: $ingredientDetails');
+        //print('Ingredient Details: $ingredientDetails');
 
         final List<dynamic> ingredientData = ingredientDetails['ingredientData'];
 
         // Access the first ingredient's measurement unit
         final String measurementUnit = ingredientData[0]['measurement_unit'].toString();
 
-        print('Ingredient Measurement Unit: $measurementUnit');
+        //print('Ingredient Measurement Unit: $measurementUnit');
 
         return measurementUnit;
       } else {
@@ -405,7 +405,7 @@ Future<String> _getIngredientDetails(String ingredientName) async {
         final base64Image = reader.result.toString().split(',').last;
         final text = await _extractTextFromImage(base64Image);
         if (text.isNotEmpty) {
-          print(text);
+          //print(text);
           await _handleScannedText(text);
         }
       });
@@ -766,7 +766,7 @@ Future<String> _extractTextFromImage(dynamic imageData) async {
 
 
 Future<void> _handleScannedText(String text) async {
-  print(text);
+  //print(text);
   final items = _parseIngredientsFromText(text);
 
   // Convert List<String> to a single String
@@ -774,8 +774,8 @@ Future<void> _handleScannedText(String text) async {
 
   // Await the result of the identifyIngredientFromReceipt function
   final ingredients = await identifyIngredientFromReceipt(itemsString);
-  print("INGREDIENTS");
-  print(ingredients);
+  //print("INGREDIENTS");
+  //print(ingredients);
 
   // Parse the ingredients list to extract both items and ingredients in pairs
   final pairedItemsIngredients = <Map<String, String>>[];
@@ -820,7 +820,7 @@ List<String> _parseIngredientsFromText(String text) {
   final lowerCaseText = text.toLowerCase();
 
   final firstLine = lowerCaseText.split('\n').first;
-  print(firstLine);
+  //print(firstLine);
   
   final store = detectStoreFormat(firstLine);
 
@@ -830,16 +830,16 @@ List<String> _parseIngredientsFromText(String text) {
 String detectStoreFormat(String text) {
   // checks which one of the stores the line passed in is to modify the parsing accordingly
   if (text.contains('pick n pay')) {
-    print("first line is pick n pay");
+    //print("first line is pick n pay");
     return "P"; // Pick n Pay
   } else if (text.contains('woolworths')) {
-    print("first line is woolworths");
+    //print("first line is woolworths");
     return "W"; // Woolworths
   } else if (text.contains('checkers')) {
-    print("first line is checkers");
+    //print("first line is checkers");
     return "C"; // Checkers
   }
-  print("couldn't find store name");
+  print("Error couldn't find store name");
   return "U"; // Unknown
 }
 
@@ -847,13 +847,13 @@ String detectStoreFormat(String text) {
 List<String> parseReceiptForStore(String text, String store) {
   switch (store) {
     case "P":
-      print("going to parse Pick n Pay receipt");
+      //print("going to parse Pick n Pay receipt");
       return parsePicknPayReceipt(text);
     case "W":
-      print("going to parse Woolworths receipt");
+      //print("going to parse Woolworths receipt");
       return parseWoolworthsReceipt(text);
     case "C":
-    print("going to parse Checkers receipt");
+    //print("going to parse Checkers receipt");
       return parseCheckersReceipt(text);
     default:
       return []; // Handle unknown or unsupported formats

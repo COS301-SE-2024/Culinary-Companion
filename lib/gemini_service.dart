@@ -56,12 +56,14 @@ Future<Map<String, dynamic>?> fetchRecipeDetails(String recipeId) async {
 }
 
 Future<List<dynamic>?> fetchRecipesByCourse(String course) async {
-  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
   final headers = <String, String>{'Content-Type': 'application/json'};
   final body = jsonEncode({'action': 'getRecipesByCourse', 'course': course});
 
   try {
-    final response = await http.post(Uri.parse(url), headers: headers, body: body);
+    final response =
+        await http.post(Uri.parse(url), headers: headers, body: body);
 
     if (response.statusCode == 200) {
       final dynamic fetchedRecipes = jsonDecode(response.body);
@@ -151,17 +153,27 @@ Future<List<Map<String, String>>> fetchPantryList(String userId) async {
 }
 
 Future<String> fetchMealPlannerRecipes(
-  String userid, String gender, String weight, String weightUnit, 
-  String height, String heightUnit, int age, String activityLevel, 
-  String dietGoal, String mealFreq, String courses, String mealPlanName, 
-  BuildContext context // Add context to access the Scaffold/AlertDialog
-) async {
+    String userid,
+    String gender,
+    String weight,
+    String weightUnit,
+    String height,
+    String heightUnit,
+    int age,
+    String activityLevel,
+    String dietGoal,
+    String mealFreq,
+    String courses,
+    String mealPlanName,
+    BuildContext context // Add context to access the Scaffold/AlertDialog
+    ) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
 
-  List<String> selectedCourses = courses.split(',').map((course) => course.trim()).toList();
+  List<String> selectedCourses =
+      courses.split(',').map((course) => course.trim()).toList();
 
   Map<String, dynamic> courseRecipes = {};
 
@@ -192,8 +204,7 @@ Future<String> fetchMealPlannerRecipes(
 
   final String dietaryConstraints = await fetchUserDietaryConstraints(userid);
 
-
-final initialPrompt = '''
+  final initialPrompt = '''
   Create a meal planner named "$mealPlanName" for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday
   for the person with these details:
       - Gender: ${gender.replaceAll('"', r'\"')}
@@ -209,7 +220,7 @@ final initialPrompt = '''
   ${courseRecipes.entries.map((entry) => '- ${entry.key} Recipes: ${jsonEncode(entry.value)}').join('\n')}
   ''';
 
-final format = """
+  final format = """
   Please return the meal planner strictly in valid JSON format. Ensure the response follows this structure:
 
   {
@@ -242,7 +253,6 @@ Ensure the recipe IDs are provided as individual objects in the correct structur
   extra commas, or incorrect braces before returning it.**
 """;
 
-
   final prompt = initialPrompt + format;
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
@@ -256,16 +266,20 @@ Ensure the recipe IDs are provided as individual objects in the correct structur
     // Clean up the JSON string
     try {
       jsonString = jsonString.replaceAll("'", '"'); // Ensure proper JSON format
-      jsonString = jsonString.replaceAll(RegExp(r'\s+'), ' '); // Remove extra whitespace
+      jsonString =
+          jsonString.replaceAll(RegExp(r'\s+'), ' '); // Remove extra whitespace
       jsonString = jsonString.replaceAll(
           RegExp(r',(\s*[\]}])'), r'$1'); // Remove trailing commas
 
       // Remove unnecessary code block markers if present
       if (jsonString.startsWith('```json')) {
-        jsonString = jsonString.substring(7).trim(); // Remove starting code block marker
+        jsonString =
+            jsonString.substring(7).trim(); // Remove starting code block marker
       }
       if (jsonString.endsWith('```')) {
-        jsonString = jsonString.substring(0, jsonString.length - 3).trim(); // Remove ending code block marker
+        jsonString = jsonString
+            .substring(0, jsonString.length - 3)
+            .trim(); // Remove ending code block marker
       }
 
       // Try to parse JSON to ensure it's valid
@@ -281,12 +295,11 @@ Ensure the recipe IDs are provided as individual objects in the correct structur
     return 'No response text';
   }
 }
+
 void _showErrorSnackbar(BuildContext context, String message) {
   final snackBar = SnackBar(content: Text(message));
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
-
-
 
 Future<String> fetchIngredientSubstitutionRecipe(
     String recipeId, String substitute, String substitutedIngredient) async {
@@ -369,7 +382,7 @@ Future<String> fetchIngredientSubstitutionRecipe(
   They should all be Strings.""";
 
   final initialPrompt =
-  """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+      """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   use this substitution $substitute instead of the $substitutedIngredient. 
   Make sure to adjust the quantities of the ingredients so the recipe is still accurate, 
@@ -867,7 +880,7 @@ Future<String> fetchRecipeFromPantryIngredients(String userId) async {
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
       final jsonMap = jsonDecode(jsonString);
-      print('Parsed JSON: $jsonMap');
+      //print('Parsed JSON: $jsonMap');
     } catch (e) {
       print('Failed to parse JSON: $e');
       return 'Failed to parse JSON';
@@ -999,27 +1012,26 @@ Future<String> fetchDietaryConstraintRecipe(
 }
 
 Future<List<String>> fetchAllowedAppliances() async {
-  
   final url =
       'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
 
   try {
-    
     final response = await http.post(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
       },
       body: json.encode({
-        'action': 'getAllAppliances',  
+        'action': 'getAllAppliances',
       }),
     );
     if (response.statusCode == 200) {
       try {
-        
         final List<dynamic> appliances = jsonDecode(response.body);
         //print(response.body);
-        return appliances.map((appliance) => appliance['name'] as String).toList();
+        return appliances
+            .map((appliance) => appliance['name'] as String)
+            .toList();
       } catch (e) {
         print('Error parsing JSON: $e');
         print('Response body: ${response.body}');
@@ -1035,8 +1047,6 @@ Future<List<String>> fetchAllowedAppliances() async {
     return [];
   }
 }
-
-
 
 ///extract json data for recipe
 Future<Map<String, dynamic>?> extractRecipeData(
@@ -1298,9 +1308,10 @@ Future<List<String>> identifyIngredientFromReceipt(String items) async {
 }
   They should all be Strings.""";
 
-  final initialPrompt = """For these items: $items; remove all non-edible items and all non human food 
+  final initialPrompt =
+      """For these items: $items; remove all non-edible items and all non human food 
   and then identify what food stuff the remaining items are. Be specific, like mince should should be specified as such i.e Beef Mince.""";
-  
+
   final finalPrompt = initialPrompt + formatting;
 
   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
@@ -1311,19 +1322,22 @@ Future<List<String>> identifyIngredientFromReceipt(String items) async {
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-    print(jsonString);
-    
+    //print(jsonString);
+
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
 
     // Remove markdown syntax if present
-    jsonString = jsonString.replaceAll(RegExp(r'```(json)?\s*'), '').replaceAll(RegExp(r'\s*```'), '');
+    jsonString = jsonString
+        .replaceAll(RegExp(r'```(json)?\s*'), '')
+        .replaceAll(RegExp(r'\s*```'), '');
 
     // Parse the JSON string to a Map to verify it's valid JSON
     try {
       final jsonMap = jsonDecode(jsonString);
       final itemsList = (jsonMap['items'] as List<dynamic>)
-          .map((item) => 'Item: ${item['name']}, Ingredient: ${item['ingredient']}')
+          .map((item) =>
+              'Item: ${item['name']}, Ingredient: ${item['ingredient']}')
           .toList();
       return itemsList;
     } catch (e) {
@@ -1335,14 +1349,16 @@ Future<List<String>> identifyIngredientFromReceipt(String items) async {
   }
 }
 
-Future<String> findBestMatchingIngredient(String identifiedIngredient, List<String> dbIngredients) async {
+Future<String> findBestMatchingIngredient(
+    String identifiedIngredient, List<String> dbIngredients) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
 
   // Create the prompt for Gemini
-  final prompt = """Compare the identified ingredient "$identifiedIngredient" to this list of ingredients from the database: ${dbIngredients.join(', ')}.
+  final prompt =
+      """Compare the identified ingredient "$identifiedIngredient" to this list of ingredients from the database: ${dbIngredients.join(', ')}.
   Return the most similar ingredient from the list - based on the name of the identified ingredient - without explanation.""";
 
   // Initialize the model with your API key
@@ -1351,13 +1367,11 @@ Future<String> findBestMatchingIngredient(String identifiedIngredient, List<Stri
   final response = await model.generateContent(content);
 
   if (response != null && response.text != null) {
-    return response.text!.trim();  // The most similar ingredient
+    return response.text!.trim(); // The most similar ingredient
   } else {
     return 'No response';
   }
 }
-
-
 
 // all dietary constraints
 Future<String> fetchDietaryConstraintsRecipe(
@@ -1448,7 +1462,7 @@ Future<String> fetchDietaryConstraintsRecipe(
   if (response != null && response.text != null) {
     String jsonString = response.text!;
 
-   //print("Altered recipe in gem:  $jsonString");
+    //print("Altered recipe in gem:  $jsonString");
 
     // Correct the JSON format by replacing single quotes with double quotes
     jsonString = jsonString.replaceAll("'", '"');
@@ -1494,7 +1508,8 @@ Future<String> fetchDietaryConstraintsRecipe(
   }
 }
 
-Future<List<String>> validateRecipe(String name, String description, List<String> steps) async {
+Future<List<String>> validateRecipe(
+    String name, String description, List<String> steps) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
     return ['No API_KEY environment variable'];
@@ -1534,8 +1549,10 @@ Otherwise, return an empty list if everything is valid.
     responseText = responseText.trim();
 
     // Ensure the response is a valid JSON array by removing any unwanted text
-    responseText = responseText.replaceAll(RegExp(r'[^\[]*\['), '['); // Remove text before the array
-    responseText = responseText.replaceAll(RegExp(r'\][^\]]*$'), ']'); // Remove text after the array
+    responseText = responseText.replaceAll(
+        RegExp(r'[^\[]*\['), '['); // Remove text before the array
+    responseText = responseText.replaceAll(
+        RegExp(r'\][^\]]*$'), ']'); // Remove text after the array
 
     // Attempt to parse the cleaned-up JSON response
     try {
