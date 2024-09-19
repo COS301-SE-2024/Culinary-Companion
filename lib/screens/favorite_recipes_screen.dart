@@ -249,6 +249,8 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                   appliances: List<String>.from(recipes[index]['appliances']),
                   ingredients: List<Map<String, dynamic>>.from(
                       recipes[index]['ingredients']),
+                  customFontSizeTitle: 16, // Pass your custom font size here
+                  customIconSize: 24,
                 ),
               );
             },
@@ -279,9 +281,9 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
 
               // Determine the number of columns based on screen width
               int crossAxisCount = 4; // Default for larger screens
-              if (width < 600) {
-                crossAxisCount = 2; // Mobile view with smaller width
-              }
+              // if (width < 600) {
+              //   crossAxisCount = 2; // Mobile view with smaller width
+              // }
 
               return GridView.builder(
                 shrinkWrap: true,
