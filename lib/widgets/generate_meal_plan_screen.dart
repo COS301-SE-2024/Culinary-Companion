@@ -133,6 +133,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                   return null;
                 },
               ),
+              SizedBox(height: 16),
               // Gender
               DropdownButtonFormField<String>(
                 dropdownColor: isLightTheme ? Colors.white : Color(0xFF1F4539),

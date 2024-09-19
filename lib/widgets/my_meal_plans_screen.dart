@@ -51,7 +51,7 @@ Future<void> fetchMealPlans() async {
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       final List<dynamic> fetchedMealPlans = responseData['mealPlanners'];
-      print('Fetched meal plans: $fetchedMealPlans');
+      //print('Fetched meal plans: $fetchedMealPlans');
 
       setState(() {
         mealPlans = fetchedMealPlans.asMap().entries.map((entry) {
