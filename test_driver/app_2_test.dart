@@ -1,6 +1,7 @@
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 
+
 void main() {
   group('Culinary Companion App', () {
     late FlutterDriver driver;
@@ -45,11 +46,16 @@ void main() {
       await driver.tap(find.text('Pantry'));
       await driver.waitFor(find.byValueKey('Pantry'));
     });
-    test('Open and close Pantry help menu', () async {
-      await driver.tap(find.byType('IconButton'));
-      await driver.waitFor(find.byType('HelpMenu'));
+test('Open and close Pantry help menu', () async {
+      await driver.tap(find.byValueKey('pantry_help_button'));
+
+      await driver.waitFor(find.byType('HelpMenu'),
+          timeout: Duration(seconds: 5));
+
       await driver.tap(find.byValueKey('close_help_menu'));
-      await driver.waitForAbsent(find.byType('HelpMenu'));
+
+      await driver.waitForAbsent(find.byType('HelpMenu'),
+          timeout: Duration(seconds: 5));
     });
 
     test('Verify empty state message for Pantry', () async {
@@ -68,10 +74,15 @@ void main() {
     });
 
     test('Open and close appliance help menu', () async {
-      await driver.tap(find.byType('IconButton'));
-      await driver.waitFor(find.byType('HelpMenu'));
+      await driver.tap(find.byValueKey('appliance_help_button'));
+
+      await driver.waitFor(find.byType('HelpMenu'),
+          timeout: Duration(seconds: 5));
+
       await driver.tap(find.byValueKey('close_help_menu'));
-      await driver.waitForAbsent(find.byType('HelpMenu'));
+
+      await driver.waitForAbsent(find.byType('HelpMenu'),
+          timeout: Duration(seconds: 5));
     });
     test('Navigate to Shopping List tab', () async {
       // Verify and tap on Pantry tab
