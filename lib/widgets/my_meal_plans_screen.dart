@@ -38,7 +38,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
     }
   }
 
-  Future<void> fetchMealPlans() async {
+Future<void> fetchMealPlans() async {
   if (_userId == null) return;
 
   final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
@@ -58,12 +58,15 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
           int index = entry.key;
           Map<String, dynamic> mealPlan = entry.value;
 
-          //get name and description of meal planner 
-          final Map<String, dynamic> recipesData = jsonDecode(mealPlan['recipes']);
-          final String name = recipesData.containsKey('Name') ? recipesData['Name'] : 'Meal Plan ${index + 1}';
-          final String description = recipesData.containsKey('Description') ? recipesData['Description'] : '';
+          //get mealplan id 
+          final String mealPlannerId = mealPlan['mealplannerid'] ?? '';
 
-          
+          //get name and description
+          final Map<String, dynamic> recipesData = jsonDecode(mealPlan['recipes']);
+          final String name = recipesData['Name'] ?? 'Meal Plan ${index + 1}';
+          final String description = recipesData['Description'] ?? '';
+
+         
           final Map<String, dynamic> parsedRecipes = recipesData['Meals'] as Map<String, dynamic>;
 
           Map<String, List<Map<String, dynamic>>> days = parsedRecipes.map((day, recipes) {
@@ -76,6 +79,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
           });
 
           return {
+            'mealplannerid': mealPlannerId, // Include the mealplannerid
             'title': name,
             'description': description,
             'isExpanded': false,
@@ -84,7 +88,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
         }).toList();
       });
 
-      // fetch recipe details 
+      //fetch recipe details 
       await fetchAllRecipeDetails();
       if (mounted) {
         setState(() {
@@ -98,6 +102,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
     print('Error fetching meal plans: $e');
   }
 }
+
 
 
   Future<void> fetchAllRecipeDetails() async {
@@ -138,6 +143,31 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
       print('Error fetching recipe details: $error');
     }
   }
+
+  Future<void> deleteMealPlan(String mealPlanId) async {
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final headers = {'Content-Type': 'application/json'};
+  final body = jsonEncode({
+    'action': 'deleteMealPlanner',
+    'mealplannerid': mealPlanId,
+  });
+
+  try {
+    final response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      setState(() {
+        mealPlans.removeWhere((mealPlan) => mealPlan['mealplannerid'] == mealPlanId);
+      });
+      print('Meal plan deleted successfully');
+    } else {
+      print('Failed to delete meal plan: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error deleting meal plan: $error');
+  }
+}
+
 
   // Placeholder recipe data for each day of the week
   // Placeholder data for multiple meal plans
@@ -224,8 +254,38 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
           fontWeight: FontWeight.bold,
         ),
       ),
+      trailing: IconButton(
+        icon: Icon(Icons.delete, color: Colors.red),
+        onPressed: () async {
+          // Confirm delete
+          final shouldDelete = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text("Delete Meal Plan"),
+                content: Text("Are you sure you want to delete this meal plan?"),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text("Cancel"),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text("Delete"),
+                  ),
+                ],
+              );
+            },
+          );
+          if (shouldDelete == true) {
+            await deleteMealPlan(mealPlan['mealplannerid']);
+          }
+        },
+      ),
     );
   },
+
+
   body: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
