@@ -551,7 +551,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                   if (_formKey.currentState?.validate() ?? false) {
                     _formKey.currentState?.save();
 
-                    //loading screen 
+                    //loading screen
                     showDialog(
                       context: context,
                       barrierDismissible: false,
@@ -569,19 +569,19 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
 
                     // call gemini function to generate recipes
                     final result = await fetchMealPlannerRecipes(
-                      _userId ?? "",
-                      _gender ?? "",
-                      _weight?.toString() ?? "",
-                      _weightUnit,
-                      _height?.toString() ?? "",
-                      _heightUnit,
-                      _age ?? 0,
-                      _getActivityLevelDescription(_activityLevel),
-                      _goal ?? "",
-                      _mealFrequency.toString(),
-                      _selectedMeals.join(","),
-                       _mealPlanName ?? ""
-                    );
+                        _userId ?? "",
+                        _gender ?? "",
+                        _weight?.toString() ?? "",
+                        _weightUnit,
+                        _height?.toString() ?? "",
+                        _heightUnit,
+                        _age ?? 0,
+                        _getActivityLevelDescription(_activityLevel),
+                        _goal ?? "",
+                        _mealFrequency.toString(),
+                        _selectedMeals.join(","),
+                        _mealPlanName ?? "",
+                        context);
 
                     // print("gem res $result"); //result from gemini
 
