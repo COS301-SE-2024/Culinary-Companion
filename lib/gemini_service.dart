@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -152,7 +153,8 @@ Future<List<Map<String, String>>> fetchPantryList(String userId) async {
 Future<String> fetchMealPlannerRecipes(
   String userid, String gender, String weight, String weightUnit, 
   String height, String heightUnit, int age, String activityLevel, 
-  String dietGoal, String mealFreq, String courses
+  String dietGoal, String mealFreq, String courses, String mealPlanName, 
+  BuildContext context // Add context to access the Scaffold/AlertDialog
 ) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
@@ -191,79 +193,28 @@ Future<String> fetchMealPlannerRecipes(
   final String dietaryConstraints = await fetchUserDietaryConstraints(userid);
 
 
-  final initialPrompt = """
-    Create a meal planner for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday
-    for the person with these details:
-      - Gender: $gender
+final initialPrompt = '''
+  Create a meal planner named "$mealPlanName" for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday
+  for the person with these details:
+      - Gender: ${gender.replaceAll('"', r'\"')}
       - Weight: $weight $weightUnit
       - Height: $height $heightUnit
       - Age: $age
       - Activity Level: $activityLevel
-      - Diet Goal: $dietGoal
+      - Diet Goal: ${dietGoal.replaceAll('"', r'\"')}
       - Meal Frequency: $mealFreq
       - Dietary Constraints: $dietaryConstraints
 
-    Here are the available recipes for the selected courses:
-    ${courseRecipes.entries.map((entry) => '- ${entry.key} Recipes: ${jsonEncode(entry.value)}').join('\n')}
-  """;
+  Here are the available recipes for the selected courses:
+  ${courseRecipes.entries.map((entry) => '- ${entry.key} Recipes: ${jsonEncode(entry.value)}').join('\n')}
+  ''';
 
-//   final format = """
-//     Return the meal planner in JSON using the following structure:
-//     {
-//   "Monday": [
-//     {
-//       "mealNum": "1",
-//       "course": "course",
-//       "recipeId": "recipeId",
-//       "recipeName": "recipeName",
-//       "ingredients": [
-//         {
-//           "ingredientName": "ingredientName",
-//           "quantity": "quantity",
-//           "unit": "unit"
-//         }
-//       ]
-//     },
-//     {
-//       "mealNum": "2",
-//       "course": "course",
-//       "recipeId": "recipeId",
-//       "recipeName": "recipeName",
-//       "ingredients": [
-//         {
-//           "ingredientName": "ingredientName",
-//           "quantity": "quantity",
-//           "unit": "unit"
-//         }
-//       ]
-//     },
-//     {
-//       "mealNum": "3",
-//       "course": "course",
-//       "recipeId": "recipeId",
-//       "recipeName": "recipeName",
-//       "ingredients": [
-//         {
-//           "ingredientName": "ingredientName",
-//           "quantity": "quantity",
-//           "unit": "unit"
-//         }
-//       ]
-//     }
-//   ],
-//   "Tuesday": [...],
-//   "Wednesday": [...],
-//   "Thursday": [...],
-//   "Friday": [...],
-//   "Saturday": [...],
-//   "Sunday": [...]
-// }
-//     Give valid JSON and don't add any explanations.
-//   """;
+final format = """
+  Please return the meal planner strictly in valid JSON format. Ensure the response follows this structure:
 
- final format = """
-  Return the meal planner in JSON using the following structure:
   {
+    "Name": "$mealPlanName", 
+    "Description": "\$description",
     "Meals": {
       "Monday": [
         { "recipeid": "\$recipeid1" },
@@ -282,8 +233,13 @@ Future<String> fetchMealPlannerRecipes(
       "Sunday": [...]
     }
   }
-  Ensure the recipe IDs are provided as individual objects in the correct structure.
+Ensure the recipe IDs are provided as individual objects in the correct structure.
   Give valid JSON and don't add any explanations. The recipeids are NOT the names, rather uuid strings.
+  For the description, please mention the user's activity level, diet goal and dietary constraints and 
+  how the recipes were chosen considering these
+  Return the JSON with **no extra text**, comments, or explanations. Ensure valid JSON (with double quotes 
+  around keys and values) and all recipeids are UUID strings. **Check the output carefully for missing commas, 
+  extra commas, or incorrect braces before returning it.**
 """;
 
 
@@ -301,6 +257,8 @@ Future<String> fetchMealPlannerRecipes(
     try {
       jsonString = jsonString.replaceAll("'", '"'); // Ensure proper JSON format
       jsonString = jsonString.replaceAll(RegExp(r'\s+'), ' '); // Remove extra whitespace
+      jsonString = jsonString.replaceAll(
+          RegExp(r',(\s*[\]}])'), r'$1'); // Remove trailing commas
 
       // Remove unnecessary code block markers if present
       if (jsonString.startsWith('```json')) {
@@ -315,6 +273,7 @@ Future<String> fetchMealPlannerRecipes(
 
       return jsonEncode(jsonData); // Return the formatted JSON string
     } catch (e) {
+      _showErrorSnackbar(context, 'Something went wrong. Please try again.');
       print('Failed to parse JSON: $e');
       return 'Error parsing JSON';
     }
@@ -322,6 +281,12 @@ Future<String> fetchMealPlannerRecipes(
     return 'No response text';
   }
 }
+void _showErrorSnackbar(BuildContext context, String message) {
+  final snackBar = SnackBar(content: Text(message));
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+}
+
+
 
 Future<String> fetchIngredientSubstitutionRecipe(
     String recipeId, String substitute, String substitutedIngredient) async {
