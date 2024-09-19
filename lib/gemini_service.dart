@@ -152,7 +152,7 @@ Future<List<Map<String, String>>> fetchPantryList(String userId) async {
 Future<String> fetchMealPlannerRecipes(
   String userid, String gender, String weight, String weightUnit, 
   String height, String heightUnit, int age, String activityLevel, 
-  String dietGoal, String mealFreq, String courses
+  String dietGoal, String mealFreq, String courses, String mealPlanName 
 ) async {
   final apiKey = dotenv.env['API_KEY'] ?? '';
   if (apiKey.isEmpty) {
@@ -192,7 +192,7 @@ Future<String> fetchMealPlannerRecipes(
 
 
   final initialPrompt = """
-    Create a meal planner for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday
+    Create a meal planner named "$mealPlanName" for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday
     for the person with these details:
       - Gender: $gender
       - Weight: $weight $weightUnit
@@ -210,7 +210,8 @@ Future<String> fetchMealPlannerRecipes(
  final format = """
   Return the meal planner in JSON using the following structure:
   {
-    "Description": "\$description";
+    "Name": "$mealPlanName", 
+    "Description": "\$description",
     "Meals": {
       "Monday": [
         { "recipeid": "\$recipeid1" },

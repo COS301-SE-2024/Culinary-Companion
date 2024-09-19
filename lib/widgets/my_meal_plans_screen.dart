@@ -39,64 +39,66 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
   }
 
   Future<void> fetchMealPlans() async {
-    if (_userId == null) return;
+  if (_userId == null) return;
 
-    final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
-    final headers = {'Content-Type': 'application/json'};
-    final body =
-        jsonEncode({'action': 'getAllMealPlanners', 'userId': _userId});
+  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final headers = {'Content-Type': 'application/json'};
+  final body = jsonEncode({'action': 'getAllMealPlanners', 'userId': _userId});
 
-    try {
-      final response =
-          await http.post(Uri.parse(url), headers: headers, body: body);
+  try {
+    final response = await http.post(Uri.parse(url), headers: headers, body: body);
 
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        //print('here 1 $responseData');
-        final List<dynamic> fetchedMealPlans = responseData['mealPlanners'];
-        //print('here 2 $fetchedMealPlans');
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final List<dynamic> fetchedMealPlans = responseData['mealPlanners'];
+      print('Fetched meal plans: $fetchedMealPlans');
 
-        setState(() {
-          mealPlans = fetchedMealPlans.asMap().entries.map((entry) {
-            int index = entry.key;
-            Map<String, dynamic> mealPlan = entry.value;
+      setState(() {
+        mealPlans = fetchedMealPlans.asMap().entries.map((entry) {
+          int index = entry.key;
+          Map<String, dynamic> mealPlan = entry.value;
 
-            final parsedRecipes = jsonDecode(mealPlan['recipes'])['Meals']
-                as Map<String, dynamic>;
+          //get name and description of meal planner 
+          final Map<String, dynamic> recipesData = jsonDecode(mealPlan['recipes']);
+          final String name = recipesData.containsKey('Name') ? recipesData['Name'] : 'Meal Plan ${index + 1}';
+          final String description = recipesData.containsKey('Description') ? recipesData['Description'] : '';
 
-            Map<String, List<Map<String, dynamic>>> days =
-                parsedRecipes.map((day, recipes) {
-              return MapEntry(
-                day,
-                List<Map<String, dynamic>>.from(recipes.map((recipe) => {
-                      'recipeId': recipe['recipeid'],
-                    })),
-              );
-            });
+          
+          final Map<String, dynamic> parsedRecipes = recipesData['Meals'] as Map<String, dynamic>;
 
-            return {
-              'title': 'Meal Plan ${index + 1}',
-              'isExpanded': false,
-              'days': days,
-            };
-          }).toList();
-        });
-
-        // fetch recipe details
-        await fetchAllRecipeDetails();
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
+          Map<String, List<Map<String, dynamic>>> days = parsedRecipes.map((day, recipes) {
+            return MapEntry(
+              day,
+              List<Map<String, dynamic>>.from(recipes.map((recipe) => {
+                    'recipeId': recipe['recipeid'],
+                  })),
+            );
           });
-        }
-      } else {
-        print('Failed to fetch meal plans: ${response.statusCode}');
+
+          return {
+            'title': name,
+            'description': description,
+            'isExpanded': false,
+            'days': days,
+          };
+        }).toList();
+      });
+
+      // fetch recipe details 
+      await fetchAllRecipeDetails();
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
-    } catch (e) {
-      print('Error fetching meal plans: $e');
+    } else {
+      print('Failed to fetch meal plans: ${response.statusCode}');
     }
+  } catch (e) {
+    print('Error fetching meal plans: $e');
   }
+}
+
 
   Future<void> fetchAllRecipeDetails() async {
     List<Future<void>> recipeFutures = [];
@@ -212,25 +214,37 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
                   },
                   children: mealPlans.map<ExpansionPanel>((mealPlan) {
                     return ExpansionPanel(
-                      backgroundColor: backgroundColor,
-                      headerBuilder: (BuildContext context, bool isExpanded) {
-                        return ListTile(
-                          title: Text(
-                            mealPlan['title'],
-                            style: TextStyle(
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        );
-                      },
-                      body: buildMealPlanContent(
-                        mealPlan['days']
-                            as Map<String, List<Map<String, dynamic>>>,
-                        context,
-                      ),
-                      isExpanded: mealPlan['isExpanded'],
-                    );
+  backgroundColor: backgroundColor,
+  headerBuilder: (BuildContext context, bool isExpanded) {
+    return ListTile(
+      title: Text(
+        mealPlan['title'],
+        style: TextStyle(
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  },
+  body: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      if (mealPlan['description'].isNotEmpty) // Only show if description is available
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            mealPlan['description'], // Display the description
+            style: TextStyle(fontSize: 16.0, fontStyle: FontStyle.italic),
+          ),
+        ),
+      buildMealPlanContent(
+        mealPlan['days'] as Map<String, List<Map<String, dynamic>>>,
+        context,
+      ),
+    ],
+  ),
+  isExpanded: mealPlan['isExpanded'],
+);
                   }).toList(),
                 ),
               ],
