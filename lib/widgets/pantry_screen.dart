@@ -4,12 +4,19 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'help_pantry.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'web_utils.dart' if (dart.library.html) 'web_utils_web.dart';
+import 'dart:io'; // For mobile
 import 'package:lottie/lottie.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:io' show Platform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+// import 'dart:io' show Platform;
+// import 'dart:io';
 import '../widgets/theme_utils.dart';
+import '../gemini_service.dart'; // LLM
+//import 'dart:convert';
+
 
 class PantryScreen extends StatefulWidget {
   final http.Client? client;
@@ -142,18 +149,16 @@ Future<void> _fetchPantryList() async {
         // Cache the response data
         await prefs.setString('cachedPantryList', jsonEncode(pantryList));
 
-        // Process and update the pantry list
-        if (mounted) {
-          setState(() {
-            _pantryList.clear();
-            for (var item in pantryList) {
-              final ingredientName = item['name'].toString();
-              final quantity = item['quantity'].toString();
-              final measurementUnit = item['measurmentunit']?.toString() ??
-                  'unit'; // Ensure 'measurementUnit' is used and fallback to 'unit' if null
-              final category = item['category'] ?? 'Other';
-              final displayText =
-                  '$ingredientName ($quantity $measurementUnit)';
+      // Process and update the pantry list
+      if (mounted) {
+        setState(() {
+          _pantryList.clear();
+          for (var item in pantryList) {
+            final ingredientName = item['name'].toString();
+            final quantity = item['quantity'].toString();
+            final measurementUnit = item['measurmentunit'].toString();
+            final category = item['category'] ?? 'Other';
+            final displayText = '$ingredientName ($quantity $measurementUnit)';
 
               _pantryList.putIfAbsent(category, () => []);
               _pantryList[category]?.add(displayText);
@@ -174,17 +179,15 @@ Future<void> _fetchPantryList() async {
       if (cachedData != null) {
         final List<dynamic> pantryList = jsonDecode(cachedData);
 
-        if (mounted) {
-          setState(() {
-            _pantryList.clear();
-            for (var item in pantryList) {
-              final ingredientName = item['name'].toString();
-              final quantity = item['quantity'].toString();
-              final measurementUnit = item['measurementUnit']?.toString() ??
-                  'unit'; // Ensure 'measurementUnit' is used and fallback to 'unit' if null
-              final category = item['category'] ?? 'Other';
-              final displayText =
-                  '$ingredientName ($quantity $measurementUnit)';
+      if (mounted) {
+        setState(() {
+          _pantryList.clear();
+          for (var item in pantryList) {
+            final ingredientName = item['name'].toString();
+            final quantity = item['quantity'].toString();
+            final measurementUnit = item['measurmentunit'].toString();
+            final category = item['category'] ?? 'Other';
+            final displayText = '$ingredientName ($quantity $measurementUnit)';
 
               _pantryList.putIfAbsent(category, () => []);
               _pantryList[category]?.add(displayText);
@@ -258,8 +261,8 @@ Future<void> _fetchPantryList() async {
             }
           });
         }
-        print(
-            'Successfully edited $item in pantry list with quantity $quantity $measurementUnit');
+       // print(
+            //'Successfully edited $item in pantry list with quantity $quantity $measurementUnit');
       } else {
         print('Failed to edit $item in pantry list: ${response.statusCode}');
       }
@@ -294,7 +297,7 @@ Future<void> _fetchPantryList() async {
             }
           });
         }
-        print('Successfully removed $ingredientName from pantry list');
+        //print('Successfully removed $ingredientName from pantry list');
       } else {
         print(
             'Failed to remove $ingredientName from pantry list: ${response.statusCode}');
@@ -333,6 +336,44 @@ Future<void> _fetchPantryList() async {
     }
   }
 
+Future<String> _getIngredientDetails(String ingredientName) async {
+    //print("in _getIngredientDetails function");
+    try {
+      final response = await http.post(
+        Uri.parse(
+            'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'),
+        body: jsonEncode({
+          'action': 'getIngredientDetails', 
+          'ingredientName': ingredientName,
+        }),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+       // print('it worked lol');
+        final Map<String, dynamic> ingredientDetails = jsonDecode(response.body);
+        //print('Ingredient Details: $ingredientDetails');
+
+        final List<dynamic> ingredientData = ingredientDetails['ingredientData'];
+
+        // Access the first ingredient's measurement unit
+        final String measurementUnit = ingredientData[0]['measurement_unit'].toString();
+
+        //print('Ingredient Measurement Unit: $measurementUnit');
+
+        return measurementUnit;
+      } else {
+        print('Failed: ${response.statusCode}');
+        return '';
+      }
+    } catch (error) {
+      print('INGREDIENT DETAILS: Error fetching $ingredientName: $error');
+      return '';
+    }
+  }
+
+
+
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
       builder: (context) => HelpMenu(
@@ -345,206 +386,667 @@ Future<void> _fetchPantryList() async {
     Overlay.of(context).insert(_helpMenuOverlay!);
   }
 
-  // final ImagePicker _picker = ImagePicker();
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    XFile? pickedFile;
-
+  Future<void> _scanImage() async {
     if (kIsWeb) {
-      // For Web, only allow picking an image from gallery
-      pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        print('Image selected: ${pickedFile.path}');
-        _showDetectedIngredients(); // Show mock ingredients screen
-      }
-    } else {
-      if (Platform.isAndroid || Platform.isIOS) {
-        // Request necessary permissions
-        if (await _requestPermissions(context)) {
-          showModalBottomSheet(
-            context: context,
-            builder: (context) {
-              return SafeArea(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ListTile(
-                      leading: Icon(Icons.camera_alt),
-                      title: Text('Take a picture'),
-                      onTap: () async {
-                        final XFile? image =
-                            await picker.pickImage(source: ImageSource.camera);
-                        if (image != null) {
-                          // Handle image
-                          print('Image selected: ${image.path}');
-                          Navigator.of(context).pop();
-                          _showDetectedIngredients(); //show mock ingredients screen
-                        }
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.photo_library),
-                      title: Text('Upload from gallery'),
-                      onTap: () async {
-                        final XFile? image =
-                            await picker.pickImage(source: ImageSource.gallery);
-                        if (image != null) {
-                          // Handle image
-                          print('Image selected: ${image.path}');
-                          Navigator.of(context).pop();
-                          _showDetectedIngredients(); //show mock ingredients screen
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        } else {
-          // Permission denied, show an alert or snackbar
-          _showPermissionDeniedMessage(context);
-          return;
+      getWebUtils().uploadImage((base64Image) async {
+        final text = await _extractTextFromImage(base64Image);
+        if (text.isNotEmpty) {
+          await _handleScannedText(text);
         }
-      } else {
-        // Handle other platforms or throw an error
-        throw UnsupportedError('This platform is not supported');
+      });
+    } else {
+      // Mobile-specific code (unchanged)
+      if (await Permission.camera.request().isGranted) {
+        final picker = ImagePicker();
+        final pickedFile = await picker.pickImage(source: ImageSource.camera);
+        if (pickedFile != null) {
+          final imageBytes = File(pickedFile.path).readAsBytesSync();
+          final text = await _extractTextFromImage(imageBytes);
+          if (text.isNotEmpty) {
+            await _handleScannedText(text);
+          }
+        }
       }
     }
   }
 
-  void _showDetectedIngredients() {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent closing when tapping outside
-      builder: (BuildContext context) {
-        final theme = Theme.of(context);
+Future<void> _selectImage() async {
+    if (kIsWeb) {
+      getWebUtils().uploadImage((base64Image) async {
+        final text = await _extractTextFromImage(base64Image);
+        if (text.isNotEmpty) {
+          await _handleScannedText(text);
+        }
+      });
+    } else {
+      // Mobile-specific code
+      if (await Permission.photos.request().isGranted) {
+        final picker = ImagePicker();
+        final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+        if (pickedFile != null) {
+          final imageBytes = File(pickedFile.path).readAsBytesSync();
+          final text = await _extractTextFromImage(imageBytes);
+          if (text.isNotEmpty) {
+            await _handleScannedText(text);
+          }
+        }
+      }
+    }
+  }
+Future<void> _showIngredientDialog(List<String> ingredients) async {
+  List<String> growableIngredients = List.from(ingredients); // Make it growable
+  List<String> selectedIngredients = []; // Store selected ingredients
+  List<String> quantities = []; // Store quantities
+  List<String> measurementUnits = []; // Store measurement units
+  List<TextEditingController> controllers = []; // List of controllers for quantities
 
-        final backgroundColor = theme.brightness == Brightness.light
-            ? Color(0xFFEDEDED)
-            : Color(0xFF283330);
+  // Populate selectedIngredients, quantities, measurementUnits, and controllers dynamically
+  for (var _ in growableIngredients) {
+    selectedIngredients.add(''); // Initialize with empty values
+    quantities.add(''); // Initialize with empty quantities
+    measurementUnits.add(''); // Initialize with empty measurement units
+    controllers.add(TextEditingController()); // Add a new controller for each ingredient
+  }
 
-        final fontColor = getFontColor(context);
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Detected Ingredients'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: growableIngredients.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  String itemEntry = entry.value;
 
-        return GestureDetector(
-          child: Container(
-            color: Color.fromARGB(121, 0, 0, 0), // Semi-transparent background
-            child: Center(
-              child: Material(
-                borderRadius: BorderRadius.circular(10),
-                color: backgroundColor,
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: MediaQuery.of(context).size.height * 0.6,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 30),
-                      Center(
-                        child: Text(
-                          'Detected Ingredients',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: fontColor,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: 5, // Five mock ingredients
-                          itemBuilder: (context, index) {
+                  // Extract itemName and identifiedIngredient from the entry
+                  final itemParts = itemEntry.split(',');
+                  final itemName = itemParts.isNotEmpty ? itemParts[0].replaceFirst('Item: ', '').trim() : '';
+                  final identifiedIngredient = itemParts.length > 1 ? itemParts[1].replaceFirst('Ingredient: ', '').trim() : '';
+
+                  return FutureBuilder<List<String>>(
+                    future: findSimilarIngredients(itemName, identifiedIngredient), // Call Dart function
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return ListTile(
+                          title: Text(itemName),
+                          trailing: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return ListTile(
+                          title: Text(itemName),
+                          trailing: Text('Error loading similar ingredients'),
+                        );
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return ListTile(
+                          title: Text(itemName),
+                          trailing: Text('No similar ingredients found'),
+                        );
+                      }
+
+                      final similarIngredients = snapshot.data!;
+                      if (selectedIngredients[index].isEmpty && similarIngredients.isNotEmpty) {
+                        selectedIngredients[index] = similarIngredients.first;
+                      }
+
+                      return FutureBuilder<String>(
+                        future: _getIngredientDetails(selectedIngredients[index]),
+                        builder: (context, detailsSnapshot) {
+                          if (detailsSnapshot.connectionState == ConnectionState.waiting) {
                             return ListTile(
-                              leading: Icon(
-                                  Icons.restaurant), // Mock ingredient icon
-                              title: Text('Ingredient ${index + 1}'),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: Icon(Icons.edit),
-                                    onPressed: () {
-                                      // HANDLE EDIT ACTION
-                                    },
-                                  ),
-                                  IconButton(
-                                    icon: Icon(Icons.delete),
-                                    onPressed: () {
-                                      // HANDLE DELETE ACTION
-                                    },
-                                  ),
-                                ],
-                              ),
+                              title: Text(itemName),
+                              trailing: CircularProgressIndicator(),
                             );
-                          },
-                        ),
-                      ),
-                      Align(
-                          alignment: Alignment.bottomRight,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+                          } else if (detailsSnapshot.hasError) {
+                            return ListTile(
+                              title: Text(itemName),
+                              trailing: Text('Error fetching details'),
+                            );
+                          } else if (!detailsSnapshot.hasData || detailsSnapshot.data!.isEmpty) {
+                            return ListTile(
+                              title: Text(itemName),
+                              trailing: Text('No details found'),
+                            );
+                          }
+
+                          // Extract the measurement unit from the ingredient details
+                          String measurementUnit = detailsSnapshot.data ?? 'unit'; // Default to 'unit' if no data
+
+                          // Store the measurement unit in the list for later use
+                          measurementUnits[index] = measurementUnit;
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              ElevatedButton(
-                                onPressed: () => Navigator.of(context)
-                                    .pop(), //HANDLE SAVE LOGIC!! BACKEND
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Color(0xFFDC945F),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 12),
+                              Expanded(
+                                flex: 2,
+                                child: ListTile(
+                                  title: Text(itemName),
+                                  trailing: DropdownButton<String>(
+                                    value: selectedIngredients[index].isNotEmpty &&
+                                            similarIngredients.contains(selectedIngredients[index])
+                                        ? selectedIngredients[index]
+                                        : null, // If value is not in the list, set it to null
+                                    hint: Text('Select similar ingredient'),
+                                    items: similarIngredients.map((ingredient) {
+                                      return DropdownMenuItem<String>(
+                                        value: ingredient,
+                                        child: Text(ingredient),
+                                      );
+                                    }).toList(),
+                                    onChanged: (newValue) {
+                                      setState(() {
+                                        selectedIngredients[index] = newValue ?? '';
+                                      });
+                                    },
+                                  ),
                                 ),
-                                child: Text('Save',
-                                    style: TextStyle(color: Colors.white)),
                               ),
-                              SizedBox(width: 8),
-                              ElevatedButton(
-                                onPressed: () => Navigator.of(context)
-                                    .pop(), //HANDLE CANCEL LOGIC!! BACKEND
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 12),
+                              Expanded(
+                                flex: 1,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          controller: controllers[index], // Use the correct controller
+                                          decoration: InputDecoration(hintText: 'Qty'),
+                                          onChanged: (value) {
+                                            quantities[index] = value; // Update the quantities list
+                                          },
+                                        ),
+                                      ),
+                                      Text(measurementUnit), // Display the measurement unit
+                                      IconButton(
+                                        icon: Icon(Icons.remove_circle, color: Colors.red),
+                                        onPressed: () {
+                                          setState(() {
+                                            growableIngredients.removeAt(index);
+                                            selectedIngredients.removeAt(index);
+                                            quantities.removeAt(index);
+                                            measurementUnits.removeAt(index);
+                                            controllers.removeAt(index); // Remove the controller as well
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                child: Text('Cancel',
-                                    style: TextStyle(color: Color(0xFFDC945F))),
                               ),
                             ],
-                          )),
-                    ],
-                  ),
-                ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                }).toList(),
               ),
             ),
-          ),
-        );
-      },
+            actions: [
+              ElevatedButton(
+                onPressed: () async {
+                    // Loop through all selected ingredients and add them to the pantry
+                    for (var i = 0; i < selectedIngredients.length; i++) {
+                      final selected = selectedIngredients[i];
+                      final quantity = quantities[i];
+                      final measurementUnit = measurementUnits[i];
+
+                      // Ensure valid ingredient and quantity are provided before adding to pantry
+                      if (selected.isNotEmpty && quantity.isNotEmpty && measurementUnit.isNotEmpty) {
+                        await _addToPantryList(_userId, selected, double.parse(quantity), measurementUnit);
+                      }
+                    }
+
+                    Navigator.of(context).pop(); // Close the dialog after adding to pantry
+                    await _fetchPantryList();
+                  },
+
+                child: Text('Add to Pantry'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+}
+
+
+
+
+
+Future<List<String>> findSimilarIngredients(String itemName, String identifiedIngredient) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  try {
+    final requestBody = jsonEncode({
+      'action': 'findSimilarIngredients',
+      'itemName': itemName,
+      'identifiedIngredient': identifiedIngredient,
+    });
+
+    // Send the POST request to your Supabase Function to get ingredients from the DB
+    final response = await http.post(
+      Uri.parse(
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint'
+      ),
+      headers: {'Content-Type': 'application/json'},
+      body: requestBody,
     );
+
+    if (response.statusCode == 200) {
+      // Decode the response body as a list of ingredients
+      final List<dynamic> dbIngredients = jsonDecode(response.body);
+
+      // Use Gemini to find the most appropriate ingredient
+      final bestMatch = await findBestMatchingIngredient(identifiedIngredient, dbIngredients.map((e) => e['name'].toString()).toList());
+
+      // Ensure the best match is the first in the list, followed by the rest of the ingredients
+      List<String> sortedIngredients = [bestMatch];
+      sortedIngredients.addAll(dbIngredients.map<String>((ingredient) => ingredient['name'].toString()).where((ingredient) => ingredient != bestMatch).toList());
+
+      // Cache the response for offline use (optional)
+      await prefs.setString('cachedSimilarIngredients', jsonEncode(dbIngredients));
+
+      return sortedIngredients;
+    } else {
+      print('Failed to fetch similar ingredients: ${response.statusCode}');
+      return [];
+    }
+  } catch (error) {
+    print('Error fetching similar ingredients: $error');
+
+    // Fallback to cached data in case of network failure
+    final cachedData = prefs.getString('cachedSimilarIngredients');
+    if (cachedData != null) {
+      final List<dynamic> data = jsonDecode(cachedData);
+      return data.map<String>((ingredient) => ingredient['name'].toString()).toList();
+    }
+
+    return [];
+  }
+}
+
+
+
+
+Future<String> _extractTextFromImage(dynamic imageData) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return 'No API_KEY environment variable';
+  }
+  final url = 'https://vision.googleapis.com/v1/images:annotate?key=$apiKey';
+
+  String base64Image;
+
+  if (kIsWeb) {
+    // For Web, imageData is a Base64-encoded string
+    base64Image = imageData;
+  } else {
+    // For Mobile, convert Uint8List to Base64 string
+    base64Image = base64Encode(imageData);
   }
 
-  Future<bool> _requestPermissions(BuildContext context) async {
-    PermissionStatus cameraPermission = await Permission.camera.request();
-    PermissionStatus galleryPermission = await Permission.photos.request();
+  final requestPayload = json.encode({
+    'requests': [
+      {
+        'image': {
+          'content': base64Image,
+        },
+        'features': [
+          {
+            'type': 'TEXT_DETECTION',
+            'maxResults': 1,
+          },
+        ],
+      },
+    ],
+  });
 
-    if (cameraPermission != PermissionStatus.granted ||
-        galleryPermission != PermissionStatus.granted) {
-      // Handle permission denied scenario
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Camera or gallery permission is required.'),
-      ));
-      return true;
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: requestPayload,
+    );
+
+    if (response.statusCode == 200) {
+      final responseJson = json.decode(response.body);
+      final textAnnotations = responseJson['responses'][0]['textAnnotations'];
+      if (textAnnotations != null && textAnnotations.isNotEmpty) {
+        return textAnnotations[0]['description'];
+      } else {
+        return 'No text detected.';
+      }
     } else {
-      return false;
+      print('Error: ${response.statusCode} ${response.reasonPhrase}');
+      print('Response body: ${response.body}');
+      return 'Failed to detect text from image';
+    }
+  } catch (e) {
+    print('Exception: $e');
+    return 'Failed to detect text from image';
+  }
+}
+
+
+Future<void> _handleScannedText(String text) async {
+  //print(text);
+  final items = _parseIngredientsFromText(text);
+
+  // Convert List<String> to a single String
+  final itemsString = items.join('\n');
+
+  // Await the result of the identifyIngredientFromReceipt function
+  final ingredients = await identifyIngredientFromReceipt(itemsString);
+  //print("INGREDIENTS");
+  //print(ingredients);
+
+  // Parse the ingredients list to extract both items and ingredients in pairs
+  final pairedItemsIngredients = <Map<String, String>>[];
+
+  for (var entry in ingredients) {
+    final itemMatch = RegExp(r'Item: ([^,]+)').firstMatch(entry);
+    final ingredientMatch = RegExp(r'Ingredient: (.+)').firstMatch(entry);
+
+    if (itemMatch != null && ingredientMatch != null) {
+      final item = itemMatch.group(1)?.trim();
+      final ingredient = ingredientMatch.group(1)?.trim();
+
+      if (item != null && ingredient != null) {
+        pairedItemsIngredients.add({'item': item, 'ingredient': ingredient});
+      }
     }
   }
 
-  void _showPermissionDeniedMessage(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Permission denied. You cannot use the camera.'),
-      ),
-    );
+  // Filter out any pairs where the ingredient contains unwanted keywords
+  final filteredPairs = pairedItemsIngredients.where((pair) {
+    final lowerIngredient = pair['ingredient']!.toLowerCase();
+    
+    // Check if the ingredient contains 'drink', 'soap', or other unwanted keywords
+    return !lowerIngredient.contains('drink') &&
+           !lowerIngredient.contains('soap'); // Add more filters here
+  }).toList();
+
+  // Prepare the filtered list for display
+  final filteredItems = filteredPairs
+      .map((pair) => 'Item: ${pair['item']}, Ingredient: ${pair['ingredient']}')
+      .toList();
+
+  // Show the appropriate dialog based on the filtered results
+  if (filteredItems.isNotEmpty) {
+    _showIngredientDialog(filteredItems);
+  } else {
+    _showNoIngredientsFoundDialog();
   }
+}
+
+List<String> _parseIngredientsFromText(String text) {
+  final lowerCaseText = text.toLowerCase();
+
+  final firstLine = lowerCaseText.split('\n').first;
+  //print(firstLine);
+  
+  final store = detectStoreFormat(firstLine);
+
+  return parseReceiptForStore(lowerCaseText, store);
+}
+
+String detectStoreFormat(String text) {
+  // checks which one of the stores the line passed in is to modify the parsing accordingly
+  if (text.contains('pick n pay')) {
+    //print("first line is pick n pay");
+    return "P"; // Pick n Pay
+  } else if (text.contains('woolworths')) {
+    //print("first line is woolworths");
+    return "W"; // Woolworths
+  } else if (text.contains('checkers')) {
+    //print("first line is checkers");
+    return "C"; // Checkers
+  }
+  print("Error couldn't find store name");
+  return "U"; // Unknown
+}
+
+// Function to parse receipt based on detected store
+List<String> parseReceiptForStore(String text, String store) {
+  switch (store) {
+    case "P":
+      //print("going to parse Pick n Pay receipt");
+      return parsePicknPayReceipt(text);
+    case "W":
+      //print("going to parse Woolworths receipt");
+      return parseWoolworthsReceipt(text);
+    case "C":
+    //print("going to parse Checkers receipt");
+      return parseCheckersReceipt(text);
+    default:
+      return []; // Handle unknown or unsupported formats
+  }
+}
+
+// Store-specific parsing functions
+List<String> parsePicknPayReceipt(String text) {
+  // FORMAT
+  // Pick n Pay
+  // location
+  // phone number
+  // CASHIER: ****
+
+  // item name (required)
+  //        quantity      @      price   (optional -- only if > 1)
+  // ** Less cash-off (optional if discounted)
+  // .
+  // .
+  // .
+  // DUE VAT INCL
+
+  final lowerCaseText = text.toLowerCase();
+  
+  final startMarker = 'cashier:';
+  final endMarker = 'due vat incl';
+  
+  final startIndex = lowerCaseText.indexOf(startMarker);
+  final endIndex = lowerCaseText.indexOf(endMarker);
+
+  // Check if both markers are found and in correct order
+  if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
+    return []; 
+  }
+
+  final startOffset = lowerCaseText.indexOf('\n', startIndex) + 1; 
+  final section = lowerCaseText.substring(startOffset, endIndex).trim();
+  
+  final lines = section.split('\n').map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+  // print("LINES");
+  // print(lines);
+
+  final items = <String>[];
+  
+  String? currentItem;
+
+  for (var line in lines) {
+    // all the skips
+    if (line.contains('less cash-off')) {
+      continue; // skip discounts
+    }
+
+    // remove dog food lol because Gemini doesn't want to
+    if (line.contains('dog') || line.contains("d/f")) {
+      continue;
+    }
+
+    // remove drinks - can add more drinks here
+    if (line.contains('drink') || line.contains('jce') || line.contains('juice')) {
+      continue;
+    }
+
+    if (line.contains(RegExp(r'@')) || line.contains(RegExp(r'\d+\.\d{2}')) || line.startsWith(RegExp(r'\d+'))) {
+      // can add quantity stuff here
+      continue;
+    } else {
+      currentItem = line.trim();
+      items.add(currentItem);
+    }
+  }
+
+  // print("ITEMS");
+  // print(items);
+
+
+  return items;
+}
+
+
+
+List<String> parseWoolworthsReceipt(String text) {
+  // FORMAT
+  // Welcome to our store
+  // other stuff
+  // TAX INVOICE
+  // -------------------------------------------
+  // S | Z item (required)      price
+  //   num @ price (optional if num > 1)
+  // price (Rxx.xx) less promo price (Rxx.xx) (optional if on promotion)
+  // .
+  // .
+  // .
+  // TOTAL
+
+  final lowerCaseText = text.toLowerCase();
+
+  final startMarker = 'tax invoice';
+  final endMarker = 'total';
+
+  final startIndex = lowerCaseText.indexOf(startMarker);
+  final endIndex = lowerCaseText.indexOf(endMarker);
+
+  // Check if both markers are found and in correct order
+  if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
+    return [];
+  }
+
+  final startOffset = lowerCaseText.indexOf('\n', startIndex) + 1;
+  final section = lowerCaseText.substring(startOffset, endIndex).trim();
+
+  final lines = section
+      .split('\n')
+      .map((line) => line.trim())
+      .where((line) => line.isNotEmpty)
+      .toList();
+
+  final items = <String>[];
+
+  String? currentItem;
+
+  for (var line in lines) {
+    // Skip promotions and discounts
+    if (line.contains('less promo') || line.contains('discount')) {
+      continue;
+    }
+
+    // Skip drinks, just as in Pick n Pay
+    if (line.contains('drink') || line.contains('jce') || line.contains('juice') || line.contains('coke')) {
+      continue;
+    }
+
+    // Skip price lines and quantity lines (optional)
+    if (line.contains(RegExp(r'@')) ||
+        line.contains(RegExp(r'r\d+\.\d{2}')) ||
+        line.startsWith(RegExp(r'\d+'))) {
+      continue;
+    } else {
+      // Extract the item name
+      currentItem = line.trim();
+      items.add(currentItem);
+    }
+  }
+
+  return items;
+}
+
+
+List<String> parseCheckersReceipt(String text) {
+  // FORMAT
+  // Checkers 
+  // company
+  // location + number
+  // address
+  // VAT no.
+  // TAX INVOICE
+  // item (required)    price
+  //        num    @    price (optional if num > 1)
+  //  XTRASAVE ... -price (optional - discount)
+  // .
+  // .
+  // .
+  // TOTAL[]        price
+  final lowerCaseText = text.toLowerCase();
+
+  final startMarker = 'tax invoice';
+  final endMarker = 'total';
+
+  final startIndex = lowerCaseText.indexOf(startMarker);
+  final endIndex = lowerCaseText.indexOf(endMarker);
+
+  // Check if both markers are found and in correct order
+  if (startIndex == -1 || endIndex == -1 || startIndex >= endIndex) {
+    return [];
+  }
+
+  final startOffset = lowerCaseText.indexOf('\n', startIndex) + 1;
+  final section = lowerCaseText.substring(startOffset, endIndex).trim();
+
+  final lines = section.split('\n').map((line) => line.trim()).where((line) => line.isNotEmpty).toList();
+  // print("LINES");
+  // print(lines);
+
+  final items = <String>[];
+  
+  String? currentItem;
+
+  for (var line in lines) {
+    // Skip quantity lines, prices, and discounts
+    if (line.contains(RegExp(r'@')) || line.startsWith(RegExp(r'\d+')) || line.contains('xtrasave')) {
+      continue;
+    }
+
+    // Add item name
+    currentItem = line.trim();
+    items.add(currentItem);
+  }
+
+  // print("ITEMS");
+  // print(items);
+
+  return items;
+}
+
+
+Future<void> _showNoIngredientsFoundDialog() async {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('No Ingredients Found'),
+        content: Text('No ingredients were detected in the image.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -634,9 +1136,9 @@ Future<void> _fetchPantryList() async {
                               ),
                               ElevatedButton(
                                 key: ValueKey('UploadPhoto'),
-                                onPressed: () {
-                                  _pickImage();
-                                },
+                                 onPressed: () {
+                                _showImageSourceSelection(); // Added method to choose image source
+                              },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor:
                                       Color.fromARGB(255, 195, 108, 46),
@@ -658,6 +1160,33 @@ Future<void> _fetchPantryList() async {
             ),
     );
   }
+
+  void _showImageSourceSelection() {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Select Image Source'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _scanImage(); // Use camera
+            },
+            child: Text('Take Photo'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _selectImage(); // Use gallery
+            },
+            child: Text('Choose from Gallery'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
 // Helper method to build a category header
   Widget _buildCategoryHeader(String title) {
