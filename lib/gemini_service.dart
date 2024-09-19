@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_generative_ai/google_generative_ai.dart';
 // import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -54,12 +55,14 @@ Future<Map<String, dynamic>?> fetchRecipeDetails(String recipeId) async {
 }
 
 Future<List<dynamic>?> fetchRecipesByCourse(String course) async {
-  final url = 'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+  final url =
+      'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
   final headers = <String, String>{'Content-Type': 'application/json'};
   final body = jsonEncode({'action': 'getRecipesByCourse', 'course': course});
 
   try {
-    final response = await http.post(Uri.parse(url), headers: headers, body: body);
+    final response =
+        await http.post(Uri.parse(url), headers: headers, body: body);
 
     if (response.statusCode == 200) {
       final dynamic fetchedRecipes = jsonDecode(response.body);
@@ -149,16 +152,27 @@ Future<List<Map<String, String>>> fetchPantryList(String userId) async {
 }
 
 Future<String> fetchMealPlannerRecipes(
-  String userid, String gender, String weight, String weightUnit, 
-  String height, String heightUnit, int age, String activityLevel, 
-  String dietGoal, String mealFreq, String courses
-) async {
+    String userid,
+    String gender,
+    String weight,
+    String weightUnit,
+    String height,
+    String heightUnit,
+    int age,
+    String activityLevel,
+    String dietGoal,
+    String mealFreq,
+    String courses,
+    String mealPlanName,
+    BuildContext context // Add context to access the Scaffold/AlertDialog
+    ) async {
   final apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
 
-  List<String> selectedCourses = courses.split(',').map((course) => course.trim()).toList();
+  List<String> selectedCourses =
+      courses.split(',').map((course) => course.trim()).toList();
 
   Map<String, dynamic> courseRecipes = {};
 
@@ -189,80 +203,28 @@ Future<String> fetchMealPlannerRecipes(
 
   final String dietaryConstraints = await fetchUserDietaryConstraints(userid);
 
-
-  final initialPrompt = """
-    Create a meal planner for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday
-    for the person with these details:
-      - Gender: $gender
+  final initialPrompt = '''
+  Create a meal planner named "$mealPlanName" for Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, and Sunday
+  for the person with these details:
+      - Gender: ${gender.replaceAll('"', r'\"')}
       - Weight: $weight $weightUnit
       - Height: $height $heightUnit
       - Age: $age
       - Activity Level: $activityLevel
-      - Diet Goal: $dietGoal
+      - Diet Goal: ${dietGoal.replaceAll('"', r'\"')}
       - Meal Frequency: $mealFreq
       - Dietary Constraints: $dietaryConstraints
 
-    Here are the available recipes for the selected courses:
-    ${courseRecipes.entries.map((entry) => '- ${entry.key} Recipes: ${jsonEncode(entry.value)}').join('\n')}
-  """;
+  Here are the available recipes for the selected courses:
+  ${courseRecipes.entries.map((entry) => '- ${entry.key} Recipes: ${jsonEncode(entry.value)}').join('\n')}
+  ''';
 
-//   final format = """
-//     Return the meal planner in JSON using the following structure:
-//     {
-//   "Monday": [
-//     {
-//       "mealNum": "1",
-//       "course": "course",
-//       "recipeId": "recipeId",
-//       "recipeName": "recipeName",
-//       "ingredients": [
-//         {
-//           "ingredientName": "ingredientName",
-//           "quantity": "quantity",
-//           "unit": "unit"
-//         }
-//       ]
-//     },
-//     {
-//       "mealNum": "2",
-//       "course": "course",
-//       "recipeId": "recipeId",
-//       "recipeName": "recipeName",
-//       "ingredients": [
-//         {
-//           "ingredientName": "ingredientName",
-//           "quantity": "quantity",
-//           "unit": "unit"
-//         }
-//       ]
-//     },
-//     {
-//       "mealNum": "3",
-//       "course": "course",
-//       "recipeId": "recipeId",
-//       "recipeName": "recipeName",
-//       "ingredients": [
-//         {
-//           "ingredientName": "ingredientName",
-//           "quantity": "quantity",
-//           "unit": "unit"
-//         }
-//       ]
-//     }
-//   ],
-//   "Tuesday": [...],
-//   "Wednesday": [...],
-//   "Thursday": [...],
-//   "Friday": [...],
-//   "Saturday": [...],
-//   "Sunday": [...]
-// }
-//     Give valid JSON and don't add any explanations.
-//   """;
+  final format = """
+  Please return the meal planner strictly in valid JSON format. Ensure the response follows this structure:
 
- final format = """
-  Return the meal planner in JSON using the following structure:
   {
+    "Name": "$mealPlanName", 
+    "Description": "\$description",
     "Meals": {
       "Monday": [
         { "recipeid": "\$recipeid1" },
@@ -281,10 +243,14 @@ Future<String> fetchMealPlannerRecipes(
       "Sunday": [...]
     }
   }
-  Ensure the recipe IDs are provided as individual objects in the correct structure.
+Ensure the recipe IDs are provided as individual objects in the correct structure.
   Give valid JSON and don't add any explanations. The recipeids are NOT the names, rather uuid strings.
+  For the description, please mention the user's activity level, diet goal and dietary constraints and 
+  how the recipes were chosen considering these
+  Return the JSON with **no extra text**, comments, or explanations. Ensure valid JSON (with double quotes 
+  around keys and values) and all recipeids are UUID strings. **Check the output carefully for missing commas, 
+  extra commas, or incorrect braces before returning it.**
 """;
-
 
   final prompt = initialPrompt + format;
 
@@ -299,14 +265,20 @@ Future<String> fetchMealPlannerRecipes(
     // Clean up the JSON string
     try {
       jsonString = jsonString.replaceAll("'", '"'); // Ensure proper JSON format
-      jsonString = jsonString.replaceAll(RegExp(r'\s+'), ' '); // Remove extra whitespace
+      jsonString =
+          jsonString.replaceAll(RegExp(r'\s+'), ' '); // Remove extra whitespace
+      jsonString = jsonString.replaceAll(
+          RegExp(r',(\s*[\]}])'), r'$1'); // Remove trailing commas
 
       // Remove unnecessary code block markers if present
       if (jsonString.startsWith('```json')) {
-        jsonString = jsonString.substring(7).trim(); // Remove starting code block marker
+        jsonString =
+            jsonString.substring(7).trim(); // Remove starting code block marker
       }
       if (jsonString.endsWith('```')) {
-        jsonString = jsonString.substring(0, jsonString.length - 3).trim(); // Remove ending code block marker
+        jsonString = jsonString
+            .substring(0, jsonString.length - 3)
+            .trim(); // Remove ending code block marker
       }
 
       // Try to parse JSON to ensure it's valid
@@ -314,12 +286,18 @@ Future<String> fetchMealPlannerRecipes(
 
       return jsonEncode(jsonData); // Return the formatted JSON string
     } catch (e) {
+      _showErrorSnackbar(context, 'Something went wrong. Please try again.');
       print('Failed to parse JSON: $e');
       return 'Error parsing JSON';
     }
   } else {
     return 'No response text';
   }
+}
+
+void _showErrorSnackbar(BuildContext context, String message) {
+  final snackBar = SnackBar(content: Text(message));
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
 
 Future<String> fetchIngredientSubstitutionRecipe(
@@ -403,7 +381,7 @@ Future<String> fetchIngredientSubstitutionRecipe(
   They should all be Strings.""";
 
   final initialPrompt =
-  """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
+      """For the recipe titled "${recipeDetails['name'] ?? 'Unknown'}", 
   with ingredients ${ingredients.join(', ')}, and steps ${steps.join(' ')}, 
   use this substitution $substitute instead of the $substitutedIngredient. 
   Make sure to adjust the quantities of the ingredients so the recipe is still accurate, 
@@ -899,8 +877,8 @@ Future<String> fetchRecipeFromPantryIngredients(String userId) async {
 
     // Optionally, parse the JSON string to a Map to verify it's a valid JSON
     try {
-      final jsonMap = jsonDecode(jsonString);
-      print('Parsed JSON: $jsonMap');
+      //final jsonMap = jsonDecode(jsonString);
+      //print('Parsed JSON: $jsonMap');
     } catch (e) {
       print('Failed to parse JSON: $e');
       return 'Failed to parse JSON';
@@ -1032,27 +1010,26 @@ Future<String> fetchDietaryConstraintRecipe(
 }
 
 Future<List<String>> fetchAllowedAppliances() async {
-  
   final url =
       'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
 
   try {
-    
     final response = await http.post(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
       },
       body: json.encode({
-        'action': 'getAllAppliances',  
+        'action': 'getAllAppliances',
       }),
     );
     if (response.statusCode == 200) {
       try {
-        
         final List<dynamic> appliances = jsonDecode(response.body);
         //print(response.body);
-        return appliances.map((appliance) => appliance['name'] as String).toList();
+        return appliances
+            .map((appliance) => appliance['name'] as String)
+            .toList();
       } catch (e) {
         print('Error parsing JSON: $e');
         print('Response body: ${response.body}');
@@ -1068,8 +1045,6 @@ Future<List<String>> fetchAllowedAppliances() async {
     return [];
   }
 }
-
-
 
 ///extract json data for recipe
 Future<Map<String, dynamic>?> extractRecipeData(
@@ -1310,6 +1285,92 @@ Future<void> addExtractedRecipeToDatabase(
   }
 }
 
+Future<List<String>> identifyIngredientFromReceipt(String items) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return ['No API_KEY environment variable'];
+  }
+
+  final formatting = """Return the items in the following JSON format:
+  {
+  "items": [
+    {
+      "name": "Item Name",
+      "ingredient": "Ingredient Name"
+    },
+    {
+      "name": "Item Name",
+      "ingredient": "Ingredient Name"
+    }
+  ]
+}
+  They should all be Strings.""";
+
+  final initialPrompt =
+      """For these items: $items; remove all non-edible items and all non human food 
+  and then identify what food stuff the remaining items are. Be specific, like mince should should be specified as such i.e Beef Mince.""";
+
+  final finalPrompt = initialPrompt + formatting;
+
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final content = [Content.text(finalPrompt)];
+  final response = await model.generateContent(content);
+
+  // Ensure response is not null and print the text content
+  if (response != null && response.text != null) {
+    String jsonString = response.text!;
+
+    //print(jsonString);
+
+    // Correct the JSON format by replacing single quotes with double quotes
+    jsonString = jsonString.replaceAll("'", '"');
+
+    // Remove markdown syntax if present
+    jsonString = jsonString
+        .replaceAll(RegExp(r'```(json)?\s*'), '')
+        .replaceAll(RegExp(r'\s*```'), '');
+
+    // Parse the JSON string to a Map to verify it's valid JSON
+    try {
+      final jsonMap = jsonDecode(jsonString);
+      final itemsList = (jsonMap['items'] as List<dynamic>)
+          .map((item) =>
+              'Item: ${item['name']}, Ingredient: ${item['ingredient']}')
+          .toList();
+      return itemsList;
+    } catch (e) {
+      print('Failed to parse JSON: $e');
+      return [];
+    }
+  } else {
+    return ['No response text'];
+  }
+}
+
+Future<String> findBestMatchingIngredient(
+    String identifiedIngredient, List<String> dbIngredients) async {
+  final apiKey = dotenv.env['API_KEY'] ?? '';
+  if (apiKey.isEmpty) {
+    return 'No API_KEY environment variable';
+  }
+
+  // Create the prompt for Gemini
+  final prompt =
+      """Compare the identified ingredient "$identifiedIngredient" to this list of ingredients from the database: ${dbIngredients.join(', ')}.
+  Return the most similar ingredient from the list - based on the name of the identified ingredient - without explanation.""";
+
+  // Initialize the model with your API key
+  final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
+  final content = [Content.text(prompt)];
+  final response = await model.generateContent(content);
+
+  if (response != null && response.text != null) {
+    return response.text!.trim(); // The most similar ingredient
+  } else {
+    return 'No response';
+  }
+}
+
 // all dietary constraints
 Future<String> fetchDietaryConstraintsRecipe(
     String userId, String recipeId) async {
@@ -1445,7 +1506,8 @@ Future<String> fetchDietaryConstraintsRecipe(
   }
 }
 
-Future<List<String>> validateRecipe(String name, String description, List<String> steps) async {
+Future<List<String>> validateRecipe(
+    String name, String description, List<String> steps) async {
   const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return ['No API_KEY environment variable'];
@@ -1485,8 +1547,10 @@ Otherwise, return an empty list if everything is valid.
     responseText = responseText.trim();
 
     // Ensure the response is a valid JSON array by removing any unwanted text
-    responseText = responseText.replaceAll(RegExp(r'[^\[]*\['), '['); // Remove text before the array
-    responseText = responseText.replaceAll(RegExp(r'\][^\]]*$'), ']'); // Remove text after the array
+    responseText = responseText.replaceAll(
+        RegExp(r'[^\[]*\['), '['); // Remove text before the array
+    responseText = responseText.replaceAll(
+        RegExp(r'\][^\]]*$'), ']'); // Remove text after the array
 
     // Attempt to parse the cleaned-up JSON response
     try {

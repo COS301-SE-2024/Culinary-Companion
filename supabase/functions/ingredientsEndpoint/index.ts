@@ -26,6 +26,14 @@ interface Filters {
   ingredientOption?: string;
 }
 
+interface Ingredient {
+  id: number;
+  name: string;
+  category: string;
+  measurementUnit: string;
+}
+
+
 // Create the Supabase Client
 const supURL =
   (Deno.env.get("_SUPABASE_URL") as string) || "http://localhost:54321";
@@ -65,7 +73,10 @@ Deno.serve(async (req) => {
       filters,
       keywords,
       dietaryConstraints,
-      recipes // for meal planner
+      recipes, // for meal planner
+      mealplannerid,
+      itemName,
+      identifiedIngredient
     } = await req.json();
 
     switch (action) {
@@ -176,8 +187,14 @@ Deno.serve(async (req) => {
         return addToMealPlanner(userId, recipes, corsHeaders);
       // case "addToMealPlanner":
       //   return addToMealPlanner(req, corsHeaders);
+      case "deleteMealPlanner":
+        return deleteMealPlanner(mealplannerid, corsHeaders);
       case "getAllMealPlanners":
         return getAllMealPlanners(userId, corsHeaders);
+      case 'findSimilarIngredients':
+        return findSimilarIngredients(itemName, identifiedIngredient, corsHeaders);
+      case 'getIngredientDetails':
+          return getIngredientDetails(ingredientName, corsHeaders);
       default:
         return new Response(JSON.stringify({ error: "Invalid action" }), {
           status: 400,
@@ -2336,47 +2353,6 @@ async function addRecipeDietaryConstraints(
   );
 }
 
-// async function addToMealPlanner(
-//   userid: string,
-//   recipes: string,
-//   corsHeaders: HeadersInit
-// ) 
-// {
-//   if (!userid || !recipes) {
-//     console.error("Missing user ID or recipes.");
-//     return new Response(
-//       JSON.stringify({ error: "Missing user ID or recipes" }),
-//       {
-//         status: 400,
-//         headers: corsHeaders,
-//       }
-//     );
-//   }
-
-//   const { error: mealPlannerError } = await supabase
-//     .from("mealPlanner")
-//     .insert({ userid: userid, recipes: recipes})
-
-//   if (mealPlannerError) {
-//     console.error("Error adding to meal planner:", mealPlannerError);
-//     return new Response(
-//       JSON.stringify({ error: mealPlannerError.message }),
-//       {
-//         status: 400,
-//         headers: corsHeaders,
-//       }
-//     );
-//   }
-
-//   return new Response(
-//     JSON.stringify({ success: "Recipe added to meal planner successfully" }),
-//     {
-//       status: 200,
-//       headers: corsHeaders,
-//     }
-//   );
-// }
-
 async function addToMealPlanner(
   userId: string,
   recipes: object,
@@ -2465,6 +2441,152 @@ async function getAllMealPlanners(
       headers: corsHeaders,
     }
   );
+}
+
+
+async function deleteMealPlanner(
+  mealplannerid: string,
+  corsHeaders: HeadersInit
+) {
+  if (!mealplannerid) {
+    console.error("Missing meal planner ID.");
+    return new Response(
+      JSON.stringify({ error: "Missing meal planner ID" }),
+      {
+        status: 400,
+        headers: corsHeaders,
+      }
+    );
+  }
+
+  const { error: deleteError } = await supabase
+    .from("mealPlanner")
+    .delete()
+    .eq("mealplannerid", mealplannerid);
+
+  if (deleteError) {
+    console.error("Error deleting meal planner:", deleteError);
+    return new Response(
+      JSON.stringify({ error: deleteError.message }),
+      {
+        status: 400,
+        headers: corsHeaders,
+      }
+    );
+  }
+
+  return new Response(
+    JSON.stringify({ message: "Meal planner deleted successfully" }),
+    {
+      status: 200,
+      headers: corsHeaders,
+    }
+  );
+}
+
+async function findSimilarIngredients(
+  itemName: string, 
+  identifiedIngredient: string, 
+  corsHeaders: HeadersInit
+) {
+  if (!itemName) {
+      console.error('Ingredient name is required.');
+      return new Response(JSON.stringify({ error: 'Ingredient name is required' }), {
+          status: 400,
+          headers: corsHeaders,
+      });
+  }
+
+  try {
+      // Fetch all ingredients
+      const allIngredientsResponse = await getIngredientNames(corsHeaders);
+      const allIngredients: Ingredient[] = await allIngredientsResponse.json();
+
+      // Split ingredientName and ingredientType into search terms
+      const nameTerms = itemName.toLowerCase().split(/\s+/);
+      const typeTerms = identifiedIngredient.toLowerCase().split(/\s+/);
+
+      // Define special cases: each keyword has its substitution
+      const specialKeywords: { [key: string]: string } = {
+          flora: "margarine",
+          stork: "margarine",
+          rama: "margarine",
+          tussers: "cheese",
+          maggi: "instant noodles",
+          dougls: "milk",
+      };
+
+      // Check if the itemName or identifiedIngredient has any special keyword
+      const substitutedTerms = [...nameTerms, ...typeTerms].map(term => {
+          if (Object.prototype.hasOwnProperty.call(specialKeywords, term)) {
+              return specialKeywords[term]; // Replace the term with its corresponding special keyword value
+          }
+          return term; // Keep the original term if it's not a special keyword
+      });
+
+      // Filter ingredients based on the substituted terms
+      const similarIngredients = allIngredients.filter((ingredient: Ingredient) => {
+          const ingredientNameLower = ingredient.name.toLowerCase();
+
+          // Check if any of the substituted terms are included in the ingredient name
+          return substitutedTerms.some(term => ingredientNameLower.includes(term));
+      });
+
+      // If no similar ingredients are found, return all ingredients
+      if (similarIngredients.length === 0) {
+          return new Response(JSON.stringify(allIngredients), {
+              status: 200,
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+      }
+
+      return new Response(JSON.stringify(similarIngredients), {
+          status: 200,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+
+  } catch (error) {
+      console.error('Unexpected error:', error);
+      return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: corsHeaders,
+      });
+  }
+}
+
+async function getIngredientDetails(ingredientName : string, corsHeaders : HeadersInit) {
+  try {
+      if (!ingredientName) {
+          throw new Error('Ingredient name is required');
+      }
+
+      const { data: ingredientData, error: ingredientError } = await supabase
+      .from('ingredient')
+      .select('ingredientid, name, measurement_unit')
+      .ilike('name', ingredientName.trim())  // Case-insensitive and trimmed
+      .limit(1);  // Limit to only one result
+  
+
+      if (ingredientError) {
+          throw new Error(`Error fetching ingredient ID: ${ingredientError.message}`);
+      }
+
+      if (!ingredientData) {
+          throw new Error(`Ingredient not found for name: ${ingredientData}`);
+      }
+
+      // const recipeId = ingredientData.recipeid;
+
+      return new Response(JSON.stringify({ ingredientData }, null, 2), {
+          status: 200,
+          headers: corsHeaders,
+      });
+  } catch (error) {
+      return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: corsHeaders,
+      });
+  }
 }
 
 

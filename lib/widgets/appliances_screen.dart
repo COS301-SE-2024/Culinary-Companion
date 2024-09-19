@@ -364,7 +364,7 @@ class _AppliancesScreenState extends State<AppliancesScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 20.0),
             child: IconButton(
-              key: Key('help_button'),
+              key: ValueKey('appliance_help_button'),
               icon: Icon(Icons.help),
               onPressed: _showHelpMenu,
               iconSize: 35,

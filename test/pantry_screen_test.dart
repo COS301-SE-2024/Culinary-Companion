@@ -5,14 +5,20 @@ import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_application_1/widgets/pantry_screen.dart'; // Replace with actual import
-
+//import 'package:flutter/foundation.dart';
 import 'pantry_screen_test.mocks.dart';
+
+void mockIsWeb() {
+  // ignore: unused_local_variable
+  bool kIsWeb = false;
+}
 
 @GenerateMocks([http.Client])
 void main() {
   late MockClient mockClient;
 
   setUp(() {
+    mockIsWeb();
     mockClient = MockClient();
     SharedPreferences.setMockInitialValues({});
   });
