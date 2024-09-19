@@ -42,7 +42,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image == null) {
-      print('No image selected.');
+      //print('No image selected.');
       return;
     }
 
@@ -111,19 +111,21 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       final List<DropdownMenuItem<String>> cuisineItems = await _loadCuisines();
       final List<MultiSelectItem<String>> constraintItems =
           await _loadDietaryConstraints();
-if (mounted) {
-      setState(() {
-        _cuisines = cuisineItems;
-        _dietaryConstraints = constraintItems;
-        //_isLoading = false;
-      });}
+      if (mounted) {
+        setState(() {
+          _cuisines = cuisineItems;
+          _dietaryConstraints = constraintItems;
+          //_isLoading = false;
+        });
+      }
     } catch (error) {
       print('Error initializing data: $error');
       if (mounted) {
-      setState(() {
-        //_isLoading = false;
-        //_errorMessage = 'Error initializing data';
-      });}
+        setState(() {
+          //_isLoading = false;
+          //_errorMessage = 'Error initializing data';
+        });
+      }
     }
     _isLoading = false;
   }
@@ -131,10 +133,11 @@ if (mounted) {
   Future<void> _loadUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (mounted) {
-    setState(() {
-      _userId = prefs.getString('userId');
-      //print('Login successful: $_userId');
-    });}
+      setState(() {
+        _userId = prefs.getString('userId');
+        //print('Login successful: $_userId');
+      });
+    }
   }
 
   Future<void> _fetchUserDetails() async {
@@ -159,50 +162,54 @@ if (mounted) {
         //print('Response data: $data'); //response data
         if (data.isNotEmpty) {
           if (mounted) {
-          setState(() {
-            _userDetails = data[0]; //get the first item in the list
+            setState(() {
+              _userDetails = data[0]; //get the first item in the list
 
-            _selectedCuisine =
-                _userDetails?['cuisine']?.toString() ?? 'Mexican';
-            _username = _userDetails?['username']?.toString() ?? 'Jane Doe';
-            _spiceLevel =
-                _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
-            _spiceLevel = getSpiceLevelText(_spiceLevel);
+              _selectedCuisine =
+                  _userDetails?['cuisine']?.toString() ?? 'Mexican';
+              _username = _userDetails?['username']?.toString() ?? 'Jane Doe';
+              _spiceLevel =
+                  _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
+              _spiceLevel = getSpiceLevelText(_spiceLevel);
 
-            _selectedDietaryConstraints = List<String>.from(
-                _userDetails?['dietaryConstraints']
-                        ?.map((dc) => dc.toString()) ??
-                    []);
-            imageUrl =
-                _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
+              _selectedDietaryConstraints = List<String>.from(
+                  _userDetails?['dietaryConstraints']
+                          ?.map((dc) => dc.toString()) ??
+                      []);
+              imageUrl =
+                  _userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
 
-            //_profilePhoto =_userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
-            //_isLoading = false;
-          });}
+              //_profilePhoto =_userDetails?['profilephoto']?.toString() ?? 'assets/pfp.jpg';
+              //_isLoading = false;
+            });
+          }
         } else {
           if (mounted) {
-          setState(() {
-            _isLoading = false;
-            //_errorMessage = 'No user details found';
-          });}
+            setState(() {
+              _isLoading = false;
+              //_errorMessage = 'No user details found';
+            });
+          }
         }
       } else {
         // Handle error
         print('Failed to load user details: ${response.statusCode}');
         if (mounted) {
-        setState(() {
-          _isLoading = false;
-          // _errorMessage = 'Failed to load user details';
-        });}
+          setState(() {
+            _isLoading = false;
+            // _errorMessage = 'Failed to load user details';
+          });
+        }
       }
     } catch (error) {
       //error handling
       print('Error fetching user details: $error');
       if (mounted) {
-      setState(() {
-        _isLoading = false;
-        //_errorMessage = 'Error fetching user details';
-      });}
+        setState(() {
+          _isLoading = false;
+          //_errorMessage = 'Error fetching user details';
+        });
+      }
     }
   }
 
@@ -216,6 +223,14 @@ if (mounted) {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+
+        // Sort the cuisines alphabetically, placing "None" at the end
+        data.sort((a, b) {
+          if (a['name'] == 'None') return 1; // "None" should be at the end
+          if (b['name'] == 'None') return -1; // "None" should be at the end
+          return a['name'].toString().compareTo(b['name'].toString());
+        });
+
         final List<DropdownMenuItem<String>> cuisineItems =
             data.map<DropdownMenuItem<String>>((cuisine) {
           return DropdownMenuItem<String>(
@@ -226,6 +241,7 @@ if (mounted) {
             ),
           );
         }).toList();
+
         return cuisineItems;
       } else {
         throw Exception('Failed to load cuisines');
@@ -245,6 +261,14 @@ if (mounted) {
 
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body);
+
+        // Sort the constraints alphabetically, placing "None" at the end
+        data.sort((a, b) {
+          if (a['name'] == 'None') return 1; // "None" should be at the end
+          if (b['name'] == 'None') return -1; // "None" should be at the end
+          return a['name'].toString().compareTo(b['name'].toString());
+        });
+
         final List<MultiSelectItem<String>> constraintItems =
             data.map<MultiSelectItem<String>>((constraint) {
           return MultiSelectItem<String>(
@@ -326,9 +350,10 @@ if (mounted) {
             controller: TextEditingController(text: _username),
             onSubmitted: (newValue) {
               if (mounted) {
-              setState(() {
-                _username = newValue;
-              });}
+                setState(() {
+                  _username = newValue;
+                });
+              }
             },
           ),
         ],
@@ -358,10 +383,11 @@ if (mounted) {
             items: _cuisines,
             onChanged: (value) {
               if (mounted) {
-              setState(() {
-                _selectedCuisine = value;
-                //updateUserCuisine(_userId!, value!);
-              });}
+                setState(() {
+                  _selectedCuisine = value;
+                  //updateUserCuisine(_userId!, value!);
+                });
+              }
             },
             decoration: InputDecoration(
               border:
@@ -406,10 +432,11 @@ if (mounted) {
                           value: level,
                           groupValue: _spiceLevel,
                           onChanged: (value) {
-                            if(mounted){
-                            setState(() {
-                              _spiceLevel = value;
-                            });}
+                            if (mounted) {
+                              setState(() {
+                                _spiceLevel = value;
+                              });
+                            }
                           },
                         );
                       }).toList(),
@@ -424,9 +451,10 @@ if (mounted) {
                             groupValue: _spiceLevel,
                             onChanged: (value) {
                               if (mounted) {
-                              setState(() {
-                                _spiceLevel = value;
-                              });}
+                                setState(() {
+                                  _spiceLevel = value;
+                                });
+                              }
                             },
                           ),
                         );
@@ -661,9 +689,10 @@ if (mounted) {
             initialValue: _selectedDietaryConstraints,
             onConfirm: (values) {
               if (mounted) {
-              setState(() {
-                _selectedDietaryConstraints = values;
-              });}
+                setState(() {
+                  _selectedDietaryConstraints = values;
+                });
+              }
             },
             chipDisplay: MultiSelectChipDisplay(
               chipColor: Color(0xFFDC945F),

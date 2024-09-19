@@ -149,7 +149,8 @@ Future<void> _fetchPantryList() async {
             for (var item in pantryList) {
               final ingredientName = item['name'].toString();
               final quantity = item['quantity'].toString();
-              final measurementUnit = item['measurementunit'].toString();
+              final measurementUnit = item['measurmentunit']?.toString() ??
+                  'unit'; // Ensure 'measurementUnit' is used and fallback to 'unit' if null
               final category = item['category'] ?? 'Other';
               final displayText =
                   '$ingredientName ($quantity $measurementUnit)';
@@ -168,9 +169,7 @@ Future<void> _fetchPantryList() async {
         print('Failed to fetch pantry list: ${response.statusCode}');
       }
     } catch (error) {
-      //print('Error fetching pantry list: $error');
-
-      // Load cached data if the network request fails
+      // Print error and use cached data if network request fails
       final cachedData = prefs.getString('cachedPantryList');
       if (cachedData != null) {
         final List<dynamic> pantryList = jsonDecode(cachedData);
@@ -181,7 +180,8 @@ Future<void> _fetchPantryList() async {
             for (var item in pantryList) {
               final ingredientName = item['name'].toString();
               final quantity = item['quantity'].toString();
-              final measurementUnit = item['measurementunit'].toString();
+              final measurementUnit = item['measurementUnit']?.toString() ??
+                  'unit'; // Ensure 'measurementUnit' is used and fallback to 'unit' if null
               final category = item['category'] ?? 'Other';
               final displayText =
                   '$ingredientName ($quantity $measurementUnit)';
@@ -199,6 +199,7 @@ Future<void> _fetchPantryList() async {
       }
     }
   }
+
 
   Future<void> _addToPantryList(String? userId, String ingredientName,
       double quantity, String measurementUnit) async {
@@ -246,6 +247,7 @@ Future<void> _fetchPantryList() async {
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
+
             final displayText = '$item ($quantity $measurementUnit)';
             if (_pantryList[category] != null) {
               final index = _pantryList[category]!
@@ -551,7 +553,7 @@ Future<void> _fetchPantryList() async {
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
         title: Padding(
-          padding: EdgeInsets.only(top: 30, left: 38.0),
+          padding: EdgeInsets.only(top: 30, left: 30.0),
           child: Text(
             'Pantry',
             style: TextStyle(
@@ -776,6 +778,7 @@ Future<void> _fetchPantryList() async {
         TextEditingController(text: quantity.toString());
 
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -785,7 +788,7 @@ Future<void> _fetchPantryList() async {
                 'Edit Item',
                 style: TextStyle(color: Colors.white),
               ),
-              backgroundColor: unshade(context),
+              backgroundColor: Color(0xFF283330),
               content: SingleChildScrollView(
                 child: Form(
                   key: formKey,
@@ -802,7 +805,7 @@ Future<void> _fetchPantryList() async {
                             borderSide: BorderSide(color: Colors.white),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.orange),
+                            borderSide: BorderSide(color: Color(0xFFDC945F)),
                           ),
                         ),
                         style: TextStyle(color: Colors.white),
@@ -874,7 +877,9 @@ Future<void> _fetchPantryList() async {
     final TextEditingController categoryController = TextEditingController();
     final TextEditingController quantityController = TextEditingController();
 
+  //print($measurementUnit);
     await showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
@@ -947,6 +952,7 @@ Future<void> _fetchPantryList() async {
                         ),
                         SizedBox(height: 16.0), // Add spacing for better UI
                         Text(
+                          
                             'Measurement Unit: $measurementUnit'), // Display the measurement unit
                       ],
                     ),

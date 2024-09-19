@@ -29,8 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Set<String> _addedRecipeIds = {}; //recipes in the recipes list
   Set<String> _addedToSuggestedRecipesIds =
       {}; //recipes in the suggestedRecipes list
-
   String selectedCourse = 'Main';
+
 
   // String _generatedText = '';  // LLM
 
@@ -52,9 +52,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadUserIdAndFetchRecipes() async {
-    setState(() {
-      _isLoading = false; //if it takes too long remove this line slow
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true; //if it takes too long remove this line slow
+      });
+    }
 
     await _loadUserId();
 
@@ -65,11 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
     // }
 
     // Then fetch all recipes
-    await fetchAllRecipes();
 
     if (mounted) {
       setState(() {
-        _isLoading = true; // Stop loading once everything is loaded
+        _isLoading = false; // Stop loading once everything is loaded
       });
     }
   }
@@ -92,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_userId == null) return;
     if (mounted) {
       setState(() {
-        //_isLoading = true; // Show loading indicator
+        _isLoading = true; // Show loading indicator
       });
     }
 
@@ -118,7 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
               // final List<String> dietaryConstraints = List<String>.from(
               //     _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
             });
-            await fetchSuggestedFavorites();
+            //await fetchSuggestedFavorites();
+            await fetchAllRecipes();
             await fetchSuggestedRecipes();
           }
         } else {
@@ -144,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          //_isLoading = false; // Stop loading indicator
+          _isLoading = false; // Stop loading indicator
         });
       }
     }
@@ -185,12 +187,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
             if (fetchedRecipe.isNotEmpty &&
                 !_addedToSuggestedRecipesIds.contains(recipeIdString)) {
-              setState(() {
-                suggestedRecipes.add(fetchedRecipe);
-                _addedToSuggestedRecipesIds
-                    .add(recipeIdString); //mark added to suggested
-                //print('here 2': $recipeIdString');
-              });
+              if (mounted) {
+                setState(() {
+                  suggestedRecipes.add(fetchedRecipe);
+                  _addedToSuggestedRecipesIds
+                      .add(recipeIdString); //mark added to suggested
+                  //print('here 2': $recipeIdString');
+                });
+              }
             }
           } else {
             // print('Recipe already in suggestedRecipes: $recipeIdString');
@@ -206,7 +210,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> fetchSuggestedRecipes() async {
-    if (_userDetails == null) return;
+    if (_userDetails == null || suggestedRecipes.length >= 10) return;
 
     final url =
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
@@ -217,7 +221,6 @@ class _HomeScreenState extends State<HomeScreen> {
       'cuisine': [_userDetails?['cuisine'] ?? 'Mexican'],
       'dietaryConstraints': _userDetails?['dietaryConstraints'] ?? []
     });
-
     try {
       final response =
           await http.post(Uri.parse(url), headers: headers, body: body);
@@ -225,27 +228,48 @@ class _HomeScreenState extends State<HomeScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> fetchedRecipes = jsonDecode(response.body);
 
-        final detailFetches = fetchedRecipes.map((recipe) async {
+        for (var recipe in fetchedRecipes) {
           final String recipeId = recipe['recipeid'];
 
-          //check if the recipe has already been added to recipe list
-          if (!_addedRecipeIds.contains(recipeId)) {
+          // Check if the recipe is already in the recipes list
+          final existingRecipe = recipes.firstWhere(
+            (r) => r['recipeId'] == recipeId,
+            orElse: () => {},
+          );
+
+          // If the recipe is already loaded, add it to the suggestedRecipes list
+          if (existingRecipe.isNotEmpty && suggestedRecipes.length < 10) {
+            if (mounted) {
+              setState(() {
+                suggestedRecipes.add(existingRecipe);
+              });
+            }
+          }
+          // Otherwise, fetch the recipe details and add it to both lists
+          else if (!_addedRecipeIds.contains(recipeId) &&
+              suggestedRecipes.length < 10) {
             await fetchRecipeDetails(recipeId);
 
-            //add recipe to suggested list
             final fetchedRecipe = recipes.firstWhere(
               (r) => r['recipeId'] == recipeId,
               orElse: () => {},
             );
 
             if (fetchedRecipe.isNotEmpty) {
-              suggestedRecipes.add(fetchedRecipe);
-              _addedRecipeIds.add(recipeId);
+              if (mounted) {
+                setState(() {
+                  suggestedRecipes.add(fetchedRecipe);
+                  _addedRecipeIds.add(recipeId);
+                });
+              }
             }
           }
-        }).toList();
 
-        await Future.wait(detailFetches);
+          // Stop fetching once we've reached 10 suggested recipes
+          if (suggestedRecipes.length >= 10) {
+            break;
+          }
+        }
       } else {
         print('Failed to load suggested recipes: ${response.statusCode}');
       }
@@ -546,7 +570,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(

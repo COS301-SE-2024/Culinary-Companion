@@ -19,6 +19,7 @@ class _RecipeFormState extends State<RecipeForm>
   List<MultiSelectItem<String>> _applianceItems = [];
   List<String> _selectedAppliances = [];
   final List<TextEditingController> _ingredientControllers = [];
+  bool _isUploading = false;
 
   // Add this line inside your class
   List<String> measurementUnits = [
@@ -76,10 +77,15 @@ class _RecipeFormState extends State<RecipeForm>
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
     if (image == null) {
-      print('No image selected.');
+      //print('No image selected.');
       return;
     }
+
+    setState(() {
+      _isUploading = true;
+    });
 
     final supabase = Supabase.instance.client;
     final imageBytes = await image.readAsBytes();
@@ -101,18 +107,30 @@ class _RecipeFormState extends State<RecipeForm>
       if (response.isNotEmpty) {
         _imageUrl =
             supabase.storage.from('recipe_photos').getPublicUrl(imagePath);
-        //print('here1: $_imageUrl');
+
         if (mounted) {
           setState(() {
             _selectedImage = _imageUrl;
           });
         }
-        //print('here2: $_selectedImage');
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Image uploaded successfully!')),
+        );
       } else {
         print('Error uploading image: $response');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error uploading image. Please try again.')),
+        );
       }
     } catch (error) {
       print('Exception during image upload: $error');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isUploading = false;
+        });
+      }
     }
   }
 
@@ -231,21 +249,35 @@ class _RecipeFormState extends State<RecipeForm>
     //popup for users to add ingredients that arent in db
     String newIngredientName = '';
     String selectedUnit = measurementUnits.first;
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
+    final Color backgroundColor =
+        isLightTheme ? Colors.white : Color(0xFF283330);
 
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add New Ingredient'),
+          backgroundColor: backgroundColor,
+          title: Text(
+            'Add New Ingredient',
+            style: TextStyle(fontSize: 22, color: textColor),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(height: 15),
               TextField(
-                decoration: InputDecoration(labelText: 'Ingredient Name'),
+                decoration: InputDecoration(
+                    floatingLabelBehavior: FloatingLabelBehavior.always,
+                    labelText: 'Ingredient Name'),
                 onChanged: (value) {
                   newIngredientName = value;
                 },
               ),
+              SizedBox(height: 10),
               DropdownButtonFormField<String>(
                 value: selectedUnit,
                 onChanged: (value) {
@@ -261,14 +293,38 @@ class _RecipeFormState extends State<RecipeForm>
               ),
             ],
           ),
-          actions: [
+          actions: <Widget>[
             TextButton(
+              style: TextButton.styleFrom(
+                side: const BorderSide(
+                  color: Color(0xFFDC945F),
+                  width: 1.5, // Border thickness
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Color(0xFFDC945F), // Set the color to orange
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
             ),
             TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Color(0xFFDC945F),
+                side: const BorderSide(
+                  color: Color(0xFFDC945F),
+                  width: 1.5, // Border thickness
+                ),
+              ),
+              child: const Text(
+                'Add',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
               onPressed: () async {
                 //capitalize new ingredient
                 newIngredientName = capitalizeEachWord(newIngredientName);
@@ -290,7 +346,6 @@ class _RecipeFormState extends State<RecipeForm>
 
                 Navigator.of(context).pop();
               },
-              child: Text('Add'),
             ),
           ],
         );
@@ -401,112 +456,115 @@ class _RecipeFormState extends State<RecipeForm>
   }
 
   void _showErrorPopup(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Validation Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Close'),
-          ),
-        ],
-      );
-    },
-  );
-}
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Validation Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-void _validateIngredients() {
-  //make sure all ingredients have a valid name and quantity
-  for (int i = 0; i < _ingredients.length; i++) {
-    if (_ingredients[i]['name'] == null || _ingredients[i]['name']!.isEmpty) {
-      _showErrorPopup('Please provide a valid ingredient name for ingredient ${i + 1}.');
-      return;
-    }
-    if (_ingredients[i]['quantity'] == null || _ingredients[i]['quantity']!.isEmpty) {
-      _showErrorPopup('Please provide a valid quantity for ingredient ${i + 1}.');
-      return;
+  void _validateIngredients() {
+    //make sure all ingredients have a valid name and quantity
+    for (int i = 0; i < _ingredients.length; i++) {
+      if (_ingredients[i]['name'] == null || _ingredients[i]['name']!.isEmpty) {
+        _showErrorPopup(
+            'Please provide a valid ingredient name for ingredient ${i + 1}.');
+        return;
+      }
+      if (_ingredients[i]['quantity'] == null ||
+          _ingredients[i]['quantity']!.isEmpty) {
+        _showErrorPopup(
+            'Please provide a valid quantity for ingredient ${i + 1}.');
+        return;
+      }
     }
   }
-}
-
-
 
   Future<void> _submitRecipe() async {
+    // ignore: prefer_conditional_assignment
+    if (_spiceLevel == null) {
+      _spiceLevel = 1; // Default spice level
+    }
 
-     // ignore: prefer_conditional_assignment
-     if (_spiceLevel == null) {
-    _spiceLevel = 1;  // Default spice level
-  }
+    if (_servingAmountController.text.isEmpty) {
+      _servingAmountController.text = '1'; // default servig
+    }
 
-  if (_servingAmountController.text.isEmpty) {
-    _servingAmountController.text = '1';  // default servig
-  }
+    if (_selectedCuisine.isEmpty) {
+      _selectedCuisine = _cuisines.first; // default cuisine
+    }
 
-  if (_selectedCuisine.isEmpty) {
-    _selectedCuisine = _cuisines.first;  // default cuisine
-  }
+    if (_selectedCourse.isEmpty) {
+      _selectedCourse = _courses.first; // default course
+    }
 
-  if (_selectedCourse.isEmpty) {
-    _selectedCourse = _courses.first;  // default course
-  }
+    if (_selectedAppliances.isEmpty) {
+      _selectedAppliances = []; // if none selected
+    }
 
-  if (_selectedAppliances.isEmpty) {
-    _selectedAppliances = [];  // if none selected
-  }
+    // ensure steps and ingredients are not empty
+    if (_methods.isEmpty || _methods.any((method) => method.isEmpty)) {
+      _showErrorPopup('Please provide at least one valid step.');
+      return;
+    }
 
-  // ensure steps and ingredients are not empty
-  if (_methods.isEmpty || _methods.any((method) => method.isEmpty)) {
-    _showErrorPopup('Please provide at least one valid step.');
-    return;
-  }
+    if (_ingredients.isEmpty ||
+        _ingredients.any((ingredient) =>
+            ingredient['name']!.isEmpty || ingredient['quantity']!.isEmpty)) {
+      _showErrorPopup(
+          'Please provide at least one valid ingredient with quantity.');
+      return;
+    }
 
-  if (_ingredients.isEmpty || _ingredients.any((ingredient) => ingredient['name']!.isEmpty || ingredient['quantity']!.isEmpty)) {
-    _showErrorPopup('Please provide at least one valid ingredient with quantity.');
-    return;
-  }
-
-  _validateIngredients() ;
+    _validateIngredients();
 
 //////////form validation method dont remove///////
-  //   //validate recipebefore submission
-  // final validationErrors = await validateRecipe(
-  //   _nameController.text,
-  //   _descriptionController.text,
-  //   _methods,
-  // );
+    //   //validate recipebefore submission
+    // final validationErrors = await validateRecipe(
+    //   _nameController.text,
+    //   _descriptionController.text,
+    //   _methods,
+    // );
 
-  // if (validationErrors.isNotEmpty) {
-  //   //if recipe is not valid show popup
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Validation Errors'),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: validationErrors.map((error) {
-  //             return Text(error);
-  //           }).toList(),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: const Text('Close'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  //   return;
-  // }
-    
+    // if (validationErrors.isNotEmpty) {
+    //   //if recipe is not valid show popup
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return AlertDialog(
+    //         title: const Text('Validation Errors'),
+    //         content: Column(
+    //           mainAxisSize: MainAxisSize.min,
+    //           children: validationErrors.map((error) {
+    //             return Text(error);
+    //           }).toList(),
+    //         ),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () {
+    //               Navigator.of(context).pop();
+    //             },
+    //             child: const Text('Close'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    //   return;
+    // }
+
     print("ingredients: $_ingredients");
     List<Map<String, String>> appliancesData =
         _selectedAppliances.map((appliance) {
@@ -618,7 +676,7 @@ void _validateIngredients() {
         print("after adding keywords");
 
         if (addKeywordsResponse.statusCode == 200) {
-          print('Keywords added successfully');
+          //print('Keywords added successfully');
         } else {
           print('Failed to add keywords');
         }
@@ -635,8 +693,6 @@ void _validateIngredients() {
           return;
         }
 
-// print("dietaryConstraints");
-// print(dietaryConstraints);
         // Filter dietary constraints that are "yes" or "true"
         final filteredConstraints = dietaryConstraints.entries
             .where((entry) =>
@@ -645,8 +701,6 @@ void _validateIngredients() {
             .map((entry) => entry.key)
             .toList();
 
-        // print("filteredConstraints");
-        // print(filteredConstraints);
         // Convert the filtered constraints to a comma-separated string
         final constraintsString = filteredConstraints.join(',');
 
@@ -667,7 +721,7 @@ void _validateIngredients() {
         );
 
         if (addDietaryConstraintsResponse.statusCode == 200) {
-          print('Dietary constraints added successfully');
+          //print('Dietary constraints added successfully');
         } else {
           print('Failed to add dietary constraints');
         }
@@ -800,18 +854,18 @@ void _validateIngredients() {
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
 
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: const EdgeInsets.all(30.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Recipe Details',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
             Card(
               color: theme.brightness == Brightness.light
                   ? Color.fromARGB(255, 223, 223, 223)
-                  : Color.fromARGB(255, 21, 48, 39),
+                  : Color.fromARGB(255, 52, 68, 64),
               elevation: 4,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -1109,17 +1163,40 @@ void _validateIngredients() {
                     _buildAppliancesMultiSelect(),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: _pickImage,
+                      onPressed: _isUploading
+                          ? null
+                          : _pickImage, // Disable the button while uploading
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            isLightTheme ? Colors.white : Color(0xFF1F4539),
+                            isLightTheme ? Colors.white : Color(0xFF283330),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 40, vertical: 20),
                       ),
-                      child: Text(
-                        'Upload Image',
-                        style: TextStyle(color: textColor),
-                      ),
+                      child: _isUploading
+                          ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: textColor,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'Uploading...',
+                                  style: TextStyle(color: textColor),
+                                ),
+                              ],
+                            )
+                          : Text(
+                              _selectedImage != null
+                                  ? 'Image Uploaded'
+                                  : 'Upload Image',
+                              style: TextStyle(color: textColor),
+                            ),
                     ),
                     const SizedBox(height: 10),
                     const Text('Or use the preloaded image:'),
@@ -1139,7 +1216,7 @@ void _validateIngredients() {
                             decoration: BoxDecoration(
                               border: Border.all(
                                 color: _selectedImage == image
-                                    ? Colors.blue
+                                    ? Color.fromARGB(255, 215, 120, 61)
                                     : Colors.transparent,
                                 width: 3,
                               ),
