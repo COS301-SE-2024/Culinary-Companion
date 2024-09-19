@@ -800,43 +800,43 @@ class _RecipeCardState extends State<RecipeCard> {
     });
   }
 
-  void _showAlteredRecipe(
-      String substitute, String substitutedIngredient) async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Loading altered recipe...'),
-          content: CircularProgressIndicator(),
-        );
-      },
-    );
+  // void _showAlteredRecipe(
+  //     String substitute, String substitutedIngredient) async {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('Loading altered recipe...'),
+  //         content: CircularProgressIndicator(),
+  //       );
+  //     },
+  //   );
 
-    String jsonString = await fetchIngredientSubstitutionRecipe(
-        widget.recipeID, substitute, substitutedIngredient);
+  //   String jsonString = await fetchIngredientSubstitutionRecipe(
+  //       widget.recipeID, substitute, substitutedIngredient);
 
-    Navigator.of(context).pop(); // Close the loading dialog
+  //   Navigator.of(context).pop(); // Close the loading dialog
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Altered Recipe'),
-          content: SingleChildScrollView(
-            child: Text(jsonString),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text('Close'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text('Altered Recipe'),
+  //         content: SingleChildScrollView(
+  //           child: Text(jsonString),
+  //         ),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop(); // Close the dialog
+  //             },
+  //             child: Text('Close'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 
   void _showRecipeDetails() {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;

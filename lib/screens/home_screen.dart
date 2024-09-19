@@ -31,7 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
       {}; //recipes in the suggestedRecipes list
   String selectedCourse = 'Main';
 
-
   // String _generatedText = '';  // LLM
 
   // Future<void> _loadContent() async {  // LLM
@@ -570,7 +569,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-   @override
+  @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -640,10 +639,10 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    PageController _pageController = PageController(viewportFraction: 1.0);
+    PageController pageController = PageController(viewportFraction: 1.0);
 
     return PageView.builder(
-      controller: _pageController,
+      controller: pageController,
       scrollDirection: Axis.vertical,
       itemCount: filteredRecipes.length,
       itemBuilder: (context, index) {
