@@ -24,6 +24,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
 
   final _formKey = GlobalKey<FormState>();
   String? _gender;
+  String? _mealPlanName;
   double? _height;
   String _heightUnit = 'cm'; // Default unit for height
   double? _weight;
@@ -55,9 +56,8 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
     final url = Uri.parse(
         'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
 
-   // print("userid $userId");
-   // print("rec details $recipes");
-
+    // print("userid $userId");
+    // print("rec details $recipes");
 
     final response = await http.post(
       url,
@@ -94,6 +94,45 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
             children: [
               Text('Personal Information',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              //name
+              TextFormField(
+                cursorColor: textColor,
+                decoration: InputDecoration(
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  labelText: 'Meal Plan Name:',
+                  labelStyle: TextStyle(fontSize: 20, color: textColor),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFA9B8AC),
+                      width: 2.0,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFDC945F),
+                      width: 2.0,
+                    ),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 12.0,
+                    horizontal: 12.0,
+                  ),
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    _mealPlanName = value;
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a meal plan name';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: 16),
               // Gender
               DropdownButtonFormField<String>(
@@ -512,7 +551,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                   if (_formKey.currentState?.validate() ?? false) {
                     _formKey.currentState?.save();
 
-                    // Show loading dialog with Lottie animation
+                    //loading screen
                     showDialog(
                       context: context,
                       barrierDismissible: false,
@@ -528,23 +567,23 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                       },
                     );
 
-                    // call gemini function to generate recipes 
+                    // call gemini function to generate recipes
                     final result = await fetchMealPlannerRecipes(
-                      _userId ?? "", 
-                      _gender ?? "", 
-                      _weight?.toString() ?? "", 
-                      _weightUnit, 
-                      _height?.toString() ?? "", 
-                      _heightUnit, 
-                      _age ?? 0, 
-                      _getActivityLevelDescription(
-                          _activityLevel), 
-                      _goal ?? "", 
-                      _mealFrequency.toString(), 
-                      _selectedMeals.join(","), 
-                    );
+                        _userId ?? "",
+                        _gender ?? "",
+                        _weight?.toString() ?? "",
+                        _weightUnit,
+                        _height?.toString() ?? "",
+                        _heightUnit,
+                        _age ?? 0,
+                        _getActivityLevelDescription(_activityLevel),
+                        _goal ?? "",
+                        _mealFrequency.toString(),
+                        _selectedMeals.join(","),
+                        _mealPlanName ?? "",
+                        context);
 
-                   // print("gem res $result"); //result from gemini
+                    // print("gem res $result"); //result from gemini
 
                     // add to user meal plan
                     if (result.isNotEmpty && result != 'Error parsing JSON') {

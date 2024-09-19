@@ -65,7 +65,8 @@ Deno.serve(async (req) => {
       filters,
       keywords,
       dietaryConstraints,
-      recipes // for meal planner
+      recipes, // for meal planner
+      mealplannerid
     } = await req.json();
 
     switch (action) {
@@ -176,8 +177,11 @@ Deno.serve(async (req) => {
         return addToMealPlanner(userId, recipes, corsHeaders);
       // case "addToMealPlanner":
       //   return addToMealPlanner(req, corsHeaders);
+      case "deleteMealPlanner":
+        return deleteMealPlanner(mealplannerid, corsHeaders);
       case "getAllMealPlanners":
         return getAllMealPlanners(userId, corsHeaders);
+      
       default:
         return new Response(JSON.stringify({ error: "Invalid action" }), {
           status: 400,
@@ -2466,6 +2470,48 @@ async function getAllMealPlanners(
     }
   );
 }
+
+
+async function deleteMealPlanner(
+  mealplannerid: string,
+  corsHeaders: HeadersInit
+) {
+  if (!mealplannerid) {
+    console.error("Missing meal planner ID.");
+    return new Response(
+      JSON.stringify({ error: "Missing meal planner ID" }),
+      {
+        status: 400,
+        headers: corsHeaders,
+      }
+    );
+  }
+
+  const { error: deleteError } = await supabase
+    .from("mealPlanner")
+    .delete()
+    .eq("mealplannerid", mealplannerid);
+
+  if (deleteError) {
+    console.error("Error deleting meal planner:", deleteError);
+    return new Response(
+      JSON.stringify({ error: deleteError.message }),
+      {
+        status: 400,
+        headers: corsHeaders,
+      }
+    );
+  }
+
+  return new Response(
+    JSON.stringify({ message: "Meal planner deleted successfully" }),
+    {
+      status: 200,
+      headers: corsHeaders,
+    }
+  );
+}
+
 
 
 /* To invoke locally:
