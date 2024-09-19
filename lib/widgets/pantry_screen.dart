@@ -4,14 +4,13 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'help_pantry.dart';
-import 'dart:html' as html; // For web
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'web_utils.dart' if (dart.library.html) 'web_utils_web.dart';
 import 'dart:io'; // For mobile
 import 'package:lottie/lottie.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-import 'package:flutter/foundation.dart' show kIsWeb;
 // import 'dart:io' show Platform;
 // import 'dart:io';
 import '../widgets/theme_utils.dart';
@@ -388,82 +387,52 @@ Future<String> _getIngredientDetails(String ingredientName) async {
   }
 
   Future<void> _scanImage() async {
-  if (kIsWeb) {
-    // Web-specific code
-    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
-    uploadInput.accept = 'image/*';
-    uploadInput.click();
-
-    uploadInput.onChange.listen((e) async {
-      final files = uploadInput.files;
-      if (files!.isEmpty) return;
-
-      final reader = html.FileReader();
-      reader.readAsDataUrl(files[0]);
-
-      reader.onLoadEnd.listen((_) async {
-        final base64Image = reader.result.toString().split(',').last;
+    if (kIsWeb) {
+      getWebUtils().uploadImage((base64Image) async {
         final text = await _extractTextFromImage(base64Image);
         if (text.isNotEmpty) {
-          //print(text);
           await _handleScannedText(text);
         }
       });
-    });
-  } else {
-    // Mobile-specific code
-    if (await Permission.camera.request().isGranted) {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: ImageSource.camera);
-      if (pickedFile != null) {
-        final imageBytes = File(pickedFile.path).readAsBytesSync();
-        final text = await _extractTextFromImage(imageBytes);
-        if (text.isNotEmpty) {
-          await _handleScannedText(text);
+    } else {
+      // Mobile-specific code (unchanged)
+      if (await Permission.camera.request().isGranted) {
+        final picker = ImagePicker();
+        final pickedFile = await picker.pickImage(source: ImageSource.camera);
+        if (pickedFile != null) {
+          final imageBytes = File(pickedFile.path).readAsBytesSync();
+          final text = await _extractTextFromImage(imageBytes);
+          if (text.isNotEmpty) {
+            await _handleScannedText(text);
+          }
         }
       }
     }
   }
-}
 
 Future<void> _selectImage() async {
-  if (kIsWeb) {
-    // Web-specific code
-    html.FileUploadInputElement uploadInput = html.FileUploadInputElement();
-    uploadInput.accept = 'image/*';
-    uploadInput.click();
-
-    uploadInput.onChange.listen((e) async {
-      final files = uploadInput.files;
-      if (files!.isEmpty) return;
-
-      final reader = html.FileReader();
-      reader.readAsDataUrl(files[0]);
-
-      reader.onLoadEnd.listen((_) async {
-        final base64Image = reader.result.toString().split(',').last;
+    if (kIsWeb) {
+      getWebUtils().uploadImage((base64Image) async {
         final text = await _extractTextFromImage(base64Image);
         if (text.isNotEmpty) {
           await _handleScannedText(text);
         }
       });
-    });
-  } else {
-    // Mobile-specific code
-    if (await Permission.photos.request().isGranted) {
-      final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        final imageBytes = File(pickedFile.path).readAsBytesSync();
-        final text = await _extractTextFromImage(imageBytes);
-        if (text.isNotEmpty) {
-          await _handleScannedText(text);
+    } else {
+      // Mobile-specific code
+      if (await Permission.photos.request().isGranted) {
+        final picker = ImagePicker();
+        final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+        if (pickedFile != null) {
+          final imageBytes = File(pickedFile.path).readAsBytesSync();
+          final text = await _extractTextFromImage(imageBytes);
+          if (text.isNotEmpty) {
+            await _handleScannedText(text);
+          }
         }
       }
     }
   }
-}
-
 Future<void> _showIngredientDialog(List<String> ingredients) async {
   List<String> growableIngredients = List.from(ingredients); // Make it growable
   List<String> selectedIngredients = []; // Store selected ingredients
