@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import './theme_notifier.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String currentRoute;
@@ -53,6 +55,16 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                     ],
                   ),
                 ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                icon: Icon(isLightTheme ? Icons.dark_mode : Icons.light_mode),
+                onPressed: () {
+                  Provider.of<ThemeNotifier>(context, listen: false)
+                      .toggleTheme();
+                },
               ),
             ),
           ],
@@ -127,161 +139,15 @@ class ExpandableNavbar extends StatefulWidget implements PreferredSizeWidget {
   Size get preferredSize => Size.fromHeight(120);
 }
 
-// class _ExpandableNavbarState extends State<ExpandableNavbar> {
-//   bool _isExpanded = false;
-
-//   void _toggleExpanded() {
-//     setState(() {
-//       _isExpanded = !_isExpanded;
-//     });
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     double screenHeight = MediaQuery.of(context).size.height;
-//     double screenWidth = MediaQuery.of(context).size.width;
-//     double expandedWidth = screenWidth * 0.2; // 30% of screen width
-//     final theme = Theme.of(context);
-//     final bool isLightTheme = theme.brightness == Brightness.light;
-
-//     return Column(
-//       //mainAxisSize: MainAxisSize.min,
-//       children: [
-//         AppBar(
-//           automaticallyImplyLeading: false,
-//           toolbarHeight: screenHeight * 0.1,
-//           backgroundColor: Colors.transparent, // Make AppBar transparent
-//           elevation: 0, // Remove AppBar shadow
-//           title: Stack(
-//             children: [
-//               Align(
-//                 alignment: Alignment.centerLeft,
-//                 child: Image.asset(
-//                   isLightTheme ? 'assets/logo_1.png' : 'assets/logo_2.png',
-//                   height: screenHeight * 0.1,
-//                 ),
-//               ),
-//               Align(
-//                 alignment: Alignment.centerRight,
-//                 child: IconButton(
-//                   icon: Icon(Icons.menu),
-//                   onPressed: _toggleExpanded,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//         if (_isExpanded)
-//           Align(
-//             alignment: FractionalOffset.topRight,
-//             child: Container(
-//               height: screenHeight, // Take up the full height of the screen
-//               width: expandedWidth, // Take up 30% of the screen width
-//               color: Color.fromARGB(143, 2, 20, 14),
-//               child: Column(
-//                 children: [
-//                   ListTile(
-//                     key: Key('Home'),
-//                     leading: Icon(Icons.home),
-//                     title: const Text('Home'),
-//                     onTap: () {
-//                       if (widget.onChange != null) {
-//                         widget.onChange!('/');
-//                       }
-//                       _toggleExpanded();
-//                     },
-//                   ),
-//                   ListTile(
-//                     key: ValueKey('AddRecipe'),
-//                     leading: Icon(Icons.add),
-//                     title: const Text('Add Recipe'),
-//                     onTap: () {
-//                       if (widget.onChange != null) {
-//                         widget.onChange!('/scan-recipe');
-//                       }
-//                       _toggleExpanded();
-//                     },
-//                   ),
-//                   ListTile(
-//                     key: Key('Inventory'),
-//                     leading: Icon(Icons.inventory),
-//                     title: const Text('Inventory'),
-//                     onTap: () {
-//                       if (widget.onChange != null) {
-//                         widget.onChange!('/inventory-screen');
-//                       }
-//                       _toggleExpanded();
-//                     },
-//                   ),
-//                   // ListTile(
-//                   //   key: Key('ShoppingList'),
-//                   //   title: const Text('Shopping List'),
-//                   //   onTap: () {
-//                   //     if (widget.onChange != null) {
-//                   //       widget.onChange!('/shopping-list');
-//                   //     }
-//                   //     _toggleExpanded();
-//                   //   },
-//                   // ),
-//                   // ListTile(
-//                   //   key: ValueKey('Pantry'),
-//                   //   title: const Text('Pantry'),
-//                   //   onTap: () {
-//                   //     if (widget.onChange != null) {
-//                   //       widget.onChange!('/pantry-list');
-//                   //     }
-//                   //     _toggleExpanded();
-//                   //   },
-//                   // ),
-//                   // ListTile(
-//                   //   key: Key('Appliance'),
-//                   //   title: const Text('Appliances'),
-//                   //   onTap: () {
-//                   //     if (widget.onChange != null) {
-//                   //       widget.onChange!('/appliances');
-//                   //     }
-//                   //     _toggleExpanded();
-//                   //   },
-//                   // ),
-//                   ListTile(
-//                     key: ValueKey('Favourites'),
-//                     leading: Icon(Icons.favorite),
-//                     title: const Text('Favorite Recipes'),
-//                     onTap: () {
-//                       if (widget.onChange != null) {
-//                         widget.onChange!('/saved-recipes');
-//                       }
-//                       _toggleExpanded();
-//                     },
-//                   ),
-//                   ListTile(
-//                     key: ValueKey('Profile'),
-//                     leading: Icon(Icons.person),
-//                     title: const Text('Profile'),
-//                     onTap: () {
-//                       if (widget.onChange != null) {
-//                         widget.onChange!('/profile');
-//                       }
-//                       _toggleExpanded();
-//                     },
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//       ],
-//     );
-//   }
-// }
-
 class _ExpandableNavbarState extends State<ExpandableNavbar> {
   bool _isExpanded = false;
 
   void _toggleExpanded() {
     if (mounted) {
-    setState(() {
-      _isExpanded = !_isExpanded;
-    });}
+      setState(() {
+        _isExpanded = !_isExpanded;
+      });
+    }
   }
 
   @override
@@ -291,6 +157,9 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
     double expandedWidth = screenWidth * 0.2; // 20% of screen width
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
+
+    // Define the icon colors for light and dark modes
+    Color iconColor = isLightTheme ? const Color(0xFF283330) : Color(0xFFEDEDED);
 
     return Column(
       children: [
@@ -324,7 +193,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
             child: Container(
               height: screenHeight, // Take up the full height of the screen
               width: expandedWidth, // Take up 20% of the screen width
-              color: Color.fromARGB(143, 2, 20, 14),
+              color: isLightTheme? Color.fromARGB(193, 237, 237, 237) : Color.fromARGB(159, 2, 20, 14) ,
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   bool isCompact = screenWidth <
@@ -334,7 +203,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                     children: [
                       ListTile(
                         key: Key('Home'),
-                        leading: Icon(Icons.home),
+                        leading: Icon(Icons.home, color: iconColor,),
                         title: isCompact
                             ? null
                             : const Text('Home'), // Conditionally show title
@@ -347,7 +216,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       ),
                       ListTile(
                         key: ValueKey('SearchRecipe'),
-                        leading: Icon(Icons.search),
+                        leading: Icon(Icons.search, color: iconColor,),
                         title: isCompact
                             ? null
                             : const Text(
@@ -361,7 +230,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       ),
                       ListTile(
                         key: ValueKey('AddRecipe'),
-                        leading: Icon(Icons.add),
+                        leading: Icon(Icons.add, color: iconColor,),
                         title: isCompact
                             ? null
                             : const Text(
@@ -375,7 +244,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       ),
                       ListTile(
                         key: Key('Inventory'),
-                        leading: Icon(Icons.inventory),
+                        leading: Icon(Icons.inventory, color: iconColor,),
                         title: isCompact
                             ? null
                             : const Text(
@@ -389,7 +258,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       ),
                       ListTile(
                         key: ValueKey('MealPlanner'),
-                        leading: Icon(Icons.calendar_month_rounded),
+                        leading: Icon(Icons.calendar_month_rounded, color: iconColor,),
                         title: isCompact
                             ? null
                             : const Text(
@@ -403,7 +272,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       ),
                       ListTile(
                         key: ValueKey('Favourites'),
-                        leading: Icon(Icons.favorite),
+                        leading: Icon(Icons.favorite, color: iconColor,),
                         title: isCompact
                             ? null
                             : const Text(
@@ -417,7 +286,7 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       ),
                       ListTile(
                         key: ValueKey('Profile'),
-                        leading: Icon(Icons.person),
+                        leading: Icon(Icons.person, color: iconColor,),
                         title: isCompact
                             ? null
                             : const Text('Profile'), // Conditionally show title
@@ -426,6 +295,19 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                             widget.onChange!('/profile');
                           }
                           _toggleExpanded();
+                        },
+                      ),
+                      const Divider(), // Divider to separate theme toggle from other items
+                      ListTile(
+                        key: const ValueKey('ThemeToggle'),
+                        leading: Icon(
+                            isLightTheme ? Icons.dark_mode : Icons.light_mode, color: iconColor,),
+                        title: isCompact
+                            ? null
+                            : Text(isLightTheme ? 'Dark Mode' : 'Light Mode'),
+                        onTap: () {
+                          Provider.of<ThemeNotifier>(context, listen: false)
+                              .toggleTheme();
                         },
                       ),
                     ],

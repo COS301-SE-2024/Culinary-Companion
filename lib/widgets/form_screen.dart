@@ -1246,7 +1246,6 @@ class _RecipeFormState extends State<RecipeForm>
                           'Add Recipe',
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
                               fontWeight: FontWeight.bold),
                         ),
                       ),
