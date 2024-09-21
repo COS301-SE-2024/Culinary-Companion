@@ -703,7 +703,7 @@ class _RecipeCardState extends State<RecipeCard> {
                     selectedTab,
                     textColor,
                     (int newTab) {
-                      setState(() {
+                      dialogSetState(() {
                         selectedTab = newTab;
                       });
                     },
@@ -1962,19 +1962,21 @@ class _RecipeCardState extends State<RecipeCard> {
             _updateRecipe(alteredRecipe);
             Navigator.of(context).pop(); // Stop loading screen
             Navigator.of(context).pop();
-            if (isMobile)
+            if (isMobile) {
               _showMobileRecipeDetails();
-            else
+            } else {
               _showRecipeDetails();
+            }
           }
         } else {
           // Revert to original recipe
           _revertToOriginalRecipe();
           Navigator.of(context).pop();
-          if (isMobile)
+          if (isMobile) {
             _showMobileRecipeDetails();
-          else
-            _showRecipeDetails(); // Refresh recipe
+          } else {
+            _showRecipeDetails();
+          } // Refresh recipe
         }
       },
       style: ElevatedButton.styleFrom(
@@ -2065,7 +2067,7 @@ class _RecipeCardState extends State<RecipeCard> {
               }
             },
           );
-        }).toList(),
+        }),
         SizedBox(
           height: 25,
         ),
