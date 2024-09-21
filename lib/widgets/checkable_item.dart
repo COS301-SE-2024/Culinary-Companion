@@ -220,16 +220,22 @@ class _CheckableItemState extends State<CheckableItem> {
               SizedBox(
                 width: 24.0, // to keep alignment when checkbox is missing
               ),
+            // Constrain the width of the text
             Flexible(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    widget.title,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.normal,
+                  // Add Flexible here to limit the width of the Text widget
+                  Flexible(
+                    child: Text(
+                      widget.title,
+                      overflow:
+                          TextOverflow.ellipsis, // Truncate text with ellipsis
+                      maxLines: 1, // Only allow a single line of text
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.normal,
+                      ),
                     ),
                   ),
                   IconButton(
