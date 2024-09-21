@@ -927,18 +927,22 @@ class _RecipeCardState extends State<RecipeCard> {
                           width: 50,
                         ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment
+                              .start, // Aligns children at the top
+                          crossAxisAlignment: CrossAxisAlignment
+                              .start, // Aligns the two columns at the top
                           children: [
                             // Left column with ingredients and appliances, takes 30% of the screen width
                             Flexible(
                               flex: 3, // 3 parts out of a total of 10 (30%)
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize
+                                    .min, // Prevents centering, keeps at the top
                                 children: [
                                   Container(
                                     // 50% of dialog height for the image
                                     child: ClipRRect(
-                                      // borderRadius: BorderRadius.vertical(
-                                      //     top: Radius.circular(20)),
                                       child: Image.network(
                                         widget
                                             .imagePath, // Replace with your background image path
@@ -961,11 +965,18 @@ class _RecipeCardState extends State<RecipeCard> {
                                 ],
                               ),
                             ),
+                            Flexible(
+                              flex: 1,
+                              child: Container(),
+                            ),
                             // Right column with description and other info, takes the remaining 70% of the screen width
                             Flexible(
-                              flex: 7, // 7 parts out of a total of 10 (70%)
+                              flex: 6,
+                              // 7 parts out of a total of 10 (70%)
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize
+                                    .min, // Keeps content aligned at the top
                                 children: [
                                   Text(
                                     "Description:",
