@@ -842,7 +842,8 @@ class _RecipeCardState extends State<RecipeCard> {
 
   void _showRecipeDetails() {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    final Color textColor =
+        isLightTheme ? Color.fromARGB(255, 53, 53, 53) : Colors.white;
 
     final theme = Theme.of(context);
 
@@ -1610,6 +1611,13 @@ class _RecipeCardState extends State<RecipeCard> {
 
   Widget buildTimeInfoRow(
       BuildContext context, String prepTime, String cookTime, Color textColor) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double fontSize;
+    if (screenWidth > 450) {
+      fontSize = 16;
+    } else {
+      fontSize = 14;
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1628,7 +1636,7 @@ class _RecipeCardState extends State<RecipeCard> {
                       'Prep Time:',
                       style: TextStyle(
                         color: textColor,
-                        fontSize: 14,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1643,7 +1651,7 @@ class _RecipeCardState extends State<RecipeCard> {
                         '$prepTime mins',
                         style: TextStyle(
                           color: textColor,
-                          fontSize: 14,
+                          fontSize: fontSize,
                         ),
                       ),
                     ),
@@ -1673,7 +1681,7 @@ class _RecipeCardState extends State<RecipeCard> {
                       'Cook Time:',
                       style: TextStyle(
                         color: textColor,
-                        fontSize: 14,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -1688,7 +1696,7 @@ class _RecipeCardState extends State<RecipeCard> {
                         '$cookTime mins',
                         style: TextStyle(
                           color: textColor,
-                          fontSize: 14,
+                          fontSize: fontSize,
                         ),
                       ),
                     ),
@@ -1722,7 +1730,7 @@ class _RecipeCardState extends State<RecipeCard> {
               'Total Time:',
               style: TextStyle(
                 color: textColor,
-                fontSize: 14,
+                fontSize: fontSize,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -1737,7 +1745,7 @@ class _RecipeCardState extends State<RecipeCard> {
                 '${int.parse(prepTime) + int.parse(cookTime)} mins',
                 style: TextStyle(
                   color: textColor,
-                  fontSize: 14,
+                  fontSize: fontSize,
                 ),
               ),
             ),
