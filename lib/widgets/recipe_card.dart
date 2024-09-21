@@ -764,6 +764,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                 // buildIngredientsSection(
                                 //     context), // Adjust height to 2% of screen height
                                 buildAppliancesSection(context),
+                                SizedBox(height: 10),
                               ],
                               //                     ),
                             ),
@@ -972,7 +973,9 @@ class _RecipeCardState extends State<RecipeCard> {
                                     },
                                   ),
                                   SizedBox(height: 50),
-                                  buildActionButton(context, false),
+                                  Center(
+                                    child: buildActionButton(context, false),
+                                  ),
                                   SizedBox(
                                       height:
                                           MediaQuery.of(context).size.height *
@@ -980,6 +983,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                   buildIngredientsList(context, dialogSetState),
                                   SizedBox(height: 40),
                                   buildAppliancesSection(context),
+                                  SizedBox(height: 40),
                                 ],
                               ),
                             ),
@@ -1822,12 +1826,21 @@ class _RecipeCardState extends State<RecipeCard> {
         if (widget.appliances.isEmpty)
           Padding(
             padding: EdgeInsets.only(left: 16.0),
-            child: Text(
-              "No appliance specified for this recipe.",
-              style: TextStyle(
-                color: Colors.grey, // Light grey color
-                fontStyle: FontStyle.italic,
-              ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.error_outline, // Appropriate icon for no appliance
+                  color: Colors.grey, // Same grey as the text for consistency
+                ),
+                SizedBox(width: 8), // Space between icon and text
+                Text(
+                  "No appliance specified for this recipe.",
+                  style: TextStyle(
+                    color: Colors.grey, // Light grey color
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
             ),
           )
         else
@@ -1970,14 +1983,13 @@ class _RecipeCardState extends State<RecipeCard> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8), // Less rounded corners
           side: BorderSide(
-            color: theme.brightness == Brightness.light
-                ? Colors.black
-                : Colors.white, // Border color to match the theme
+            color: clickColor, // Border color to match the theme
             width: 2, // Thickness of the border
           ),
         ),
-        shadowColor: Colors.black, // Shadow to make it stand out
-        elevation: 8, // Higher elevation for shadow effect
+        shadowColor: const Color.fromARGB(
+            255, 190, 190, 190), // Shadow to make it stand out
+        elevation: 0, // Higher elevation for shadow effect
       ),
       icon: Icon(
         _isAlteredRecipe
@@ -1997,7 +2009,7 @@ class _RecipeCardState extends State<RecipeCard> {
   Widget buildIngredientsList(
       BuildContext context, StateSetter dialogSetState) {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    final clickColor = isLightTheme ? Color(0xFF283330) : Colors.white;
 
     final double screenWidth = MediaQuery.of(context).size.width;
     final double fontSize;
@@ -2054,6 +2066,9 @@ class _RecipeCardState extends State<RecipeCard> {
             },
           );
         }).toList(),
+        SizedBox(
+          height: 25,
+        ),
         if (widget.ingredients.every((ingredient) =>
             _pantryIngredients.containsKey(ingredient['name']) &&
             _pantryIngredients[ingredient['name']]!['quantity'] >=
@@ -2061,7 +2076,7 @@ class _RecipeCardState extends State<RecipeCard> {
           ElevatedButton(
             onPressed: _removeIngredientsFromPantry,
             style: ElevatedButton.styleFrom(
-              backgroundColor: textColor,
+              backgroundColor: clickColor,
               padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
             ),
             child: Text('Remove ingredients from pantry',
@@ -2073,17 +2088,30 @@ class _RecipeCardState extends State<RecipeCard> {
                 _pantryIngredients[ingredient['name']]!['quantity'] <
                     ingredient['quantity']) &&
             !_shoppingList.containsKey(ingredient['name'])))
-          ElevatedButton(
-            onPressed: _addAllToShoppingList,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: textColor,
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-            ),
-            child: Text('Add All Ingredients',
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: _addAllToShoppingList,
+              icon: Icon(
+                Icons.add_shopping_cart_rounded, // Shopping basket icon
+                color: isLightTheme
+                    ? Colors.white
+                    : Color(0xFF1F4539), // Icon color
+              ),
+              label: Text(
+                'Add All Ingredients',
                 style: TextStyle(
-                    color: isLightTheme ? Colors.white : Color(0xFF1F4539))),
+                  color: isLightTheme ? Colors.white : Color(0xFF1F4539),
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: clickColor,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+              ),
+            ),
           ),
-        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+
+        //SizedBox(height: MediaQuery.of(context).size.height * 0.02),
       ],
     );
   }
