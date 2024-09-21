@@ -676,10 +676,17 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Positioned(
-              top: 10,
-              left: 20,
+              top: 15,
+              left: 24,
               child: DropdownButton<String>(
-                  value: title, // Default selected value
+                  value: title,
+                  iconEnabledColor: Colors.white, // Arrow color when enabled
+                  iconDisabledColor: Colors.white, // Arrow color when disabled
+                  dropdownColor: const Color.fromARGB(255, 0, 0, 0)
+                      .withOpacity(0.3), // Opaque dropdown background
+                  //underline: SizedBox.shrink(), // Remove the underline
+                  style:
+                      TextStyle(color: Colors.white), // Default selected value
                   items: <String>[
                     'Main',
                     'Breakfast',
