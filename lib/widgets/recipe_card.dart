@@ -845,9 +845,9 @@ class _RecipeCardState extends State<RecipeCard> {
 
     final theme = Theme.of(context);
 
-    final clickColor = theme.brightness == Brightness.light
+    final iconColor = theme.brightness == Brightness.light
         ? Colors.white
-        : Color.fromARGB(255, 25, 58, 48);
+        : Color.fromARGB(255, 49, 49, 49);
     final double screenWidth = MediaQuery.of(context).size.width;
     Navigator.push(
         context,
@@ -868,54 +868,126 @@ class _RecipeCardState extends State<RecipeCard> {
               ),
               child: Stack(
                 children: [
-                  Row(
+                  Column(
                     children: [
-                      Column(
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          buildIngredientsList(context, dialogSetState),
-                          buildAppliancesSection(context),
+                          Flexible(
+                            child: Text(
+                              widget.name,
+                              style: TextStyle(
+                                fontSize: screenWidth *
+                                    0.02, // Adjust font size to 2% of screen width
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  Icons.timer_outlined,
+                                  color: iconColor,
+                                  size:
+                                      MediaQuery.of(context).size.width * 0.017,
+                                ),
+                                onPressed: _showTimerPopup,
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  _isFavorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: _isFavorite ? Colors.red : iconColor,
+                                  size:
+                                      MediaQuery.of(context).size.width * 0.017,
+                                ),
+                                onPressed: _toggleFavorite,
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.close),
+                                color: iconColor,
+                                iconSize: screenWidth *
+                                    0.02, // Adjust icon size to 2% of screen width
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+
+                                  _fetchShoppingList(); // Refresh shopping list when dialog is closed
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                      Column(
+                      SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.01),
+                      Row(
                         children: [
-                          Text(
-                            "Description:",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Color(0xFFDC945F),
-                              fontWeight: FontWeight
-                                  .bold, // Optionally set the thickness of the underline
+                          Expanded(
+                            // First column with ingredients and appliances
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildIngredientsList(context, dialogSetState),
+                                buildAppliancesSection(context),
+                              ],
                             ),
                           ),
                           SizedBox(
-                              height:
-                                  6.0), // Add spacing between title and description
-                          Padding(
-                            padding: EdgeInsets.only(
-                                left:
-                                    16.0), // Adjust the left padding as needed
-                            child: Text(
-                              widget.description,
-                              style: TextStyle(fontSize: 16),
+                            width: 400,
+                          ),
+                          Expanded(
+                            // Second column with description and other info
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Description:",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Color(0xFFDC945F),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(
+                                    height:
+                                        6.0), // Add spacing between title and description
+                                Padding(
+                                  padding: EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                    widget.description,
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                                SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.01),
+                                buildTimeInfoRow(context, '${widget.prepTime}',
+                                    '${widget.cookTime}', textColor),
+                                SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.01),
+                                Text('Cuisine: ${widget.cuisine}'),
+                                Text('Spice Level: ${widget.spiceLevel}'),
+                                Text('Course: ${widget.course}'),
+                                Text('Servings: ${widget.servings}'),
+                                SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.02),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: buildInstructions(widget.steps),
+                                ),
+                              ],
                             ),
-                          ), // Adjust height to 1% of screen height
-                          buildTimeInfoRow(context, '${widget.prepTime}',
-                              '${widget.cookTime}', textColor),
-                          SizedBox(
-                              height: MediaQuery.of(context).size.height *
-                                  0.01), // Adjust height to 1% of screen height
-                          Text('Cuisine: ${widget.cuisine}'),
-                          Text('Spice Level: ${widget.spiceLevel}'),
-                          Text('Course: ${widget.course}'),
-                          Text('Servings: ${widget.servings}'),
-                          SizedBox(
-                              height:
-                                  MediaQuery.of(context).size.height * 0.02),
+                          ),
                         ],
-                      )
+                      ),
                     ],
-                  ),
-                  // Column(
+                  ), // Column(
                   //   children: [
                   //     Expanded(
                   //       child: Column(
