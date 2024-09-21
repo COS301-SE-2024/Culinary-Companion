@@ -226,7 +226,7 @@ Future<void> fetchMealPlans() async {
       ),
       body: _isLoading
           ? Center(
-              child: Lottie.asset('assets/planner_load.json'), // Loading spinner
+              child: Lottie.asset('assets/planner_load.json') // Loading spinner
             )
           : ListView(
               padding: const EdgeInsets.symmetric(horizontal: 30.0),
