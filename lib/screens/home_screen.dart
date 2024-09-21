@@ -679,33 +679,44 @@ class _HomeScreenState extends State<HomeScreen> {
               top: 15,
               left: 24,
               child: DropdownButton<String>(
-                  value: title,
-                  iconEnabledColor: Colors.white, // Arrow color when enabled
-                  iconDisabledColor: Colors.white, // Arrow color when disabled
-                  dropdownColor: const Color.fromARGB(255, 0, 0, 0)
-                      .withOpacity(0.3), // Opaque dropdown background
-                  //underline: SizedBox.shrink(), // Remove the underline
-                  style:
-                      TextStyle(color: Colors.white), // Default selected value
-                  items: <String>[
-                    'Main',
-                    'Breakfast',
-                    'Appetizer',
-                    'Dessert'
-                    //'Suggested'
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        selectedCourse = newValue; // Update selected course
-                      });
+                value: title,
+                iconEnabledColor: Colors.white, // Arrow color when enabled
+                iconDisabledColor: Colors.white, // Arrow color when disabled
+                dropdownColor: const Color.fromARGB(255, 0, 0, 0)
+                    .withOpacity(0.3), // Opaque dropdown background
+                style: const TextStyle(
+                    color: Colors.white), // Default selected value
+
+                items: <String>[
+                  'Main',
+                  'Breakfast',
+                  'Appetizer',
+                  'Dessert',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList()
+                  // Reorder the list based on the selected item
+                  ..sort((a, b) {
+                    // Move the selected item to the top
+                    if (a.value == selectedCourse) {
+                      return -1;
+                    } else if (b.value == selectedCourse) {
+                      return 1;
                     }
+                    return 0;
                   }),
+
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedCourse = newValue; // Update selected course
+                    });
+                  }
+                },
+              ),
             ),
             Positioned(
               top: 10,
