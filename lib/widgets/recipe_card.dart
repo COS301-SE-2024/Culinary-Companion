@@ -881,11 +881,13 @@ class _RecipeCardState extends State<RecipeCard> {
                                 child: Text(
                                   widget.name,
                                   style: TextStyle(
+                                    color: iconColor,
                                     fontSize: screenWidth *
                                         0.02, // Adjust font size to 2% of screen width
                                     fontWeight: FontWeight.bold,
                                   ),
                                   maxLines: 2,
+
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign
                                       .center, // Center the text within its widget
@@ -937,9 +939,9 @@ class _RecipeCardState extends State<RecipeCard> {
                           crossAxisAlignment: CrossAxisAlignment
                               .start, // Aligns the two columns at the top
                           children: [
-                            // Left column with ingredients and appliances, takes 30% of the screen width
                             Flexible(
                               flex: 3, // 3 parts out of a total of 10 (30%)
+
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize
@@ -953,85 +955,98 @@ class _RecipeCardState extends State<RecipeCard> {
                                           maxHeight:
                                               400, // 50% of the available height
                                         ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                              8.0), // Optional: add rounded corners
-                                          child: Image.network(
-                                            widget
-                                                .imagePath, // Replace with your image path
-                                            fit: BoxFit
-                                                .cover, // Adjust fit as necessary
+                                        child: Center(
+                                          // Center the image
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                                8.0), // Optional: add rounded corners
+                                            child: Image.network(
+                                              widget
+                                                  .imagePath, // Replace with your image path
+                                              fit: BoxFit
+                                                  .cover, // Adjust fit as necessary
+                                            ),
                                           ),
                                         ),
                                       );
                                     },
                                   ),
-                                  SizedBox(
-                                    height: 30,
-                                  ),
+                                  SizedBox(height: 50),
                                   buildActionButton(context, false),
                                   SizedBox(
                                       height:
                                           MediaQuery.of(context).size.height *
                                               0.02),
                                   buildIngredientsList(context, dialogSetState),
+                                  SizedBox(height: 40),
                                   buildAppliancesSection(context),
                                 ],
                               ),
                             ),
-                            Flexible(
-                              flex: 1,
-                              child: Container(),
-                            ),
+
                             // Right column with description and other info, takes the remaining 70% of the screen width
                             Flexible(
-                              flex: 6,
-                              // 7 parts out of a total of 10 (70%)
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize
-                                    .min, // Keeps content aligned at the top
-                                children: [
-                                  Text(
-                                    "Description:",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: Color(0xFFDC945F),
-                                      fontWeight: FontWeight.bold,
+                                flex: 7,
+                                // 7 parts out of a total of 10 (70%)
+                                child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width:
+                                          50, // Specify the width of the SizedBox
                                     ),
-                                  ),
-                                  SizedBox(
-                                      height:
-                                          15.0), // Spacing between title and description
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 16.0),
-                                    child: Text(
-                                      widget.description,
-                                      style: TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  buildTimeInfoRow(
-                                      context,
-                                      '${widget.prepTime}',
-                                      '${widget.cookTime}',
-                                      textColor),
-                                  SizedBox(height: 8),
-                                  buildDetailsColumn(
-                                      context,
-                                      '${widget.cuisine}',
-                                      '${widget.spiceLevel}',
-                                      '${widget.course}',
-                                      '${widget.servings}'),
-                                  SizedBox(height: 25),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: buildInstructions(widget.steps),
-                                  ),
-                                ],
-                              ),
-                            ),
+                                    Expanded(
+                                      // Ensures that the Column takes up the remaining space
+
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize
+                                            .min, // Keeps content aligned at the top
+                                        children: [
+                                          Text(
+                                            "Description:",
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              color: Color(0xFFDC945F),
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                              height:
+                                                  15.0), // Spacing between title and description
+                                          Padding(
+                                            padding:
+                                                EdgeInsets.only(left: 16.0),
+                                            child: Text(
+                                              widget.description,
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          buildTimeInfoRow(
+                                              context,
+                                              '${widget.prepTime}',
+                                              '${widget.cookTime}',
+                                              textColor),
+                                          SizedBox(height: 8),
+                                          buildDetailsColumn(
+                                              context,
+                                              '${widget.cuisine}',
+                                              '${widget.spiceLevel}',
+                                              '${widget.course}',
+                                              '${widget.servings}'),
+                                          SizedBox(height: 40),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children:
+                                                buildInstructions(widget.steps),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ))
                           ],
                         ),
                       ],
@@ -1781,74 +1796,6 @@ class _RecipeCardState extends State<RecipeCard> {
     );
   }
 
-  // Widget buildIngredientsSection(BuildContext context) {
-  //   final double screenWidth = MediaQuery.of(context).size.width;
-  //   final double fontSize;
-  //   if (screenWidth > 450) {
-  //     fontSize = 20;
-  //   } else {
-  //     fontSize = 16;
-  //   }
-
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       Text(
-  //         "Ingredients:",
-  //         style: TextStyle(
-  //           fontSize: fontSize,
-  //           color: Color(0xFFDC945F),
-  //           fontWeight: FontWeight.bold,
-  //         ),
-  //       ),
-  //       SizedBox(
-  //         height: MediaQuery.of(context).size.height *
-  //             0.01, // Adjust height to 1% of screen height
-  //       ),
-  //       ...widget.ingredients.asMap().entries.map((entry) {
-  //         int idx = entry.key;
-  //         Map<String, dynamic> ingredient = entry.value;
-  //         bool isInPantry = _pantryIngredients.containsKey(ingredient['name']);
-  //         double availableQuantity = isInPantry
-  //             ? (_pantryIngredients[ingredient['name']]?['quantity'] ?? 0.0)
-  //             : 0.0;
-  //         bool isInShoppingList = _shoppingList.containsKey(ingredient['name']);
-
-  //         return CheckableItem(
-  //           title:
-  //               '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-  //           requiredQuantity: ingredient['quantity'],
-  //           requiredUnit: ingredient['measurement_unit'],
-  //           onChanged: (bool? value) {
-  //             if (mounted) {
-  //               setState(() {
-  //                 _ingredientChecked[idx] = value ?? false;
-  //               });
-  //             }
-  //           },
-  //           isInPantry: isInPantry,
-  //           availableQuantity: availableQuantity,
-  //           isChecked: _ingredientChecked[idx] ?? true,
-  //           isInShoppingList: isInShoppingList,
-  //           recipeID: widget.recipeID,
-  //           onRecipeUpdate: _updateRecipe, // Pass recipeID here
-  //         );
-  //       }),
-  //       if (widget.ingredients.every((ingredient) =>
-  //           _pantryIngredients.containsKey(ingredient['name']) &&
-  //           _pantryIngredients[ingredient['name']]!['quantity'] >=
-  //               ingredient['quantity']))
-  //         ElevatedButton(
-  //           onPressed: _removeIngredientsFromPantry,
-  //           child: Text('Remove ingredients from pantry'),
-  //         ),
-  //       SizedBox(
-  //         height: MediaQuery.of(context).size.height * 0.02,
-  //       ),
-  //     ],
-  //   );
-  // }
-
   Widget buildAppliancesSection(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double fontSize;
@@ -1968,11 +1915,9 @@ class _RecipeCardState extends State<RecipeCard> {
   Widget buildActionButton(BuildContext context, bool isMobile) {
     final theme = Theme.of(context);
     final clickColor =
-        theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
-    final textColor =
         theme.brightness == Brightness.light ? Color(0xFF283330) : Colors.white;
 
-    return ElevatedButton(
+    return ElevatedButton.icon(
       onPressed: () async {
         if (!_isAlteredRecipe) {
           if (userId != null) {
@@ -2020,10 +1965,27 @@ class _RecipeCardState extends State<RecipeCard> {
         }
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: textColor,
+        backgroundColor: Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8), // Less rounded corners
+          side: BorderSide(
+            color: theme.brightness == Brightness.light
+                ? Colors.black
+                : Colors.white, // Border color to match the theme
+            width: 2, // Thickness of the border
+          ),
+        ),
+        shadowColor: Colors.black, // Shadow to make it stand out
+        elevation: 8, // Higher elevation for shadow effect
       ),
-      child: Text(
+      icon: Icon(
+        _isAlteredRecipe
+            ? Icons.restore
+            : Icons.restaurant_menu, // Icon for the button
+        color: clickColor, // Icon color
+      ),
+      label: Text(
         _isAlteredRecipe
             ? 'Revert to Original Recipe'
             : 'Adjust recipe to cater to my preferences',
