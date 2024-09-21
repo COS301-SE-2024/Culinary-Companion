@@ -257,6 +257,7 @@ void _onSearchChanged(String query) {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _searchController.clear();
         });
       }
     }
@@ -321,6 +322,7 @@ void _onSearchChanged(String query) {
         final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
         setState(() {
           recipes.clear(); // Clear the current recipes
+          _searchController.clear();
         });
 
         // Fetch recipe details for filtered results
