@@ -874,16 +874,22 @@ class _RecipeCardState extends State<RecipeCard> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Flexible(
-                              child: Text(
-                                widget.name,
-                                style: TextStyle(
-                                  fontSize: screenWidth *
-                                      0.02, // Adjust font size to 2% of screen width
-                                  fontWeight: FontWeight.bold,
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment
+                                    .center, // Center the text horizontally
+                                child: Text(
+                                  widget.name,
+                                  style: TextStyle(
+                                    fontSize: screenWidth *
+                                        0.02, // Adjust font size to 2% of screen width
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign
+                                      .center, // Center the text within its widget
                                 ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             Row(
@@ -915,7 +921,6 @@ class _RecipeCardState extends State<RecipeCard> {
                                       0.02, // Adjust icon size to 2% of screen width
                                   onPressed: () {
                                     Navigator.of(context).pop();
-
                                     _fetchShoppingList(); // Refresh shopping list when dialog is closed
                                   },
                                 ),
@@ -924,7 +929,7 @@ class _RecipeCardState extends State<RecipeCard> {
                           ],
                         ),
                         SizedBox(
-                          width: 50,
+                          height: 50,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment
@@ -952,9 +957,8 @@ class _RecipeCardState extends State<RecipeCard> {
                                     ),
                                   ),
                                   SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.02),
+                                    height: 30,
+                                  ),
                                   buildActionButton(context, false),
                                   SizedBox(
                                       height:
