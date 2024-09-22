@@ -966,6 +966,7 @@ Widget _buildIngredientsSection() {
           recipeID: widget.recipeID,
           onRecipeUpdate: _updateRecipe,
         );
+      // ignore: unnecessary_to_list_in_spreads
       }).toList(),
     ],
   );

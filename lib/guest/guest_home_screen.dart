@@ -21,8 +21,8 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
   //String? _errorMessage;
-  Map<String, dynamic>? _userDetails;
-  String? _userId;
+  //Map<String, dynamic>? _userDetails;
+ // String? _userId;
  // List<Map<String, dynamic>> suggestedRecipes = [];
   //List<Map<String, dynamic>> suggestedFavoriteRecipes = [];
   Set<String> _addedRecipeIds = {}; //recipes in the recipes list
