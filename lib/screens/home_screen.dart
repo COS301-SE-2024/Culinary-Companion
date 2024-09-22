@@ -573,7 +573,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: screenWidth > 450
+      appBar: screenWidth > 600
           ? AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: Colors.transparent,
@@ -591,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
           : null,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 450) {
+          if (constraints.maxWidth < 600) {
             return _isLoading
                 ? Center(child: Lottie.asset('assets/loading.json'))
                 : _buildMobileView(

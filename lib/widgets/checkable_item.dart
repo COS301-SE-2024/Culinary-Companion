@@ -269,6 +269,9 @@ class _CheckableItemState extends State<CheckableItem> {
                 ],
               ),
             ),
+            SizedBox(
+              width: 20,
+            )
           ],
         ),
         if (!isSufficient && !(widget.isInShoppingList || _isAdded))
