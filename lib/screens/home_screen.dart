@@ -462,6 +462,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     double titleFontSize;
     double backArrow;
+    // ignore: unused_local_variable
     String category;
 List<Map<String, dynamic>> filteredRecipes;
     if (screenWidth > 1334) {
