@@ -462,8 +462,9 @@ class _HomeScreenState extends State<HomeScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     double titleFontSize;
     double backArrow;
+    // ignore: unused_local_variable
     String category;
-
+List<Map<String, dynamic>> filteredRecipes;
     if (screenWidth > 1334) {
       titleFontSize = 30.0;
       backArrow = 30;
@@ -485,8 +486,13 @@ class _HomeScreenState extends State<HomeScreen> {
       category = _selectedCategory;
     }
 
-    List<Map<String, dynamic>> filteredRecipes =
-        _filterRecipesByCourse(_selectedCategory);
+// Handle "Suggested" recipes separately
+    if (_selectedCategory == 'Suggested') {
+      filteredRecipes = suggestedRecipes;
+    } else {
+      filteredRecipes = _filterRecipesByCourse(_selectedCategory);
+    }
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -508,7 +514,9 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(width: 10),
               Text(
-                category,
+                _selectedCategory == 'Suggested'
+                    ? 'Suggested Recipes'
+                    : _selectedCategory,
                 style: TextStyle(
                   fontSize: titleFontSize,
                   fontWeight: FontWeight.bold,
@@ -612,6 +620,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(height: 24),
+                              _buildRecipeList('Suggested', suggestedRecipes),
                               _buildRecipeList(
                                   'Mains', _filterRecipesByCourse('Main')),
                               _buildRecipeList('Breakfast',
@@ -620,7 +629,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   _filterRecipesByCourse('Appetizer')),
                               _buildRecipeList(
                                   'Dessert', _filterRecipesByCourse('Dessert')),
-                              _buildRecipeList('Suggested', suggestedRecipes),
                             ],
                           ),
                         ),
