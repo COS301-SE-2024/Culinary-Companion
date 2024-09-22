@@ -258,6 +258,7 @@ class _SearchScreenState extends State<SearchScreen> {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _searchController.clear();
         });
       }
     }
@@ -322,6 +323,7 @@ class _SearchScreenState extends State<SearchScreen> {
         final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
         setState(() {
           recipes.clear(); // Clear the current recipes
+          _searchController.clear();
         });
 
         // Fetch recipe details for filtered results

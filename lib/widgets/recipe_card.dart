@@ -167,11 +167,22 @@ class _RecipeCardState extends State<RecipeCard> {
         //print('Parsed Ingredients: ${widget.ingredients}');
         //print('gets here 12');
         _isAlteredRecipe = true;
-        //_showRecipeDetails();
+
       });
+        Navigator.of(context).pop();
+        if (_isMobileView()) {
+          _showMobileRecipeDetails();
+        } else {
+          _showRecipeDetails();
+        }
+        //_showRecipeDetails();
     }
   }
-
+bool _isMobileView() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth <
+        768; // Adjust the threshold for mobile view, 768px is a common breakpoint
+  }
   void _revertToOriginalRecipe() {
     if (_originalRecipe != null) {
       if (mounted) {
@@ -807,44 +818,6 @@ class _RecipeCardState extends State<RecipeCard> {
     });
   }
 
-  // void _showAlteredRecipe(
-  //     String substitute, String substitutedIngredient) async {
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('Loading altered recipe...'),
-  //         content: CircularProgressIndicator(),
-  //       );
-  //     },
-  //   );
-
-  //   String jsonString = await fetchIngredientSubstitutionRecipe(
-  //       widget.recipeID, substitute, substitutedIngredient);
-
-  //   Navigator.of(context).pop(); // Close the loading dialog
-
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: Text('Altered Recipe'),
-  //         content: SingleChildScrollView(
-  //           child: Text(jsonString),
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop(); // Close the dialog
-  //             },
-  //             child: Text('Close'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
   void _showRecipeDetails() {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
@@ -1109,6 +1082,10 @@ class _RecipeCardState extends State<RecipeCard> {
                                           onRecipeUpdate: (Map<String, dynamic>
                                               alteredRecipe) {
                                             _updateRecipe(alteredRecipe);
+                                            Navigator.of(context)
+                                                .pop(); // stop loading screen
+                                            Navigator.of(context).pop();
+                                            _showRecipeDetails(); // refresh recipe card
                                             if (mounted) {
                                               dialogSetState(() {});
                                             } // Update the dialog's state
@@ -1999,6 +1976,7 @@ class _RecipeCardState extends State<RecipeCard> {
             isInShoppingList: isInShoppingList,
             recipeID: widget.recipeID,
             onRecipeUpdate: _updateRecipe, // Pass recipeID here
+            
           );
         }),
         if (widget.ingredients.every((ingredient) =>
@@ -2126,9 +2104,9 @@ class _RecipeCardState extends State<RecipeCard> {
 
             // Update recipe and refresh
             _updateRecipe(alteredRecipe);
-            Navigator.of(context).pop(); // Stop loading screen
+            Navigator.of(context).pop(); // stop loading screen
             Navigator.of(context).pop();
-            _showMobileRecipeDetails(); // Refresh recipe
+            _showRecipeDetails(); // refresh recipe card
           }
         } else {
           // Revert to original recipe
