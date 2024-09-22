@@ -9,6 +9,8 @@ import '../widgets/filter_recipes.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+
 class SearchScreen extends StatefulWidget {
   @override
   _SearchScreenState createState() => _SearchScreenState();
@@ -21,7 +23,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final List<String> _courses = ['Main', 'Breakfast', 'Appetizer', 'Dessert'];
   List<String> cuisineType = [];
   List<String> dietaryOptions = [];
-Timer? _debounce;
+  Timer? _debounce;
   // List<String> ingredientOptions = [
   //   'Need 1 Extra Ingredient',
   //   'Mostly in My Pantry',
@@ -35,7 +37,7 @@ Timer? _debounce;
     'Hot',
     'Extra Hot' //5
   ];
-void _onSearchChanged(String query) {
+  void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       // Perform the search only when the user has stopped typing for 500ms
@@ -48,6 +50,7 @@ void _onSearchChanged(String query) {
     _debounce?.cancel();
     super.dispose();
   }
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +61,6 @@ void _onSearchChanged(String query) {
     await fetchAllRecipes();
     await _loadCuisines();
     await _loadDietaryConstraints();
-    
   }
 
   Future<void> fetchAllRecipes() async {
@@ -111,7 +113,6 @@ void _onSearchChanged(String query) {
       });
     }
   }
-
 
   Future<void> _loadDietaryConstraints() async {
     final url =
@@ -257,6 +258,7 @@ void _onSearchChanged(String query) {
       if (mounted) {
         setState(() {
           _isLoading = false;
+          _searchController.clear();
         });
       }
     }
@@ -321,6 +323,7 @@ void _onSearchChanged(String query) {
         final List<dynamic> fetchedRecipeIds = jsonDecode(response.body);
         setState(() {
           recipes.clear(); // Clear the current recipes
+          _searchController.clear();
         });
 
         // Fetch recipe details for filtered results
@@ -343,7 +346,6 @@ void _onSearchChanged(String query) {
       }
     }
   }
-
 
   void _openFilterModal() {
     final theme = Theme.of(context);
@@ -703,12 +705,138 @@ void _onSearchChanged(String query) {
     Overlay.of(context).insert(_helpMenuOverlay!);
   }
 
+  // @override
+  // Widget build(BuildContext context) {
+  //   final theme = Theme.of(context);
+  //   final bool isLightTheme = theme.brightness == Brightness.light;
+  //   final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       automaticallyImplyLeading: false,
+  //       backgroundColor: Colors.transparent,
+  //       actions: [
+  //         Padding(
+  //           padding: const EdgeInsets.only(right: 20.0),
+  //           child: IconButton(
+  //             icon: Icon(Icons.help),
+  //             onPressed: _showHelpMenu,
+  //             iconSize: 35,
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //     body: Stack(
+  //       children: [
+  //         // Main content
+  //         SingleChildScrollView(
+  //           child: Padding(
+  //             padding: const EdgeInsets.all(30.0),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 Row(
+  //                   children: [
+  //                     Expanded(
+  //                       child: TextField(
+  //                         controller: _searchController,
+  //                         cursorColor: textColor,
+  //                         decoration: InputDecoration(
+  //                           focusedBorder: OutlineInputBorder(
+  //                             borderSide: BorderSide(color: textColor),
+  //                             borderRadius: BorderRadius.circular(20),
+  //                           ),
+  //                           border: OutlineInputBorder(
+  //                             borderSide: BorderSide(color: textColor),
+  //                             borderRadius: BorderRadius.circular(20),
+  //                           ),
+  //                           labelText: 'Search',
+  //                           labelStyle: TextStyle(color: textColor),
+  //                           suffixIcon: IconButton(
+  //                             icon: Icon(Icons.search),
+  //                             onPressed: () =>
+  //                                 _onSearchChanged(_searchController.text),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     IconButton(
+  //                       icon: Icon(Icons.filter_alt_rounded),
+  //                       color: textColor,
+  //                       onPressed: _openFilterModal,
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 SizedBox(height: 10),
+  //                 _buildFilterChips(),
+  //                 SizedBox(height: 20),
+  //                 LayoutBuilder(
+  //                   builder: (context, constraints) {
+  //                     double width = constraints.maxWidth;
+  //                     double crossAxisSpacing = width * 0.01;
+  //                     double mainAxisSpacing = width * 0.02;
+  //                     double itemWidth = 276;
+  //                     double itemHeight = 320;
+  //                     double aspectRatio = itemWidth / itemHeight;
+
+  //                     return GridView.builder(
+  //                       shrinkWrap: true,
+  //                       physics: NeverScrollableScrollPhysics(),
+  //                       itemCount: recipes.length,
+  //                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+  //                         crossAxisCount: 4, // Number of columns
+  //                         crossAxisSpacing: crossAxisSpacing,
+  //                         mainAxisSpacing: mainAxisSpacing,
+  //                         childAspectRatio: aspectRatio,
+  //                       ),
+  //                       itemBuilder: (context, index) {
+  //                         List<String> steps = [];
+  //                         if (recipes[index]['steps'] != null) {
+  //                           steps =
+  //                               (recipes[index]['steps'] as String).split('<');
+  //                         }
+
+  //                         return RecipeCard(
+  //                           recipeID: recipes[index]['recipeId'] ?? '',
+  //                           name: recipes[index]['name'] ?? '',
+  //                           description: recipes[index]['description'] ?? '',
+  //                           imagePath: recipes[index]['photo'] ??
+  //                               'assets/emptyPlate.jpg',
+  //                           prepTime: recipes[index]['preptime'] ?? 0,
+  //                           cookTime: recipes[index]['cooktime'] ?? 0,
+  //                           cuisine: recipes[index]['cuisine'] ?? '',
+  //                           spiceLevel: recipes[index]['spicelevel'] ?? 0,
+  //                           course: recipes[index]['course'] ?? '',
+  //                           servings: recipes[index]['servings'] ?? 0,
+  //                           steps: steps,
+  //                           appliances:
+  //                               List<String>.from(recipes[index]['appliances']),
+  //                           ingredients: List<Map<String, dynamic>>.from(
+  //                               recipes[index]['ingredients']),
+  //                         );
+  //                       },
+  //                     );
+  //                   },
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //         // Loading overlay
+  //         if (_isLoading)
+  //           Container(
+  //             color: Colors.black.withOpacity(0.5),
+  //             child: Center(
+  //               child: Lottie.asset('assets/loading.json'),
+  //             ),
+  //           ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bool isLightTheme = theme.brightness == Brightness.light;
-    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
-
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -724,110 +852,215 @@ void _onSearchChanged(String query) {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          // Main content
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+      body: _isLoading
+          ? Center(
+              child: Lottie.asset('assets/loading.json'),
+            )
+          : recipes.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          cursorColor: textColor,
-                          decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: textColor),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: textColor),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            labelText: 'Search',
-                            labelStyle: TextStyle(color: textColor),
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.search),
-                              onPressed: () =>
-                                  _onSearchChanged(_searchController.text),
-                            ),
-                          ),
+                      Icon(
+                        Icons.search_off,
+                        size: 100,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        'No recipes found!',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
                         ),
                       ),
-                      IconButton(
-                        icon: Icon(Icons.filter_alt_rounded),
-                        color: textColor,
-                        onPressed: _openFilterModal,
+                      SizedBox(height: 10),
+                      Text(
+                        'Try adjusting your search or filters.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
-                  _buildFilterChips(),
-                  SizedBox(height: 20),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      double width = constraints.maxWidth;
-                      double crossAxisSpacing = width * 0.01;
-                      double mainAxisSpacing = width * 0.02;
-                      double itemWidth = 276;
-                      double itemHeight = 320;
-                      double aspectRatio = itemWidth / itemHeight;
+                )
+              : LayoutBuilder(
+                  builder: (context, constraints) {
+                    double screenWidth = constraints.maxWidth;
 
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: recipes.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 4, // Number of columns
-                          crossAxisSpacing: crossAxisSpacing,
-                          mainAxisSpacing: mainAxisSpacing,
-                          childAspectRatio: aspectRatio,
-                        ),
-                        itemBuilder: (context, index) {
-                          List<String> steps = [];
-                          if (recipes[index]['steps'] != null) {
-                            steps =
-                                (recipes[index]['steps'] as String).split('<');
-                          }
-
-                          return RecipeCard(
-                            recipeID: recipes[index]['recipeId'] ?? '',
-                            name: recipes[index]['name'] ?? '',
-                            description: recipes[index]['description'] ?? '',
-                            imagePath: recipes[index]['photo'] ??
-                                'assets/emptyPlate.jpg',
-                            prepTime: recipes[index]['preptime'] ?? 0,
-                            cookTime: recipes[index]['cooktime'] ?? 0,
-                            cuisine: recipes[index]['cuisine'] ?? '',
-                            spiceLevel: recipes[index]['spicelevel'] ?? 0,
-                            course: recipes[index]['course'] ?? '',
-                            servings: recipes[index]['servings'] ?? 0,
-                            steps: steps,
-                            appliances:
-                                List<String>.from(recipes[index]['appliances']),
-                            ingredients: List<Map<String, dynamic>>.from(
-                                recipes[index]['ingredients']),
-                          );
-                        },
+                    // Check if the screen width is less than 600 pixels
+                    if (screenWidth < 600) {
+                      return Column(
+                        children: [
+                          _buildSearchAndFilterBar(),
+                          Expanded(child: _buildMobileLayout()),
+                        ],
                       );
-                    },
+                    } else {
+                      return Column(
+                        children: [
+                          _buildSearchAndFilterBar(),
+                          Expanded(child: _buildDesktopLayout()),
+                        ],
+                      );
+                    }
+                  },
+                ),
+    );
+  }
+
+// Widget for search bar and filter chips
+  Widget _buildSearchAndFilterBar() {
+    final theme = Theme.of(context);
+    final bool isLightTheme = theme.brightness == Brightness.light;
+    final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                cursorColor: textColor,
+                decoration: InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: textColor),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                ],
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: textColor),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  labelText: 'Search',
+                  labelStyle: TextStyle(color: textColor),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: () => _onSearchChanged(_searchController.text),
+                  ),
+                ),
               ),
             ),
+            IconButton(
+              icon: Icon(Icons.filter_alt_rounded),
+              color: textColor,
+              onPressed: _openFilterModal,
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        _buildFilterChips(),
+        SizedBox(height: 20),
+      ],
+    );
+  }
+
+// Mobile layout with MasonryGridView (same as the original one)
+  Widget _buildMobileLayout() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: MasonryGridView.count(
+        crossAxisCount: 2, // 2 columns for mobile view
+        mainAxisSpacing: 12.0,
+        crossAxisSpacing: 12.0,
+        itemCount: recipes.length,
+        physics: const BouncingScrollPhysics(),
+        itemBuilder: (context, index) {
+          List<String> steps = [];
+          if (recipes[index]['steps'] != null) {
+            steps = (recipes[index]['steps'] as String).split('<');
+          }
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              double randomHeight = (index % 5 + 1) * 100;
+              double minHeight = 200; // Set your minimum height here
+              double finalHeight =
+                  randomHeight < minHeight ? minHeight : randomHeight;
+
+              return Container(
+                height: finalHeight,
+                child: RecipeCard(
+                  recipeID: recipes[index]['recipeId'] ?? '',
+                  name: recipes[index]['name'] ?? '',
+                  description: recipes[index]['description'] ?? '',
+                  imagePath: recipes[index]['photo'] ?? 'assets/emptyPlate.jpg',
+                  prepTime: recipes[index]['preptime'] ?? 0,
+                  cookTime: recipes[index]['cooktime'] ?? 0,
+                  cuisine: recipes[index]['cuisine'] ?? '',
+                  spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                  course: recipes[index]['course'] ?? '',
+                  servings: recipes[index]['servings'] ?? 0,
+                  steps: steps,
+                  appliances: List<String>.from(recipes[index]['appliances']),
+                  ingredients: List<Map<String, dynamic>>.from(
+                      recipes[index]['ingredients']),
+                  customFontSizeTitle: 16, // Custom font size for mobile layout
+                  customIconSize: 24,
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+
+// Desktop layout with 4 columns (same as the original)
+  Widget _buildDesktopLayout() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(30.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LayoutBuilder(
+            builder: (context, constraints) {
+              double width = constraints.maxWidth;
+              double itemWidth = 276;
+              double itemHeight = 320;
+              double aspectRatio = itemWidth / itemHeight;
+
+              double crossAxisSpacing = width * 0.01;
+              double mainAxisSpacing = width * 0.02;
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: recipes.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: crossAxisSpacing,
+                  mainAxisSpacing: mainAxisSpacing,
+                  childAspectRatio: aspectRatio,
+                ),
+                itemBuilder: (context, index) {
+                  List<String> steps = [];
+                  if (recipes[index]['steps'] != null) {
+                    steps = (recipes[index]['steps'] as String).split('<');
+                  }
+
+                  return RecipeCard(
+                    recipeID: recipes[index]['recipeId'] ?? '',
+                    name: recipes[index]['name'] ?? '',
+                    description: recipes[index]['description'] ?? '',
+                    imagePath:
+                        recipes[index]['photo'] ?? 'assets/emptyPlate.jpg',
+                    prepTime: recipes[index]['preptime'] ?? 0,
+                    cookTime: recipes[index]['cooktime'] ?? 0,
+                    cuisine: recipes[index]['cuisine'] ?? '',
+                    spiceLevel: recipes[index]['spicelevel'] ?? 0,
+                    course: recipes[index]['course'] ?? '',
+                    servings: recipes[index]['servings'] ?? 0,
+                    steps: steps,
+                    appliances: List<String>.from(recipes[index]['appliances']),
+                    ingredients: List<Map<String, dynamic>>.from(
+                        recipes[index]['ingredients']),
+                  );
+                },
+              );
+            },
           ),
-          // Loading overlay
-          if (_isLoading)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: Center(
-                child: Lottie.asset('assets/loading.json'),
-              ),
-            ),
         ],
       ),
     );

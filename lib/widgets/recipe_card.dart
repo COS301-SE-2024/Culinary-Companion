@@ -26,6 +26,10 @@ class RecipeCard extends StatefulWidget {
   List<String> appliances;
   List<Map<String, dynamic>> ingredients;
 
+  double? customBoxWidth;
+  double? customFontSizeTitle;
+  double? customIconSize;
+
   RecipeCard({
     required this.recipeID,
     required this.name,
@@ -40,6 +44,9 @@ class RecipeCard extends StatefulWidget {
     required this.steps,
     required this.appliances,
     required this.ingredients,
+    this.customBoxWidth,
+    this.customFontSizeTitle,
+    this.customIconSize,
   });
 
   @override
@@ -166,11 +173,22 @@ class _RecipeCardState extends State<RecipeCard> {
         //print('Parsed Ingredients: ${widget.ingredients}');
         //print('gets here 12');
         _isAlteredRecipe = true;
-        //_showRecipeDetails();
+
       });
+        Navigator.of(context).pop();
+        if (_isMobileView()) {
+          _showMobileRecipeDetails();
+        } else {
+          _showRecipeDetails();
+        }
+        //_showRecipeDetails();
     }
   }
-
+bool _isMobileView() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth <
+        768; // Adjust the threshold for mobile view, 768px is a common breakpoint
+  }
   void _revertToOriginalRecipe() {
     if (_originalRecipe != null) {
       if (mounted) {
@@ -1082,6 +1100,7 @@ class _RecipeCardState extends State<RecipeCard> {
                                                                 vertical: 10,
                                                                 horizontal: 15),
                                                         backgroundColor:
+
                                                             Color.fromARGB(
                                                                 0,
                                                                 81,
@@ -1266,6 +1285,7 @@ class _RecipeCardState extends State<RecipeCard> {
       boxWidth = MediaQuery.of(context).size.width / 7;
       iconSize = MediaQuery.of(context).size.width * 0.017;
     }
+
 
     final hoverColor = theme.brightness == Brightness.light
         ? Color(0xFF202920).withOpacity(0.8)
@@ -1847,11 +1867,13 @@ class _RecipeCardState extends State<RecipeCard> {
         ),
         Padding(
           padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
+
           child: Text(
             'Servings: $servings',
             style: TextStyle(
               fontSize: fontSize,
             ),
+
           ),
         ),
       ],
@@ -2024,13 +2046,15 @@ class _RecipeCardState extends State<RecipeCard> {
 
             // Update recipe and refresh
             _updateRecipe(alteredRecipe);
-            Navigator.of(context).pop(); // Stop loading screen
+            Navigator.of(context).pop(); // stop loading screen
             Navigator.of(context).pop();
+
             if (isMobile) {
               _showMobileRecipeDetails();
             } else {
               _showRecipeDetails();
             }
+
           }
         } else {
           // Revert to original recipe
