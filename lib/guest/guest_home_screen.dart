@@ -16,7 +16,7 @@ class GuestHomeScreen extends StatefulWidget {
 
 class _GuestHomeScreen extends State<GuestHomeScreen> {
   List<Map<String, dynamic>> recipes = [];
-  bool _isLoading = false;
+  bool _isLoading = true;
   bool _isGridView = false;
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
