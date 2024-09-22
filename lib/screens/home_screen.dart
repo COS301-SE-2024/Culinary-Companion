@@ -591,7 +591,7 @@ class _HomeScreenState extends State<HomeScreen> {
           : null,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 600) {
+          if (constraints.maxWidth < 500) {
             return _isLoading
                 ? Center(child: Lottie.asset('assets/loading.json'))
                 : _buildMobileView(
