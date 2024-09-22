@@ -146,7 +146,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
           };
         }).toList();
 
-        print('Parsed Ingredients: ${widget.ingredients}');
+        //print('Parsed Ingredients: ${widget.ingredients}');
         //print('gets here 12');
         _isAlteredRecipe = true;
         
@@ -1733,7 +1733,7 @@ class _CheckableItemState extends State<CheckableItem> {
     Map<String, dynamic> alteredRecipe = jsonDecode(jsonString);
 
     //update the altered recipe
-    print("here $alteredRecipe");
+    //print("here $alteredRecipe");
     widget.onRecipeUpdate(alteredRecipe);
 
     if (mounted) {
