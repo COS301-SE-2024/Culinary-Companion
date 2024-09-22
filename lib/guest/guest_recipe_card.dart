@@ -149,11 +149,24 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         print('Parsed Ingredients: ${widget.ingredients}');
         //print('gets here 12');
         _isAlteredRecipe = true;
+        
         Navigator.of(context).pop();
+        
+        if (_isMobileView()) {
+        _showMobileRecipeDetails();
+      } else {
         _showRecipeDetails();
+      }
+        
       });
     }
   }
+
+  bool _isMobileView() {
+  double screenWidth = MediaQuery.of(context).size.width;
+  return screenWidth < 768; // Adjust the threshold for mobile view, 768px is a common breakpoint
+}
+
 
   void _revertToOriginalRecipe() {
     if (_originalRecipe != null) {
@@ -174,7 +187,11 @@ class _RecipeCardState extends State<GuestRecipeCard> {
               List<Map<String, dynamic>>.from(_originalRecipe!['ingredients']);
           _isAlteredRecipe = false;
           Navigator.of(context).pop();
-          _showRecipeDetails();
+          if (_isMobileView()) {
+        _showMobileRecipeDetails();
+      } else {
+        _showRecipeDetails();
+      }
         });
       }
     }
@@ -660,6 +677,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                             // },
                                             // Pass recipeID here
                                             onRecipeUpdate: _updateRecipe,
+                                            
                                           );
                                         }),
 
@@ -757,29 +775,35 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                               ),
                                             );
                                           }).toList();
-                                        })
-                                      ],
-                                    ),
+                                      }),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                // Chat Bot tab content
+                                Center(
+                                  child: ElevatedButton(
+                                    onPressed: _chatbotPopup,  // Call the _chatbotPopup here
+                                    child: Text("Open Chat Bot"),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        );
-      },
-    ).then((_) {
-      // This will be called when the dialog is dismissed
-      //_fetchShoppingList();
-    });
-  }
+        ),
+      );
+    },
+  ).then((_) {
+    
+  });
+}
 
   void _showRecipeDetails() {
     //final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
@@ -996,6 +1020,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                           ingredient['measurement_unit'],
                                       recipeID: widget.recipeID,
                                       onRecipeUpdate: _updateRecipe,
+                                      
                                     );
                                   }),
 
