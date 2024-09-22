@@ -28,6 +28,10 @@ class RecipeCard extends StatefulWidget {
   List<String> appliances;
   List<Map<String, dynamic>> ingredients;
 
+  double? customBoxWidth;
+  double? customFontSizeTitle;
+  double? customIconSize;
+
   RecipeCard({
     required this.recipeID,
     required this.name,
@@ -42,6 +46,9 @@ class RecipeCard extends StatefulWidget {
     required this.steps,
     required this.appliances,
     required this.ingredients,
+    this.customBoxWidth,
+    this.customFontSizeTitle,
+    this.customIconSize,
   });
 
   @override
@@ -1357,21 +1364,29 @@ class _RecipeCardState extends State<RecipeCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSizeTitle;
-    double boxWidth;
-    double iconSize;
+    // double fontSizeTitle;
+    // double boxWidth;
+    // double iconSize;
     double fontSizeDescription = screenWidth * 0.01;
     double fontSizeTimes = screenWidth * 0.008;
 
-    if (screenWidth < 450) {
-      fontSizeTitle = screenWidth * 0.05;
-      boxWidth = MediaQuery.of(context).size.width / 2;
-      iconSize = MediaQuery.of(context).size.width * 0.08;
-    } else {
-      fontSizeTitle = screenWidth * 0.015;
-      boxWidth = MediaQuery.of(context).size.width / 7;
-      iconSize = MediaQuery.of(context).size.width * 0.017;
-    }
+    // if (screenWidth < 450) {
+    //   fontSizeTitle = screenWidth * 0.05;
+    //   boxWidth = MediaQuery.of(context).size.width / 2;
+    //   iconSize = MediaQuery.of(context).size.width * 0.08;
+    // } else {
+    //   fontSizeTitle = screenWidth * 0.015;
+    //   boxWidth = MediaQuery.of(context).size.width / 7;
+    //   iconSize = MediaQuery.of(context).size.width * 0.017;
+    // }
+
+    // Use custom values if provided, otherwise default to calculated values
+    double fontSizeTitle = widget.customFontSizeTitle ??
+        (screenWidth < 450 ? screenWidth * 0.05 : screenWidth * 0.015);
+    double boxWidth = widget.customBoxWidth ??
+        (screenWidth < 450 ? screenWidth / 2 : screenWidth / 7);
+    double iconSize = widget.customIconSize ??
+        (screenWidth < 450 ? screenWidth * 0.08 : screenWidth * 0.017);
 
     final hoverColor = theme.brightness == Brightness.light
         ? Color(0xFF202920).withOpacity(0.8)
