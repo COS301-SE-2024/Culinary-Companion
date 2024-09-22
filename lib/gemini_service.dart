@@ -166,7 +166,7 @@ Future<String> fetchMealPlannerRecipes(
     String mealPlanName,
     BuildContext context // Add context to access the Scaffold/AlertDialog
     ) async {
-  final apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
