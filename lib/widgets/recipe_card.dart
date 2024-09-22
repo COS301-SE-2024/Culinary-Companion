@@ -846,244 +846,184 @@ class _RecipeCardState extends State<RecipeCard> {
         isLightTheme ? Color.fromARGB(255, 53, 53, 53) : Colors.white;
 
     final theme = Theme.of(context);
-
     final iconColor = theme.brightness == Brightness.light
         ? Color.fromARGB(255, 49, 49, 49)
         : Colors.white;
     final double screenWidth = MediaQuery.of(context).size.width;
+
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Scaffold(body: StatefulBuilder(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          body: StatefulBuilder(
               builder: (BuildContext context, StateSetter dialogSetState) {
             return Container(
-              // width: screenWidth * 0.8, // Set width to 80% of screen width
-              // height: MediaQuery.of(context).size.height *
-              //     0.8, // Set height to 80% of screen height
               padding: EdgeInsets.only(
-                top: MediaQuery.of(context).size.height *
-                    0.04, // Adjust top padding to 4% of screen height
-                left: screenWidth *
-                    0.05, // Adjust left padding to 5% of screen width
-                right: screenWidth *
-                    0.05, // Adjust right padding to 5% of screen width
+                top: MediaQuery.of(context).size.height * 0.04,
+                left: screenWidth * 0.05,
+                right: screenWidth * 0.05,
               ),
-              child: Stack(
+              child: Column(
                 children: [
-                  SingleChildScrollView(
-                    child: Column(
+                  // Top row with title and icons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            widget.name,
+                            style: TextStyle(
+                              color: iconColor,
+                              fontSize: screenWidth * 0.02,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.timer_outlined,
+                              color: iconColor,
+                              size: MediaQuery.of(context).size.width * 0.017,
+                            ),
+                            onPressed: _showTimerPopup,
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              _isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: _isFavorite ? Colors.red : iconColor,
+                              size: MediaQuery.of(context).size.width * 0.017,
+                            ),
+                            onPressed: _toggleFavorite,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            color: iconColor,
+                            iconSize: screenWidth * 0.02,
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _fetchShoppingList(); // Refresh shopping list when dialog is closed
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 50),
+
+                  // Row containing left and right columns with independent scroll
+                  Expanded(
+                    child: Row(
                       children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Align(
-                                alignment: Alignment
-                                    .center, // Center the text horizontally
-                                child: Text(
-                                  widget.name,
+                        // Left Column (Image, Action Button, Ingredients, Appliances)
+                        Flexible(
+                          flex: 3, // 30% of the width
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Image Section
+                                LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return Container(
+                                      constraints: BoxConstraints(
+                                        maxHeight:
+                                            400, // 50% of the available height
+                                      ),
+                                      child: Center(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          child: Image.network(
+                                            widget.imagePath,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                SizedBox(height: 50),
+                                Center(
+                                    child: buildActionButton(context, false)),
+                                SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.02),
+                                // Ingredients list
+                                buildIngredientsList(context, dialogSetState),
+                                SizedBox(height: 40),
+                                buildAppliancesSection(context),
+                                SizedBox(height: 40),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 50), // Spacing between columns
+
+                        // Right Column (Description, Details, Instructions)
+                        Flexible(
+                          flex: 7, // 70% of the width
+                          child: SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Description:",
                                   style: TextStyle(
-                                    color: iconColor,
-                                    fontSize: screenWidth *
-                                        0.02, // Adjust font size to 2% of screen width
+                                    fontSize: 20,
+                                    color: Color(0xFFDC945F),
                                     fontWeight: FontWeight.bold,
                                   ),
-                                  maxLines: 2,
-
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign
-                                      .center, // Center the text within its widget
                                 ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.timer_outlined,
-                                    color: iconColor,
-                                    size: MediaQuery.of(context).size.width *
-                                        0.017,
+                                SizedBox(height: 15.0),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 16.0),
+                                  child: Text(
+                                    widget.description,
+                                    style: TextStyle(fontSize: 16),
                                   ),
-                                  onPressed: _showTimerPopup,
                                 ),
-                                IconButton(
-                                  icon: Icon(
-                                    _isFavorite
-                                        ? Icons.favorite
-                                        : Icons.favorite_border,
-                                    color: _isFavorite ? Colors.red : iconColor,
-                                    size: MediaQuery.of(context).size.width *
-                                        0.017,
-                                  ),
-                                  onPressed: _toggleFavorite,
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.close),
-                                  color: iconColor,
-                                  iconSize: screenWidth *
-                                      0.02, // Adjust icon size to 2% of screen width
-                                  onPressed: () {
-                                    Navigator.of(context).pop();
-                                    _fetchShoppingList(); // Refresh shopping list when dialog is closed
-                                  },
+                                SizedBox(height: 8),
+                                // Time and Details
+                                buildTimeInfoRow(context, '${widget.prepTime}',
+                                    '${widget.cookTime}', textColor),
+                                SizedBox(height: 8),
+                                buildDetailsColumn(
+                                    context,
+                                    '${widget.cuisine}',
+                                    '${widget.spiceLevel}',
+                                    '${widget.course}',
+                                    '${widget.servings}'),
+                                SizedBox(height: 40),
+                                // Instructions
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: buildInstructions(widget.steps),
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 50,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment
-                              .start, // Aligns children at the top
-                          crossAxisAlignment: CrossAxisAlignment
-                              .start, // Aligns the two columns at the top
-                          children: [
-                            Flexible(
-                              flex: 3, // 3 parts out of a total of 10 (30%)
-
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize
-                                    .min, // Prevents centering, keeps at the top
-                                children: [
-                                  LayoutBuilder(
-                                    builder: (context, constraints) {
-                                      return Container(
-                                        // Limit the height of the image to a maximum height (e.g., 50% of available height or a fixed value)
-                                        constraints: BoxConstraints(
-                                          maxHeight:
-                                              400, // 50% of the available height
-                                        ),
-                                        child: Center(
-                                          // Center the image
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                                8.0), // Optional: add rounded corners
-                                            child: Image.network(
-                                              widget
-                                                  .imagePath, // Replace with your image path
-                                              fit: BoxFit
-                                                  .cover, // Adjust fit as necessary
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  SizedBox(height: 50),
-                                  Center(
-                                    child: buildActionButton(context, false),
-                                  ),
-                                  SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height *
-                                              0.02),
-                                  buildIngredientsList(context, dialogSetState),
-                                  SizedBox(height: 40),
-                                  buildAppliancesSection(context),
-                                  SizedBox(height: 40),
-                                ],
-                              ),
-                            ),
-
-                            // Right column with description and other info, takes the remaining 70% of the screen width
-                            Flexible(
-                                flex: 7,
-                                // 7 parts out of a total of 10 (70%)
-                                child: Row(
-                                  children: [
-                                    SizedBox(
-                                      width:
-                                          50, // Specify the width of the SizedBox
-                                    ),
-                                    Expanded(
-                                      // Ensures that the Column takes up the remaining space
-
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize
-                                            .min, // Keeps content aligned at the top
-                                        children: [
-                                          Text(
-                                            "Description:",
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              color: Color(0xFFDC945F),
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                              height:
-                                                  15.0), // Spacing between title and description
-                                          Padding(
-                                            padding:
-                                                EdgeInsets.only(left: 16.0),
-                                            child: Text(
-                                              widget.description,
-                                              style: TextStyle(fontSize: 16),
-                                            ),
-                                          ),
-                                          SizedBox(height: 8),
-                                          buildTimeInfoRow(
-                                              context,
-                                              '${widget.prepTime}',
-                                              '${widget.cookTime}',
-                                              textColor),
-                                          SizedBox(height: 8),
-                                          buildDetailsColumn(
-                                              context,
-                                              '${widget.cuisine}',
-                                              '${widget.spiceLevel}',
-                                              '${widget.course}',
-                                              '${widget.servings}'),
-                                          SizedBox(height: 40),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children:
-                                                buildInstructions(widget.steps),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ))
-                          ],
+                          ),
                         ),
                       ],
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 10.0, // Adjust as needed
-                    right: 10.0, // Adjust as needed
-                    child: ElevatedButton(
-                      onPressed: _chatbotPopup, // Call your popup method
-                      child: ClipOval(
-                        child: Image.asset(
-                          'assets/chef.png', // Path to your image asset
-                          width: 60, // Adjust size as needed
-                          height: 60, // Adjust size as needed
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0.2,
-                        shape: CircleBorder(),
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                        backgroundColor:
-                            Color.fromARGB(0, 81, 168, 81), // Background color
-                      ),
                     ),
                   ),
                 ],
               ),
             );
-          })),
-        )).then((_) {
+          }),
+        ),
+      ),
+    ).then((_) {
       // This will be called when the dialog is dismissed
       _fetchShoppingList();
     });
