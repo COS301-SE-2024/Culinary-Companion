@@ -1314,78 +1314,102 @@ class _RecipeCardState extends State<RecipeCard> {
                                           Column(
                                             children: [
                                               SizedBox(height: 15.0),
-                                              Container(
-                                                width: screenWidth * 0.4,
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .height *
-                                                    0.7,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          16.0), // Adjust the radius as needed
-                                                  border: Border.all(
-                                                      color: Color.fromARGB(
-                                                          78, 0, 0, 0),
-                                                      width:
-                                                          1.0), // Optional: add a border
-                                                  color: Color.fromARGB(
-                                                      33,
-                                                      0,
-                                                      0,
-                                                      0), // Background color, adjust as needed
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          16.0), // Same radius for clipping
-                                                  child: Padding(
-                                                    padding: EdgeInsets.all(
-                                                        16.0), // Add your desired padding here
-                                                    child: ChatWidget(
-                                                      recipeName: widget.name,
-                                                      recipeDescription:
-                                                          widget.description,
-                                                      ingredients:
-                                                          widget.ingredients,
-                                                      steps: widget.steps,
-                                                      userId: userId!,
-                                                      course: widget.course,
+
+                                              // Conditional display based on screen width
+                                              MediaQuery.of(context)
+                                                          .size
+                                                          .width <
+                                                      1100
+                                                  ? Positioned(
+                                                      bottom:
+                                                          10.0, // Adjust as needed
+                                                      right:
+                                                          5.0, // Adjust as needed
+                                                      child: ElevatedButton(
+                                                        onPressed:
+                                                            _chatbotPopup, // Call your popup method
+                                                        child: ClipOval(
+                                                          child: Image.asset(
+                                                            'assets/chef.png', // Path to your image asset
+                                                            width:
+                                                                60, // Adjust size as needed
+                                                            height:
+                                                                60, // Adjust size as needed
+                                                          ),
+                                                        ),
+                                                        style: ElevatedButton
+                                                            .styleFrom(
+                                                          elevation: 0.2,
+                                                          shape: CircleBorder(),
+                                                          padding: EdgeInsets
+                                                              .symmetric(
+                                                                  vertical: 10,
+                                                                  horizontal:
+                                                                      15),
+                                                          backgroundColor:
+                                                              Color.fromARGB(
+                                                                  0,
+                                                                  81,
+                                                                  168,
+                                                                  81), // Background color
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Container(
+                                                      width: screenWidth *
+                                                          0.4, // Default to 40% otherwise
+                                                      height:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .height *
+                                                              0.7,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                16.0), // Adjust the radius as needed
+                                                        border: Border.all(
+                                                          color: Color.fromARGB(
+                                                              78, 0, 0, 0),
+                                                          width:
+                                                              1.0, // Optional: add a border
+                                                        ),
+                                                        color: Color.fromARGB(
+                                                            33,
+                                                            0,
+                                                            0,
+                                                            0), // Background color, adjust as needed
+                                                      ),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                                16.0), // Same radius for clipping
+                                                        child: Padding(
+                                                          padding: EdgeInsets.all(
+                                                              10.0), // Add your desired padding here
+                                                          child: ChatWidget(
+                                                            recipeName:
+                                                                widget.name,
+                                                            recipeDescription:
+                                                                widget
+                                                                    .description,
+                                                            ingredients: widget
+                                                                .ingredients,
+                                                            steps: widget.steps,
+                                                            userId: userId!,
+                                                            course:
+                                                                widget.course,
+                                                          ),
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
-                                                ),
-                                              ),
                                             ],
-                                          )
+                                          ),
                                         ],
                                       )
                                     ],
                                   ),
                                 ),
                               ),
-                              // Positioned(
-                              //   bottom: 10.0, // Adjust as needed
-                              //   right: 10.0, // Adjust as needed
-                              //   child: ElevatedButton(
-                              //     onPressed:
-                              //         _chatbotPopup, // Call your popup method
-                              //     child: ClipOval(
-                              //       child: Image.asset(
-                              //         'assets/chef.png', // Path to your image asset
-                              //         width: 60, // Adjust size as needed
-                              //         height: 60, // Adjust size as needed
-                              //       ),
-                              //     ),
-                              //     style: ElevatedButton.styleFrom(
-                              //       elevation: 0.2,
-                              //       shape: CircleBorder(),
-                              //       padding: EdgeInsets.symmetric(
-                              //           vertical: 10, horizontal: 15),
-                              //       backgroundColor: Color.fromARGB(
-                              //           0, 81, 168, 81), // Background color
-                              //     ),
-                              //   ),
-                              // ),
                             ],
                           ),
                         )
@@ -1404,364 +1428,89 @@ class _RecipeCardState extends State<RecipeCard> {
     });
   }
 
-  // void _showRecipeDetails() {
-  //   final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-  //   final Color textColor =
-  //       isLightTheme ? Color.fromARGB(255, 53, 53, 53) : Colors.white;
-
-  //   final theme = Theme.of(context);
-
-  //   final iconColor = theme.brightness == Brightness.light
-  //       ? Color.fromARGB(255, 49, 49, 49)
-  //       : Colors.white;
-  //   final double screenWidth = MediaQuery.of(context).size.width;
-  //   Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => Scaffold(body: StatefulBuilder(
-  //             builder: (BuildContext context, StateSetter dialogSetState) {
-  //           return Container(
-  //             // width: screenWidth * 0.8, // Set width to 80% of screen width
-  //             // height: MediaQuery.of(context).size.height *
-  //             //     0.8, // Set height to 80% of screen height
-  //             padding: EdgeInsets.only(
-  //               top: MediaQuery.of(context).size.height *
-  //                   0.04, // Adjust top padding to 4% of screen height
-  //               left: screenWidth *
-  //                   0.05, // Adjust left padding to 5% of screen width
-  //               right: screenWidth *
-  //                   0.05, // Adjust right padding to 5% of screen width
-  //             ),
-  //             child: Stack(
-  //               children: [
-  //                 SingleChildScrollView(
-  //                   child: Column(
-  //                     children: [
-  //                       Row(
-  //                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                         children: [
-  //                           Expanded(
-  //                             child: Align(
-  //                               alignment: Alignment
-  //                                   .center, // Center the text horizontally
-  //                               child: Text(
-  //                                 widget.name,
-  //                                 style: TextStyle(
-  //                                   color: iconColor,
-  //                                   fontSize: screenWidth *
-  //                                       0.02, // Adjust font size to 2% of screen width
-  //                                   fontWeight: FontWeight.bold,
-  //                                 ),
-  //                                 maxLines: 2,
-
-  //                                 overflow: TextOverflow.ellipsis,
-  //                                 textAlign: TextAlign
-  //                                     .center, // Center the text within its widget
-  //                               ),
-  //                             ),
-  //                           ),
-  //                           Row(
-  //                             children: [
-  //                               IconButton(
-  //                                 icon: Icon(
-  //                                   Icons.timer_outlined,
-  //                                   color: iconColor,
-  //                                   size: MediaQuery.of(context).size.width *
-  //                                       0.017,
-  //                                 ),
-  //                                 onPressed: _showTimerPopup,
-  //                               ),
-  //                               IconButton(
-  //                                 icon: Icon(
-  //                                   _isFavorite
-  //                                       ? Icons.favorite
-  //                                       : Icons.favorite_border,
-  //                                   color: _isFavorite ? Colors.red : iconColor,
-  //                                   size: MediaQuery.of(context).size.width *
-  //                                       0.017,
-  //                                 ),
-  //                                 onPressed: _toggleFavorite,
-  //                               ),
-  //                               IconButton(
-  //                                 icon: Icon(Icons.close),
-  //                                 color: iconColor,
-  //                                 iconSize: screenWidth *
-  //                                     0.02, // Adjust icon size to 2% of screen width
-  //                                 onPressed: () {
-  //                                   Navigator.of(context).pop();
-  //                                   _fetchShoppingList(); // Refresh shopping list when dialog is closed
-  //                                 },
-  //                               ),
-  //                             ],
-  //                           ),
-  //                         ],
-  //                       ),
-  //                       SizedBox(
-  //                         height: 50,
-  //                       ),
-  //                       Row(
-  //                         mainAxisAlignment: MainAxisAlignment
-  //                             .start, // Aligns children at the top
-  //                         crossAxisAlignment: CrossAxisAlignment
-  //                             .start, // Aligns the two columns at the top
-  //                         children: [
-  //                           Flexible(
-  //                             flex: 3, // 3 parts out of a total of 10 (30%)
-
-  //                             child: Column(
-  //                               crossAxisAlignment: CrossAxisAlignment.start,
-  //                               mainAxisSize: MainAxisSize
-  //                                   .min, // Prevents centering, keeps at the top
-  //                               children: [
-  //                                 LayoutBuilder(
-  //                                   builder: (context, constraints) {
-  //                                     return Container(
-  //                                       // Limit the height of the image to a maximum height (e.g., 50% of available height or a fixed value)
-  //                                       constraints: BoxConstraints(
-  //                                         maxHeight:
-  //                                             400, // 50% of the available height
-  //                                       ),
-  //                                       child: Center(
-  //                                         // Center the image
-  //                                         child: ClipRRect(
-  //                                           borderRadius: BorderRadius.circular(
-  //                                               8.0), // Optional: add rounded corners
-  //                                           child: Image.network(
-  //                                             widget
-  //                                                 .imagePath, // Replace with your image path
-  //                                             fit: BoxFit
-  //                                                 .cover, // Adjust fit as necessary
-  //                                           ),
-  //                                         ),
-  //                                       ),
-  //                                     );
-  //                                   },
-  //                                 ),
-  //                                 SizedBox(height: 50),
-  //                                 Center(
-  //                                   child: buildActionButton(context, false),
-  //                                 ),
-  //                                 SizedBox(
-  //                                     height:
-  //                                         MediaQuery.of(context).size.height *
-  //                                             0.02),
-  //                                 buildIngredientsList(context, dialogSetState),
-  //                                 SizedBox(height: 40),
-  //                                 buildAppliancesSection(context),
-  //                                 SizedBox(height: 40),
-  //                               ],
-  //                             ),
-  //                           ),
-
-  //                           // Right column with description and other info, takes the remaining 70% of the screen width
-  //                           Flexible(
-  //                               flex: 7,
-  //                               // 7 parts out of a total of 10 (70%)
-  //                               child: Row(
-  //                                 children: [
-  //                                   SizedBox(
-  //                                     width:
-  //                                         50, // Specify the width of the SizedBox
-  //                                   ),
-  //                                   Expanded(
-  //                                     child: Column(
-  //                                       crossAxisAlignment:
-  //                                           CrossAxisAlignment.start,
-  //                                       mainAxisSize: MainAxisSize
-  //                                           .min, // Keeps content aligned at the top
-  //                                       children: [
-  //                                         Text(
-  //                                           "Description:",
-  //                                           style: TextStyle(
-  //                                             fontSize: 20,
-  //                                             color: Color(0xFFDC945F),
-  //                                             fontWeight: FontWeight.bold,
-  //                                           ),
-  //                                         ),
-  //                                         SizedBox(
-  //                                             height:
-  //                                                 15.0), // Spacing between title and description
-  //                                         Padding(
-  //                                           padding:
-  //                                               EdgeInsets.only(left: 16.0),
-  //                                           child: Text(
-  //                                             widget.description,
-  //                                             style: TextStyle(fontSize: 16),
-  //                                           ),
-  //                                         ),
-  //                                         SizedBox(height: 8),
-  //                                         buildTimeInfoRow(
-  //                                             context,
-  //                                             '${widget.prepTime}',
-  //                                             '${widget.cookTime}',
-  //                                             textColor),
-  //                                         SizedBox(height: 8),
-  //                                         buildDetailsColumn(
-  //                                             context,
-  //                                             '${widget.cuisine}',
-  //                                             '${widget.spiceLevel}',
-  //                                             '${widget.course}',
-  //                                             '${widget.servings}'),
-  //                                         SizedBox(height: 40),
-  //                                         Column(
-  //                                           crossAxisAlignment:
-  //                                               CrossAxisAlignment.start,
-  //                                           children:
-  //                                               buildInstructions(widget.steps),
-  //                                         ),
-  //                                       ],
-  //                                     ),
-  //                                   )
-  //                                 ],
-  //                               ))
-  //                         ],
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //                 Positioned(
-  //                   bottom: 10.0, // Adjust as needed
-  //                   right: 10.0, // Adjust as needed
-  //                   child: ElevatedButton(
-  //                     onPressed: _chatbotPopup, // Call your popup method
-  //                     child: ClipOval(
-  //                       child: Image.asset(
-  //                         'assets/chef.png', // Path to your image asset
-  //                         width: 60, // Adjust size as needed
-  //                         height: 60, // Adjust size as needed
-  //                       ),
-  //                     ),
-  //                     style: ElevatedButton.styleFrom(
-  //                       elevation: 0.2,
-  //                       shape: CircleBorder(),
-  //                       padding:
-  //                           EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-  //                       backgroundColor:
-  //                           Color.fromARGB(0, 81, 168, 81), // Background color
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           );
-  //         })),
-  //       )).then((_) {
-  //     // This will be called when the dialog is dismissed
-  //     _fetchShoppingList();
-  //   });
-  // }
-
   void _chatbotPopup() {
-    final double screenWidth = MediaQuery.of(context).size.width;
-    showDialog(
-        barrierColor: Color.fromARGB(158, 0, 0, 0),
-        barrierDismissible: false,
-        context: context,
-        builder: (context) {
-          return FloatingDialog(
-            onClose: () {
-              Navigator.of(context).pop();
-            },
-            child: Stack(
-              children: [
-                // Background image with dark overlay
-                Container(
-                  width: screenWidth * 0.3, // Adjust the width as needed
-                  height: MediaQuery.of(context).size.height *
-                      0.7, // Adjust the height as needed
+    //final double screenWidth = MediaQuery.of(context).size.width;
+    // showDialog(
+    //     barrierColor: Color.fromARGB(158, 0, 0, 0),
+    //     barrierDismissible: false,
+    //     context: context,
+    //     builder: (context) {
+    //       return FloatingDialog(
+    //         onClose: () {
+    //           Navigator.of(context).pop();
+    //         },
+    //         child: Stack(
+    //           children: [
+    //             // Background image with dark overlay
+    //             Container(
+    //               width: screenWidth * 0.5, // Adjust the width as needed
+    //               height: MediaQuery.of(context).size.height *
+    //                   0.7, // Adjust the height as needed
 
-                  decoration: BoxDecoration(
-                    // image: DecorationImage(
-                    //   image: NetworkImage(widget.imagePath),
-                    //   fit: BoxFit.cover,
-                    // ),
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(
-                        15.0), // Optional: Same as the Dialog border radius
-                  ),
-                ),
-                // Dark overlay to make text readable
-                // Container(
-                //   width: screenWidth * 0.3,
-                //   height: MediaQuery.of(context).size.height * 0.7,
-                //   decoration: BoxDecoration(
-                //     color: Color(0xFF1A1A1A)
-                //         .withOpacity(0.95), // Dark overlay with 70% opacity
-                //     borderRadius:
-                //         BorderRadius.circular(15.0), // Matching border radius
-                //   ),
-                // ),
-                Container(
-                  width: screenWidth * 0.3,
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  child: ChatWidget(
-                    recipeName: widget.name,
-                    recipeDescription: widget.description,
-                    ingredients: widget.ingredients,
-                    steps: widget.steps,
-                    userId: userId!,
-                    course: widget.course,
-                  ),
-                ),
-              ],
-            ),
-          );
-        });
+    //               decoration: BoxDecoration(
+    //                 color: Colors.white,
+    //                 borderRadius: BorderRadius.circular(
+    //                     15.0), // Optional: Same as the Dialog border radius
+    //               ),
+    //             ),
+
+    //             Container(
+    //               width: screenWidth * 0.5,
+    //               height: MediaQuery.of(context).size.height * 0.7,
+    //               child: ChatWidget(
+    //                 recipeName: widget.name,
+    //                 recipeDescription: widget.description,
+    //                 ingredients: widget.ingredients,
+    //                 steps: widget.steps,
+    //                 userId: userId!,
+    //                 course: widget.course,
+    //               ),
+    //             ),
+    //           ],
+    //         ),
+    //       );
+    //     });
 
     //Code if draggable causes issues
-    // showDialog(
-    //   context: context,
-    //   builder: (BuildContext context) {
-    //     final double screenWidth = MediaQuery.of(context).size.width;
-    //     return Dialog(
-    //       shape: RoundedRectangleBorder(
-    //         borderRadius:
-    //             BorderRadius.circular(15.0), // Optional: Add rounded corners
-    //       ),
-    // child: Stack(
-    //   children: [
-    //     // Background image with dark overlay
-    //     Container(
-    //       width: screenWidth * 0.3, // Adjust the width as needed
-    //       height: MediaQuery.of(context).size.height *
-    //           0.7, // Adjust the height as needed
-    //       decoration: BoxDecoration(
-    //         image: DecorationImage(
-    //           image: NetworkImage(widget.imagePath),
-    //           fit: BoxFit.cover,
-    //         ),
-    //         borderRadius: BorderRadius.circular(
-    //             15.0), // Optional: Same as the Dialog border radius
-    //       ),
-    //     ),
-    //     // Dark overlay to make text readable
-    //     Container(
-    //       width: screenWidth * 0.3,
-    //       height: MediaQuery.of(context).size.height * 0.7,
-    //       decoration: BoxDecoration(
-    //         color: Color(0xFF1A1A1A)
-    //             .withOpacity(0.95), // Dark overlay with 70% opacity
-    //         borderRadius:
-    //             BorderRadius.circular(15.0), // Matching border radius
-    //       ),
-    //     ),
-    //     Container(
-    //       width: screenWidth * 0.3,
-    //       height: MediaQuery.of(context).size.height * 0.7,
-    //       child: ChatWidget(
-    //         recipeName: widget.name,
-    //         recipeDescription: widget.description,
-    //         ingredients: widget.ingredients,
-    //         steps: widget.steps,
-    //         userId: userId!,
-    //         course: widget.course,
-    //       ),
-    //     ),
-    //   ],
-    //  ),
-    //     );
-    //   },
-    // );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final double screenWidth = MediaQuery.of(context).size.width;
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(15.0), // Optional: Add rounded corners
+          ),
+          child: Stack(
+            children: [
+              Container(
+                width: screenWidth * 0.5, // Adjust the width as needed
+                height: MediaQuery.of(context).size.height *
+                    0.7, // Adjust the height as needed
+
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(
+                      15.0), // Optional: Same as the Dialog border radius
+                ),
+              ),
+              Container(
+                width: screenWidth * 0.5,
+                height: MediaQuery.of(context).size.height * 0.7,
+                child: ChatWidget(
+                  recipeName: widget.name,
+                  recipeDescription: widget.description,
+                  ingredients: widget.ingredients,
+                  steps: widget.steps,
+                  userId: userId!,
+                  course: widget.course,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -2406,10 +2155,11 @@ class _RecipeCardState extends State<RecipeCard> {
                 ),
                 SizedBox(width: 8), // Space between icon and text
                 Text(
-                  "No appliance specified for this recipe.",
+                  "No appliance specified.",
                   style: TextStyle(
                     color: Colors.grey, // Light grey color
                     fontStyle: FontStyle.italic,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
