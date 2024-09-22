@@ -61,10 +61,13 @@ class _RecipeCardState extends State<RecipeCard> {
   Map<String, dynamic>? _originalRecipe;
   bool _isAlteredRecipe = false;
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController2 = ScrollController();
 
   @override
   void dispose() {
-    _scrollController.dispose(); // Dispose the controller when done
+    _scrollController.dispose();
+    _scrollController2.dispose();
+    // _chatScrollController.dispose(); // Dispose the controller when done
     super.dispose();
   }
 
@@ -847,6 +850,240 @@ class _RecipeCardState extends State<RecipeCard> {
   //   );
   // }
 
+  // void _showRecipeDetails() {
+  //   final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
+  //   final Color textColor =
+  //       isLightTheme ? Color.fromARGB(255, 53, 53, 53) : Colors.white;
+
+  //   final theme = Theme.of(context);
+  //   final iconColor = theme.brightness == Brightness.light
+  //       ? Color.fromARGB(255, 49, 49, 49)
+  //       : Colors.white;
+  //   final double screenWidth = MediaQuery.of(context).size.width;
+
+  //   Navigator.push(
+  //     context,
+  //     MaterialPageRoute(
+  //       builder: (context) => Scaffold(
+  //         body: StatefulBuilder(
+  //             builder: (BuildContext context, StateSetter dialogSetState) {
+  //           return Container(
+  //             padding: EdgeInsets.only(
+  //               top: MediaQuery.of(context).size.height * 0.04,
+  //               left: screenWidth * 0.05,
+  //               right: screenWidth * 0.05,
+  //             ),
+  //             child: Column(
+  //               children: [
+  //                 // Top row with title and icons
+  //                 Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: [
+  //                     Expanded(
+  //                       child: Align(
+  //                         alignment: Alignment.center,
+  //                         child: Text(
+  //                           widget.name,
+  //                           style: TextStyle(
+  //                             color: iconColor,
+  //                             fontSize: screenWidth * 0.02,
+  //                             fontWeight: FontWeight.bold,
+  //                           ),
+  //                           maxLines: 2,
+  //                           overflow: TextOverflow.ellipsis,
+  //                           textAlign: TextAlign.center,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     Row(
+  //                       children: [
+  //                         IconButton(
+  //                           icon: Icon(
+  //                             Icons.timer_outlined,
+  //                             color: iconColor,
+  //                             size: MediaQuery.of(context).size.width * 0.017,
+  //                           ),
+  //                           onPressed: _showTimerPopup,
+  //                         ),
+  //                         IconButton(
+  //                           icon: Icon(
+  //                             _isFavorite
+  //                                 ? Icons.favorite
+  //                                 : Icons.favorite_border,
+  //                             color: _isFavorite ? Colors.red : iconColor,
+  //                             size: MediaQuery.of(context).size.width * 0.017,
+  //                           ),
+  //                           onPressed: _toggleFavorite,
+  //                         ),
+  //                         IconButton(
+  //                           icon: Icon(Icons.close),
+  //                           color: iconColor,
+  //                           iconSize: screenWidth * 0.02,
+  //                           onPressed: () {
+  //                             Navigator.of(context).pop();
+  //                             _fetchShoppingList(); // Refresh shopping list when dialog is closed
+  //                           },
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 SizedBox(height: 50),
+
+  //                 // Row containing left and right columns with independent scroll
+  //                 Expanded(
+  //                   child: Row(
+  //                     children: [
+  //                       // Left Column (Image, Action Button, Ingredients, Appliances)
+  //                       Flexible(
+  //                         flex: 3, // 30% of the width
+  //                         child: Container(
+  //                           padding:
+  //                               EdgeInsets.all(16), // Add padding for content
+  //                           decoration: BoxDecoration(
+  //                             border: Border(
+  //                               right: BorderSide(
+  //                                 // Right border only
+  //                                 color: Color.fromARGB(
+  //                                     33, 0, 0, 0), // Border color
+  //                                 width: 2.0, // Border width
+  //                               ),
+  //                             ),
+  //                             // color: Color.fromARGB(
+  //                             //     40, 12, 12, 12), // Background color
+  //                             // border: Border.all(
+  //                             //   color: Color.fromARGB(
+  //                             //       104, 0, 0, 0), // Border color
+  //                             //   width: 1.0, // Border width
+  //                             // ),
+  //                             // borderRadius: BorderRadius.circular(
+  //                             //     8.0), // Optional: Rounded corners
+  //                           ), // Add padding inside the container
+  //                           child: Scrollbar(
+  //                             thumbVisibility: true,
+  //                             controller:
+  //                                 _scrollController, // Always show the scrollbar when scrollable
+  //                             child: SingleChildScrollView(
+  //                               controller: _scrollController,
+  //                               child: Column(
+  //                                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                                 children: [
+  //                                   // Image Section
+  //                                   LayoutBuilder(
+  //                                     builder: (context, constraints) {
+  //                                       return Container(
+  //                                         // Make the image section take the full height with some constraint
+  //                                         constraints: BoxConstraints(
+  //                                             maxHeight: 400,
+  //                                             maxWidth:
+  //                                                 450 // You can adjust this as necessary
+  //                                             ),
+  //                                         child: Center(
+  //                                           child: ClipRRect(
+  //                                             borderRadius:
+  //                                                 BorderRadius.circular(8.0),
+  //                                             child: Image.network(
+  //                                               widget.imagePath,
+  //                                               fit: BoxFit.cover,
+  //                                             ),
+  //                                           ),
+  //                                         ),
+  //                                       );
+  //                                     },
+  //                                   ),
+  //                                   SizedBox(height: 50),
+  //                                   Center(
+  //                                       child:
+  //                                           buildActionButton(context, false)),
+  //                                   SizedBox(
+  //                                       height:
+  //                                           MediaQuery.of(context).size.height *
+  //                                               0.02),
+  //                                   // Ingredients list
+  //                                   buildIngredientsList(
+  //                                       context, dialogSetState),
+  //                                   SizedBox(height: 40),
+  //                                   buildAppliancesSection(context),
+  //                                   SizedBox(height: 40),
+  //                                 ],
+  //                               ),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ),
+
+  //                       SizedBox(width: 50), // Spacing between columns
+
+  //                       // Right Column (Description, Details, Instructions)
+  //                       Flexible(
+  //                           flex: 7,
+  //                           child: Scrollbar(
+  //                             thumbVisibility: true,
+  //                             controller:
+  //                                 _scrollController2, // Always show the scrollbar when scrollable
+  //                             child: SingleChildScrollView(
+  //                               controller:
+  //                                   _scrollController2, // 70% of the width
+  //                               // child: SingleChildScrollView(
+  //                               child: Column(
+  //                                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                                 children: [
+  //                                   Text(
+  //                                     "Description:",
+  //                                     style: TextStyle(
+  //                                       fontSize: 20,
+  //                                       color: Color(0xFFDC945F),
+  //                                       fontWeight: FontWeight.bold,
+  //                                     ),
+  //                                   ),
+  //                                   SizedBox(height: 15.0),
+  //                                   Padding(
+  //                                     padding: EdgeInsets.only(left: 16.0),
+  //                                     child: Text(
+  //                                       widget.description,
+  //                                       style: TextStyle(fontSize: 16),
+  //                                     ),
+  //                                   ),
+  //                                   SizedBox(height: 8),
+  //                                   // Time and Details
+  //                                   buildTimeInfoRow(
+  //                                       context,
+  //                                       '${widget.prepTime}',
+  //                                       '${widget.cookTime}',
+  //                                       textColor),
+  //                                   SizedBox(height: 8),
+  //                                   buildDetailsColumn(
+  //                                       context,
+  //                                       '${widget.cuisine}',
+  //                                       '${widget.spiceLevel}',
+  //                                       '${widget.course}',
+  //                                       '${widget.servings}'),
+  //                                   SizedBox(height: 40),
+  //                                   // Instructions
+  //                                   Column(
+  //                                     crossAxisAlignment:
+  //                                         CrossAxisAlignment.start,
+  //                                     children: buildInstructions(widget.steps),
+  //                                   ),
+  //                                 ],
+  //                               ),
+  //                             ),
+  //                           )),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           );
+  //         }),
+  //       ),
+  //     ),
+  //   ).then((_) {
+  //     // This will be called when the dialog is dismissed
+  //     _fetchShoppingList();
+  //   });
+  // }
+
   void _showRecipeDetails() {
     final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
     final Color textColor =
@@ -857,6 +1094,11 @@ class _RecipeCardState extends State<RecipeCard> {
         ? Color.fromARGB(255, 49, 49, 49)
         : Colors.white;
     final double screenWidth = MediaQuery.of(context).size.width;
+
+    // State variable to manage the expansion state of panels
+    List<bool> _isExpandedList = [
+      false
+    ]; // Modify according to the number of panels you have
 
     Navigator.push(
       context,
@@ -942,19 +1184,10 @@ class _RecipeCardState extends State<RecipeCard> {
                                 right: BorderSide(
                                   // Right border only
                                   color: Color.fromARGB(
-                                      104, 0, 0, 0), // Border color
+                                      33, 0, 0, 0), // Border color
                                   width: 2.0, // Border width
                                 ),
                               ),
-                              // color: Color.fromARGB(
-                              //     40, 12, 12, 12), // Background color
-                              // border: Border.all(
-                              //   color: Color.fromARGB(
-                              //       104, 0, 0, 0), // Border color
-                              //   width: 1.0, // Border width
-                              // ),
-                              // borderRadius: BorderRadius.circular(
-                              //     8.0), // Optional: Rounded corners
                             ), // Add padding inside the container
                             child: Scrollbar(
                               thumbVisibility: true,
@@ -971,9 +1204,10 @@ class _RecipeCardState extends State<RecipeCard> {
                                         return Container(
                                           // Make the image section take the full height with some constraint
                                           constraints: BoxConstraints(
-                                            maxHeight:
-                                                400, // You can adjust this as necessary
-                                          ),
+                                              maxHeight: 400,
+                                              maxWidth:
+                                                  450 // Adjust as necessary
+                                              ),
                                           child: Center(
                                             child: ClipRRect(
                                               borderRadius:
@@ -1010,50 +1244,151 @@ class _RecipeCardState extends State<RecipeCard> {
 
                         SizedBox(width: 50), // Spacing between columns
 
-                        // Right Column (Description, Details, Instructions)
+                        // Right Column (Description, Details, Instructions + Chatbot)
                         Flexible(
-                          flex: 7, // 70% of the width
-                          child: SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Description:",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Color(0xFFDC945F),
-                                    fontWeight: FontWeight.bold,
+                          flex: 7,
+                          child: Stack(
+                            children: [
+                              //child:
+                              Scrollbar(
+                                thumbVisibility: true,
+                                controller:
+                                    _scrollController2, // Always show the scrollbar when scrollable
+                                child: SingleChildScrollView(
+                                  controller: _scrollController2,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Description:",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Color(0xFFDC945F),
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 15.0),
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 16.0),
+                                        child: Text(
+                                          widget.description,
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      buildTimeInfoRow(
+                                          context,
+                                          '${widget.prepTime}',
+                                          '${widget.cookTime}',
+                                          textColor),
+                                      SizedBox(height: 8),
+                                      buildDetailsColumn(
+                                          context,
+                                          '${widget.cuisine}',
+                                          '${widget.spiceLevel}',
+                                          '${widget.course}',
+                                          '${widget.servings}'),
+                                      SizedBox(height: 40),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children:
+                                            buildInstructions(widget.steps),
+                                      ),
+                                      SizedBox(height: 40),
+                                      // Text(
+                                      //   "Chat Bot:",
+                                      //   style: TextStyle(
+                                      //     fontSize: 20,
+                                      //     color: Color(0xFFDC945F),
+                                      //     fontWeight: FontWeight.bold,
+                                      //   ),
+                                      // ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Column(
+                                            children: [
+                                              SizedBox(height: 15.0),
+                                              Container(
+                                                width: screenWidth * 0.4,
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height *
+                                                    0.7,
+                                                decoration: BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          16.0), // Adjust the radius as needed
+                                                  border: Border.all(
+                                                      color: Color.fromARGB(
+                                                          78, 0, 0, 0),
+                                                      width:
+                                                          1.0), // Optional: add a border
+                                                  color: Color.fromARGB(
+                                                      33,
+                                                      0,
+                                                      0,
+                                                      0), // Background color, adjust as needed
+                                                ),
+                                                child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          16.0), // Same radius for clipping
+                                                  child: Padding(
+                                                    padding: EdgeInsets.all(
+                                                        16.0), // Add your desired padding here
+                                                    child: ChatWidget(
+                                                      recipeName: widget.name,
+                                                      recipeDescription:
+                                                          widget.description,
+                                                      ingredients:
+                                                          widget.ingredients,
+                                                      steps: widget.steps,
+                                                      userId: userId!,
+                                                      course: widget.course,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      )
+                                    ],
                                   ),
                                 ),
-                                SizedBox(height: 15.0),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 16.0),
-                                  child: Text(
-                                    widget.description,
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                // Time and Details
-                                buildTimeInfoRow(context, '${widget.prepTime}',
-                                    '${widget.cookTime}', textColor),
-                                SizedBox(height: 8),
-                                buildDetailsColumn(
-                                    context,
-                                    '${widget.cuisine}',
-                                    '${widget.spiceLevel}',
-                                    '${widget.course}',
-                                    '${widget.servings}'),
-                                SizedBox(height: 40),
-                                // Instructions
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: buildInstructions(widget.steps),
-                                ),
-                              ],
-                            ),
+                              ),
+                              // Positioned(
+                              //   bottom: 10.0, // Adjust as needed
+                              //   right: 10.0, // Adjust as needed
+                              //   child: ElevatedButton(
+                              //     onPressed:
+                              //         _chatbotPopup, // Call your popup method
+                              //     child: ClipOval(
+                              //       child: Image.asset(
+                              //         'assets/chef.png', // Path to your image asset
+                              //         width: 60, // Adjust size as needed
+                              //         height: 60, // Adjust size as needed
+                              //       ),
+                              //     ),
+                              //     style: ElevatedButton.styleFrom(
+                              //       elevation: 0.2,
+                              //       shape: CircleBorder(),
+                              //       padding: EdgeInsets.symmetric(
+                              //           vertical: 10, horizontal: 15),
+                              //       backgroundColor: Color.fromARGB(
+                              //           0, 81, 168, 81), // Background color
+                              //     ),
+                              //   ),
+                              // ),
+                            ],
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
@@ -1334,26 +1669,28 @@ class _RecipeCardState extends State<RecipeCard> {
                   width: screenWidth * 0.3, // Adjust the width as needed
                   height: MediaQuery.of(context).size.height *
                       0.7, // Adjust the height as needed
+
                   decoration: BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(widget.imagePath),
-                      fit: BoxFit.cover,
-                    ),
+                    // image: DecorationImage(
+                    //   image: NetworkImage(widget.imagePath),
+                    //   fit: BoxFit.cover,
+                    // ),
+                    color: Colors.white,
                     borderRadius: BorderRadius.circular(
                         15.0), // Optional: Same as the Dialog border radius
                   ),
                 ),
                 // Dark overlay to make text readable
-                Container(
-                  width: screenWidth * 0.3,
-                  height: MediaQuery.of(context).size.height * 0.7,
-                  decoration: BoxDecoration(
-                    color: Color(0xFF1A1A1A)
-                        .withOpacity(0.95), // Dark overlay with 70% opacity
-                    borderRadius:
-                        BorderRadius.circular(15.0), // Matching border radius
-                  ),
-                ),
+                // Container(
+                //   width: screenWidth * 0.3,
+                //   height: MediaQuery.of(context).size.height * 0.7,
+                //   decoration: BoxDecoration(
+                //     color: Color(0xFF1A1A1A)
+                //         .withOpacity(0.95), // Dark overlay with 70% opacity
+                //     borderRadius:
+                //         BorderRadius.circular(15.0), // Matching border radius
+                //   ),
+                // ),
                 Container(
                   width: screenWidth * 0.3,
                   height: MediaQuery.of(context).size.height * 0.7,
