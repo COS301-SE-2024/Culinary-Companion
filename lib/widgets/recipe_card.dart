@@ -167,22 +167,23 @@ class _RecipeCardState extends State<RecipeCard> {
         //print('Parsed Ingredients: ${widget.ingredients}');
         //print('gets here 12');
         _isAlteredRecipe = true;
-
       });
-        Navigator.of(context).pop();
-        if (_isMobileView()) {
-          _showMobileRecipeDetails();
-        } else {
-          _showRecipeDetails();
-        }
-        //_showRecipeDetails();
+      Navigator.of(context).pop();
+      if (_isMobileView()) {
+        _showMobileRecipeDetails();
+      } else {
+        _showRecipeDetails();
+      }
+      //_showRecipeDetails();
     }
   }
-bool _isMobileView() {
+
+  bool _isMobileView() {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth <
         768; // Adjust the threshold for mobile view, 768px is a common breakpoint
   }
+
   void _revertToOriginalRecipe() {
     if (_originalRecipe != null) {
       if (mounted) {
@@ -1347,16 +1348,6 @@ bool _isMobileView() {
     double fontSizeDescription = screenWidth * 0.01;
     double fontSizeTimes = screenWidth * 0.008;
 
-    // if (screenWidth < 450) {
-    //   fontSizeTitle = screenWidth * 0.05;
-    //   boxWidth = MediaQuery.of(context).size.width / 2;
-    //   iconSize = MediaQuery.of(context).size.width * 0.08;
-    // } else {
-    //   fontSizeTitle = screenWidth * 0.015;
-    //   boxWidth = MediaQuery.of(context).size.width / 7;
-    //   iconSize = MediaQuery.of(context).size.width * 0.017;
-    // }
-
     // Use custom values if provided, otherwise default to calculated values
     double fontSizeTitle = widget.customFontSizeTitle ??
         (screenWidth < 450 ? screenWidth * 0.05 : screenWidth * 0.015);
@@ -1976,7 +1967,6 @@ bool _isMobileView() {
             isInShoppingList: isInShoppingList,
             recipeID: widget.recipeID,
             onRecipeUpdate: _updateRecipe, // Pass recipeID here
-            
           );
         }),
         if (widget.ingredients.every((ingredient) =>

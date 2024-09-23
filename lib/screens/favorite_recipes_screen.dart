@@ -211,6 +211,7 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
 
 // Function for mobile layout with MasonryGridView
   Widget _buildMobileLayout() {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: MasonryGridView.count(
@@ -227,10 +228,20 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
 
           return LayoutBuilder(
             builder: (context, constraints) {
-              double randomHeight = (index % 5 + 1) * 100;
-              double minHeight = 200; // Set your minimum height here
-              double finalHeight =
-                  randomHeight < minHeight ? minHeight : randomHeight;
+              double finalHeight;
+
+              // Set explicit heights for the first two items
+              if (index == 0) {
+                finalHeight = 350; // Fixed height for the first item
+              } else if (index == 1) {
+                finalHeight = 450; // Fixed height for the second item
+              } else {
+                // Randomize heights for the rest
+                double randomHeight = (index % 5 + 1) * 100;
+                double minHeight = 300; // Set your minimum height here
+                finalHeight =
+                    randomHeight < minHeight ? minHeight : randomHeight;
+              }
 
               return Container(
                 height: finalHeight,
@@ -249,7 +260,8 @@ class _SavedRecipesScreenState extends State<SavedRecipesScreen> {
                   appliances: List<String>.from(recipes[index]['appliances']),
                   ingredients: List<Map<String, dynamic>>.from(
                       recipes[index]['ingredients']),
-                  customFontSizeTitle: 16, // Pass your custom font size here
+                  customBoxWidth: screenWidth / 3,
+                  customFontSizeTitle: 16, // Custom font size for mobile layout
                   customIconSize: 24,
                 ),
               );

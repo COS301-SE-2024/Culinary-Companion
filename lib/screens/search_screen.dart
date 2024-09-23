@@ -602,97 +602,6 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   final theme = Theme.of(context);
-  //   final bool isLightTheme = theme.brightness == Brightness.light;
-  //   final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
-
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       automaticallyImplyLeading: false,
-  //       backgroundColor: Colors.transparent,
-  //     ),
-  //     body: Padding(
-  //       padding: EdgeInsets.all(16.0),
-  //       child: Column(
-  //         children: [
-  //           Row(
-  //             children: [
-  //               Expanded(
-  //                 child: TextField(
-  //                   controller: _searchController,
-  //                   cursorColor: textColor,
-  //                   decoration: InputDecoration(
-  //                     focusedBorder: OutlineInputBorder(
-  //                       borderSide: BorderSide(color: textColor),
-  //                       borderRadius: BorderRadius.circular(20),
-  //                     ),
-  //                     border: OutlineInputBorder(
-  //                       borderSide: BorderSide(color: textColor),
-  //                       borderRadius: BorderRadius.circular(20),
-  //                     ),
-  //                     labelText: 'Search',
-  //                     labelStyle: TextStyle(color: textColor),
-  //                     suffixIcon: IconButton(
-  //                       icon: Icon(Icons.search),
-  //                       onPressed: () => _performSearch(_searchController.text),
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ),
-  //               IconButton(
-  //                 icon: Icon(Icons.filter_alt_rounded),
-  //                 color: textColor,
-  //                 onPressed: _openFilterModal,
-  //               ),
-  //             ],
-  //           ),
-  //           SizedBox(height: 10),
-  //           _buildFilterChips(),
-  //           SizedBox(height: 20),
-  //           CarouselSlider(
-  //             options: CarouselOptions(
-  //               height: 200.0,
-  //               autoPlay: true,
-  //               enlargeCenterPage: true,
-  //             ),
-  //             items: _recipeList.map((recipe) {
-  //               return Builder(
-  //                 builder: (BuildContext context) {
-  //                   return Container(
-  //                     width: MediaQuery.of(context).size.width,
-  //                     margin: EdgeInsets.symmetric(horizontal: 5.0),
-  //                     decoration: BoxDecoration(
-  //                       color: Colors.amber,
-  //                     ),
-  //                     child: Center(
-  //                       child: Text(
-  //                         recipe,
-  //                         style: TextStyle(fontSize: 16.0),
-  //                       ),
-  //                     ),
-  //                   );
-  //                 },
-  //               );
-  //             }).toList(),
-  //           ),
-  //           Expanded(
-  //             child: ListView.builder(
-  //               itemCount: _searchResults.length,
-  //               itemBuilder: (context, index) {
-  //                 return ListTile(
-  //                   title: Text(_searchResults[index]),
-  //                 );
-  //               },
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   void _showHelpMenu() {
     _helpMenuOverlay = OverlayEntry(
       builder: (context) => HelpMenu(
@@ -704,136 +613,6 @@ class _SearchScreenState extends State<SearchScreen> {
     );
     Overlay.of(context).insert(_helpMenuOverlay!);
   }
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   final theme = Theme.of(context);
-  //   final bool isLightTheme = theme.brightness == Brightness.light;
-  //   final Color textColor = isLightTheme ? Color(0xFF20493C) : Colors.white;
-
-  //   return Scaffold(
-  //     appBar: AppBar(
-  //       automaticallyImplyLeading: false,
-  //       backgroundColor: Colors.transparent,
-  //       actions: [
-  //         Padding(
-  //           padding: const EdgeInsets.only(right: 20.0),
-  //           child: IconButton(
-  //             icon: Icon(Icons.help),
-  //             onPressed: _showHelpMenu,
-  //             iconSize: 35,
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //     body: Stack(
-  //       children: [
-  //         // Main content
-  //         SingleChildScrollView(
-  //           child: Padding(
-  //             padding: const EdgeInsets.all(30.0),
-  //             child: Column(
-  //               crossAxisAlignment: CrossAxisAlignment.start,
-  //               children: [
-  //                 Row(
-  //                   children: [
-  //                     Expanded(
-  //                       child: TextField(
-  //                         controller: _searchController,
-  //                         cursorColor: textColor,
-  //                         decoration: InputDecoration(
-  //                           focusedBorder: OutlineInputBorder(
-  //                             borderSide: BorderSide(color: textColor),
-  //                             borderRadius: BorderRadius.circular(20),
-  //                           ),
-  //                           border: OutlineInputBorder(
-  //                             borderSide: BorderSide(color: textColor),
-  //                             borderRadius: BorderRadius.circular(20),
-  //                           ),
-  //                           labelText: 'Search',
-  //                           labelStyle: TextStyle(color: textColor),
-  //                           suffixIcon: IconButton(
-  //                             icon: Icon(Icons.search),
-  //                             onPressed: () =>
-  //                                 _onSearchChanged(_searchController.text),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     IconButton(
-  //                       icon: Icon(Icons.filter_alt_rounded),
-  //                       color: textColor,
-  //                       onPressed: _openFilterModal,
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 SizedBox(height: 10),
-  //                 _buildFilterChips(),
-  //                 SizedBox(height: 20),
-  //                 LayoutBuilder(
-  //                   builder: (context, constraints) {
-  //                     double width = constraints.maxWidth;
-  //                     double crossAxisSpacing = width * 0.01;
-  //                     double mainAxisSpacing = width * 0.02;
-  //                     double itemWidth = 276;
-  //                     double itemHeight = 320;
-  //                     double aspectRatio = itemWidth / itemHeight;
-
-  //                     return GridView.builder(
-  //                       shrinkWrap: true,
-  //                       physics: NeverScrollableScrollPhysics(),
-  //                       itemCount: recipes.length,
-  //                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-  //                         crossAxisCount: 4, // Number of columns
-  //                         crossAxisSpacing: crossAxisSpacing,
-  //                         mainAxisSpacing: mainAxisSpacing,
-  //                         childAspectRatio: aspectRatio,
-  //                       ),
-  //                       itemBuilder: (context, index) {
-  //                         List<String> steps = [];
-  //                         if (recipes[index]['steps'] != null) {
-  //                           steps =
-  //                               (recipes[index]['steps'] as String).split('<');
-  //                         }
-
-  //                         return RecipeCard(
-  //                           recipeID: recipes[index]['recipeId'] ?? '',
-  //                           name: recipes[index]['name'] ?? '',
-  //                           description: recipes[index]['description'] ?? '',
-  //                           imagePath: recipes[index]['photo'] ??
-  //                               'assets/emptyPlate.jpg',
-  //                           prepTime: recipes[index]['preptime'] ?? 0,
-  //                           cookTime: recipes[index]['cooktime'] ?? 0,
-  //                           cuisine: recipes[index]['cuisine'] ?? '',
-  //                           spiceLevel: recipes[index]['spicelevel'] ?? 0,
-  //                           course: recipes[index]['course'] ?? '',
-  //                           servings: recipes[index]['servings'] ?? 0,
-  //                           steps: steps,
-  //                           appliances:
-  //                               List<String>.from(recipes[index]['appliances']),
-  //                           ingredients: List<Map<String, dynamic>>.from(
-  //                               recipes[index]['ingredients']),
-  //                         );
-  //                       },
-  //                     );
-  //                   },
-  //                 ),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //         // Loading overlay
-  //         if (_isLoading)
-  //           Container(
-  //             color: Colors.black.withOpacity(0.5),
-  //             child: Center(
-  //               child: Lottie.asset('assets/loading.json'),
-  //             ),
-  //           ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -958,6 +737,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
 // Mobile layout with MasonryGridView (same as the original one)
   Widget _buildMobileLayout() {
+    double screenWidth = MediaQuery.of(context).size.width;
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: MasonryGridView.count(
@@ -974,10 +754,20 @@ class _SearchScreenState extends State<SearchScreen> {
 
           return LayoutBuilder(
             builder: (context, constraints) {
-              double randomHeight = (index % 5 + 1) * 100;
-              double minHeight = 200; // Set your minimum height here
-              double finalHeight =
-                  randomHeight < minHeight ? minHeight : randomHeight;
+              double finalHeight;
+
+              // Set explicit heights for the first two items
+              if (index == 0) {
+                finalHeight = 350; // Fixed height for the first item
+              } else if (index == 1) {
+                finalHeight = 450; // Fixed height for the second item
+              } else {
+                // Randomize heights for the rest
+                double randomHeight = (index % 5 + 1) * 100;
+                double minHeight = 300; // Set your minimum height here
+                finalHeight =
+                    randomHeight < minHeight ? minHeight : randomHeight;
+              }
 
               return Container(
                 height: finalHeight,
@@ -996,6 +786,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   appliances: List<String>.from(recipes[index]['appliances']),
                   ingredients: List<Map<String, dynamic>>.from(
                       recipes[index]['ingredients']),
+                  customBoxWidth: screenWidth / 3,
                   customFontSizeTitle: 16, // Custom font size for mobile layout
                   customIconSize: 24,
                 ),
