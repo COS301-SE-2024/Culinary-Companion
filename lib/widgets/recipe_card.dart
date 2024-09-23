@@ -173,22 +173,23 @@ class _RecipeCardState extends State<RecipeCard> {
         //print('Parsed Ingredients: ${widget.ingredients}');
         //print('gets here 12');
         _isAlteredRecipe = true;
-
       });
-        Navigator.of(context).pop();
-        if (_isMobileView()) {
-          _showMobileRecipeDetails();
-        } else {
-          _showRecipeDetails();
-        }
-        //_showRecipeDetails();
+      Navigator.of(context).pop();
+      if (_isMobileView()) {
+        _showMobileRecipeDetails();
+      } else {
+        _showRecipeDetails();
+      }
+      //_showRecipeDetails();
     }
   }
-bool _isMobileView() {
+
+  bool _isMobileView() {
     double screenWidth = MediaQuery.of(context).size.width;
     return screenWidth <
         768; // Adjust the threshold for mobile view, 768px is a common breakpoint
   }
+
   void _revertToOriginalRecipe() {
     if (_originalRecipe != null) {
       if (mounted) {
@@ -1100,7 +1101,6 @@ bool _isMobileView() {
                                                                 vertical: 10,
                                                                 horizontal: 15),
                                                         backgroundColor:
-
                                                             Color.fromARGB(
                                                                 0,
                                                                 81,
@@ -1225,6 +1225,9 @@ bool _isMobileView() {
     //     });
 
     //Code if draggable causes issues
+    final theme = Theme.of(context);
+    final clickColor =
+        theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1242,7 +1245,7 @@ bool _isMobileView() {
                     0.7, // Adjust the height as needed
 
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: clickColor,
                   borderRadius: BorderRadius.circular(
                       15.0), // Optional: Same as the Dialog border radius
                 ),
@@ -1285,7 +1288,6 @@ bool _isMobileView() {
       boxWidth = MediaQuery.of(context).size.width / 7;
       iconSize = MediaQuery.of(context).size.width * 0.017;
     }
-
 
     final hoverColor = theme.brightness == Brightness.light
         ? Color(0xFF202920).withOpacity(0.8)
@@ -1873,7 +1875,6 @@ bool _isMobileView() {
             style: TextStyle(
               fontSize: fontSize,
             ),
-
           ),
         ),
       ],
@@ -2054,7 +2055,6 @@ bool _isMobileView() {
             } else {
               _showRecipeDetails();
             }
-
           }
         } else {
           // Revert to original recipe
