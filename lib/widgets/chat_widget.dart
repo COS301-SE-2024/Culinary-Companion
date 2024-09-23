@@ -35,7 +35,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   final List<Map<String, String>> _messages = [];
   late final GenerativeModel model;
 
-  final ScrollController _scrollController = ScrollController();
+  final ScrollController _chatScrollController = ScrollController();
 
   int? _spiceLevel;
   String? _profilePhoto;
@@ -52,7 +52,7 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _chatScrollController.dispose();
     super.dispose();
   }
 
@@ -146,9 +146,9 @@ class _ChatWidgetState extends State<ChatWidget> {
       }
 
       Future.delayed(Duration(milliseconds: 100), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
+        if (_chatScrollController.hasClients) {
+          _chatScrollController.animateTo(
+            _chatScrollController.position.maxScrollExtent,
             duration: Duration(milliseconds: 300),
             curve: Curves.easeOut,
           );
@@ -177,9 +177,9 @@ class _ChatWidgetState extends State<ChatWidget> {
       }
 
       Future.delayed(Duration(milliseconds: 100), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
+        if (_chatScrollController.hasClients) {
+          _chatScrollController.animateTo(
+            _chatScrollController.position.maxScrollExtent,
             duration: Duration(milliseconds: 300),
             curve: Curves.easeOut,
           );
@@ -215,9 +215,9 @@ class _ChatWidgetState extends State<ChatWidget> {
       });
     }
     Future.delayed(Duration(milliseconds: 50), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
+      if (_chatScrollController.hasClients) {
+        _chatScrollController.animateTo(
+          _chatScrollController.position.maxScrollExtent,
           duration: Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -341,7 +341,7 @@ class _ChatWidgetState extends State<ChatWidget> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              controller: _scrollController,
+              controller: _chatScrollController,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
