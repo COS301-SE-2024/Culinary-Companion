@@ -562,6 +562,8 @@ class _RecipeCardState extends State<RecipeCard> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
+    bool localfav = _isFavorite;
+
     double imageHeight = screenHeight *
         0.5; // 50% of screen height for the image// 50% of screen height for the content
 
@@ -685,18 +687,24 @@ class _RecipeCardState extends State<RecipeCard> {
                                   ),
                                   child: Center(
                                     child: IconButton(
-                                      icon: Icon(
-                                        _isFavorite
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color: _isFavorite
-                                            ? Colors.red
-                                            : Colors.white,
-                                      ),
-                                      iconSize: screenWidth *
-                                          0.05, // Adjust icon size
-                                      onPressed: _toggleFavorite,
-                                    ),
+                                        icon: Icon(
+                                          localfav
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: localfav
+                                              ? Colors.red
+                                              : Colors.white,
+                                          size: screenWidth > 800 ? 25 : 18,
+                                        ),
+                                        onPressed: () {
+                                          _toggleFavorite(); // Call the favorite toggle logic
+
+                                          // Update localfav and UI after toggling
+                                          dialogSetState(() {
+                                            localfav =
+                                                !localfav; // Flip the localfav state
+                                          });
+                                        }),
                                     //],
                                   ))),
                           Positioned(
@@ -828,6 +836,8 @@ class _RecipeCardState extends State<RecipeCard> {
     final Color textColor =
         isLightTheme ? Color.fromARGB(255, 53, 53, 53) : Colors.white;
 
+    bool localfav = _isFavorite;
+
     final theme = Theme.of(context);
     final iconColor = theme.brightness == Brightness.light
         ? Color.fromARGB(255, 49, 49, 49)
@@ -883,17 +893,22 @@ class _RecipeCardState extends State<RecipeCard> {
                             onPressed: _showTimerPopup,
                           ),
                           IconButton(
-                            icon: Icon(
-                              _isFavorite
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: _isFavorite ? Colors.red : iconColor,
-                              size: screenWidth > 800
-                                  ? 25
-                                  : 18, // Adjust icon size based on screen width
-                            ),
-                            onPressed: _toggleFavorite,
-                          ),
+                              icon: Icon(
+                                localfav
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: localfav ? Colors.red : iconColor,
+                                size: screenWidth > 800 ? 25 : 18,
+                              ),
+                              onPressed: () {
+                                _toggleFavorite(); // Call the favorite toggle logic
+
+                                // Update localfav and UI after toggling
+                                dialogSetState(() {
+                                  localfav =
+                                      !localfav; // Flip the localfav state
+                                });
+                              }),
                           IconButton(
                             icon: Icon(Icons.close),
                             color: iconColor,
