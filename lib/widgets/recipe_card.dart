@@ -63,14 +63,11 @@ class _RecipeCardState extends State<RecipeCard> {
   int _ingredientsInPantry = 0;
   Map<String, dynamic>? _originalRecipe;
   bool _isAlteredRecipe = false;
-  ScrollController? _scrollController; // Make nullable
-  ScrollController? _scrollController2; // Make nullable
 
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController();
-    _scrollController2 = ScrollController();
+
     _originalRecipe = {
       'name': widget.name,
       'description': widget.description,
@@ -94,8 +91,6 @@ class _RecipeCardState extends State<RecipeCard> {
 
   @override
   void dispose() {
-    _scrollController?.dispose(); // Check for null
-    _scrollController2?.dispose(); // Check for null
     super.dispose();
   }
 
@@ -160,6 +155,7 @@ class _RecipeCardState extends State<RecipeCard> {
         //     'measurement_unit': quantityAndUnit[1],
         //   };
         // }).toList();
+
         widget.ingredients = alteredRecipe['ingredients']
             .map<Map<String, dynamic>>((ingredient) {
           return {
@@ -940,60 +936,49 @@ class _RecipeCardState extends State<RecipeCard> {
                                 ),
                               ),
                             ), // Add padding inside the container
-                            child: Scrollbar(
-                              thumbVisibility: true,
-                              controller:
-                                  _scrollController, // Always show the scrollbar when scrollable
-                              child: SingleChildScrollView(
-                                controller: _scrollController,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Image Section
-                                    LayoutBuilder(
-                                      builder: (context, constraints) {
-                                        return Container(
-                                          // Make the image section take the full height with some constraint
-                                          constraints: BoxConstraints(
-                                              maxHeight: 400,
-                                              maxWidth:
-                                                  450 // Adjust as necessary
-                                              ),
-                                          child: Center(
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              child: Image.network(
-                                                widget.imagePath,
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
+                            child: ListView(
+                              padding: EdgeInsets
+                                  .zero, // Optional: control padding for ListView
+                              children: [
+                                // Image Section
+                                LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return Container(
+                                      // Make the image section take the full height with some constraint
+                                      constraints: BoxConstraints(
+                                        maxHeight: 400,
+                                        maxWidth: 450, // Adjust as necessary
+                                      ),
+                                      child: Center(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          child: Image.network(
+                                            widget.imagePath,
+                                            fit: BoxFit.cover,
                                           ),
-                                        );
-                                      },
-                                    ),
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.width <
-                                                    1000
-                                                ? 10
-                                                : 40),
-                                    Center(
-                                        child:
-                                            buildActionButton(context, false)),
-                                    SizedBox(
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.02),
-                                    // Ingredients list
-                                    buildIngredientsList(
-                                        context, dialogSetState),
-                                    SizedBox(height: 40),
-                                    buildAppliancesSection(context),
-                                    SizedBox(height: 40),
-                                  ],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ),
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.width < 1000
+                                          ? 10
+                                          : 40,
+                                ),
+                                Center(
+                                    child: buildActionButton(context, false)),
+                                SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.02),
+                                // Ingredients list
+                                buildIngredientsList(context, dialogSetState),
+                                SizedBox(height: 40),
+                                buildAppliancesSection(context),
+                                SizedBox(height: 40),
+                              ],
                             ),
                           ),
                         ),
@@ -1009,169 +994,142 @@ class _RecipeCardState extends State<RecipeCard> {
                                   : 7,
                           child: Stack(
                             children: [
-                              Scrollbar(
-                                thumbVisibility: true,
-                                controller:
-                                    _scrollController2, // Always show the scrollbar when scrollable
-                                child: SingleChildScrollView(
-                                  controller: _scrollController2,
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        right:
-                                            20.0), // Add padding to the right
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Description:",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            color: Color(0xFFDC945F),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(height: 15.0),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 16.0),
-                                          child: Text(
-                                            widget.description,
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                        ),
-                                        SizedBox(height: 8),
-                                        buildTimeInfoRow(
-                                          context,
-                                          '${widget.prepTime}',
-                                          '${widget.cookTime}',
-                                          textColor,
-                                        ),
-                                        SizedBox(height: 8),
-                                        buildDetailsColumn(
-                                          context,
-                                          '${widget.cuisine}',
-                                          '${widget.spiceLevel}',
-                                          '${widget.course}',
-                                          '${widget.servings}',
-                                        ),
-                                        SizedBox(height: 40),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children:
-                                              buildInstructions(widget.steps),
-                                        ),
-                                        SizedBox(height: 40),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Column(
-                                              children: [
-                                                SizedBox(height: 15.0),
-                                                // Conditional display based on screen width
-                                                MediaQuery.of(context)
-                                                            .size
-                                                            .width <
-                                                        1100
-                                                    ? ElevatedButton(
-                                                        onPressed:
-                                                            _chatbotPopup, // Call your popup method
-                                                        child: ClipOval(
-                                                          child: Image.asset(
-                                                            'assets/chef.png', // Path to your image asset
-                                                            width:
-                                                                60, // Adjust size as needed
-                                                            height:
-                                                                60, // Adjust size as needed
-                                                          ),
-                                                        ),
-                                                        style: ElevatedButton
-                                                            .styleFrom(
-                                                          elevation: 0.2,
-                                                          shape: CircleBorder(),
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                            vertical: 10,
-                                                            horizontal: 15,
-                                                          ),
-                                                          backgroundColor:
-                                                              Color.fromARGB(
-                                                            0,
-                                                            81,
-                                                            168,
-                                                            81,
-                                                          ), // Background color
-                                                        ),
-                                                      )
-                                                    : Container(
-                                                        width: screenWidth *
-                                                            0.4, // Default to 40% otherwise
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .height *
-                                                            0.7,
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                  16.0), // Adjust the radius as needed
-                                                          border: Border.all(
-                                                            color:
-                                                                Color.fromARGB(
-                                                                    78,
-                                                                    0,
-                                                                    0,
-                                                                    0),
-                                                            width:
-                                                                1.0, // Optional: add a border
-                                                          ),
-                                                          color: Color.fromARGB(
-                                                            33,
-                                                            0,
-                                                            0,
-                                                            0,
-                                                          ), // Background color, adjust as needed
-                                                        ),
-                                                        child: ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                  16.0), // Same radius for clipping
-                                                          child: Padding(
-                                                            padding: EdgeInsets.all(
-                                                                10.0), // Add your desired padding here
-                                                            child: ChatWidget(
-                                                              recipeName:
-                                                                  widget.name,
-                                                              recipeDescription:
-                                                                  widget
-                                                                      .description,
-                                                              ingredients: widget
-                                                                  .ingredients,
-                                                              steps:
-                                                                  widget.steps,
-                                                              userId: userId!,
-                                                              course:
-                                                                  widget.course,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                              ],
-                                            ),
-                                          ],
-                                        )
-                                      ],
+                              ListView(
+                                padding: EdgeInsets.only(
+                                    right: 20.0), // Add padding to the right
+                                children: [
+                                  Text(
+                                    "Description:",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Color(0xFFDC945F),
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ),
+                                  SizedBox(height: 15.0),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 16.0),
+                                    child: Text(
+                                      widget.description,
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  buildTimeInfoRow(
+                                    context,
+                                    '${widget.prepTime}',
+                                    '${widget.cookTime}',
+                                    textColor,
+                                  ),
+                                  SizedBox(height: 8),
+                                  buildDetailsColumn(
+                                    context,
+                                    '${widget.cuisine}',
+                                    '${widget.spiceLevel}',
+                                    '${widget.course}',
+                                    '${widget.servings}',
+                                  ),
+                                  SizedBox(height: 40),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: buildInstructions(widget.steps),
+                                  ),
+                                  SizedBox(height: 40),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          SizedBox(height: 15.0),
+                                          // Conditional display based on screen width
+                                          MediaQuery.of(context).size.width <
+                                                  1100
+                                              ? ElevatedButton(
+                                                  onPressed:
+                                                      _chatbotPopup, // Call your popup method
+                                                  child: ClipOval(
+                                                    child: Image.asset(
+                                                      'assets/chef.png', // Path to your image asset
+                                                      width:
+                                                          60, // Adjust size as needed
+                                                      height:
+                                                          60, // Adjust size as needed
+                                                    ),
+                                                  ),
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    elevation: 0.2,
+                                                    shape: CircleBorder(),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 15,
+                                                    ),
+                                                    backgroundColor:
+                                                        Color.fromARGB(
+                                                      0,
+                                                      81,
+                                                      168,
+                                                      81,
+                                                    ), // Background color
+                                                  ),
+                                                )
+                                              : Container(
+                                                  width: screenWidth *
+                                                      0.4, // Default to 40% otherwise
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.7,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.0), // Adjust the radius as needed
+                                                    border: Border.all(
+                                                      color: Color.fromARGB(
+                                                          78, 0, 0, 0),
+                                                      width:
+                                                          1.0, // Optional: add a border
+                                                    ),
+                                                    color: Color.fromARGB(
+                                                      33,
+                                                      0,
+                                                      0,
+                                                      0,
+                                                    ), // Background color, adjust as needed
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.0), // Same radius for clipping
+                                                    child: Padding(
+                                                      padding: EdgeInsets.all(
+                                                          10.0), // Add your desired padding here
+                                                      child: ChatWidget(
+                                                        recipeName: widget.name,
+                                                        recipeDescription:
+                                                            widget.description,
+                                                        ingredients:
+                                                            widget.ingredients,
+                                                        steps: widget.steps,
+                                                        userId: userId!,
+                                                        course: widget.course,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -2157,7 +2115,9 @@ class _RecipeCardState extends State<RecipeCard> {
             onRecipeUpdate: (Map<String, dynamic> alteredRecipe) {
               _updateRecipe(alteredRecipe);
               if (mounted) {
-                dialogSetState(() {}); // Update the dialog's state
+                // Create new controller
+                dialogSetState(
+                    () {}); // Update the dialog's state// Update the dialog's state
               }
             },
           );
@@ -2289,6 +2249,76 @@ class _RecipeCardState extends State<RecipeCard> {
           ),
         ),
       ],
+    );
+  }
+}
+
+class LeftColumn extends StatefulWidget {
+  final List<Map<String, dynamic>> ingredients;
+  LeftColumn({required this.ingredients});
+
+  @override
+  _LeftColumnState createState() => _LeftColumnState();
+}
+
+class _LeftColumnState extends State<LeftColumn> {
+  ScrollController _leftScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _leftScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scrollbar(
+      thumbVisibility: true,
+      controller: _leftScrollController,
+      child: SingleChildScrollView(
+        controller: _leftScrollController,
+        child: Column(
+          children: [
+            // Add ingredients and other content here
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RightColumn extends StatefulWidget {
+  final String description;
+  final List<String> steps;
+
+  RightColumn({required this.description, required this.steps});
+
+  @override
+  _RightColumnState createState() => _RightColumnState();
+}
+
+class _RightColumnState extends State<RightColumn> {
+  ScrollController _rightScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _rightScrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scrollbar(
+      thumbVisibility: true,
+      controller: _rightScrollController,
+      child: SingleChildScrollView(
+        controller: _rightScrollController,
+        child: Column(
+          children: [
+            // Add description, steps, and other content here
+          ],
+        ),
+      ),
     );
   }
 }
