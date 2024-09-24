@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../gemini_service.dart'; // LLM
+import 'package:lottie/lottie.dart';
 
 // ignore: must_be_immutable
 class CheckableItem extends StatefulWidget {
@@ -47,11 +48,23 @@ class _CheckableItemState extends State<CheckableItem> {
             'Loading substitutions...',
             style: TextStyle(color: Colors.black), // Set text color to black
           ),
-          content: CircularProgressIndicator(),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Replace CircularProgressIndicator with your custom loading animation
+              Lottie.asset(
+                'assets/loading.json', // Path to your Lottie file
+                // width: 100,
+                // height: 100,
+                // fit: BoxFit.fill,
+              ),
+            ],
+          ),
           backgroundColor: Colors.white, // Set background color to white
         );
       },
     );
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? userId = prefs.getString('userId');
 
@@ -173,12 +186,22 @@ class _CheckableItemState extends State<CheckableItem> {
             'Generating altered recipe...',
             style: TextStyle(color: Colors.black), // Set text color to black
           ),
-          content: CircularProgressIndicator(),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Replace CircularProgressIndicator with your custom loading animation
+              Lottie.asset(
+                'assets/loading.json', // Path to your Lottie file
+                // width: 100,
+                // height: 100,
+                // fit: BoxFit.fill,
+              ),
+            ],
+          ),
           backgroundColor: Colors.white, // Set background color to white
         );
       },
     );
-
     //fetch the altered rec
     String jsonString = await fetchIngredientSubstitutionRecipe(
         widget.recipeID, substitute, substitutedIngredient);
@@ -220,16 +243,22 @@ class _CheckableItemState extends State<CheckableItem> {
               SizedBox(
                 width: 24.0, // to keep alignment when checkbox is missing
               ),
+            // Constrain the width of the text
             Flexible(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    widget.title,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.normal,
+                  // Add Flexible here to limit the width of the Text widget
+                  Flexible(
+                    child: Text(
+                      widget.title,
+                      overflow:
+                          TextOverflow.ellipsis, // Truncate text with ellipsis
+                      maxLines: 1, // Only allow a single line of text
+                      style: TextStyle(
+                        color: textColor,
+                        fontWeight: FontWeight.normal,
+                      ),
                     ),
                   ),
                   IconButton(
@@ -240,6 +269,9 @@ class _CheckableItemState extends State<CheckableItem> {
                 ],
               ),
             ),
+            SizedBox(
+              width: 20,
+            )
           ],
         ),
         if (!isSufficient && !(widget.isInShoppingList || _isAdded))
