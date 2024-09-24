@@ -580,7 +580,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: screenWidth > 450
+      appBar: screenWidth > 600
           ? AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: Colors.transparent,
@@ -598,7 +598,7 @@ class _HomeScreenState extends State<HomeScreen> {
           : null,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 450) {
+          if (constraints.maxWidth < 500) {
             return _isLoading
                 ? Center(child: Lottie.asset('assets/loading.json'))
                 : _buildMobileView(
@@ -683,29 +683,47 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Positioned(
-              top: 10,
-              left: 20,
+              top: 15,
+              left: 24,
               child: DropdownButton<String>(
-                  value: title, // Default selected value
-                  items: <String>[
-                    'Main',
-                    'Breakfast',
-                    'Appetizer',
-                    'Dessert'
-                    //'Suggested'
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        selectedCourse = newValue; // Update selected course
-                      });
+                value: title,
+                iconEnabledColor: Colors.white, // Arrow color when enabled
+                iconDisabledColor: Colors.white, // Arrow color when disabled
+                dropdownColor: const Color.fromARGB(255, 0, 0, 0)
+                    .withOpacity(0.3), // Opaque dropdown background
+                style: const TextStyle(
+                    color: Colors.white), // Default selected value
+
+                items: <String>[
+                  'Main',
+                  'Breakfast',
+                  'Appetizer',
+                  'Dessert',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList()
+                  // Reorder the list based on the selected item
+                  ..sort((a, b) {
+                    // Move the selected item to the top
+                    if (a.value == selectedCourse) {
+                      return -1;
+                    } else if (b.value == selectedCourse) {
+                      return 1;
                     }
+                    return 0;
                   }),
+
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedCourse = newValue; // Update selected course
+                    });
+                  }
+                },
+              ),
             ),
             Positioned(
               top: 10,
