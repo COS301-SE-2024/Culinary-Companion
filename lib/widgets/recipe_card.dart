@@ -1258,6 +1258,15 @@ class _RecipeCardState extends State<RecipeCard> {
     double fontSizeDescription = screenWidth * 0.01;
     double fontSizeTimes = screenWidth * 0.008;
 
+/*
+    // Use custom values if provided, otherwise default to calculated values
+    double fontSizeTitle = widget.customFontSizeTitle ??
+        (screenWidth < 450 ? screenWidth * 0.05 : screenWidth * 0.015);
+    double boxWidth = widget.customBoxWidth ??
+        (screenWidth < 450 ? screenWidth / 2 : screenWidth / 7);
+    double iconSize = widget.customIconSize ??
+        (screenWidth < 450 ? screenWidth * 0.08 : screenWidth * 0.017);
+*/
     if (screenWidth < 500) {
       fontSizeTitle = screenWidth * 0.05;
       boxWidth = MediaQuery.of(context).size.width / 2;
@@ -1849,6 +1858,35 @@ class _RecipeCardState extends State<RecipeCard> {
         Padding(
           padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
 
+/*
+          return CheckableItem(
+            title:
+                '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
+            requiredQuantity: ingredient['quantity'],
+            requiredUnit: ingredient['measurement_unit'],
+            onChanged: (bool? value) {
+              if (mounted) {
+                setState(() {
+                  _ingredientChecked[idx] = value ?? false;
+                });
+              }
+            },
+            isInPantry: isInPantry,
+            availableQuantity: availableQuantity,
+            isChecked: _ingredientChecked[idx] ?? true,
+            isInShoppingList: isInShoppingList,
+            recipeID: widget.recipeID,
+            onRecipeUpdate: _updateRecipe, // Pass recipeID here
+          );
+        }),
+        if (widget.ingredients.every((ingredient) =>
+            _pantryIngredients.containsKey(ingredient['name']) &&
+            _pantryIngredients[ingredient['name']]!['quantity'] >=
+                ingredient['quantity']))
+          ElevatedButton(
+            onPressed: _removeIngredientsFromPantry,
+            child: Text('Remove ingredients from pantry'),
+*/
           child: Text(
             'Servings: $servings',
             style: TextStyle(

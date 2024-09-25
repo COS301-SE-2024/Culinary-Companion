@@ -464,7 +464,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double backArrow;
     // ignore: unused_local_variable
     String category;
-List<Map<String, dynamic>> filteredRecipes;
+    List<Map<String, dynamic>> filteredRecipes;
     if (screenWidth > 1334) {
       titleFontSize = 30.0;
       backArrow = 30;
@@ -492,7 +492,6 @@ List<Map<String, dynamic>> filteredRecipes;
     } else {
       filteredRecipes = _filterRecipesByCourse(_selectedCategory);
     }
-
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
