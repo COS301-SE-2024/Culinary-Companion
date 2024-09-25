@@ -1252,13 +1252,12 @@ class _RecipeCardState extends State<RecipeCard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSizeTitle;
-    double boxWidth;
-    double iconSize;
+    // double fontSizeTitle;
+    // double boxWidth;
+    // double iconSize;
     double fontSizeDescription = screenWidth * 0.01;
     double fontSizeTimes = screenWidth * 0.008;
 
-/*
     // Use custom values if provided, otherwise default to calculated values
     double fontSizeTitle = widget.customFontSizeTitle ??
         (screenWidth < 450 ? screenWidth * 0.05 : screenWidth * 0.015);
@@ -1266,16 +1265,16 @@ class _RecipeCardState extends State<RecipeCard> {
         (screenWidth < 450 ? screenWidth / 2 : screenWidth / 7);
     double iconSize = widget.customIconSize ??
         (screenWidth < 450 ? screenWidth * 0.08 : screenWidth * 0.017);
-*/
-    if (screenWidth < 500) {
-      fontSizeTitle = screenWidth * 0.05;
-      boxWidth = MediaQuery.of(context).size.width / 2;
-      iconSize = MediaQuery.of(context).size.width * 0.08;
-    } else {
-      fontSizeTitle = screenWidth * 0.015;
-      boxWidth = MediaQuery.of(context).size.width / 7;
-      iconSize = MediaQuery.of(context).size.width * 0.017;
-    }
+
+    // if (screenWidth < 500) {
+    //   fontSizeTitle = screenWidth * 0.05;
+    //   boxWidth = MediaQuery.of(context).size.width / 2;
+    //   iconSize = MediaQuery.of(context).size.width * 0.08;
+    // } else {
+    //   fontSizeTitle = screenWidth * 0.015;
+    //   boxWidth = MediaQuery.of(context).size.width / 7;
+    //   iconSize = MediaQuery.of(context).size.width * 0.017;
+    // }
 
     final hoverColor = theme.brightness == Brightness.light
         ? Color(0xFF202920).withOpacity(0.8)
@@ -2302,76 +2301,6 @@ class _RecipeCardState extends State<RecipeCard> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class LeftColumn extends StatefulWidget {
-  final List<Map<String, dynamic>> ingredients;
-  LeftColumn({required this.ingredients});
-
-  @override
-  _LeftColumnState createState() => _LeftColumnState();
-}
-
-class _LeftColumnState extends State<LeftColumn> {
-  ScrollController _leftScrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _leftScrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scrollbar(
-      thumbVisibility: true,
-      controller: _leftScrollController,
-      child: SingleChildScrollView(
-        controller: _leftScrollController,
-        child: Column(
-          children: [
-            // Add ingredients and other content here
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class RightColumn extends StatefulWidget {
-  final String description;
-  final List<String> steps;
-
-  RightColumn({required this.description, required this.steps});
-
-  @override
-  _RightColumnState createState() => _RightColumnState();
-}
-
-class _RightColumnState extends State<RightColumn> {
-  ScrollController _rightScrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _rightScrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scrollbar(
-      thumbVisibility: true,
-      controller: _rightScrollController,
-      child: SingleChildScrollView(
-        controller: _rightScrollController,
-        child: Column(
-          children: [
-            // Add description, steps, and other content here
-          ],
-        ),
-      ),
     );
   }
 }
