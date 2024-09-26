@@ -85,7 +85,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
     // Declare a variable to hold the validation state
-    bool _isMealTypeSelected = true;
+    bool isMealTypeSelected = true;
 
     return SingleChildScrollView(
         padding: EdgeInsets.all(30.0),
@@ -536,7 +536,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                                         _selectedMeals.remove(mealType);
                                       }
                                       // Check if at least one meal type is selected
-                                      _isMealTypeSelected =
+                                      isMealTypeSelected =
                                           _selectedMeals.isNotEmpty;
                                     });
                                   }
@@ -551,7 +551,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                     }).toList(),
                   ),
                   // Display error message if no meal type is selected
-                  if (!_isMealTypeSelected)
+                  if (!isMealTypeSelected)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
