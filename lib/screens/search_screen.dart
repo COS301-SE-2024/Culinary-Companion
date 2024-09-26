@@ -24,11 +24,6 @@ class _SearchScreenState extends State<SearchScreen> {
   List<String> cuisineType = [];
   List<String> dietaryOptions = [];
   Timer? _debounce;
-  // List<String> ingredientOptions = [
-  //   'Need 1 Extra Ingredient',
-  //   'Mostly in My Pantry',
-  //   'All Ingredients Available'
-  // ]; //double check these options!!
 
   List<String> spiceLevelOptions = [
     'None', //1
@@ -637,6 +632,8 @@ class _SearchScreenState extends State<SearchScreen> {
             )
           : recipes.isEmpty
               ? Center(
+                  child: Padding(
+                  padding: EdgeInsets.all(16.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -664,7 +661,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ],
                   ),
-                )
+                ))
               : LayoutBuilder(
                   builder: (context, constraints) {
                     double screenWidth = constraints.maxWidth;
@@ -678,12 +675,14 @@ class _SearchScreenState extends State<SearchScreen> {
                         ],
                       );
                     } else {
-                      return Column(
-                        children: [
-                          _buildSearchAndFilterBar(),
-                          Expanded(child: _buildDesktopLayout()),
-                        ],
-                      );
+                      return Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Column(
+                            children: [
+                              _buildSearchAndFilterBar(),
+                              Expanded(child: _buildDesktopLayout()),
+                            ],
+                          ));
                     }
                   },
                 ),
