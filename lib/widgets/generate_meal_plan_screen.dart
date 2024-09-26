@@ -84,6 +84,8 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
     final Color textColor = isLightTheme ? Color(0xFF283330) : Colors.white;
+    // Declare a variable to hold the validation state
+    bool _isMealTypeSelected = true;
 
     return SingleChildScrollView(
         padding: EdgeInsets.all(30.0),
@@ -136,7 +138,8 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
               SizedBox(height: 16),
               // Gender
               DropdownButtonFormField<String>(
-                dropdownColor: isLightTheme ? Colors.white : Color(0xFF1F4539),
+                dropdownColor:
+                    isLightTheme ? Colors.white : const Color(0xFF283330),
                 decoration: InputDecoration(
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   labelText: 'Gender:',
@@ -231,7 +234,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                     flex: 1,
                     child: DropdownButtonFormField<String>(
                       dropdownColor:
-                          isLightTheme ? Colors.white : Color(0xFF1F4539),
+                          isLightTheme ? Colors.white : const Color(0xFF283330),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
@@ -320,7 +323,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                     flex: 1,
                     child: DropdownButtonFormField<String>(
                       dropdownColor:
-                          isLightTheme ? Colors.white : Color(0xFF1F4539),
+                          isLightTheme ? Colors.white : const Color(0xFF283330),
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8.0),
@@ -359,7 +362,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
               ),
               const SizedBox(height: 16),
 
-// Age
+              // Age
               TextFormField(
                 cursorColor: textColor,
                 decoration: InputDecoration(
@@ -400,7 +403,7 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
               ),
               const SizedBox(height: 16),
 
-// Activity Level - Slider
+              // Activity Level - Slider
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -432,7 +435,8 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
               SizedBox(height: 16),
               // Goal
               DropdownButtonFormField<String>(
-                dropdownColor: isLightTheme ? Colors.white : Color(0xFF1F4539),
+                dropdownColor:
+                    isLightTheme ? Colors.white : const Color(0xFF283330),
                 decoration: InputDecoration(
                   floatingLabelBehavior: FloatingLabelBehavior.always,
                   labelText: 'Dietary Goal:',
@@ -531,6 +535,9 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                                       } else {
                                         _selectedMeals.remove(mealType);
                                       }
+                                      // Check if at least one meal type is selected
+                                      _isMealTypeSelected =
+                                          _selectedMeals.isNotEmpty;
                                     });
                                   }
                                 : null, // Disable if limit is reached
@@ -543,58 +550,70 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                       );
                     }).toList(),
                   ),
+                  // Display error message if no meal type is selected
+                  if (!_isMealTypeSelected)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        'Please select at least one meal type.',
+                        style: TextStyle(color: Colors.red),
+                      ),
+                    ),
                 ],
               ),
               SizedBox(height: 24),
               ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    _formKey.currentState?.save();
+                onPressed: _selectedMeals.isNotEmpty
+                    ? () async {
+                        if (_formKey.currentState?.validate() ?? false) {
+                          _formKey.currentState?.save();
 
-                    //loading screen
-                    showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (BuildContext context) {
-                        return Center(
-                          child: Lottie.asset(
-                            'assets/planner_load.json',
-                            width: 200,
-                            height: 200,
-                            fit: BoxFit.contain,
-                          ),
-                        );
-                      },
-                    );
+                          //loading screen
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return Center(
+                                child: Lottie.asset(
+                                  'assets/planner_load.json',
+                                  width: 200,
+                                  height: 200,
+                                  fit: BoxFit.contain,
+                                ),
+                              );
+                            },
+                          );
 
-                    // call gemini function to generate recipes
-                    final result = await fetchMealPlannerRecipes(
-                        _userId ?? "",
-                        _gender ?? "",
-                        _weight?.toString() ?? "",
-                        _weightUnit,
-                        _height?.toString() ?? "",
-                        _heightUnit,
-                        _age ?? 0,
-                        _getActivityLevelDescription(_activityLevel),
-                        _goal ?? "",
-                        _mealFrequency.toString(),
-                        _selectedMeals.join(","),
-                        _mealPlanName ?? "",
-                        context);
+                          // call gemini function to generate recipes
+                          final result = await fetchMealPlannerRecipes(
+                              _userId ?? "",
+                              _gender ?? "",
+                              _weight?.toString() ?? "",
+                              _weightUnit,
+                              _height?.toString() ?? "",
+                              _heightUnit,
+                              _age ?? 0,
+                              _getActivityLevelDescription(_activityLevel),
+                              _goal ?? "",
+                              _mealFrequency.toString(),
+                              _selectedMeals.join(","),
+                              _mealPlanName ?? "",
+                              context);
 
-                    // print("gem res $result"); //result from gemini
+                          // print("gem res $result"); //result from gemini
 
-                    // add to user meal plan
-                    if (result.isNotEmpty && result != 'Error parsing JSON') {
-                      await addToMealPlanner(_userId ?? "", result);
-                    }
+                          // add to user meal plan
+                          if (result.isNotEmpty &&
+                              result != 'Error parsing JSON') {
+                            await addToMealPlanner(_userId ?? "", result);
+                          }
 
-                    // Close loading dialog and switch to "My Meal Plans" tab
-                    Navigator.of(context).pop();
-                    widget.tabController.animateTo(1);
-                  }
-                },
+                          // Close loading dialog and switch to "My Meal Plans" tab
+                          Navigator.of(context).pop();
+                          widget.tabController.animateTo(1);
+                        }
+                      }
+                    : null, // Disable button if no meal type is selected
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFDC945F),
                   padding: EdgeInsets.symmetric(
