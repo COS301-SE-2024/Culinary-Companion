@@ -483,165 +483,192 @@ class _PantryScreenState extends State<PantryScreen> {
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
               title: Text('Detected Ingredients'),
               content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: growableIngredients.asMap().entries.map((entry) {
-                    int index = entry.key;
-                    String itemEntry = entry.value;
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: growableIngredients.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      String itemEntry = entry.value;
 
-                    // Extract itemName and identifiedIngredient from the entry
-                    final itemParts = itemEntry.split(',');
-                    final itemName = itemParts.isNotEmpty
-                        ? itemParts[0].replaceFirst('Item: ', '').trim()
-                        : '';
-                    final identifiedIngredient = itemParts.length > 1
-                        ? itemParts[1].replaceFirst('Ingredient: ', '').trim()
-                        : '';
+                      // Extract itemName and identifiedIngredient from the entry
+                      final itemParts = itemEntry.split(',');
+                      final itemName = itemParts.isNotEmpty
+                          ? itemParts[0].replaceFirst('Item: ', '').trim()
+                          : '';
+                      final identifiedIngredient = itemParts.length > 1
+                          ? itemParts[1].replaceFirst('Ingredient: ', '').trim()
+                          : '';
 
-                    return FutureBuilder<List<String>>(
-                      future: findSimilarIngredients(
-                          itemName, identifiedIngredient), // Call Dart function
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return ListTile(
-                            title: Text(itemName),
-                            trailing: CircularProgressIndicator(),
-                          );
-                        } else if (snapshot.hasError) {
-                          return ListTile(
-                            title: Text(itemName),
-                            trailing: Text('Error loading similar ingredients'),
-                          );
-                        } else if (!snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return ListTile(
-                            title: Text(itemName),
-                            trailing: Text('No similar ingredients found'),
-                          );
-                        }
+                      return FutureBuilder<List<String>>(
+                        future: findSimilarIngredients(itemName,
+                            identifiedIngredient), // Call Dart function
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return ListTile(
+                              title: Text(itemName),
+                              trailing: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return ListTile(
+                              title: Text(itemName),
+                              trailing:
+                                  Text('Error loading similar ingredients'),
+                            );
+                          } else if (!snapshot.hasData ||
+                              snapshot.data!.isEmpty) {
+                            return ListTile(
+                              title: Text(itemName),
+                              trailing: Text('No similar ingredients found'),
+                            );
+                          }
 
-                        final similarIngredients = snapshot.data!;
-                        if (selectedIngredients[index].isEmpty &&
-                            similarIngredients.isNotEmpty) {
-                          selectedIngredients[index] = similarIngredients.first;
-                        }
+                          final similarIngredients = snapshot.data!;
+                          if (selectedIngredients[index].isEmpty &&
+                              similarIngredients.isNotEmpty) {
+                            selectedIngredients[index] =
+                                similarIngredients.first;
+                          }
 
-                        return FutureBuilder<String>(
-                          future:
-                              _getIngredientDetails(selectedIngredients[index]),
-                          builder: (context, detailsSnapshot) {
-                            if (detailsSnapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return ListTile(
-                                title: Text(itemName),
-                                trailing: CircularProgressIndicator(),
-                              );
-                            } else if (detailsSnapshot.hasError) {
-                              return ListTile(
-                                title: Text(itemName),
-                                trailing: Text('Error fetching details'),
-                              );
-                            } else if (!detailsSnapshot.hasData ||
-                                detailsSnapshot.data!.isEmpty) {
-                              return ListTile(
-                                title: Text(itemName),
-                                trailing: Text('No details found'),
-                              );
-                            }
-
-                            // Extract the measurement unit from the ingredient details
-                            String measurementUnit = detailsSnapshot.data ??
-                                'unit'; // Default to 'unit' if no data
-
-                            // Store the measurement unit in the list for later use
-                            measurementUnits[index] = measurementUnit;
-
-                            return Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  flex: 2,
+                          return FutureBuilder<String>(
+                            future: _getIngredientDetails(
+                                selectedIngredients[index]),
+                            builder: (context, detailsSnapshot) {
+                              if (detailsSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
                                   child: ListTile(
                                     title: Text(itemName),
-                                    trailing: DropdownButton<String>(
-                                      value: selectedIngredients[index]
-                                                  .isNotEmpty &&
-                                              similarIngredients.contains(
-                                                  selectedIngredients[index])
-                                          ? selectedIngredients[index]
-                                          : null, // If value is not in the list, set it to null
-                                      hint: Text('Select similar ingredient'),
-                                      items:
-                                          similarIngredients.map((ingredient) {
-                                        return DropdownMenuItem<String>(
-                                          value: ingredient,
-                                          child: Text(ingredient),
-                                        );
-                                      }).toList(),
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          selectedIngredients[index] =
-                                              newValue ?? '';
-                                        });
-                                      },
-                                    ),
+                                    trailing: CircularProgressIndicator(),
                                   ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8.0),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: TextField(
-                                            controller: controllers[
-                                                index], // Use the correct controller
-                                            decoration: InputDecoration(
-                                                hintText: 'Qty'),
-                                            onChanged: (value) {
-                                              quantities[index] =
-                                                  value; // Update the quantities list
-                                            },
-                                          ),
-                                        ),
-                                        Text(
-                                            measurementUnit), // Display the measurement unit
-                                        IconButton(
-                                          icon: Icon(Icons.remove_circle,
-                                              color: Colors.red),
-                                          onPressed: () {
+                                );
+                              } else if (detailsSnapshot.hasError) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: ListTile(
+                                    title: Text(itemName),
+                                    trailing: Text('Error fetching details'),
+                                  ),
+                                );
+                              } else if (!detailsSnapshot.hasData ||
+                                  detailsSnapshot.data!.isEmpty) {
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: ListTile(
+                                    title: Text(itemName),
+                                    trailing: Text('No details found'),
+                                  ),
+                                );
+                              }
+
+                              // Extract the measurement unit from the ingredient details
+                              String measurementUnit = detailsSnapshot.data ??
+                                  'unit'; // Default to 'unit' if no data
+
+                              // Store the measurement unit in the list for later use
+                              measurementUnits[index] = measurementUnit;
+
+                              return Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: ListTile(
+                                        title: Text(itemName),
+                                        trailing: DropdownButton<String>(
+                                          value: selectedIngredients[index]
+                                                      .isNotEmpty &&
+                                                  similarIngredients.contains(
+                                                      selectedIngredients[
+                                                          index])
+                                              ? selectedIngredients[index]
+                                              : null, // If value is not in the list, set it to null
+                                          hint:
+                                              Text('Select similar ingredient'),
+                                          items: similarIngredients
+                                              .map((ingredient) {
+                                            return DropdownMenuItem<String>(
+                                              value: ingredient,
+                                              child: Text(ingredient),
+                                            );
+                                          }).toList(),
+                                          onChanged: (newValue) {
                                             setState(() {
-                                              growableIngredients
-                                                  .removeAt(index);
-                                              selectedIngredients
-                                                  .removeAt(index);
-                                              quantities.removeAt(index);
-                                              measurementUnits.removeAt(index);
-                                              controllers.removeAt(
-                                                  index); // Remove the controller as well
+                                              selectedIngredients[index] =
+                                                  newValue ?? '';
                                             });
                                           },
                                         ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8.0),
+                                        child: Row(
+                                          children: [
+                                            Expanded(
+                                              child: TextField(
+                                                controller: controllers[
+                                                    index], // Use the correct controller
+                                                decoration: InputDecoration(
+                                                    hintText: 'Qty'),
+                                                onChanged: (value) {
+                                                  quantities[index] =
+                                                      value; // Update the quantities list
+                                                },
+                                              ),
+                                            ),
+                                            SizedBox(width: 8.0),
+                                            Text(
+                                                measurementUnit), // Display the measurement unit
+                                            IconButton(
+                                              icon: Icon(Icons.remove_circle,
+                                                  color: Colors.red),
+                                              onPressed: () {
+                                                setState(() {
+                                                  growableIngredients
+                                                      .removeAt(index);
+                                                  selectedIngredients
+                                                      .removeAt(index);
+                                                  quantities.removeAt(index);
+                                                  measurementUnits
+                                                      .removeAt(index);
+                                                  controllers.removeAt(
+                                                      index); // Remove the controller as well
+                                                });
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                    );
-                  }).toList(),
+                              );
+                            },
+                          );
+                        },
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
               actions: [
@@ -738,7 +765,7 @@ class _PantryScreenState extends State<PantryScreen> {
   }
 
   Future<String> _extractTextFromImage(dynamic imageData) async {
-  final apiKey = dotenv.env['API_KEY'] ?? '';
+    final apiKey = dotenv.env['API_KEY'] ?? '';
     if (apiKey.isEmpty) {
       return 'No API_KEY environment variable';
     }
