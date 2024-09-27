@@ -32,7 +32,7 @@ class HelpMenu extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             color: clickColor,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
+              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
               width: MediaQuery.of(context).size.width * 0.8,
               height: MediaQuery.of(context).size.height * 0.8,
               child: Column(
@@ -59,6 +59,18 @@ class HelpMenu extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _buildSectionTitle('User Manual', fontColor),
+                          _buildParagraph(
+                              'Under the heading "How it works" you will find a quick overview of how to use the page, but for a more detailed explanation, please follow the link below to access our user manual:',
+                              fontColor),
+                          _buildLink(
+                              'User Manual',
+                              'https://drive.google.com/file/d/1XGoR5GxF5LXKPfil3cms83fkoHv_C3Ps/view?usp=drive_link',
+                              fontColor),
+                          SizedBox(height: 20),
+                          _buildSectionTitle('How it works', fontColor),
+                          _buildInstructionalContent(fontColor),
+                          SizedBox(height: 20),
                           _buildSectionTitle('Contact Us', fontColor),
                           _buildParagraph(
                               'If you encounter any issues or have any queries that could not be answered through the FAQs, feel free to reach out to us. We are here to help!',
@@ -67,9 +79,6 @@ class HelpMenu extends StatelessWidget {
                               'tecktonic.capstone@gmail.com',
                               'mailto:tecktonic.capstone@gmail.com?subject=Help Request&body=I need help with...',
                               fontColor),
-                          SizedBox(height: 20),
-                          _buildSectionTitle('How it works', fontColor),
-                          _buildInstructionalContent(fontColor),
                           SizedBox(height: 20),
                           _buildSectionTitle(
                               'Frequently Asked Questions', fontColor),

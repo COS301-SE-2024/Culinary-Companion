@@ -242,7 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(top: 10,right: 20.0),
+            padding: const EdgeInsets.only(top: 10, right: 20.0),
             child: IconButton(
               icon: Icon(Icons.help),
               onPressed: _showHelpMenu,
@@ -642,6 +642,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget buildMyRecipes() {
     final theme = Theme.of(context);
+    double screenWidth = MediaQuery.of(context).size.width;
     final textColor = theme.brightness == Brightness.light
         ? Color(0xFF1E1E1E)
         : Color(0xFFD9D9D9);
@@ -653,7 +654,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'My Recipes',
           style: TextStyle(
             color: textColor,
-            fontSize: 24, //18
+            fontSize: 24,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -661,18 +662,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
         LayoutBuilder(
           builder: (context, constraints) {
             double width = constraints.maxWidth;
-            double itemWidth = width / 5 - 16;
-            double itemHeight = itemWidth * 1.2;
-            double aspectRatio = itemWidth / itemHeight;
+            double itemWidth;
+            double itemHeight;
+            double aspectRatio;
+            int crossAxisCount =
+                4; // Default number of columns for large screens
+
+            // Adjust values for screens smaller than 650px
+            if (width < 650) {
+              crossAxisCount = 3; // Mobile view
+              itemWidth = width / 3 - 16; // Adjust width for mobile
+              itemHeight = itemWidth * 1.5; // Increase height for mobile
+              aspectRatio = itemWidth / itemHeight; // Adjust aspect ratio
+            } else {
+              itemWidth = width / 5 - 16; // Default width for larger screens
+              itemHeight = itemWidth * 1.2; // Default height for larger screens
+              aspectRatio = itemWidth / itemHeight; // Default aspect ratio
+            }
 
             double crossAxisSpacing = 8.0;
             double mainAxisSpacing = 8.0;
-
-            // Determine the number of columns based on screen width
-            int crossAxisCount = 4; // Default for larger screens
-            if (width < 600) {
-              crossAxisCount = 3; // Mobile view with smaller width
-            }
 
             return GridView.builder(
               shrinkWrap: true,
@@ -685,8 +694,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 childAspectRatio: aspectRatio,
               ),
               itemBuilder: (context, index) {
-                // List<String> keywords =
-                //     (recipes[index]['keywords'] as String?)?.split(', ') ?? [];
                 List<String> steps = [];
                 if (recipes[index]['steps'] != null) {
                   steps = (recipes[index]['steps'] as String).split('<');
@@ -707,6 +714,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   appliances: List<String>.from(recipes[index]['appliances']),
                   ingredients: List<Map<String, dynamic>>.from(
                       recipes[index]['ingredients']),
+                  customBoxWidth:
+                      width < 760 ? screenWidth / 5 : screenWidth / 7,
+                  // Custom properties for different screen sizes
+                  customFontSizeTitle: width < 450
+                      ? 12 // Smaller font size for screens less than 450px
+                      : (width < 550
+                          ? 14 // Smaller font size for screens less than 550px
+                          : (width < 650
+                              ? 16
+                              : 18)), // Different font sizes for larger screens
+                  customIconSize: width < 450
+                      ? 18 // Smaller icon size for screens less than 450px
+                      : (width < 550
+                          ? 20 // Smaller icon size for screens less than 550px
+                          : (width < 650
+                              ? 24
+                              : 28)), // Different icon sizes for larger screens
+                  // Different icon sizes for mobile and tablet
                 );
               },
             );

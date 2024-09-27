@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/screens/landing_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../widgets/theme_notifier.dart';
 
 class GuestNavbar extends StatelessWidget implements PreferredSizeWidget {
   final String currentRoute;
@@ -163,6 +165,9 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
     final theme = Theme.of(context);
     final bool isLightTheme = theme.brightness == Brightness.light;
 
+    // Define the icon colors for light and dark modes
+    Color iconColor = isLightTheme ? const Color(0xFF283330) : Color(0xFFEDEDED);
+
     return Column(
       children: [
         AppBar(
@@ -195,32 +200,78 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
             child: Container(
               height: screenHeight,
               width: expandedWidth,
-              color: const Color.fromARGB(143, 2, 20, 14),
-              child: Column(
-                children: [
-                  ListTile(
-                    key: const Key('Home'),
-                    leading: const Icon(Icons.home),
-                    title: const Text('Home'),
-                    onTap: () {
-                      if (widget.onChange != null) {
-                        widget.onChange!('/');
-                      }
-                      _toggleExpanded();
-                    },
-                  ),
-                  ListTile(
-                    key: const Key('SearchRecipe'),
-                    leading: const Icon(Icons.search),
-                    title: const Text('Search Recipes'),
-                    onTap: () {
-                      if (widget.onChange != null) {
-                        widget.onChange!('/search');
-                      }
-                      _toggleExpanded();
-                    },
-                  ),
-                  ],
+              color: isLightTheme? Color.fromARGB(193, 237, 237, 237) : Color.fromARGB(159, 2, 20, 14) ,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  bool isCompact = screenWidth <
+                      760; // Check if screen width is less than 760
+
+                  return Column(
+                    children: [
+                      ListTile(
+                        key: Key('Home'),
+                        leading: Icon(Icons.home, color: iconColor,),
+                        title: isCompact
+                            ? null
+                            : const Text('Home'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
+                      ListTile(
+                        key: ValueKey('SearchRecipe'),
+                        leading: Icon(Icons.search, color: iconColor,),
+                        title: isCompact
+                            ? null
+                            : const Text(
+                                'Search Recipes'), // Conditionally show title
+                        onTap: () {
+                          if (widget.onChange != null) {
+                            widget.onChange!('/search');
+                          }
+                          _toggleExpanded();
+                        },
+                      ),
+                      ListTile(
+                        key: Key('Signup'),
+                        leading: Icon(Icons.login_outlined, color: iconColor,),
+                        title: isCompact
+                            ? null
+                            : const Text('Sign Up'), // Conditionally show title
+                        onTap: () async {
+                          // Clear shared preferences
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.clear();
+
+                          // Navigate to LandingScreen
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LandingScreen()),
+                            (route) => false,
+                          );
+                        },
+                      ),
+                      const Divider(), // Divider to separate theme toggle from other items
+                      ListTile(
+                        key: const ValueKey('ThemeToggle'),
+                        leading: Icon(
+                            isLightTheme ? Icons.dark_mode : Icons.light_mode, color: iconColor,),
+                        title: isCompact
+                            ? null
+                            : Text(isLightTheme ? 'Dark Mode' : 'Light Mode'),
+                        onTap: () {
+                          Provider.of<ThemeNotifier>(context, listen: false)
+                              .toggleTheme();
+                        },
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
