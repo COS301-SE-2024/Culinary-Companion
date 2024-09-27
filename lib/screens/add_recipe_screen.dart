@@ -52,7 +52,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
               TabBar(
                 controller: _tabController,
                 tabs: const [
-                  Tab(text: 'Scan Recipe'),
+                  Tab(text: 'Add Recipe PDF'),
                   Tab(text: 'Paste Recipe'),
                   Tab(text: 'Add My Own Recipe'),
                 ],

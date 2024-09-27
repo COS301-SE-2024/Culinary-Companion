@@ -32,7 +32,7 @@ class HelpMenu extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             color: clickColor,
             child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 50, vertical: 16),
+              padding: EdgeInsets.symmetric(horizontal: 40, vertical: 16),
               width: MediaQuery.of(context).size.width * 0.8,
               height: MediaQuery.of(context).size.height * 0.8,
               child: Column(
@@ -41,7 +41,11 @@ class HelpMenu extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset(theme.brightness == Brightness.light ? 'assets/light_helper_chef.png' : 'assets/helper_chef.png', height: 80),
+                        Image.asset(
+                            theme.brightness == Brightness.light
+                                ? 'assets/light_helper_chef.png'
+                                : 'assets/helper_chef.png',
+                            height: 80),
                         SizedBox(height: 10),
                         Text(
                           'How may I help you?',
@@ -59,6 +63,18 @@ class HelpMenu extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          _buildSectionTitle('User Manual', fontColor),
+                          _buildParagraph(
+                              'Under the heading "How it works" you will find a quick overview of how to use the page, but for a more detailed explanation, please follow the link below to access our user manual:',
+                              fontColor),
+                          _buildLink(
+                              'User Manual',
+                              'https://drive.google.com/file/d/1XGoR5GxF5LXKPfil3cms83fkoHv_C3Ps/view?usp=drive_link',
+                              fontColor),
+                          SizedBox(height: 20),
+                          _buildSectionTitle('How it works', fontColor),
+                          _buildInstructionalContent(fontColor),
+                          SizedBox(height: 20),
                           _buildSectionTitle('Contact Us', fontColor),
                           _buildParagraph(
                               'If you encounter any issues or have any queries that could not be answered through the FAQs, feel free to reach out to us. We are here to help!',
@@ -67,9 +83,6 @@ class HelpMenu extends StatelessWidget {
                               'tecktonic.capstone@gmail.com',
                               'mailto:tecktonic.capstone@gmail.com?subject=Help Request&body=I need help with...',
                               fontColor),
-                          SizedBox(height: 20),
-                          _buildSectionTitle('How it works', fontColor),
-                          _buildInstructionalContent(fontColor),
                           SizedBox(height: 20),
                           _buildSectionTitle(
                               'Frequently Asked Questions', fontColor),
@@ -154,23 +167,23 @@ class HelpMenu extends StatelessWidget {
             fontColor),
         _buildStep(
             '4',
-            'In order to quickly substitute an ingredient, tap on the substitute button found next to any ingredient on the recipe card and an updated version of the recipe including all substituted ingredients will be displayed.',
+            'You can quickly adjust a recipe according to your dietary preferences by clicking on the appropriate button.',
             fontColor),
         _buildStep(
             '5',
-            'Tap on the `Add all ingredients` button to add all ingredients needed for a recipe to your shopping list.',
+            'In order to quickly substitute an ingredient, tap on the substitute button found next to any ingredient on the recipe card and an updated version of the recipe including all substituted ingredients will be displayed.',
             fontColor),
         _buildStep(
             '6',
-            'Tap on the `Remove ingredients from pantry` button to easily remove ingredients from pantry after a recipe has been made.',
+            'Tap on the `Add all ingredients` button to add all ingredients needed for a recipe to your shopping list.',
             fontColor),
         _buildStep(
             '7',
-            'Click any of the prompts on the chatbot on the recipe card to customize a recipe according to your preferences.',
+            'Tap on the `Remove ingredients from pantry` button to easily remove ingredients from pantry after a recipe has been made.',
             fontColor),
         _buildStep(
             '8',
-            'Click on the search icon at the top of the screen to quickly find recipes by name, ingredients, dietary constraints, course or cuisine type, or spice level.',
+            'Click any of the prompts on the chatbot on the recipe card to customize a recipe according to your preferences.',
             fontColor),
       ],
     );
