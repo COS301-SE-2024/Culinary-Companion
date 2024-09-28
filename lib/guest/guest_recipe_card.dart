@@ -723,8 +723,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
   }
 
   void _chatbotPopup() {
-
-    //Code if draggable causes issues
     final theme = Theme.of(context);
     final clickColor =
         theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
@@ -734,28 +732,16 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         final double screenWidth = MediaQuery.of(context).size.width;
         return Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius:
-                BorderRadius.circular(15.0), // Optional: Add rounded corners
+            borderRadius: BorderRadius.circular(15.0),
           ),
-          child: Stack(
-            children: [
-              Container(
-                width: screenWidth * 0.5, // Adjust the width as needed
-                height: MediaQuery.of(context).size.height *
-                    0.7, // Adjust the height as needed
-
-                decoration: BoxDecoration(
-                  color: clickColor,
-                  borderRadius: BorderRadius.circular(
-                      15.0), // Optional: Same as the Dialog border radius
-                ),
-              ),
-              Container(
-                width: screenWidth * 0.5,
-                height: MediaQuery.of(context).size.height * 0.7,
-                
-              ),
-            ],
+          child: Container(
+            width: screenWidth * 0.5,
+            height: MediaQuery.of(context).size.height * 0.7,
+            decoration: BoxDecoration(
+              color: clickColor,
+              borderRadius: BorderRadius.circular(15.0),
+            ),
+            child: _buildSignUpPrompt(),
           ),
         );
       },
@@ -1481,43 +1467,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         theme.brightness == Brightness.light ? Color(0xFF283330) : Colors.white;
 
     return ElevatedButton.icon(
-      onPressed: () async {
-        if (!_isAlteredRecipe) {
-          // Show loading dialog
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(
-                  'Adjusting recipe...',
-                  style: TextStyle(color: Colors.black),
-                ),
-                content: CircularProgressIndicator(),
-                backgroundColor: Colors.white,
-              );
-            },
-          );
-
-            
-           
-
-            if (isMobile) {
-              _showMobileRecipeDetails();
-            } else {
-              _showRecipeDetails();
-            }
-          
-        } else {
-          // Revert to original recipe
-          _revertToOriginalRecipe();
-          Navigator.of(context).pop();
-          if (isMobile) {
-            _showMobileRecipeDetails();
-          } else {
-            _showRecipeDetails();
-          } // Refresh recipe
-        }
-      },
+     onPressed: _showSignUpPrompt,
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
@@ -1539,13 +1489,63 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         color: clickColor, // Icon color
       ),
       label: Text(
-        _isAlteredRecipe
-            ? 'Revert to Original Recipe'
-            : 'Adjust recipe to cater to my preferences',
+        'Adjust recipe to cater to my preferences',
         style: TextStyle(color: clickColor),
       ),
     );
   }
+Widget _buildSignUpPrompt() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.lock,
+            size: 50,
+            color: Colors.grey,
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Sign Up for Full Functionality',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Access our AI-powered chatbot and more features.',
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: _showSignUpPrompt,
+            child: Text('Sign Up'),
+          ),
+        ],
+      ),
+    );
+  }
+    void _showSignUpPrompt() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Sign Up Required'),
+          content: Text('Please sign up for full functionality.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Widget buildIngredientsList(
       BuildContext context, StateSetter dialogSetState) {
