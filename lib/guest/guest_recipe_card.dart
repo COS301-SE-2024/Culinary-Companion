@@ -1411,7 +1411,9 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         color: clickColor, // Icon color
       ),
       label: Text(
-        'Adjust recipe to cater to my preferences',
+        _isAlteredRecipe
+            ? 'Revert to Original Recipe'
+            : 'Adjust recipe to cater to my preferences',
         style: TextStyle(color: clickColor),
       ),
     );
