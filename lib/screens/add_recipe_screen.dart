@@ -54,7 +54,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen>
                 tabs: const [
                   Tab(text: 'Add Recipe PDF'),
                   Tab(text: 'Paste Recipe'),
-                  Tab(text: 'Add My Own Recipe'),
+                  Tab(text: 'Add with Form'),
                 ],
                 labelColor: textColor,
                 unselectedLabelColor: Color(0xFFDC945F),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
-import 'guest_recipe_card.dart';
+import '../guest/guest_recipe_card.dart';
 import '../widgets/help_home.dart';
 
 // import '../gemini_service.dart'; // LLM
@@ -16,17 +16,14 @@ class GuestHomeScreen extends StatefulWidget {
 
 class _GuestHomeScreen extends State<GuestHomeScreen> {
   List<Map<String, dynamic>> recipes = [];
-  bool _isLoading = true;
+  bool _isLoading = false;
   bool _isGridView = false;
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
   //String? _errorMessage;
-  //Map<String, dynamic>? _userDetails;
- // String? _userId;
- // List<Map<String, dynamic>> suggestedRecipes = [];
+  List<Map<String, dynamic>> suggestedRecipes = [];
   //List<Map<String, dynamic>> suggestedFavoriteRecipes = [];
   Set<String> _addedRecipeIds = {}; //recipes in the recipes list
-  //Set<String> _addedToSuggestedRecipesIds ={}; //recipes in the suggestedRecipes list
   String selectedCourse = 'Main';
 
   // String _generatedText = '';  // LLM
@@ -45,28 +42,16 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
   @override
   void initState() {
     super.initState();
+    //_loadUserIdAndFetchRecipes();
+    if (mounted) {
+      setState(() {
+        _isLoading = true; //if it takes too long remove this line slow
+      });
+    }
     fetchAllRecipes();
   }
 
-
-
-  //   Future<void> _fetchContent() async {
-  //   final apiKey = dotenv.env['API_KEY'] ?? '';
-  //   if (apiKey.isEmpty) {
-  //     setState(() {
-  //       _generatedText = 'No \$API_KEY environment variable';
-  //     });
-  //     return;
-  //   }
-
-  //   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
-  //   final content = [Content.text('Write a story about a magic backpack.')];
-  //   final response = await model.generateContent(content);
-
-  //   setState(() {
-  //     _generatedText = response.text!;
-  //   });
-  // }
+  
 
   Future<void> fetchAllRecipes() async {
     final url =
@@ -233,21 +218,17 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
 
   Widget _buildGridView() {
     double screenWidth = MediaQuery.of(context).size.width;
-    double titleFontSize;
     double backArrow;
+    // ignore: unused_local_variable
     String category;
-
+    List<Map<String, dynamic>> filteredRecipes;
     if (screenWidth > 1334) {
-      titleFontSize = 30.0;
       backArrow = 30;
     } else if (screenWidth > 820) {
-      titleFontSize = 24.0;
       backArrow = 24;
     } else if (screenWidth < 375) {
-      titleFontSize = 18.0;
       backArrow = 18;
     } else {
-      titleFontSize = 16.0;
       backArrow = 16; // default size for widths between 375 and 980
     }
 
@@ -258,8 +239,12 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
       category = _selectedCategory;
     }
 
-    List<Map<String, dynamic>> filteredRecipes =
-        _filterRecipesByCourse(_selectedCategory);
+// Handle "Suggested" recipes separately
+    if (_selectedCategory == 'Suggested') {
+      filteredRecipes = suggestedRecipes;
+    } else {
+      filteredRecipes = _filterRecipesByCourse(_selectedCategory);
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -280,13 +265,15 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
                 child: Icon(Icons.arrow_back, size: backArrow),
               ),
               SizedBox(width: 10),
-              Text(
-                category,
-                style: TextStyle(
-                  fontSize: titleFontSize,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              // Text(
+              //   _selectedCategory == 'Suggested'
+              //       ? 'Suggested Recipes'
+              //       : _selectedCategory,
+              //   style: TextStyle(
+              //     fontSize: titleFontSize,
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -346,7 +333,7 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: screenWidth > 450
+      appBar: screenWidth > 600
           ? AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: Colors.transparent,
@@ -364,7 +351,7 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
           : null,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 450) {
+          if (constraints.maxWidth < 500) {
             return _isLoading
                 ? Center(child: Lottie.asset('assets/loading.json'))
                 : _buildMobileView(
@@ -385,6 +372,7 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(height: 24),
+                             // _buildRecipeList('Suggested', suggestedRecipes),
                               _buildRecipeList(
                                   'Mains', _filterRecipesByCourse('Main')),
                               _buildRecipeList('Breakfast',
@@ -393,7 +381,6 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
                                   _filterRecipesByCourse('Appetizer')),
                               _buildRecipeList(
                                   'Dessert', _filterRecipesByCourse('Dessert')),
-                              //_buildRecipeList('Suggested', suggestedRecipes),
                             ],
                           ),
                         ),
@@ -449,29 +436,47 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
               ),
             ),
             Positioned(
-              top: 10,
-              left: 20,
+              top: 15,
+              left: 24,
               child: DropdownButton<String>(
-                  value: title, // Default selected value
-                  items: <String>[
-                    'Main',
-                    'Breakfast',
-                    'Appetizer',
-                    'Dessert'
-                    //'Suggested'
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        selectedCourse = newValue; // Update selected course
-                      });
+                value: title,
+                iconEnabledColor: Colors.white, // Arrow color when enabled
+                iconDisabledColor: Colors.white, // Arrow color when disabled
+                dropdownColor: const Color.fromARGB(255, 0, 0, 0)
+                    .withOpacity(0.3), // Opaque dropdown background
+                style: const TextStyle(
+                    color: Colors.white), // Default selected value
+
+                items: <String>[
+                  'Main',
+                  'Breakfast',
+                  'Appetizer',
+                  'Dessert',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList()
+                  // Reorder the list based on the selected item
+                  ..sort((a, b) {
+                    // Move the selected item to the top
+                    if (a.value == selectedCourse) {
+                      return -1;
+                    } else if (b.value == selectedCourse) {
+                      return 1;
                     }
+                    return 0;
                   }),
+
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedCourse = newValue; // Update selected course
+                    });
+                  }
+                },
+              ),
             ),
             Positioned(
               top: 10,

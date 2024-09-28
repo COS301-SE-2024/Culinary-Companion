@@ -329,6 +329,8 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     double cardWidth = screenWidth > 600 ? 300 : 150;
     double cardHeight = screenWidth > 600 ? 400 : 200;
+    bool isMobile = screenWidth <= 600;
+    
 
     return Column(
       children: days.entries.map((entry) {
@@ -410,7 +412,7 @@ class _MyMealPlanScreenState extends State<MyMealPlansScreen> {
                                         ]), // Handle null case
                               ),
                             ),
-                            if (index < 2 && hasMoreThanTwoMeals)
+                            if (isMobile && index < 2 && hasMoreThanTwoMeals)
                               Positioned(
                                 right: 0,
                                 top: cardHeight / 2 - 20,
