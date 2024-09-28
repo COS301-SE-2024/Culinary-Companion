@@ -265,6 +265,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                   iconSize:
                                       screenWidth * 0.05, // Adjust icon size
                                   onPressed: () {
+                                    Navigator.pop(context);
                                   },
                                 ),
                               ),
@@ -624,86 +625,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                     children: buildInstructions(widget.steps),
                                   ),
                                   SizedBox(height: 40),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Column(
-                                        children: [
-                                          SizedBox(height: 15.0),
-                                          // Conditional display based on screen width
-                                          MediaQuery.of(context).size.width <
-                                                  1100
-                                              ? ElevatedButton(
-                                                  onPressed:
-                                                      _chatbotPopup, // Call your popup method
-                                                  child: ClipOval(
-                                                    child: Image.asset(
-                                                      'assets/chef.png', // Path to your image asset
-                                                      width:
-                                                          60, // Adjust size as needed
-                                                      height:
-                                                          60, // Adjust size as needed
-                                                    ),
-                                                  ),
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    elevation: 0.2,
-                                                    shape: CircleBorder(),
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 15,
-                                                    ),
-                                                    backgroundColor:
-                                                        Color.fromARGB(
-                                                      0,
-                                                      81,
-                                                      168,
-                                                      81,
-                                                    ), // Background color
-                                                  ),
-                                                )
-                                              : Container(
-                                                  width: screenWidth *
-                                                      0.4, // Default to 40% otherwise
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .height *
-                                                      0.7,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16.0), // Adjust the radius as needed
-                                                    border: Border.all(
-                                                      color: Color.fromARGB(
-                                                          78, 0, 0, 0),
-                                                      width:
-                                                          1.0, // Optional: add a border
-                                                    ),
-                                                    color: Color.fromARGB(
-                                                      33,
-                                                      0,
-                                                      0,
-                                                      0,
-                                                    ), // Background color, adjust as needed
-                                                  ),
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            16.0), // Same radius for clipping
-                                                    child: Padding(
-                                                      padding: EdgeInsets.all(
-                                                          10.0), // Add your desired padding here
-                                                      
-                                                    ),
-                                                  ),
-                                                ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
+                                  
                                 ],
                               ),
                             ],
@@ -1660,28 +1582,28 @@ Widget _buildSignUpPrompt() {
         ),
 
         // Chat Bot Tab
-        Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: selectedTab == 2
-                  ? Color.fromARGB(69, 220, 147, 95)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(2.0),
-            ),
-            child: TextButton(
-              onPressed: () => onTabSelected(2),
-              child: Center(
-                child: Text(
-                  "Chat Bot",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: textColor,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+        // Expanded(
+        //   child: Container(
+        //     decoration: BoxDecoration(
+        //       color: selectedTab == 2
+        //           ? Color.fromARGB(69, 220, 147, 95)
+        //           : Colors.transparent,
+        //       borderRadius: BorderRadius.circular(2.0),
+        //     ),
+        //     child: TextButton(
+        //       onPressed: () => onTabSelected(2),
+        //       child: Center(
+        //         child: Text(
+        //           "Chat Bot",
+        //           style: TextStyle(
+        //             fontSize: 16,
+        //             color: textColor,
+        //           ),
+        //         ),
+        //       ),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
