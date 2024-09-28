@@ -2,8 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/guest/guest_checkable_item.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter_application_1/widgets/timer_popup.dart';
 
 // ignore: must_be_immutable
@@ -51,8 +49,10 @@ class GuestRecipeCard extends StatefulWidget {
 
 class _RecipeCardState extends State<GuestRecipeCard> {
   bool _hovered = false;
-  Map<String, dynamic>? _originalRecipe;
   bool _isAlteredRecipe = false;
+  Map<String, dynamic>? _originalRecipe;
+
+  
 
   @override
   void initState() {
@@ -72,6 +72,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
       'appliances': widget.appliances,
       'ingredients': widget.ingredients,
     };
+
   }
 
   @override
@@ -146,29 +147,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         768; // Adjust the threshold for mobile view, 768px is a common breakpoint
   }
 
-  void _revertToOriginalRecipe() {
-    if (_originalRecipe != null) {
-      if (mounted) {
-        setState(() {
-          widget.name = _originalRecipe!['name'];
-          widget.description = _originalRecipe!['description'];
-          widget.imagePath = _originalRecipe!['imagePath'];
-          widget.prepTime = _originalRecipe!['prepTime'];
-          widget.cookTime = _originalRecipe!['cookTime'];
-          widget.cuisine = _originalRecipe!['cuisine'];
-          widget.spiceLevel = _originalRecipe!['spiceLevel'];
-          widget.course = _originalRecipe!['course'];
-          widget.servings = _originalRecipe!['servings'];
-          widget.steps = List<String>.from(_originalRecipe!['steps']);
-          widget.appliances = List<String>.from(_originalRecipe!['appliances']);
-          widget.ingredients =
-              List<Map<String, dynamic>>.from(_originalRecipe!['ingredients']);
-          _isAlteredRecipe = false;
-          //_showRecipeDetails();
-        });
-      }
-    }
-  }
 
  
   void _onHover(bool hovering) {
@@ -644,31 +622,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     });
   }
 
-  void _chatbotPopup() {
-    final theme = Theme.of(context);
-    final clickColor =
-        theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final double screenWidth = MediaQuery.of(context).size.width;
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          child: Container(
-            width: screenWidth * 0.5,
-            height: MediaQuery.of(context).size.height * 0.7,
-            decoration: BoxDecoration(
-              color: clickColor,
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            child: _buildSignUpPrompt(),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -685,8 +638,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         (screenWidth < 450 ? screenWidth * 0.05 : screenWidth * 0.015);
     double boxWidth = widget.customBoxWidth ??
         (screenWidth < 450 ? screenWidth / 2 : screenWidth / 7);
-    double iconSize = widget.customIconSize ??
-        (screenWidth < 450 ? screenWidth * 0.08 : screenWidth * 0.017);
 
     final hoverColor = theme.brightness == Brightness.light
         ? Color(0xFF202920).withOpacity(0.8)
@@ -1383,13 +1334,78 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     return instructions;
   }
 
+  void _revertToOriginalRecipe() {
+    if (_originalRecipe != null) {
+      if (mounted) {
+        setState(() {
+          widget.name = _originalRecipe!['name'];
+          widget.description = _originalRecipe!['description'];
+          widget.imagePath = _originalRecipe!['imagePath'];
+          widget.prepTime = _originalRecipe!['prepTime'];
+          widget.cookTime = _originalRecipe!['cookTime'];
+          widget.cuisine = _originalRecipe!['cuisine'];
+          widget.spiceLevel = _originalRecipe!['spiceLevel'];
+          widget.course = _originalRecipe!['course'];
+          widget.servings = _originalRecipe!['servings'];
+          widget.steps = List<String>.from(_originalRecipe!['steps']);
+          widget.appliances = List<String>.from(_originalRecipe!['appliances']);
+          widget.ingredients =
+              List<Map<String, dynamic>>.from(_originalRecipe!['ingredients']);
+          _isAlteredRecipe = false;
+          //_showRecipeDetails();
+          Navigator.of(context).pop();
+          if (_isMobileView()) {
+            _showMobileRecipeDetails();
+          } else {
+            _showRecipeDetails();
+          }
+        });
+      }
+    }
+  }
+
+  // void _revertToOriginalRecipe() {
+  //   setState(() {
+  //     // Revert all recipe fields to their original values
+  //     widget.name = _originalRecipe['name'];
+  //     widget.description = _originalRecipe['description'];
+  //     widget.imagePath = _originalRecipe['imagePath'];
+  //     widget.prepTime = _originalRecipe['prepTime'];
+  //     widget.cookTime = _originalRecipe['cookTime'];
+  //     widget.cuisine = _originalRecipe['cuisine'];
+  //     widget.spiceLevel = _originalRecipe['spiceLevel'];
+  //     widget.course = _originalRecipe['course'];
+  //     widget.servings = _originalRecipe['servings'];
+  //     widget.steps = List<String>.from(_originalRecipe['steps']);
+  //     widget.appliances = List<String>.from(_originalRecipe['appliances']);
+  //     widget.ingredients =
+  //         List<Map<String, dynamic>>.from(_originalRecipe['ingredients']);
+
+  //     _isAlteredRecipe = false;
+  //   });
+
+  //   // Optional: refresh the recipe details view
+  //   if (_isMobileView()) {
+  //     _showMobileRecipeDetails();
+  //   } else {
+  //     _showRecipeDetails();
+  //   }
+  // }
+
+
   Widget buildActionButton(BuildContext context, bool isMobile) {
     final theme = Theme.of(context);
     final clickColor =
         theme.brightness == Brightness.light ? Color(0xFF283330) : Colors.white;
 
     return ElevatedButton.icon(
-     onPressed: _showSignUpPrompt,
+      onPressed: () {
+        if (_isAlteredRecipe) {
+          _revertToOriginalRecipe();
+        } else {
+          _showSignUpPrompt();
+        }
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
@@ -1418,38 +1434,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
       ),
     );
   }
-Widget _buildSignUpPrompt() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.lock,
-            size: 50,
-            color: Colors.grey,
-          ),
-          SizedBox(height: 20),
-          Text(
-            'Sign Up for Full Functionality',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            'Access our AI-powered chatbot and more features.',
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: _showSignUpPrompt,
-            child: Text('Sign Up'),
-          ),
-        ],
-      ),
-    );
-  }
+
     void _showSignUpPrompt() {
     showDialog(
       context: context,
@@ -1473,8 +1458,6 @@ Widget _buildSignUpPrompt() {
 
   Widget buildIngredientsList(
       BuildContext context, StateSetter dialogSetState) {
-    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final clickColor = isLightTheme ? Color(0xFF283330) : Colors.white;
 
     final double screenWidth = MediaQuery.of(context).size.width;
     final double fontSize;
@@ -1497,7 +1480,6 @@ Widget _buildSignUpPrompt() {
         ),
         SizedBox(height: MediaQuery.of(context).size.height * 0.01),
         ...widget.ingredients.asMap().entries.map((entry) {
-          int idx = entry.key;
           Map<String, dynamic> ingredient = entry.value;
 
           

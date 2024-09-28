@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'package:lottie/lottie.dart';
 import '../guest/guest_recipe_card.dart';
 import '../widgets/help_home.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // import '../gemini_service.dart'; // LLM
 
@@ -22,13 +21,9 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
   //String? _errorMessage;
-  Map<String, dynamic>? _userDetails;
-  String? _userId;
   List<Map<String, dynamic>> suggestedRecipes = [];
   //List<Map<String, dynamic>> suggestedFavoriteRecipes = [];
   Set<String> _addedRecipeIds = {}; //recipes in the recipes list
-  Set<String> _addedToSuggestedRecipesIds =
-      {}; //recipes in the suggestedRecipes list
   String selectedCourse = 'Main';
 
   // String _generatedText = '';  // LLM
@@ -223,22 +218,17 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
 
   Widget _buildGridView() {
     double screenWidth = MediaQuery.of(context).size.width;
-    double titleFontSize;
     double backArrow;
     // ignore: unused_local_variable
     String category;
     List<Map<String, dynamic>> filteredRecipes;
     if (screenWidth > 1334) {
-      titleFontSize = 30.0;
       backArrow = 30;
     } else if (screenWidth > 820) {
-      titleFontSize = 24.0;
       backArrow = 24;
     } else if (screenWidth < 375) {
-      titleFontSize = 18.0;
       backArrow = 18;
     } else {
-      titleFontSize = 16.0;
       backArrow = 16; // default size for widths between 375 and 980
     }
 

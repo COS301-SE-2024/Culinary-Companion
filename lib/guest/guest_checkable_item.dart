@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../gemini_service.dart'; // LLM
 import 'package:lottie/lottie.dart';
@@ -28,7 +27,6 @@ class GuestCheckableItem extends StatefulWidget {
 }
 
 class _CheckableItemState extends State<GuestCheckableItem> {
-  bool _isAdded = false;
 
   void _showSubstitutesDialog() async {
     //loading screen
@@ -261,83 +259,6 @@ class _CheckableItemState extends State<GuestCheckableItem> {
     );
   }
 
-  void _addToShoppingList(
-      String ingredientString, double remainingQuantity, String unit) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
-
-    //extract ingredient name
-    final regex = RegExp(r'^(.*?)\s*\(.*?\)$');
-    final match = regex.firstMatch(ingredientString);
-    final ingredientName =
-        match != null ? match.group(1) ?? ingredientString : ingredientString;
-
-    //check if the ingredient is in the db
-    final addIngredientUrl = Uri.parse(
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    final headers = {"Content-Type": "application/json"};
-    final addIngredientBody = jsonEncode({
-      "action": "addIngredientIfNotExists",
-      "ingredientName": ingredientName,
-      "measurementUnit": unit,
-    });
-
-    try {
-      final addIngredientResponse = await http.post(addIngredientUrl,
-          headers: headers, body: addIngredientBody);
-      if (addIngredientResponse.statusCode != 200) {
-        print(
-            'Failed to ensure ingredient exists: ${addIngredientResponse.body}');
-        return;
-      }
-    } catch (error) {
-      print('Error ensuring ingredient exists: $error');
-      return;
-    }
-
-    //add to shopping list
-    final url = Uri.parse(
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint');
-    final addShoppingListBody = jsonEncode({
-      "action": "addToShoppingList",
-      "userId": userId,
-      "ingredientName": ingredientName,
-      "quantity": remainingQuantity,
-      "measurementUnit": unit
-    });
-
-    try {
-      final response =
-          await http.post(url, headers: headers, body: addShoppingListBody);
-      if (response.statusCode == 200) {
-        if (mounted) {
-          setState(() {
-            _isAdded = true;
-          });
-        }
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Added remaining $ingredientName to shopping list'),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-                'Failed to add $ingredientName to shopping list: ${response.body}'),
-          ),
-        );
-      }
-    } catch (error) {
-      print('Error: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              Text('Error adding $ingredientName to shopping list: $error'),
-        ),
-      );
-    }
-  }
 
   
 }
