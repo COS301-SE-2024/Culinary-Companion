@@ -78,6 +78,27 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
     }
   }
 
+  void _showValidationDialog(String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Missing Information'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -476,7 +497,11 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                   }
                   return null;
                 },
-                onChanged: (value) {},
+                onChanged: (value) {
+    setState(() {
+      _goal = value; // Update the _goal variable when a value is selected
+    });
+  },
               ),
               const SizedBox(height: 16),
               // Meal Frequency - Slider
@@ -563,74 +588,104 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
               ),
               SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _selectedMeals.isNotEmpty
-                    ? () async {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          _formKey.currentState?.save();
+  onPressed: () async {
+    // ensure all form values are filled in
+    if (_mealPlanName == null || _mealPlanName!.isEmpty) {
+      _showValidationDialog("Please enter a meal plan name.");
+      return;
+    }
 
-                          //loading screen
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              return Center(
-                                child: Lottie.asset(
-                                  'assets/planner_load.json',
-                                  width: 200,
-                                  height: 200,
-                                  fit: BoxFit.contain,
-                                ),
-                              );
-                            },
-                          );
+    if (_gender == null || _gender!.isEmpty) {
+      _showValidationDialog("Please select your gender.");
+      return;
+    }
 
-                          // call gemini function to generate recipes
-                          final result = await fetchMealPlannerRecipes(
-                              _userId ?? "",
-                              _gender ?? "",
-                              _weight?.toString() ?? "",
-                              _weightUnit,
-                              _height?.toString() ?? "",
-                              _heightUnit,
-                              _age ?? 0,
-                              _getActivityLevelDescription(_activityLevel),
-                              _goal ?? "",
-                              _mealFrequency.toString(),
-                              _selectedMeals.join(","),
-                              _mealPlanName ?? "",
-                              context);
+    if (_height == null || _height! <= 0) {
+      _showValidationDialog("Please enter your height.");
+      return;
+    }
 
-                          // print("gem res $result"); //result from gemini
+    if (_weight == null || _weight! <= 0) {
+      _showValidationDialog("Please enter your weight.");
+      return;
+    }
 
-                          // add to user meal plan
-                          if (result.isNotEmpty &&
-                              result != 'Error parsing JSON') {
-                            await addToMealPlanner(_userId ?? "", result);
-                          }
+    if (_age == null || _age! <= 0) {
+      _showValidationDialog("Please enter your age.");
+      return;
+    }
 
-                          // Close loading dialog and switch to "My Meal Plans" tab
-                          Navigator.of(context).pop();
-                          widget.tabController.animateTo(1);
-                        }
-                      }
-                    : null, // Disable button if no meal type is selected
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFDC945F),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth *
-                        0.09, // Adjust the horizontal padding based on screen width
-                    vertical:
-                        20, // Adjust the vertical padding based on screen width
-                  ),
-                ),
-                child: Text(
-                  'Generate Meal Plan',
-                  style: TextStyle(
-                    color: Colors.white, // Text color
-                    fontSize: 16, // Text size
-                  ),
-                ),
-              ),
+    if (_goal == null || _goal!.isEmpty) {
+      _showValidationDialog("Please select a dietary goal.");
+      return;
+    }
+
+    if (_selectedMeals.isEmpty) {
+      _showValidationDialog("Please select at least one meal type.");
+      return;
+    }
+
+    if (_formKey.currentState?.validate() ?? false) {
+      _formKey.currentState?.save();
+
+      // Show loading screen
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(
+            child: Lottie.asset(
+              'assets/planner_load.json',
+              width: 200,
+              height: 200,
+              fit: BoxFit.contain,
+            ),
+          );
+        },
+      );
+
+      // Call the Gemini function to generate meal plan
+      final result = await fetchMealPlannerRecipes(
+        _userId ?? "",
+        _gender ?? "",
+        _weight?.toString() ?? "",
+        _weightUnit,
+        _height?.toString() ?? "",
+        _heightUnit,
+        _age ?? 0,
+        _getActivityLevelDescription(_activityLevel),
+        _goal ?? "",
+        _mealFrequency.toString(),
+        _selectedMeals.join(","),
+        _mealPlanName ?? "",
+        context,
+      );
+
+      if (result.isNotEmpty && result != 'Error parsing JSON') {
+        await addToMealPlanner(_userId ?? "", result);
+      }
+
+      // Close loading dialog and switch to "My Meal Plans" tab
+      Navigator.of(context).pop();
+      widget.tabController.animateTo(1);
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFFDC945F),
+    padding: EdgeInsets.symmetric(
+      horizontal: screenWidth * 0.09,
+      vertical: 20,
+    ),
+  ),
+  child: Text(
+    'Generate Meal Plan',
+    style: TextStyle(
+      color: Colors.white,
+      fontSize: 16,
+    ),
+  ),
+),
+
             ],
           ),
         ));
