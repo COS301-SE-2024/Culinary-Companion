@@ -79,25 +79,24 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
   }
 
   void _showValidationDialog(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Missing Information'),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            child: Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Missing Information'),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -498,10 +497,10 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
                   return null;
                 },
                 onChanged: (value) {
-    setState(() {
-      _goal = value; // Update the _goal variable when a value is selected
-    });
-  },
+                  setState(() {
+                    _goal = value;
+                  });
+                },
               ),
               const SizedBox(height: 16),
               // Meal Frequency - Slider
@@ -588,104 +587,104 @@ class GenerateMealPlanState extends State<GenerateMealPlanScreen> {
               ),
               SizedBox(height: 24),
               ElevatedButton(
-  onPressed: () async {
-    // ensure all form values are filled in
-    if (_mealPlanName == null || _mealPlanName!.isEmpty) {
-      _showValidationDialog("Please enter a meal plan name.");
-      return;
-    }
+                onPressed: () async {
+                  // ensure all form values are filled in
+                  if (_mealPlanName == null || _mealPlanName!.isEmpty) {
+                    _showValidationDialog("Please enter a meal plan name.");
+                    return;
+                  }
 
-    if (_gender == null || _gender!.isEmpty) {
-      _showValidationDialog("Please select your gender.");
-      return;
-    }
+                  if (_gender == null || _gender!.isEmpty) {
+                    _showValidationDialog("Please select your gender.");
+                    return;
+                  }
 
-    if (_height == null || _height! <= 0) {
-      _showValidationDialog("Please enter your height.");
-      return;
-    }
+                  if (_height == null || _height! <= 0) {
+                    _showValidationDialog("Please enter your height.");
+                    return;
+                  }
 
-    if (_weight == null || _weight! <= 0) {
-      _showValidationDialog("Please enter your weight.");
-      return;
-    }
+                  if (_weight == null || _weight! <= 0) {
+                    _showValidationDialog("Please enter your weight.");
+                    return;
+                  }
 
-    if (_age == null || _age! <= 0) {
-      _showValidationDialog("Please enter your age.");
-      return;
-    }
+                  if (_age == null || _age! <= 0) {
+                    _showValidationDialog("Please enter your age.");
+                    return;
+                  }
 
-    if (_goal == null || _goal!.isEmpty) {
-      _showValidationDialog("Please select a dietary goal.");
-      return;
-    }
+                  if (_goal == null || _goal!.isEmpty) {
+                    _showValidationDialog("Please select a dietary goal.");
+                    return;
+                  }
 
-    if (_selectedMeals.isEmpty) {
-      _showValidationDialog("Please select at least one meal type.");
-      return;
-    }
+                  if (_selectedMeals.isEmpty) {
+                    _showValidationDialog(
+                        "Please select at least one meal type.");
+                    return;
+                  }
 
-    if (_formKey.currentState?.validate() ?? false) {
-      _formKey.currentState?.save();
+                  if (_formKey.currentState?.validate() ?? false) {
+                    _formKey.currentState?.save();
 
-      // Show loading screen
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return Center(
-            child: Lottie.asset(
-              'assets/planner_load.json',
-              width: 200,
-              height: 200,
-              fit: BoxFit.contain,
-            ),
-          );
-        },
-      );
+                    // Show loading screen
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return Center(
+                          child: Lottie.asset(
+                            'assets/planner_load.json',
+                            width: 200,
+                            height: 200,
+                            fit: BoxFit.contain,
+                          ),
+                        );
+                      },
+                    );
 
-      // Call the Gemini function to generate meal plan
-      final result = await fetchMealPlannerRecipes(
-        _userId ?? "",
-        _gender ?? "",
-        _weight?.toString() ?? "",
-        _weightUnit,
-        _height?.toString() ?? "",
-        _heightUnit,
-        _age ?? 0,
-        _getActivityLevelDescription(_activityLevel),
-        _goal ?? "",
-        _mealFrequency.toString(),
-        _selectedMeals.join(","),
-        _mealPlanName ?? "",
-        context,
-      );
+                    // Call the Gemini function to generate meal plan
+                    final result = await fetchMealPlannerRecipes(
+                      _userId ?? "",
+                      _gender ?? "",
+                      _weight?.toString() ?? "",
+                      _weightUnit,
+                      _height?.toString() ?? "",
+                      _heightUnit,
+                      _age ?? 0,
+                      _getActivityLevelDescription(_activityLevel),
+                      _goal ?? "",
+                      _mealFrequency.toString(),
+                      _selectedMeals.join(","),
+                      _mealPlanName ?? "",
+                      context,
+                    );
 
-      if (result.isNotEmpty && result != 'Error parsing JSON') {
-        await addToMealPlanner(_userId ?? "", result);
-      }
+                    if (result.isNotEmpty && result != 'Error parsing JSON') {
+                      await addToMealPlanner(_userId ?? "", result);
+                    }
 
-      // Close loading dialog and switch to "My Meal Plans" tab
-      Navigator.of(context).pop();
-      widget.tabController.animateTo(1);
-    }
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color(0xFFDC945F),
-    padding: EdgeInsets.symmetric(
-      horizontal: screenWidth * 0.09,
-      vertical: 20,
-    ),
-  ),
-  child: Text(
-    'Generate Meal Plan',
-    style: TextStyle(
-      color: Colors.white,
-      fontSize: 16,
-    ),
-  ),
-),
-
+                    // Close loading dialog and switch to "My Meal Plans" tab
+                    Navigator.of(context).pop();
+                    widget.tabController.animateTo(1);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFDC945F),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth * 0.09,
+                    vertical: 20,
+                  ),
+                ),
+                child: Text(
+                  'Generate Meal Plan',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
             ],
           ),
         ));
