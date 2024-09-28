@@ -47,253 +47,16 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadUserIdAndFetchRecipes();
-  }
-
-  Future<void> _loadUserIdAndFetchRecipes() async {
+    //_loadUserIdAndFetchRecipes();
     if (mounted) {
       setState(() {
         _isLoading = true; //if it takes too long remove this line slow
       });
     }
-
-    await _loadUserId();
-
-    // Fetch suggested recipes based on user details first
-    // if (_userId != null) {
-    //   await fetchSuggestedRecipes();
-    //   await fetchSuggestedFavorites();
-    // }
-
-    // Then fetch all recipes
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false; // Stop loading once everything is loaded
-      });
-    }
+    fetchAllRecipes();
   }
 
-  Future<void> _loadUserId() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (mounted) {
-      setState(() {
-        _userId = prefs.getString('userId');
-      });
-    }
-
-    if (_userId != null) {
-      await _fetchUserDetails();
-    }
-  }
-
-///////////fetch the users profile details/////////
-  Future<void> _fetchUserDetails() async {
-    if (_userId == null) return;
-    if (mounted) {
-      setState(() {
-        _isLoading = true; // Show loading indicator
-      });
-    }
-
-    final String url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
-    try {
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'action': 'getUserDetails', 'userId': _userId}),
-      );
-
-      if (response.statusCode == 200) {
-        List<dynamic> data = jsonDecode(response.body);
-        if (data.isNotEmpty) {
-          if (mounted) {
-            setState(() {
-              _userDetails = data[0]; // Get the first item in the list
-              // final String spiceLevel =
-              //     _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
-              // final String preferredCuisine =
-              //     _userDetails?['cuisine']?.toString() ?? 'Mexican'; //default
-              // final List<String> dietaryConstraints = List<String>.from(
-              //     _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
-            });
-            //await fetchSuggestedFavorites();
-            await fetchAllRecipes();
-            await fetchSuggestedRecipes();
-          }
-        } else {
-          if (mounted) {
-            setState(() {
-              //_errorMessage = 'No user details found';
-            });
-          }
-        }
-      } else {
-        if (mounted) {
-          setState(() {
-            //_errorMessage = 'Failed to load user details';
-          });
-        }
-      }
-    } catch (error) {
-      if (mounted) {
-        setState(() {
-          //_errorMessage = 'Error fetching user details';
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false; // Stop loading indicator
-        });
-      }
-    }
-  }
-
-  Future<void> fetchSuggestedFavorites() async {
-    if (_userId == null) return;
-
-    final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    final body = jsonEncode({
-      'action': 'getSuggestedFavorites',
-      'userId': _userId,
-    });
-
-    try {
-      final response =
-          await http.post(Uri.parse(url), headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        final List<dynamic> recipeIds = jsonDecode(response.body);
-
-        //retch each recipe details
-        for (var recipeId in recipeIds) {
-          final recipeIdString = recipeId.toString();
-          //print('here: $recipeIdString');
-
-          //check if recipe is already in suggested rec
-          if (!_addedToSuggestedRecipesIds.contains(recipeIdString)) {
-            await fetchRecipeDetails(recipeIdString);
-
-            //retch recipe then add to suggestedRec list
-            final fetchedRecipe = recipes.firstWhere(
-              (r) => r['recipeId'] == recipeIdString,
-              orElse: () => {},
-            );
-
-            if (fetchedRecipe.isNotEmpty &&
-                !_addedToSuggestedRecipesIds.contains(recipeIdString)) {
-              if (mounted) {
-                setState(() {
-                  suggestedRecipes.add(fetchedRecipe);
-                  _addedToSuggestedRecipesIds
-                      .add(recipeIdString); //mark added to suggested
-                  //print('here 2': $recipeIdString');
-                });
-              }
-            }
-          } else {
-            // print('Recipe already in suggestedRecipes: $recipeIdString');
-          }
-        }
-      } else {
-        print(
-            'Failed to load suggested recipes based on favorites: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching suggested recipes based on favorites: $error');
-    }
-  }
-
-  Future<void> fetchSuggestedRecipes() async {
-    if (_userDetails == null || suggestedRecipes.length >= 10) return;
-
-    final url =
-        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
-    final headers = <String, String>{'Content-Type': 'application/json'};
-    final body = jsonEncode({
-      'action': 'getRecipeSuggestions',
-      'spiceLevel': _userDetails?['spicelevel'] ?? 'Mild',
-      'cuisine': [_userDetails?['cuisine'] ?? 'Mexican'],
-      'dietaryConstraints': _userDetails?['dietaryConstraints'] ?? []
-    });
-    try {
-      final response =
-          await http.post(Uri.parse(url), headers: headers, body: body);
-
-      if (response.statusCode == 200) {
-        final List<dynamic> fetchedRecipes = jsonDecode(response.body);
-
-        for (var recipe in fetchedRecipes) {
-          final String recipeId = recipe['recipeid'];
-
-          // Check if the recipe is already in the recipes list
-          final existingRecipe = recipes.firstWhere(
-            (r) => r['recipeId'] == recipeId,
-            orElse: () => {},
-          );
-
-          // If the recipe is already loaded, add it to the suggestedRecipes list
-          if (existingRecipe.isNotEmpty && suggestedRecipes.length < 10) {
-            if (mounted) {
-              setState(() {
-                suggestedRecipes.add(existingRecipe);
-              });
-            }
-          }
-          // Otherwise, fetch the recipe details and add it to both lists
-          else if (!_addedRecipeIds.contains(recipeId) &&
-              suggestedRecipes.length < 10) {
-            await fetchRecipeDetails(recipeId);
-
-            final fetchedRecipe = recipes.firstWhere(
-              (r) => r['recipeId'] == recipeId,
-              orElse: () => {},
-            );
-
-            if (fetchedRecipe.isNotEmpty) {
-              if (mounted) {
-                setState(() {
-                  suggestedRecipes.add(fetchedRecipe);
-                  _addedRecipeIds.add(recipeId);
-                });
-              }
-            }
-          }
-
-          // Stop fetching once we've reached 10 suggested recipes
-          if (suggestedRecipes.length >= 10) {
-            break;
-          }
-        }
-      } else {
-        print('Failed to load suggested recipes: ${response.statusCode}');
-      }
-    } catch (error) {
-      print('Error fetching suggested recipes: $error');
-    }
-  }
-
-  //   Future<void> _fetchContent() async {
-  //   final apiKey = dotenv.env['API_KEY'] ?? '';
-  //   if (apiKey.isEmpty) {
-  //     setState(() {
-  //       _generatedText = 'No \$API_KEY environment variable';
-  //     });
-  //     return;
-  //   }
-
-  //   final model = GenerativeModel(model: 'gemini-1.5-flash', apiKey: apiKey);
-  //   final content = [Content.text('Write a story about a magic backpack.')];
-  //   final response = await model.generateContent(content);
-
-  //   setState(() {
-  //     _generatedText = response.text!;
-  //   });
-  // }
+  
 
   Future<void> fetchAllRecipes() async {
     final url =
@@ -512,15 +275,15 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
                 child: Icon(Icons.arrow_back, size: backArrow),
               ),
               SizedBox(width: 10),
-              Text(
-                _selectedCategory == 'Suggested'
-                    ? 'Suggested Recipes'
-                    : _selectedCategory,
-                style: TextStyle(
-                  fontSize: titleFontSize,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              // Text(
+              //   _selectedCategory == 'Suggested'
+              //       ? 'Suggested Recipes'
+              //       : _selectedCategory,
+              //   style: TextStyle(
+              //     fontSize: titleFontSize,
+              //     fontWeight: FontWeight.bold,
+              //   ),
+              // ),
             ],
           ),
         ),
@@ -619,7 +382,7 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(height: 24),
-                              _buildRecipeList('Suggested', suggestedRecipes),
+                             // _buildRecipeList('Suggested', suggestedRecipes),
                               _buildRecipeList(
                                   'Mains', _filterRecipesByCourse('Main')),
                               _buildRecipeList('Breakfast',
