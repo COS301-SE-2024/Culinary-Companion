@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
-import 'guest_recipe_card.dart';
+import '../guest/guest_recipe_card.dart';
 import '../widgets/help_home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // import '../gemini_service.dart'; // LLM
 
@@ -16,17 +17,18 @@ class GuestHomeScreen extends StatefulWidget {
 
 class _GuestHomeScreen extends State<GuestHomeScreen> {
   List<Map<String, dynamic>> recipes = [];
-  bool _isLoading = true;
+  bool _isLoading = false;
   bool _isGridView = false;
   String _selectedCategory = '';
   OverlayEntry? _helpMenuOverlay;
   //String? _errorMessage;
-  //Map<String, dynamic>? _userDetails;
- // String? _userId;
- // List<Map<String, dynamic>> suggestedRecipes = [];
+  Map<String, dynamic>? _userDetails;
+  String? _userId;
+  List<Map<String, dynamic>> suggestedRecipes = [];
   //List<Map<String, dynamic>> suggestedFavoriteRecipes = [];
   Set<String> _addedRecipeIds = {}; //recipes in the recipes list
-  //Set<String> _addedToSuggestedRecipesIds ={}; //recipes in the suggestedRecipes list
+  Set<String> _addedToSuggestedRecipesIds =
+      {}; //recipes in the suggestedRecipes list
   String selectedCourse = 'Main';
 
   // String _generatedText = '';  // LLM
@@ -45,10 +47,235 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
   @override
   void initState() {
     super.initState();
-    fetchAllRecipes();
+    _loadUserIdAndFetchRecipes();
   }
 
+  Future<void> _loadUserIdAndFetchRecipes() async {
+    if (mounted) {
+      setState(() {
+        _isLoading = true; //if it takes too long remove this line slow
+      });
+    }
 
+    await _loadUserId();
+
+    // Fetch suggested recipes based on user details first
+    // if (_userId != null) {
+    //   await fetchSuggestedRecipes();
+    //   await fetchSuggestedFavorites();
+    // }
+
+    // Then fetch all recipes
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false; // Stop loading once everything is loaded
+      });
+    }
+  }
+
+  Future<void> _loadUserId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (mounted) {
+      setState(() {
+        _userId = prefs.getString('userId');
+      });
+    }
+
+    if (_userId != null) {
+      await _fetchUserDetails();
+    }
+  }
+
+///////////fetch the users profile details/////////
+  Future<void> _fetchUserDetails() async {
+    if (_userId == null) return;
+    if (mounted) {
+      setState(() {
+        _isLoading = true; // Show loading indicator
+      });
+    }
+
+    final String url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/userEndpoint';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'action': 'getUserDetails', 'userId': _userId}),
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        if (data.isNotEmpty) {
+          if (mounted) {
+            setState(() {
+              _userDetails = data[0]; // Get the first item in the list
+              // final String spiceLevel =
+              //     _userDetails?['spicelevel']?.toString() ?? 'Mild'; //default
+              // final String preferredCuisine =
+              //     _userDetails?['cuisine']?.toString() ?? 'Mexican'; //default
+              // final List<String> dietaryConstraints = List<String>.from(
+              //     _userDetails?['dietaryConstraints']?.map((dc) => dc.toString()) ?? []);
+            });
+            //await fetchSuggestedFavorites();
+            await fetchAllRecipes();
+            await fetchSuggestedRecipes();
+          }
+        } else {
+          if (mounted) {
+            setState(() {
+              //_errorMessage = 'No user details found';
+            });
+          }
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            //_errorMessage = 'Failed to load user details';
+          });
+        }
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() {
+          //_errorMessage = 'Error fetching user details';
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false; // Stop loading indicator
+        });
+      }
+    }
+  }
+
+  Future<void> fetchSuggestedFavorites() async {
+    if (_userId == null) return;
+
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      'action': 'getSuggestedFavorites',
+      'userId': _userId,
+    });
+
+    try {
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> recipeIds = jsonDecode(response.body);
+
+        //retch each recipe details
+        for (var recipeId in recipeIds) {
+          final recipeIdString = recipeId.toString();
+          //print('here: $recipeIdString');
+
+          //check if recipe is already in suggested rec
+          if (!_addedToSuggestedRecipesIds.contains(recipeIdString)) {
+            await fetchRecipeDetails(recipeIdString);
+
+            //retch recipe then add to suggestedRec list
+            final fetchedRecipe = recipes.firstWhere(
+              (r) => r['recipeId'] == recipeIdString,
+              orElse: () => {},
+            );
+
+            if (fetchedRecipe.isNotEmpty &&
+                !_addedToSuggestedRecipesIds.contains(recipeIdString)) {
+              if (mounted) {
+                setState(() {
+                  suggestedRecipes.add(fetchedRecipe);
+                  _addedToSuggestedRecipesIds
+                      .add(recipeIdString); //mark added to suggested
+                  //print('here 2': $recipeIdString');
+                });
+              }
+            }
+          } else {
+            // print('Recipe already in suggestedRecipes: $recipeIdString');
+          }
+        }
+      } else {
+        print(
+            'Failed to load suggested recipes based on favorites: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching suggested recipes based on favorites: $error');
+    }
+  }
+
+  Future<void> fetchSuggestedRecipes() async {
+    if (_userDetails == null || suggestedRecipes.length >= 10) return;
+
+    final url =
+        'https://gsnhwvqprmdticzglwdf.supabase.co/functions/v1/ingredientsEndpoint';
+    final headers = <String, String>{'Content-Type': 'application/json'};
+    final body = jsonEncode({
+      'action': 'getRecipeSuggestions',
+      'spiceLevel': _userDetails?['spicelevel'] ?? 'Mild',
+      'cuisine': [_userDetails?['cuisine'] ?? 'Mexican'],
+      'dietaryConstraints': _userDetails?['dietaryConstraints'] ?? []
+    });
+    try {
+      final response =
+          await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> fetchedRecipes = jsonDecode(response.body);
+
+        for (var recipe in fetchedRecipes) {
+          final String recipeId = recipe['recipeid'];
+
+          // Check if the recipe is already in the recipes list
+          final existingRecipe = recipes.firstWhere(
+            (r) => r['recipeId'] == recipeId,
+            orElse: () => {},
+          );
+
+          // If the recipe is already loaded, add it to the suggestedRecipes list
+          if (existingRecipe.isNotEmpty && suggestedRecipes.length < 10) {
+            if (mounted) {
+              setState(() {
+                suggestedRecipes.add(existingRecipe);
+              });
+            }
+          }
+          // Otherwise, fetch the recipe details and add it to both lists
+          else if (!_addedRecipeIds.contains(recipeId) &&
+              suggestedRecipes.length < 10) {
+            await fetchRecipeDetails(recipeId);
+
+            final fetchedRecipe = recipes.firstWhere(
+              (r) => r['recipeId'] == recipeId,
+              orElse: () => {},
+            );
+
+            if (fetchedRecipe.isNotEmpty) {
+              if (mounted) {
+                setState(() {
+                  suggestedRecipes.add(fetchedRecipe);
+                  _addedRecipeIds.add(recipeId);
+                });
+              }
+            }
+          }
+
+          // Stop fetching once we've reached 10 suggested recipes
+          if (suggestedRecipes.length >= 10) {
+            break;
+          }
+        }
+      } else {
+        print('Failed to load suggested recipes: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching suggested recipes: $error');
+    }
+  }
 
   //   Future<void> _fetchContent() async {
   //   final apiKey = dotenv.env['API_KEY'] ?? '';
@@ -235,8 +462,9 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
     double screenWidth = MediaQuery.of(context).size.width;
     double titleFontSize;
     double backArrow;
+    // ignore: unused_local_variable
     String category;
-
+    List<Map<String, dynamic>> filteredRecipes;
     if (screenWidth > 1334) {
       titleFontSize = 30.0;
       backArrow = 30;
@@ -258,8 +486,12 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
       category = _selectedCategory;
     }
 
-    List<Map<String, dynamic>> filteredRecipes =
-        _filterRecipesByCourse(_selectedCategory);
+// Handle "Suggested" recipes separately
+    if (_selectedCategory == 'Suggested') {
+      filteredRecipes = suggestedRecipes;
+    } else {
+      filteredRecipes = _filterRecipesByCourse(_selectedCategory);
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -281,7 +513,9 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
               ),
               SizedBox(width: 10),
               Text(
-                category,
+                _selectedCategory == 'Suggested'
+                    ? 'Suggested Recipes'
+                    : _selectedCategory,
                 style: TextStyle(
                   fontSize: titleFontSize,
                   fontWeight: FontWeight.bold,
@@ -346,7 +580,7 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: screenWidth > 450
+      appBar: screenWidth > 600
           ? AppBar(
               automaticallyImplyLeading: false,
               backgroundColor: Colors.transparent,
@@ -364,7 +598,7 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
           : null,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          if (constraints.maxWidth < 450) {
+          if (constraints.maxWidth < 500) {
             return _isLoading
                 ? Center(child: Lottie.asset('assets/loading.json'))
                 : _buildMobileView(
@@ -385,6 +619,7 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               SizedBox(height: 24),
+                              _buildRecipeList('Suggested', suggestedRecipes),
                               _buildRecipeList(
                                   'Mains', _filterRecipesByCourse('Main')),
                               _buildRecipeList('Breakfast',
@@ -393,7 +628,6 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
                                   _filterRecipesByCourse('Appetizer')),
                               _buildRecipeList(
                                   'Dessert', _filterRecipesByCourse('Dessert')),
-                              //_buildRecipeList('Suggested', suggestedRecipes),
                             ],
                           ),
                         ),
@@ -449,29 +683,47 @@ class _GuestHomeScreen extends State<GuestHomeScreen> {
               ),
             ),
             Positioned(
-              top: 10,
-              left: 20,
+              top: 15,
+              left: 24,
               child: DropdownButton<String>(
-                  value: title, // Default selected value
-                  items: <String>[
-                    'Main',
-                    'Breakfast',
-                    'Appetizer',
-                    'Dessert'
-                    //'Suggested'
-                  ].map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        selectedCourse = newValue; // Update selected course
-                      });
+                value: title,
+                iconEnabledColor: Colors.white, // Arrow color when enabled
+                iconDisabledColor: Colors.white, // Arrow color when disabled
+                dropdownColor: const Color.fromARGB(255, 0, 0, 0)
+                    .withOpacity(0.3), // Opaque dropdown background
+                style: const TextStyle(
+                    color: Colors.white), // Default selected value
+
+                items: <String>[
+                  'Main',
+                  'Breakfast',
+                  'Appetizer',
+                  'Dessert',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList()
+                  // Reorder the list based on the selected item
+                  ..sort((a, b) {
+                    // Move the selected item to the top
+                    if (a.value == selectedCourse) {
+                      return -1;
+                    } else if (b.value == selectedCourse) {
+                      return 1;
                     }
+                    return 0;
                   }),
+
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      selectedCourse = newValue; // Update selected course
+                    });
+                  }
+                },
+              ),
             ),
             Positioned(
               top: 10,

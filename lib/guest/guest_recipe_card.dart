@@ -1,14 +1,10 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls
 
-//import '../widgets/chat_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/guest/guest_checkable_item.dart';
 import 'dart:convert';
-//import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import '../gemini_service.dart'; // LLM
-//import 'package:lottie/lottie.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_application_1/widgets/timer_popup.dart';
-
 
 // ignore: must_be_immutable
 class GuestRecipeCard extends StatefulWidget {
@@ -26,6 +22,10 @@ class GuestRecipeCard extends StatefulWidget {
   List<String> appliances;
   List<Map<String, dynamic>> ingredients;
 
+  double? customBoxWidth;
+  double? customFontSizeTitle;
+  double? customIconSize;
+
   GuestRecipeCard({
     required this.recipeID,
     required this.name,
@@ -40,6 +40,9 @@ class GuestRecipeCard extends StatefulWidget {
     required this.steps,
     required this.appliances,
     required this.ingredients,
+    this.customBoxWidth,
+    this.customFontSizeTitle,
+    this.customIconSize,
   });
 
   @override
@@ -48,20 +51,13 @@ class GuestRecipeCard extends StatefulWidget {
 
 class _RecipeCardState extends State<GuestRecipeCard> {
   bool _hovered = false;
-  //Map<int, bool> _ingredientChecked = {};
-  //bool _isFavorite = false;
-  //Map<String, bool> _pantryIngredients = {};
-  //Map<String, Map<String, dynamic>> _pantryIngredients = {};
-  //Map<String, Map<String, dynamic>> _shoppingList = {};
-  //String? userId;
-  //int _ingredientsInPantry = 0; //number of ingredients that I have
-  // int _ingredientsNeeded = 0; //number of ingredients I still need to buy
   Map<String, dynamic>? _originalRecipe;
   bool _isAlteredRecipe = false;
 
   @override
   void initState() {
     super.initState();
+
     _originalRecipe = {
       'name': widget.name,
       'description': widget.description,
@@ -76,13 +72,13 @@ class _RecipeCardState extends State<GuestRecipeCard> {
       'appliances': widget.appliances,
       'ingredients': widget.ingredients,
     };
-
-    //_checkIfFavorite();
-    //_fetchShoppingList();
-    //_fetchPantryIngredients();
-    //_fetchUserId();
-    //_updateIngredientCounts();
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
 
   void _showTimerPopup() {
     showDialog(
@@ -119,23 +115,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         widget.steps = List<String>.from(alteredRecipe['steps']);
         //print('gets here 10');
         widget.appliances = widget.appliances;
-        //print('gets here 11');
 
-        // map ingredients
-        // widget.ingredients = alteredRecipe['ingredients']
-        //     .map<Map<String, dynamic>>((ingredient) {
-        //   //print('Ingredient: $ingredient');
-        //   var nameEndIndex = ingredient.lastIndexOf(' (');
-        //   var name = ingredient.substring(0, nameEndIndex);
-        //   var quantityAndUnit = ingredient
-        //       .substring(nameEndIndex + 2, ingredient.length - 1)
-        //       .split(' ');
-        //   return {
-        //     'name': name,
-        //     'quantity': double.tryParse(quantityAndUnit[0]) ?? 0.0,
-        //     'measurement_unit': quantityAndUnit[1],
-        //   };
-        // }).toList();
         widget.ingredients = alteredRecipe['ingredients']
             .map<Map<String, dynamic>>((ingredient) {
           return {
@@ -149,24 +129,22 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         //print('Parsed Ingredients: ${widget.ingredients}');
         //print('gets here 12');
         _isAlteredRecipe = true;
-        
-        Navigator.of(context).pop();
-        
-        if (_isMobileView()) {
+      });
+      Navigator.of(context).pop();
+      if (_isMobileView()) {
         _showMobileRecipeDetails();
       } else {
         _showRecipeDetails();
       }
-        
-      });
+      //_showRecipeDetails();
     }
   }
 
   bool _isMobileView() {
-  double screenWidth = MediaQuery.of(context).size.width;
-  return screenWidth < 768; // Adjust the threshold for mobile view, 768px is a common breakpoint
-}
-
+    double screenWidth = MediaQuery.of(context).size.width;
+    return screenWidth <
+        768; // Adjust the threshold for mobile view, 768px is a common breakpoint
+  }
 
   void _revertToOriginalRecipe() {
     if (_originalRecipe != null) {
@@ -186,17 +164,13 @@ class _RecipeCardState extends State<GuestRecipeCard> {
           widget.ingredients =
               List<Map<String, dynamic>>.from(_originalRecipe!['ingredients']);
           _isAlteredRecipe = false;
-          Navigator.of(context).pop();
-          if (_isMobileView()) {
-        _showMobileRecipeDetails();
-      } else {
-        _showRecipeDetails();
-      }
+          //_showRecipeDetails();
         });
       }
     }
   }
 
+ 
   void _onHover(bool hovering) {
     if (mounted) {
       setState(() {
@@ -210,981 +184,601 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
 
-    double dialogHeight =
-        screenHeight * 0.8; // 80% of screen height for the dialog
-    double imageHeight =
-        dialogHeight * 0.5; // 50% of dialog height for the image
-    double contentHeight =
-        dialogHeight * 0.5; // 50% of dialog height for the content
+
+    double imageHeight = screenHeight *
+        0.5; // 50% of screen height for the image// 50% of screen height for the content
 
     double fontSizeTitle = screenWidth * 0.05;
 
-    final clickColor =
-        theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
     final textColor =
         theme.brightness == Brightness.light ? Color(0xFF283330) : Colors.white;
+    int selectedTab = 0;
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor:
-              Colors.transparent, // Set background color to transparent
-          child: Container(
-            width: screenWidth * 0.8, // 80% of screen width for the dialog
-            height: dialogHeight, // 80% of screen height for the dialog
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: imageHeight, // 50% of dialog height for the image
-                    child: ClipRRect(
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(20)),
-                      child: Image.network(
-                        widget
-                            .imagePath, // Replace with your background image path
-                        fit: BoxFit.cover, // Adjust fit as necessary
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: imageHeight,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Color.fromARGB(0, 0, 0, 0),
-                            Color.fromARGB(179, 0, 0, 0),
-                          ],
-                        ),
-                        borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(20)),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 20.0, // Adjust position as necessary
-                    left: 10.0, // Adjust position as necessary
-                    child: Container(
-                      width: screenWidth *
-                          0.1, // Adjust width of the circular background
-                      height: screenWidth *
-                          0.1, // Adjust height of the circular background
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.black
-                            .withOpacity(0.5), // Background color of the circle
-                      ),
-                      child: Center(
-                        child: IconButton(
-                          icon: Icon(Icons.arrow_back, color: Colors.white),
-                          iconSize: screenWidth * 0.05, // Adjust icon size
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            //_fetchShoppingList(); // Refresh shopping list when dialog is closed
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  //),
-                  Positioned(
-                    bottom: contentHeight +
-                        10, // Adjust position to be at the bottom of the image
-                    left: 20.0,
-                    child: Text(
-                      widget.name,
-                      style: TextStyle(
-                        fontSize: fontSizeTitle,
-                        fontWeight: FontWeight.bold,
-                        color: Colors
-                            .white, // Ensure the text is visible on the image
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  Positioned(
-                    top: imageHeight, // Position at the bottom of the image
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      width: screenWidth * 0.8,
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Scaffold(body: StatefulBuilder(
+              builder: (BuildContext context, StateSetter dialogSetState) {
+            return SingleChildScrollView(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Container(
                       height:
-                          contentHeight, // 50% of dialog height for the content
-                      color: clickColor,
-                      child: DefaultTabController(
-                        length: 3,
-                        child: Column(
-                          children: [
-                            SizedBox(
-                              height: MediaQuery.of(context).size.height *
-                                  0.01, // Adjust height
+                          imageHeight, // Define a specific height for the container
+                      width: double.infinity,
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height:
+                                imageHeight, // 50% of dialog height for the image
+                            child: ClipRRect(
+                              // borderRadius: BorderRadius.vertical(
+                              //     top: Radius.circular(20)),
+                              child: Image.network(
+                                widget
+                                    .imagePath, // Replace with your background image path
+                                fit: BoxFit.cover, // Adjust fit as necessary
+                              ),
                             ),
-                            TabBar(
-                              labelColor: textColor,
-                              indicatorColor: textColor,
-                              tabs: [
-                                Tab(text: 'Details'),
-                                Tab(text: 'Instructions'),
-                                Tab(text: 'Chat Bot'),
-                              ],
+                          ),
+                          Positioned(
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: imageHeight,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color.fromARGB(0, 0, 0, 0),
+                                    Color.fromARGB(179, 0, 0, 0),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20)),
+                              ),
                             ),
-                            Expanded(
-                              child: TabBarView(
-                                children: [
-                                  SingleChildScrollView(
-                                    padding: EdgeInsets.all(
-                                        16.0), // Add padding around the scrollable area
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          "Description:",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Color(0xFFDC945F),
-                                            fontWeight: FontWeight
-                                                .bold, // Optionally set the thickness of the underline
-                                          ),
-                                        ),
-
-                                        SizedBox(
-                                            height:
-                                                6.0), // Add spacing between title and description
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              left:
-                                                  16.0), // Adjust the left padding as needed
-                                          child: Text(
-                                            widget.description,
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                        ),
-
-                                        SizedBox(
-                                          height: 15.0,
-                                        ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Column(
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Prep Time:',
-                                                          style: TextStyle(
-                                                            color: textColor,
-                                                            fontSize: 12,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.006,
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                            left: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.006,
-                                                          ),
-                                                          child: Text(
-                                                            '${widget.prepTime} mins',
-                                                            style: TextStyle(
-                                                              color: textColor,
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    SizedBox(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.008), // Add spacing
-                                                    Container(
-                                                      height:
-                                                          40, // Set a fixed height for the vertical divider
-                                                      child: VerticalDivider(
-                                                        width: 20,
-                                                        thickness: 1.8,
-                                                        indent: 20,
-                                                        endIndent: 0,
-                                                        color: textColor,
-                                                      ),
-                                                    ),
-                                                    SizedBox(
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.008), // Add spacing
-                                                    // Add spacing between elements
-                                                    Column(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          'Cook Time:',
-                                                          style: TextStyle(
-                                                            color: textColor,
-                                                            fontSize: 12,
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.006,
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                            left: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.006,
-                                                          ),
-                                                          child: Text(
-                                                            '${widget.cookTime} mins',
-                                                            style: TextStyle(
-                                                              color: textColor,
-                                                              fontSize: 12,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.008), // Add spacing
-                                            Container(
-                                              height:
-                                                  40, // Set a fixed height for the vertical divider
-                                              child: VerticalDivider(
-                                                width: 20,
-                                                thickness: 1.8,
-                                                indent: 20,
-                                                endIndent: 0,
-                                                color: textColor,
-                                              ),
-                                            ),
-                                            SizedBox(
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.008), // Add spacing
-                                            // Add spacing between elements// Add spacing between elements
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  'Total Time:',
-                                                  style: TextStyle(
-                                                    color: textColor,
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.006,
-                                                ),
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                    left: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.006,
-                                                  ),
-                                                  child: Text(
-                                                    '${widget.prepTime + widget.cookTime} mins',
-                                                    style: TextStyle(
-                                                      color: textColor,
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 15.0),
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                  left:
-                                                      16.0), // Adjust padding as needed
-                                              child: Text(
-                                                  'Cuisine: ${widget.cuisine}'),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                  left:
-                                                      16.0), // Adjust padding as needed
-                                              child: Text(
-                                                  'Spice Level: ${widget.spiceLevel}'),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                  left:
-                                                      16.0), // Adjust padding as needed
-                                              child: Text(
-                                                  'Course: ${widget.course}'),
-                                            ),
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                  left:
-                                                      16.0), // Adjust padding as needed
-                                              child: Text(
-                                                  'Servings: ${widget.servings}'),
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.02), // Adjust height to 2% of screen height
-
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.02),
-                                        Text(
-                                          "Ingredients:",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            color: Color(0xFFDC945F),
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.01), // Adjust height to 1% of screen height
-                                        if (_isAlteredRecipe)
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              _revertToOriginalRecipe();
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Theme.of(context)
-                                                  .primaryColor, // Use primary color
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 20,
-                                                      vertical: 10),
-                                            ),
-                                            child: Text(
-                                              'Revert to Original Recipe',
-                                              style: TextStyle(
-                                                color: Colors
-                                                    .white, // Button text color
-                                              ),
-                                            ),
-                                          ),
-
-                                        ...widget.ingredients
-                                            .asMap()
-                                            .entries
-                                            .map((entry) {
-                                          // int idx = entry.key;
-                                          Map<String, dynamic> ingredient =
-                                              entry.value;
-
-                                          return CheckableItem(
-                                            title:
-                                                '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-                                            requiredQuantity:
-                                                ingredient['quantity'],
-                                            requiredUnit:
-                                                ingredient['measurement_unit'],
-                                            recipeID: widget.recipeID,
-                                            // onChanged: (bool? value) {
-                                            //   if (mounted) {
-                                            //     setState(() {
-                                            //       _ingredientChecked[idx] =
-                                            //           value ?? false;
-                                            //     });
-                                            //   }
-                                            // },
-                                            // Pass recipeID here
-                                            onRecipeUpdate: _updateRecipe,
-                                            
-                                          );
-                                        }),
-
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.02), // Adjust height to 2% of screen height
-                                        Text(
-                                          "Appliances:",
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Color(
-                                                0xFFDC945F), // Optionally set the thickness of the underline
-                                          ),
-                                        ),
-                                        SizedBox(
-                                            height: MediaQuery.of(context)
-                                                    .size
-                                                    .height *
-                                                0.01),
-                                        ...widget.appliances.map(
-                                          (appliance) => Padding(
-                                            padding: EdgeInsets.only(
-                                                left:
-                                                    16.0), // Add 16 pixels of padding to the left
-                                            child: Text(appliance),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  // Content for the second tab
-                                  SingleChildScrollView(
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Instructions:',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Color(0xFFDC945F)),
-                                        ),
-                                        SizedBox(height: 8.0),
-                                        ...widget.steps.expand((step) {
-                                          return step.split('<').map((subStep) {
-                                            return Padding(
-                                              padding: EdgeInsets.only(
-                                                  bottom:
-                                                      8.0), // Space between each step
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Container(
-                                                    width:
-                                                        24.0, // Diameter of the circle
-                                                    height:
-                                                        24.0, // Diameter of the circle
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: Color.fromARGB(
-                                                          115,
-                                                          220,
-                                                          147,
-                                                          95), // Color of the circle
-                                                    ),
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      '${widget.steps.indexOf(step) + 1}',
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Colors
-                                                            .white, // Color of the number
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                      width:
-                                                          8.0), // Adjust this value to control the indent
-                                                  Expanded(
-                                                    child: Text(
-                                                      subStep,
-                                                      style: TextStyle(
-                                                          fontSize:
-                                                              16), // Style for each step
-                                                    ),
-                                                  ),
-                                                  SizedBox(height: 8.0),
-                                                ],
-                                              ),
-                                            );
-                                          }).toList();
-                                      }),
-                                    ],
-                                  ),
+                          ),
+                          Positioned(
+                            top: 20.0, // Adjust position as necessary
+                            left: 10.0, // Adjust position as necessary
+                            child: Container(
+                              width: screenWidth *
+                                  0.1, // Adjust width of the circular background
+                              height: screenWidth *
+                                  0.1, // Adjust height of the circular background
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.black.withOpacity(
+                                    0.5), // Background color of the circle
+                              ),
+                              child: Center(
+                                child: IconButton(
+                                  icon: Icon(Icons.arrow_back,
+                                      color: Colors.white),
+                                  iconSize:
+                                      screenWidth * 0.05, // Adjust icon size
+                                  onPressed: () {
+                                  },
                                 ),
-                                // Chat Bot tab content
-                                Center(
-                                  child: ElevatedButton(
-                                    onPressed: _chatbotPopup,  // Call the _chatbotPopup here
-                                    child: Text("Open Chat Bot"),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 20.0, // Adjust position as necessary
+                            right: 60.0, // Adjust position as necessary
+                            child: Container(
+                              width: screenWidth *
+                                  0.1, // Adjust width of the circular background
+                              height: screenWidth *
+                                  0.1, // Adjust height of the circular background
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.black.withOpacity(
+                                    0.5), // Background color of the circle
+                              ),
+                              child: Center(
+                                  child: IconButton(
+                                icon: Icon(Icons.timer, color: Colors.white),
+                                iconSize: screenWidth * 0.05,
+                                onPressed: _showTimerPopup,
+                              )),
+                            ),
+                          ),
+                          Positioned(
+                              top: 20.0, // Adjust position as necessary
+                              right: 10.0, // Adjust position as necessary
+                              child: Container(
+                                  width: screenWidth *
+                                      0.1, // Adjust width of the circular background
+                                  height: screenWidth *
+                                      0.1, // Adjust height of the circular background
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.black.withOpacity(
+                                        0.5), // Background color of the circle
                                   ),
-                                ),
-                              ],
+                                  child: Center(
+                                    
+                                    //],
+                                  ))),
+                          Positioned(
+                            bottom:
+                                10, // Adjust position to be at the bottom of the image
+                            left: 20.0,
+                            child: Text(
+                              widget.name,
+                              style: TextStyle(
+                                fontSize: fontSizeTitle,
+                                fontWeight: FontWeight.bold,
+                                color: Colors
+                                    .white, // Ensure the text is visible on the image
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
                             ),
                           ),
                         ],
+                      )),
+
+                  SizedBox(height: 6.0),
+                  buildTabRow(
+                    selectedTab,
+                    textColor,
+                    (int newTab) {
+                      dialogSetState(() {
+                        selectedTab = newTab;
+                      });
+                    },
+                  ),
+                  // Content section that changes based on the selected tab
+                  if (selectedTab == 0)
+                    Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Description:",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFFDC945F),
+                                fontWeight: FontWeight
+                                    .bold, // Optionally set the thickness of the underline
+                              ),
+                            ),
+                            SizedBox(
+                                height:
+                                    6.0), // Add spacing between title and description
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left:
+                                      16.0), // Adjust the left padding as needed
+                              child: Text(
+                                widget.description,
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 15.0,
+                            ),
+                            buildTimeInfoRow(context, '${widget.prepTime}',
+                                '${widget.cookTime}', textColor),
+                            SizedBox(
+                              height: 16.0,
+                            ),
+                            buildDetailsColumn(
+                                context,
+                                '${widget.cuisine}',
+                                '${widget.spiceLevel}',
+                                '${widget.course}',
+                                '${widget.servings}'),
+                            SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.02),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildActionButton(context, true),
+                                SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.02),
+                                buildIngredientsList(context, dialogSetState),
+                                // buildIngredientsSection(
+                                //     context), // Adjust height to 2% of screen height
+                                buildAppliancesSection(context),
+                                SizedBox(height: 10),
+                              ],
+                              //                     ),
+                            ),
+                          ],
+                        ))
+                  else if (selectedTab == 1)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: buildInstructions(widget.steps),
+                      ),
+                    )
+                  else if (selectedTab == 2)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Container(
+                        width: screenWidth,
+                        height: MediaQuery.of(context).size.height,
+                        
                       ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    },
-  ).then((_) {
-    
-  });
-}
+                ]));
+          })),
+        )).then((_) {
+      // This will be called when the dialog is dismissed
+    });
+  }
 
-void _showRecipeDetails() {
-  final theme = Theme.of(context);
-  final clickColor = theme.brightness == Brightness.light
-      ? Colors.white
-      : Color.fromARGB(255, 25, 58, 48);
+  void _showRecipeDetails() {
+    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final Color textColor =
+        isLightTheme ? Color.fromARGB(255, 53, 53, 53) : Colors.white;
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      final double screenWidth = MediaQuery.of(context).size.width;
-      final double screenHeight = MediaQuery.of(context).size.height;
+    final theme = Theme.of(context);
+    final iconColor = theme.brightness == Brightness.light
+        ? Color.fromARGB(255, 49, 49, 49)
+        : Colors.white;
+    final double screenWidth = MediaQuery.of(context).size.width;
 
-      return Dialog(
-        backgroundColor: clickColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(screenWidth * 0.01),
-        ),
-        child: Container(
-          width: screenWidth * 0.8,
-          height: screenHeight * 0.8, // Set dialog height to 80% of the screen height
-          child: Stack(  // Wrap everything inside a Stack
-            children: [
-              Column(
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          body: StatefulBuilder(
+              builder: (BuildContext context, StateSetter dialogSetState) {
+            return Container(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).size.height * 0.04,
+                left: screenWidth * 0.05,
+                right: screenWidth * 0.05,
+              ),
+              child: Column(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.all(screenWidth * 0.02), // Adjust padding as needed
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
+                  // Top row with title and icons
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.center,
                           child: Text(
                             widget.name,
                             style: TextStyle(
-                              fontSize: screenWidth * 0.02, // Font size adjustment
+                              color: iconColor,
+                              fontSize: screenWidth > 800
+                                  ? 25
+                                  : 18, // Adjust font size based on screen width
                               fontWeight: FontWeight.bold,
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.timer,
-                            color: Colors.white,
-                            size: screenWidth * 0.017, // Adjust icon size
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.timer_outlined,
+                              color: iconColor,
+                              size: screenWidth > 800
+                                  ? 25
+                                  : 18, // Adjust icon size based on screen width
+                            ),
+                            onPressed: _showTimerPopup,
                           ),
-                          onPressed: _showTimerPopup,
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            color: iconColor,
+                            iconSize: screenWidth > 800
+                                ? 25
+                                : 18, // Adjust icon size based on screen width
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 50),
+
+                  // Row containing left and right columns with independent scroll
+                  Expanded(
+                    child: Row(
+                      children: [
+                        // Left Column (Image, Action Button, Ingredients, Appliances)
+                        Flexible(
+                          flex: MediaQuery.of(context).size.width < 700
+                              ? 5
+                              : MediaQuery.of(context).size.width < 900
+                                  ? 4
+                                  : 3,
+                          // 30% of the width
+                          child: Container(
+                            padding:
+                                EdgeInsets.all(16), // Add padding for content
+                            decoration: BoxDecoration(
+                              border: Border(
+                                right: BorderSide(
+                                  // Right border only
+                                  color: Color.fromARGB(
+                                      33, 0, 0, 0), // Border color
+                                  width: 2.0, // Border width
+                                ),
+                              ),
+                            ), // Add padding inside the container
+                            child: ListView(
+                              padding: EdgeInsets
+                                  .zero, // Optional: control padding for ListView
+                              children: [
+                                // Image Section
+                                LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return Container(
+                                      // Make the image section take the full height with some constraint
+                                      constraints: BoxConstraints(
+                                        maxHeight: 400,
+                                        maxWidth: 450, // Adjust as necessary
+                                      ),
+                                      child: Center(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          child: Image.network(
+                                            widget.imagePath,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.width < 1000
+                                          ? 10
+                                          : 40,
+                                ),
+                                Center(
+                                    child: buildActionButton(context, false)),
+                                SizedBox(
+                                    height: MediaQuery.of(context).size.height *
+                                        0.02),
+                                // Ingredients list
+                                buildIngredientsList(context, dialogSetState),
+                                SizedBox(height: 40),
+                                buildAppliancesSection(context),
+                                SizedBox(height: 40),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(width: 50), // Spacing between columns
+
+                        // Right Column (Description, Details, Instructions + Chatbot)
+                        Flexible(
+                          flex: MediaQuery.of(context).size.width < 700
+                              ? 5
+                              : MediaQuery.of(context).size.width < 900
+                                  ? 6
+                                  : 7,
+                          child: Stack(
+                            children: [
+                              ListView(
+                                padding: EdgeInsets.only(
+                                    right: 20.0), // Add padding to the right
+                                children: [
+                                  Text(
+                                    "Description:",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      color: Color(0xFFDC945F),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 15.0),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 16.0),
+                                    child: Text(
+                                      widget.description,
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  buildTimeInfoRow(
+                                    context,
+                                    '${widget.prepTime}',
+                                    '${widget.cookTime}',
+                                    textColor,
+                                  ),
+                                  SizedBox(height: 8),
+                                  buildDetailsColumn(
+                                    context,
+                                    '${widget.cuisine}',
+                                    '${widget.spiceLevel}',
+                                    '${widget.course}',
+                                    '${widget.servings}',
+                                  ),
+                                  SizedBox(height: 40),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: buildInstructions(widget.steps),
+                                  ),
+                                  SizedBox(height: 40),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Column(
+                                        children: [
+                                          SizedBox(height: 15.0),
+                                          // Conditional display based on screen width
+                                          MediaQuery.of(context).size.width <
+                                                  1100
+                                              ? ElevatedButton(
+                                                  onPressed:
+                                                      _chatbotPopup, // Call your popup method
+                                                  child: ClipOval(
+                                                    child: Image.asset(
+                                                      'assets/chef.png', // Path to your image asset
+                                                      width:
+                                                          60, // Adjust size as needed
+                                                      height:
+                                                          60, // Adjust size as needed
+                                                    ),
+                                                  ),
+                                                  style:
+                                                      ElevatedButton.styleFrom(
+                                                    elevation: 0.2,
+                                                    shape: CircleBorder(),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                      vertical: 10,
+                                                      horizontal: 15,
+                                                    ),
+                                                    backgroundColor:
+                                                        Color.fromARGB(
+                                                      0,
+                                                      81,
+                                                      168,
+                                                      81,
+                                                    ), // Background color
+                                                  ),
+                                                )
+                                              : Container(
+                                                  width: screenWidth *
+                                                      0.4, // Default to 40% otherwise
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.7,
+                                                  decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.0), // Adjust the radius as needed
+                                                    border: Border.all(
+                                                      color: Color.fromARGB(
+                                                          78, 0, 0, 0),
+                                                      width:
+                                                          1.0, // Optional: add a border
+                                                    ),
+                                                    color: Color.fromARGB(
+                                                      33,
+                                                      0,
+                                                      0,
+                                                      0,
+                                                    ), // Background color, adjust as needed
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            16.0), // Same radius for clipping
+                                                    child: Padding(
+                                                      padding: EdgeInsets.all(
+                                                          10.0), // Add your desired padding here
+                                                      
+                                                    ),
+                                                  ),
+                                                ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: screenHeight * 0.01),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.05, // Horizontal padding
-                        vertical: screenHeight * 0.02,  // Vertical padding
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.description),
-                          SizedBox(height: screenHeight * 0.02),
-                          Row(
-                            children: [
-                              _buildTimeColumn("Prep Time:", '${widget.prepTime} mins'),
-                              VerticalDivider(thickness: 1, color: Colors.black),
-                              _buildTimeColumn("Cook Time:", '${widget.cookTime} mins'),
-                              VerticalDivider(thickness: 1, color: Colors.black),
-                              _buildTimeColumn("Total Time:", '${widget.prepTime + widget.cookTime} mins'),
-                            ],
-                          ),
-                          SizedBox(height: screenHeight * 0.02),
-                          _buildInfoText('Cuisine', widget.cuisine),
-                          _buildInfoText('Spice Level', widget.spiceLevel.toString()),
-                          _buildInfoText('Course', widget.course),
-                          _buildInfoText('Servings', widget.servings.toString()),
-                          SizedBox(height: screenHeight * 0.02),
-                          _buildIngredientsSection(),
-                          SizedBox(height: screenHeight * 0.02),
-                          _buildAppliancesSection(),
-                          SizedBox(height: screenHeight * 0.02),
-                          _buildInstructionsSection(),
-                        ],
-                      ),
-                    ),
-                  ),
                 ],
               ),
-              // Moved Positioned outside the Column and into the Stack
-              Positioned(
-                bottom: 10.0, // Adjust as needed
-                right: 10.0, // Adjust as needed
-                child: ElevatedButton(
-                  onPressed: _chatbotPopup,
-                  child: ClipOval(
-                    child: Image.asset(
-                      'assets/chef.png',
-                      width: 60,
-                      height: 60,
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    elevation: 0.2,
-                    shape: CircleBorder(),
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    backgroundColor: Color.fromARGB(0, 81, 168, 81),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    },
-  );
-}
-
-
-Widget _buildTimeColumn(String label, String value) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      Text(label, style: TextStyle(fontWeight: FontWeight.bold)),
-      Text(value),
-    ],
-  );
-}
-
-Widget _buildInfoText(String label, String value) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 4.0),
-    child: Text(
-      '$label: $value',
-      style: TextStyle(fontSize: 16),
-    ),
-  );
-}
-
-Widget _buildIngredientsSection() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text('Ingredients:', style: TextStyle(fontWeight: FontWeight.bold)),
-      if (_isAlteredRecipe)
-        ElevatedButton(
-          onPressed: _revertToOriginalRecipe,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          ),
-          child: Text('Revert to Original Recipe', style: TextStyle(color: Colors.white)),
-        ),
-      ...widget.ingredients.map((ingredient) {
-        return CheckableItem(
-          title: '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
-          requiredQuantity: ingredient['quantity'],
-          requiredUnit: ingredient['measurement_unit'],
-          recipeID: widget.recipeID,
-          onRecipeUpdate: _updateRecipe,
-        );
-      // ignore: unnecessary_to_list_in_spreads
-      }).toList(),
-    ],
-  );
-}
-
-Widget _buildAppliancesSection() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text('Appliances:', style: TextStyle(fontWeight: FontWeight.bold)),
-      ...widget.appliances.map((appliance) => Text(appliance)),
-    ],
-  );
-}
-
-Widget _buildInstructionsSection() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text('Instructions:', style: TextStyle(fontWeight: FontWeight.bold)),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: widget.steps.expand((step) {
-          return step.split('<').map((subStep) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.01),
-              child: Text('${widget.steps.indexOf(step) + 1}. $subStep'),
             );
-          }).toList();
-        }).toList(),
+          }),
+        ),
       ),
-    ],
-  );
-}
-
-
-    Widget buildTimeInfoRow(
-      BuildContext context, String prepTime, String cookTime, Color textColor) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Prep Time:',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.width * 0.006,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: MediaQuery.of(context).size.width * 0.006,
-                      ),
-                      child: Text(
-                        '$prepTime mins',
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.008,
-                ),
-                Container(
-                  height: 40, // Set a fixed height for the vertical divider
-                  child: VerticalDivider(
-                    width: 20,
-                    thickness: 1.8,
-                    indent: 20,
-                    endIndent: 0,
-                    color: textColor,
-                  ),
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.008,
-                ),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Cook Time:',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.width * 0.006,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(
-                        left: MediaQuery.of(context).size.width * 0.006,
-                      ),
-                      child: Text(
-                        '$cookTime mins',
-                        style: TextStyle(
-                          color: textColor,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.008,
-        ),
-        Container(
-          height: 40,
-          child: VerticalDivider(
-            width: 20,
-            thickness: 1.8,
-            indent: 20,
-            endIndent: 0,
-            color: textColor,
-          ),
-        ),
-        SizedBox(
-          width: MediaQuery.of(context).size.width * 0.008,
-        ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Total Time:',
-              style: TextStyle(
-                color: textColor,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(
-              height: MediaQuery.of(context).size.width * 0.006,
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                left: MediaQuery.of(context).size.width * 0.006,
-              ),
-              child: Text(
-                '${int.parse(prepTime) + int.parse(cookTime)} mins',
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
+    ).then((_) {
+    });
   }
 
   void _chatbotPopup() {
-  showDialog(
-    barrierColor: Color.fromARGB(158, 0, 0, 0),
-    barrierDismissible: false,
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        title: Text(
-          "Access Restricted",
-          style: TextStyle(color: Colors.black),
-        ),
-        content: Text(
-          "Sign up to access the full functionality.",
-          style: TextStyle(color: Colors.black),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              "Close",
-              style: TextStyle(color: Color(0xFFDC945F)),
-            ),
-          ),
-        ],
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15.0),
-        ),
-      );
-    },
-  );
-}
 
+    //Code if draggable causes issues
+    final theme = Theme.of(context);
+    final clickColor =
+        theme.brightness == Brightness.light ? Colors.white : Color(0xFF283330);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final double screenWidth = MediaQuery.of(context).size.width;
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(15.0), // Optional: Add rounded corners
+          ),
+          child: Stack(
+            children: [
+              Container(
+                width: screenWidth * 0.5, // Adjust the width as needed
+                height: MediaQuery.of(context).size.height *
+                    0.7, // Adjust the height as needed
+
+                decoration: BoxDecoration(
+                  color: clickColor,
+                  borderRadius: BorderRadius.circular(
+                      15.0), // Optional: Same as the Dialog border radius
+                ),
+              ),
+              Container(
+                width: screenWidth * 0.5,
+                height: MediaQuery.of(context).size.height * 0.7,
+                
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     double screenWidth = MediaQuery.of(context).size.width;
-    double fontSizeTitle = screenWidth * 0.015;
+    // double fontSizeTitle;
+    // double boxWidth;
+    // double iconSize;
     double fontSizeDescription = screenWidth * 0.01;
     double fontSizeTimes = screenWidth * 0.008;
+
+    // Use custom values if provided, otherwise default to calculated values
+    double fontSizeTitle = widget.customFontSizeTitle ??
+        (screenWidth < 450 ? screenWidth * 0.05 : screenWidth * 0.015);
+    double boxWidth = widget.customBoxWidth ??
+        (screenWidth < 450 ? screenWidth / 2 : screenWidth / 7);
+    double iconSize = widget.customIconSize ??
+        (screenWidth < 450 ? screenWidth * 0.08 : screenWidth * 0.017);
 
     final hoverColor = theme.brightness == Brightness.light
         ? Color(0xFF202920).withOpacity(0.8)
@@ -1193,13 +787,12 @@ Widget _buildInstructionsSection() {
     bool enableHover = screenWidth >= 1029;
 
     void handleTap() {
-      if (screenWidth < 450) {
+      if (screenWidth < 550) {
         _showMobileRecipeDetails();
       } else {
         _showRecipeDetails();
       }
     }
-
     return GestureDetector(
       onTap: handleTap,
       child: MouseRegion(
@@ -1222,13 +815,14 @@ Widget _buildInstructionsSection() {
               Positioned.fill(
                 child: Container(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
+                    gradient: RadialGradient(
+                        // begin: Alignment.topCenter,
+                        // end: Alignment.bottomCenter,
                         colors: [
                           Color.fromARGB(0, 0, 0, 0),
-                          Color.fromARGB(179, 0, 0, 0),
-                        ]),
+                          Color.fromARGB(129, 0, 0, 0),
+                        ],
+                        radius: 0.99),
                     //color: Colors.white.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -1239,8 +833,7 @@ Widget _buildInstructionsSection() {
                 left: 10,
                 bottom: 10,
                 child: Container(
-                  width: MediaQuery.of(context).size.width /
-                      8, // Half the width of the recipe card
+                  width: boxWidth, // Half the width of the recipe card
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -1257,6 +850,7 @@ Widget _buildInstructionsSection() {
                       SizedBox(
                           height:
                               5), // Add some spacing between name and counts
+                      
                     ],
                   ),
                 ),
@@ -1519,6 +1113,7 @@ Widget _buildInstructionsSection() {
                       SizedBox(
                         height: MediaQuery.of(context).size.width * 0.006,
                       ), // Add some spacing between name and counts
+                      
                     ],
                   ),
                 ),
@@ -1528,14 +1123,15 @@ Widget _buildInstructionsSection() {
                 right: MediaQuery.of(context).size.width * 0.01,
                 child: Row(
                   children: [
-                    IconButton(
-                      icon: Icon(
-                        Icons.timer,
-                        color: Colors.white,
-                        size: MediaQuery.of(context).size.width * 0.017,
-                      ),
-                      onPressed: _showTimerPopup,
-                    ),
+                    // IconButton(
+                    //   icon: Icon(
+                    //     Icons.timer,
+                    //     color: Colors.white,
+                    //     size: iconSize,
+                    //   ),
+                    //   onPressed: _showTimerPopup,
+                    // ),
+                    
                   ],
                 )),
           ],
@@ -1545,235 +1141,546 @@ Widget _buildInstructionsSection() {
   }
 
   // void _suggestSubstitution() {}
-}
 
-// ignore: must_be_immutable
-class CheckableItem extends StatefulWidget {
-  final String title;
-  final double requiredQuantity;
-  final String requiredUnit;
-  // final ValueChanged<bool?> onChanged;
-  // final bool isInPantry;
-  // final double availableQuantity;
-  // final bool isChecked;
-  // bool isInShoppingList;
-  final String recipeID;
-  final Function(Map<String, dynamic>) onRecipeUpdate;
-
-  CheckableItem({
-    required this.title,
-    required this.requiredQuantity,
-    required this.requiredUnit,
-    // required this.onChanged,
-    // required this.isInPantry,
-    // required this.availableQuantity,
-    // required this.isChecked,
-    // required this.isInShoppingList,
-    required this.recipeID,
-    required this.onRecipeUpdate,
-  });
-
-  @override
-  _CheckableItemState createState() => _CheckableItemState();
-}
-
-class _CheckableItemState extends State<CheckableItem> {
-  //bool _isAdded = false;
-
-  void _showSubstitutesDialog() async {
-    //loading screen
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Loading substitutions...',
-            style: TextStyle(color: Colors.black), // Set text color to black
-          ),
-          content: CircularProgressIndicator(),
-          backgroundColor: Colors.white, // Set background color to white
-        );
-      },
-    );
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? userId = prefs.getString('userId');
-
-    //fetch substitutions
-    String jsonString = await fetchIngredientSubstitutions(widget.recipeID,
-        widget.title, userId ?? 'defaultUserId'); // add user id
-
-    // Parse the JSON string
-    Map<String, dynamic> substitutions;
-    try {
-      substitutions = jsonDecode(jsonString);
-    } catch (e) {
-      Navigator.of(context).pop(); //stop loading screen
-      // Show an error dialog
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              'Error',
-              style: TextStyle(color: Colors.black),
-            ),
-            content: Text(
-              'Failed to fetch substitutions.',
-              style: TextStyle(color: Colors.black),
-            ),
-            actions: [
-              TextButton(
-                style: TextButton.styleFrom(
-                  side: const BorderSide(
-                    color: Color(0xFFDC945F),
-                    width: 1.5,
+  Widget buildTimeInfoRow(
+      BuildContext context, String prepTime, String cookTime, Color textColor) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double fontSize;
+    if (screenWidth > 700) {
+      fontSize = 16;
+    } else {
+      fontSize = 14;
+    }
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Prep Time:',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.006,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.006,
+                      ),
+                      child: Text(
+                        '$prepTime mins',
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: fontSize,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.008,
+                ),
+                Container(
+                  height: 40, // Set a fixed height for the vertical divider
+                  child: VerticalDivider(
+                    width: 20,
+                    thickness: 1.8,
+                    indent: 20,
+                    endIndent: 0,
+                    color: textColor,
                   ),
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.008,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Cook Time:',
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: fontSize,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.width * 0.006,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.006,
+                      ),
+                      child: Text(
+                        '$cookTime mins',
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: fontSize,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.008,
+        ),
+        Container(
+          height: 40,
+          child: VerticalDivider(
+            width: 20,
+            thickness: 1.8,
+            indent: 20,
+            endIndent: 0,
+            color: textColor,
+          ),
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.008,
+        ),
+        if (MediaQuery.of(context).size.width > 700)
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Total Time:',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(
+                height: MediaQuery.of(context).size.width * 0.006,
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                  left: MediaQuery.of(context).size.width * 0.006,
+                ),
                 child: Text(
-                  'Close',
+                  '${int.parse(prepTime) + int.parse(cookTime)} mins',
                   style: TextStyle(
-                    color: Color(0xFFDC945F),
-                  ), // Set text color to black
+                    color: textColor,
+                    fontSize: fontSize,
+                  ),
+                  overflow: TextOverflow.ellipsis, // Add this line for ellipsis
+                  maxLines: 1, // Set the maximum number of lines
                 ),
               ),
             ],
-            backgroundColor: Colors.white, // Set background color to white
-          );
-        },
-      );
-      return;
-    }
-
-    //stop loading
-    Navigator.of(context).pop();
-
-    //substitution options
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Here are a list of substitutes for ${widget.title}',
-            style: TextStyle(color: Colors.black), // Set text color to black
           ),
-          content: Container(
-            width: double.maxFinite, // Make the container as wide as the dialog
-            child: ListView(
-              shrinkWrap: true,
-              children: substitutions.entries.map((entry) {
-                return ListTile(
-                  title: Text(
-                    entry.value,
-                    style: TextStyle(
-                        color: Colors.black), // Set text color to black
-                  ),
-                  onTap: () {
-                    Navigator.of(context)
-                        .pop(); // Close the substitutions dialog
-                    _generateAlteredRecipe(entry.value,
-                        widget.title); // Generate the altered recipe
-                  },
-                );
-              }).toList(),
-            ),
-          ),
-          actions: [
-            TextButton(
-              style: TextButton.styleFrom(
-                side: const BorderSide(
-                  color: Color(0xFFDC945F),
-                  width: 1.5,
-                ),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-              },
-              child: Text(
-                'Close',
-                style: TextStyle(
-                  color: Color(0xFFDC945F),
-                ), // Set text color to black
-              ),
-            ),
-          ],
-          backgroundColor: Colors.white, // Set background color to white
-        );
-      },
+      ],
     );
   }
 
-  Future<void> _generateAlteredRecipe(
-      String substitute, String substitutedIngredient) async {
-    //show loading
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Generating altered recipe...',
-            style: TextStyle(color: Colors.black), // Set text color to black
-          ),
-          content: CircularProgressIndicator(),
-          backgroundColor: Colors.white, // Set background color to white
-        );
-      },
-    );
-
-    //fetch the altered rec
-    String jsonString = await fetchIngredientSubstitutionRecipe(
-        widget.recipeID, substitute, substitutedIngredient);
-
-    //stop loading
-    Navigator.of(context).pop();
-
-    // Parse the JSON string
-    Map<String, dynamic> alteredRecipe = jsonDecode(jsonString);
-
-    //update the altered recipe
-    //print("here $alteredRecipe");
-    widget.onRecipeUpdate(alteredRecipe);
-
-    if (mounted) {
-      setState(() {});
+  Widget buildDetailsColumn(BuildContext context, String cuisine,
+      String spiceLevel, String course, String servings) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double fontSize;
+    if (screenWidth > 550) {
+      fontSize = 16;
+    } else {
+      fontSize = 14;
     }
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
-    final Color textColor =
-        isLightTheme ? Color.fromARGB(255, 19, 20, 20) : Colors.white;
-    // bool isSufficient = widget.isInPantry &&
-    //     widget.availableQuantity >= widget.requiredQuantity;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            Flexible(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    widget.title,
-                    overflow: TextOverflow.ellipsis,
+        Padding(
+          padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
+          child: Text(
+            'Cuisine: $cuisine',
+            style: TextStyle(
+              fontSize: fontSize,
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
+          child: Text(
+            'Spice Level: $spiceLevel',
+            style: TextStyle(
+              fontSize: fontSize,
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
+          child: Text(
+            'Course: $course',
+            style: TextStyle(
+              fontSize: fontSize,
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 16.0), // Adjust padding as needed
+          child: Text(
+            'Servings: $servings',
+            style: TextStyle(
+              fontSize: fontSize,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildAppliancesSection(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double fontSize;
+
+    if (screenWidth > 550) {
+      fontSize = 20;
+    } else {
+      fontSize = 16;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Appliances:",
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFDC945F),
+          ),
+        ),
+        SizedBox(
+          height: MediaQuery.of(context).size.height * 0.01,
+        ),
+        if (widget.appliances.isEmpty)
+          Padding(
+            padding: EdgeInsets.only(left: 16.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.error_outline, // Appropriate icon for no appliance
+                  color: Colors.grey, // Same grey as the text for consistency
+                ),
+                SizedBox(width: 8), // Space between icon and text
+                Flexible(
+                  // Use Flexible to prevent overflow
+                  child: Text(
+                    "No appliances specified.",
                     style: TextStyle(
-                      color: textColor,
-                      fontWeight: FontWeight.normal,
+                      color: Colors.grey, // Light grey color
+                      fontStyle: FontStyle.italic,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1, // Limit to one line
+                  ),
+                ),
+              ],
+            ),
+          )
+        else
+          ...widget.appliances.map((appliance) => Padding(
+                padding: EdgeInsets.only(left: 16.0),
+                child: Text(appliance),
+              )),
+      ],
+    );
+  }
+
+  List<Widget> buildInstructions(List<String> steps) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double fontSize, stepHeight;
+
+    if (screenWidth > 550) {
+      fontSize = 20;
+      stepHeight = 15.0;
+    } else {
+      fontSize = 16;
+      stepHeight = 10.0;
+    }
+
+    List<Widget> instructions = [
+      Text(
+        'Instructions:',
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFFDC945F),
+        ),
+      ),
+      SizedBox(height: stepHeight),
+    ];
+
+    // Build steps with stepHeight spacing between them
+    for (int i = 0; i < steps.length; i++) {
+      var subSteps = steps[i].split('<');
+      for (String subStep in subSteps) {
+        instructions.add(
+          Padding(
+            padding:
+                EdgeInsets.only(bottom: 8.0), // Space between each sub-step
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 24.0, // Diameter of the circle
+                  height: 24.0, // Diameter of the circle
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color.fromARGB(115, 220, 147, 95), // Circle color
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '${i + 1}', // Step number
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white, // Number color
                     ),
                   ),
-                  IconButton(
-                    icon: Icon(Icons.swap_horiz, color: textColor),
-                    onPressed: _showSubstitutesDialog,
+                ),
+                SizedBox(
+                    width: stepHeight), // Indentation between circle and text
+                Expanded(
+                  child: Text(
+                    subStep,
+                    style: TextStyle(fontSize: 16), // Step text style
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      // Add SizedBox between steps
+      if (i < steps.length - 1) {
+        instructions.add(SizedBox(height: stepHeight));
+      }
+    }
+
+    return instructions;
+  }
+
+  Widget buildActionButton(BuildContext context, bool isMobile) {
+    final theme = Theme.of(context);
+    final clickColor =
+        theme.brightness == Brightness.light ? Color(0xFF283330) : Colors.white;
+
+    return ElevatedButton.icon(
+      onPressed: () async {
+        if (!_isAlteredRecipe) {
+          // Show loading dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(
+                  'Adjusting recipe...',
+                  style: TextStyle(color: Colors.black),
+                ),
+                content: CircularProgressIndicator(),
+                backgroundColor: Colors.white,
+              );
+            },
+          );
+
+            
+           
+
+            if (isMobile) {
+              _showMobileRecipeDetails();
+            } else {
+              _showRecipeDetails();
+            }
+          
+        } else {
+          // Revert to original recipe
+          _revertToOriginalRecipe();
+          Navigator.of(context).pop();
+          if (isMobile) {
+            _showMobileRecipeDetails();
+          } else {
+            _showRecipeDetails();
+          } // Refresh recipe
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8), // Less rounded corners
+          side: BorderSide(
+            color: clickColor, // Border color to match the theme
+            width: 2, // Thickness of the border
+          ),
+        ),
+        shadowColor: const Color.fromARGB(
+            255, 190, 190, 190), // Shadow to make it stand out
+        elevation: 0, // Higher elevation for shadow effect
+      ),
+      icon: Icon(
+        _isAlteredRecipe
+            ? Icons.restore
+            : Icons.restaurant_menu, // Icon for the button
+        color: clickColor, // Icon color
+      ),
+      label: Text(
+        _isAlteredRecipe
+            ? 'Revert to Original Recipe'
+            : 'Adjust recipe to cater to my preferences',
+        style: TextStyle(color: clickColor),
+      ),
+    );
+  }
+
+  Widget buildIngredientsList(
+      BuildContext context, StateSetter dialogSetState) {
+    final bool isLightTheme = Theme.of(context).brightness == Brightness.light;
+    final clickColor = isLightTheme ? Color(0xFF283330) : Colors.white;
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double fontSize;
+    if (screenWidth > 550) {
+      fontSize = 20;
+    } else {
+      fontSize = 16;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Ingredients:',
+          style: TextStyle(
+            fontSize: fontSize,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFFDC945F),
+          ),
+        ),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+        ...widget.ingredients.asMap().entries.map((entry) {
+          int idx = entry.key;
+          Map<String, dynamic> ingredient = entry.value;
+
+          
+
+          return GuestCheckableItem(
+            title:
+                '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
+            requiredQuantity: ingredient['quantity'],
+            requiredUnit: ingredient['measurement_unit'],
+            onChanged: (bool? value) {
+              
+            },
+            
+            recipeID: widget.recipeID, // Pass recipeID here
+            onRecipeUpdate: (Map<String, dynamic> alteredRecipe) {
+              _updateRecipe(alteredRecipe);
+              if (mounted) {
+                // Create new controller
+                dialogSetState(
+                    () {}); // Update the dialog's state// Update the dialog's state
+              }
+            },
+          );
+        }),
+        SizedBox(
+          height: 25,
+        ),
+        //SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+      ],
+    );
+  }
+
+  Widget buildTabRow(
+      int selectedTab, Color textColor, Function(int) onTabSelected) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        // Details Tab
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: selectedTab == 0
+                  ? Color.fromARGB(69, 220, 147, 95)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+            child: TextButton(
+              onPressed: () => onTabSelected(0),
+              child: Center(
+                child: Text(
+                  "Details",
+                  style: TextStyle(
+                    fontSize: 16,
                     color: textColor,
                   ),
-                ],
+                ),
               ),
             ),
-          ],
+          ),
+        ),
+
+        // Instructions Tab
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: selectedTab == 1
+                  ? Color.fromARGB(69, 220, 147, 95)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+            child: TextButton(
+              onPressed: () => onTabSelected(1),
+              child: Center(
+                child: Text(
+                  "Instructions",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+
+        // Chat Bot Tab
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(
+              color: selectedTab == 2
+                  ? Color.fromARGB(69, 220, 147, 95)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+            child: TextButton(
+              onPressed: () => onTabSelected(2),
+              child: Center(
+                child: Text(
+                  "Chat Bot",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: textColor,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ),
       ],
     );
