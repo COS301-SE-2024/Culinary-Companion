@@ -1401,7 +1401,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     return ElevatedButton.icon(
       onPressed: () {
         if (_isAlteredRecipe) {
-          // _revertToOriginalRecipe();
+          _revertToOriginalRecipe();
           _showSignUpPrompt();
         } else {
           _showSignUpPrompt();
