@@ -637,8 +637,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      _buildSearchAndFilterBar(),
                       Icon(
                         Icons.search_off,
                         size: 100,
