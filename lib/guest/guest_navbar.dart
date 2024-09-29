@@ -78,6 +78,16 @@ class GuestNavbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                icon: Icon(isLightTheme ? Icons.dark_mode : Icons.light_mode),
+                onPressed: () {
+                  Provider.of<ThemeNotifier>(context, listen: false)
+                      .toggleTheme();
+                },
+              ),
+            ),
           ],
         ),
       ),
