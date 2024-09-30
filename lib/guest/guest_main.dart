@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/guest/guest_navbar.dart';
-import 'package:flutter_application_1/guest/guest_search_screen.dart';
-import 'package:flutter_application_1/screens/login_screen.dart';
+import 'package:culinary_companion/guest/guest_navbar.dart';
+import 'package:culinary_companion/guest/guest_search_screen.dart';
+import 'package:culinary_companion/screens/login_screen.dart';
 import 'guest_home_screen.dart';
 //import 'guest_search_screen.dart';
 
 class MainScreen2 extends StatefulWidget {
   final bool isGuest; // Add a flag for guest users
-  
+
   MainScreen2({this.isGuest = false}); // Default to false for regular users
-  
+
   @override
   _MainScreenState createState() => _MainScreenState();
 }

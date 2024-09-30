@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/guest/guest_recipe_card.dart';
+import 'package:culinary_companion/guest/guest_recipe_card.dart';
 //import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';

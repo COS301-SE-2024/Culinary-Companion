@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_application_1/screens/signup_screen.dart'; // Replace 'your_app_name' with your actual app name
+import 'package:culinary_companion/screens/signup_screen.dart'; // Replace 'your_app_name' with your actual app name
 
 import 'signup_screen_test.mocks.dart';
 
@@ -33,17 +33,23 @@ void main() {
     expect(find.byType(ElevatedButton), findsOneWidget);
 
     // Enter text in the email field
-    await tester.enterText(find.widgetWithText(TextFormField, 'Email:'), 'test@example.com');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email:'), 'test@example.com');
     expect(find.text('test@example.com'), findsOneWidget);
 
     // Enter text in the password fields
-    await tester.enterText(find.widgetWithText(TextFormField, 'Password:'), 'password123');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Confirm Password'), 'password123');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Password:'), 'password123');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Confirm Password'), 'password123');
 
     // Tap the signup button
-    when(mockHttpClient.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
-        .thenAnswer((_) async => http.Response('{"user": {"id": "test_user_id"}}', 200));
-    when(mockSharedPreferences.setString(any, any)).thenAnswer((_) async => true);
+    when(mockHttpClient.post(any,
+            headers: anyNamed('headers'), body: anyNamed('body')))
+        .thenAnswer((_) async =>
+            http.Response('{"user": {"id": "test_user_id"}}', 200));
+    when(mockSharedPreferences.setString(any, any))
+        .thenAnswer((_) async => true);
 
     await tester.tap(find.byType(ElevatedButton));
     await tester.pumpAndSettle();
@@ -59,7 +65,8 @@ void main() {
     verify(mockSharedPreferences.setString('userId', 'test_user_id')).called(1);
   });
 
-  testWidgets('SignupScreen shows error dialog on signup failure', (WidgetTester tester) async {
+  testWidgets('SignupScreen shows error dialog on signup failure',
+      (WidgetTester tester) async {
     await tester.pumpWidget(MaterialApp(
       home: SignupScreen(
         httpClient: mockHttpClient,
@@ -68,13 +75,18 @@ void main() {
     ));
 
     // Enter valid data
-    await tester.enterText(find.widgetWithText(TextFormField, 'Email:'), 'test@example.com');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Password:'), 'password123');
-    await tester.enterText(find.widgetWithText(TextFormField, 'Confirm Password'), 'password123');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Email:'), 'test@example.com');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Password:'), 'password123');
+    await tester.enterText(
+        find.widgetWithText(TextFormField, 'Confirm Password'), 'password123');
 
     // Mock a failed response
-    when(mockHttpClient.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
-        .thenAnswer((_) async => http.Response('{"error": "Signup failed"}', 400));
+    when(mockHttpClient.post(any,
+            headers: anyNamed('headers'), body: anyNamed('body')))
+        .thenAnswer(
+            (_) async => http.Response('{"error": "Signup failed"}', 400));
 
     // Tap the signup button
     await tester.tap(find.byType(ElevatedButton));

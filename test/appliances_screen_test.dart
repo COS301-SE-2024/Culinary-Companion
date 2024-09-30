@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/widgets/help_pantry.dart';
+import 'package:culinary_companion/widgets/help_pantry.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_application_1/widgets/pantry_screen.dart'; // Replace with actual import
+import 'package:culinary_companion/widgets/pantry_screen.dart'; // Replace with actual import
+
 import 'pantry_screen_test.mocks.dart';
 
 @GenerateMocks([http.Client])

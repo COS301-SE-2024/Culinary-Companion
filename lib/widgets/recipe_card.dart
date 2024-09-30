@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../gemini_service.dart'; // LLM
 import 'checkable_item.dart';
 //import 'package:lottie/lottie.dart';
-import 'package:flutter_application_1/widgets/timer_popup.dart';
+import 'package:culinary_companion/widgets/timer_popup.dart';
 
 // ignore: must_be_immutable
 class RecipeCard extends StatefulWidget {

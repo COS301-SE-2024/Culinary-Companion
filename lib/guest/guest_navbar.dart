@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/screens/landing_screen.dart';
+import 'package:culinary_companion/screens/landing_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import '../widgets/theme_notifier.dart';
@@ -62,7 +62,6 @@ class GuestNavbar extends StatelessWidget implements PreferredSizeWidget {
                           );
                         },
                         style: OutlinedButton.styleFrom(
-                          
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24),
                           ),
@@ -70,7 +69,6 @@ class GuestNavbar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                         child: Text(
                           'Sign Up',
-                          
                         ),
                       ),
                     ],
@@ -141,13 +139,13 @@ class GuestNavbar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => Size.fromHeight(120);
 }
 
-
 class ExpandableNavbar extends StatefulWidget implements PreferredSizeWidget {
   final String currentRoute;
   final Function(String)? onChange;
   final bool isGuest; // Add the guest flag here to manage guest logic
 
-  const ExpandableNavbar({required this.currentRoute, this.onChange, this.isGuest = false});
+  const ExpandableNavbar(
+      {required this.currentRoute, this.onChange, this.isGuest = false});
 
   @override
   _ExpandableNavbarState createState() => _ExpandableNavbarState();
@@ -176,7 +174,8 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
     final bool isLightTheme = theme.brightness == Brightness.light;
 
     // Define the icon colors for light and dark modes
-    Color iconColor = isLightTheme ? const Color(0xFF283330) : Color(0xFFEDEDED);
+    Color iconColor =
+        isLightTheme ? const Color(0xFF283330) : Color(0xFFEDEDED);
 
     return Column(
       children: [
@@ -210,7 +209,9 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
             child: Container(
               height: screenHeight,
               width: expandedWidth,
-              color: isLightTheme? Color.fromARGB(193, 237, 237, 237) : Color.fromARGB(159, 2, 20, 14) ,
+              color: isLightTheme
+                  ? Color.fromARGB(193, 237, 237, 237)
+                  : Color.fromARGB(159, 2, 20, 14),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   bool isCompact = screenWidth <
@@ -220,7 +221,10 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                     children: [
                       ListTile(
                         key: Key('Home'),
-                        leading: Icon(Icons.home, color: iconColor,),
+                        leading: Icon(
+                          Icons.home,
+                          color: iconColor,
+                        ),
                         title: isCompact
                             ? null
                             : const Text('Home'), // Conditionally show title
@@ -233,7 +237,10 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       ),
                       ListTile(
                         key: ValueKey('SearchRecipe'),
-                        leading: Icon(Icons.search, color: iconColor,),
+                        leading: Icon(
+                          Icons.search,
+                          color: iconColor,
+                        ),
                         title: isCompact
                             ? null
                             : const Text(
@@ -247,7 +254,10 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       ),
                       ListTile(
                         key: Key('Signup'),
-                        leading: Icon(Icons.login_outlined, color: iconColor,),
+                        leading: Icon(
+                          Icons.login_outlined,
+                          color: iconColor,
+                        ),
                         title: isCompact
                             ? null
                             : const Text('Sign Up'), // Conditionally show title
@@ -270,7 +280,9 @@ class _ExpandableNavbarState extends State<ExpandableNavbar> {
                       ListTile(
                         key: const ValueKey('ThemeToggle'),
                         leading: Icon(
-                            isLightTheme ? Icons.dark_mode : Icons.light_mode, color: iconColor,),
+                          isLightTheme ? Icons.dark_mode : Icons.light_mode,
+                          color: iconColor,
+                        ),
                         title: isCompact
                             ? null
                             : Text(isLightTheme ? 'Dark Mode' : 'Light Mode'),
