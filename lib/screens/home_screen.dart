@@ -547,7 +547,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 List<String> steps = [];
                 if (filteredRecipes[index]['steps'] != null) {
                   steps =
-                      (filteredRecipes[index]['steps'] as String).split(',');
+                      (filteredRecipes[index]['steps'] as String).split('<');
                 }
 
                 return RecipeCard(
