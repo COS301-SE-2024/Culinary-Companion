@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
 import '../guest/guest_recipe_card.dart';
-import '../widgets/help_home.dart';
+import '../guest/help_guest_home.dart';
 
 // import '../gemini_service.dart'; // LLM
 
