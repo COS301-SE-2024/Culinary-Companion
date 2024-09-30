@@ -70,7 +70,7 @@ class HelpMealPlanner extends StatelessWidget {
                               fontColor),
                           _buildLink(
                               'User Manual',
-                              'https://drive.google.com/file/d/1XGoR5GxF5LXKPfil3cms83fkoHv_C3Ps/view?usp=drive_link',
+                              'https://drive.google.com/file/d/1bk8KVHK-NWHhT3xQHaMw1OlOnKmTv9kr/view?usp=drive_link',
                               fontColor),
                           SizedBox(height: 20),
                           _buildSectionTitle('How it works', fontColor),
