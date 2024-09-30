@@ -4,8 +4,8 @@ import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_application_1/screens/login_screen.dart';
-import 'package:flutter_application_1/screens/home_screen.dart';
+import 'package:culinary_companion/screens/login_screen.dart';
+import 'package:culinary_companion/screens/home_screen.dart';
 
 // Generate mocks
 @GenerateMocks([http.Client])
@@ -30,11 +30,13 @@ void main() {
   });
 
   testWidgets('Login successful', (WidgetTester tester) async {
-    when(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
+    when(mockClient.post(any,
+            headers: anyNamed('headers'), body: anyNamed('body')))
         .thenAnswer((_) async => http.Response('{"user": {"id": "123"}}', 200));
 
     await tester.pumpWidget(MaterialApp(
-      home: LoginScreen(client: mockClient), // Pass the mock client to LoginScreen
+      home: LoginScreen(
+          client: mockClient), // Pass the mock client to LoginScreen
       routes: {
         '/home': (context) => HomeScreen(),
       },
@@ -46,15 +48,19 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify that the mock was called
-    verify(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body'))).called(1);
+    verify(mockClient.post(any,
+            headers: anyNamed('headers'), body: anyNamed('body')))
+        .called(1);
 
     // Check if HomeScreen is present
     expect(find.byType(HomeScreen), findsOneWidget);
   });
 
   testWidgets('Login failed', (WidgetTester tester) async {
-    when(mockClient.post(any, headers: anyNamed('headers'), body: anyNamed('body')))
-        .thenAnswer((_) async => http.Response('{"error": "Invalid credentials"}', 400));
+    when(mockClient.post(any,
+            headers: anyNamed('headers'), body: anyNamed('body')))
+        .thenAnswer((_) async =>
+            http.Response('{"error": "Invalid credentials"}', 400));
 
     await tester.pumpWidget(MaterialApp(home: LoginScreen(client: mockClient)));
 
@@ -62,7 +68,8 @@ void main() {
     await tester.enterText(find.byKey(ValueKey('password')), 'wrongpassword');
     await tester.tap(find.byKey(ValueKey('Login')));
     await tester.pump(); // Pump once to trigger the SnackBar
-    await tester.pump(Duration(seconds: 1)); // Pump again to ensure SnackBar is visible
+    await tester
+        .pump(Duration(seconds: 1)); // Pump again to ensure SnackBar is visible
 
     expect(find.byType(SnackBar), findsOneWidget);
     expect(find.text('Login failed: Invalid credentials'), findsOneWidget);

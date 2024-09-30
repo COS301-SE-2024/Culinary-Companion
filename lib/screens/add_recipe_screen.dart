@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/widgets/form_screen.dart';
+import 'package:culinary_companion/widgets/form_screen.dart';
 import '../widgets/help_add_recipe.dart';
 import '../widgets/scan_recipe_screen.dart';
 import '../widgets/paste_recipe_screen.dart';

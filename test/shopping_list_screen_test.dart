@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/widgets/help_shopping.dart';
+import 'package:culinary_companion/widgets/help_shopping.dart';
 import 'package:flutter_test/flutter_test.dart';
 // import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:mockito/annotations.dart';
 // import 'package:mockito/mockito.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_application_1/widgets/shopping_list_screen.dart'; // Replace with actual import
+import 'package:culinary_companion/widgets/shopping_list_screen.dart'; // Replace with actual import
 
 import 'shopping_list_screen_test.mocks.dart';
 
@@ -20,30 +20,37 @@ void main() {
   });
 
   Future<void> pumpShoppingListScreen(WidgetTester tester) async {
-    await tester.pumpWidget(MaterialApp(home: ShoppingListScreen(client: mockClient)));
+    await tester
+        .pumpWidget(MaterialApp(home: ShoppingListScreen(client: mockClient)));
     await tester.pumpAndSettle();
   }
 
-  testWidgets('ShoppingListScreen initializes correctly', (WidgetTester tester) async {
+  testWidgets('ShoppingListScreen initializes correctly',
+      (WidgetTester tester) async {
     await pumpShoppingListScreen(tester);
-    
+
     expect(find.text('Shopping List'), findsOneWidget);
     expect(find.byIcon(Icons.help), findsOneWidget);
   });
 
-    testWidgets('Add button is present', (WidgetTester tester) async {
+  testWidgets('Add button is present', (WidgetTester tester) async {
     await pumpShoppingListScreen(tester);
 
     expect(find.byIcon(Icons.add), findsOneWidget);
   });
 
-  testWidgets('Empty state message is shown when shopping list is empty', (WidgetTester tester) async {
+  testWidgets('Empty state message is shown when shopping list is empty',
+      (WidgetTester tester) async {
     await pumpShoppingListScreen(tester);
 
-    expect(find.text("No ingredients have been added. Click the plus icon to add your first ingredient!"), findsOneWidget);
+    expect(
+        find.text(
+            "No ingredients have been added. Click the plus icon to add your first ingredient!"),
+        findsOneWidget);
   });
 
-  testWidgets('Help menu opens when help icon is tapped', (WidgetTester tester) async {
+  testWidgets('Help menu opens when help icon is tapped',
+      (WidgetTester tester) async {
     await pumpShoppingListScreen(tester);
 
     await tester.tap(find.byIcon(Icons.help));
@@ -52,7 +59,8 @@ void main() {
     expect(find.byType(HelpMenu), findsOneWidget);
   });
 
-    testWidgets('Add item dialog opens when add button is tapped', (WidgetTester tester) async {
+  testWidgets('Add item dialog opens when add button is tapped',
+      (WidgetTester tester) async {
     await pumpShoppingListScreen(tester);
 
     await tester.tap(find.byIcon(Icons.add));
@@ -61,14 +69,12 @@ void main() {
     expect(find.text('Add Item to Shopping List'), findsOneWidget);
   });
 
-
-
   // testWidgets('Add item button shows dialog', (WidgetTester tester) async {
   //   await pumpShoppingListScreen(tester);
-    
+
   //   await tester.tap(find.byType(ElevatedButton));
   //   await tester.pumpAndSettle();
-    
+
   //   expect(find.text('Add New Item To Shopping List'), findsOneWidget);
   // });
 

@@ -1,8 +1,8 @@
 // ignore_for_file: avoid_function_literals_in_foreach_calls
 
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/guest/guest_checkable_item.dart';
-import 'package:flutter_application_1/widgets/timer_popup.dart';
+import 'package:culinary_companion/guest/guest_checkable_item.dart';
+import 'package:culinary_companion/widgets/timer_popup.dart';
 
 // ignore: must_be_immutable
 class GuestRecipeCard extends StatefulWidget {
@@ -52,8 +52,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
   bool _isAlteredRecipe = false;
   Map<String, dynamic>? _originalRecipe;
 
-  
-
   @override
   void initState() {
     super.initState();
@@ -72,14 +70,12 @@ class _RecipeCardState extends State<GuestRecipeCard> {
       'appliances': widget.appliances,
       'ingredients': widget.ingredients,
     };
-
   }
 
   @override
   void dispose() {
     super.dispose();
   }
-
 
   void _showTimerPopup() {
     showDialog(
@@ -147,8 +143,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         768; // Adjust the threshold for mobile view, 768px is a common breakpoint
   }
 
-
- 
   void _onHover(bool hovering) {
     if (mounted) {
       setState(() {
@@ -161,7 +155,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     final theme = Theme.of(context);
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-
 
     double imageHeight = screenHeight *
         0.5; // 50% of screen height for the image// 50% of screen height for the content
@@ -284,9 +277,9 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                         0.5), // Background color of the circle
                                   ),
                                   child: Center(
-                                    
-                                    //],
-                                  ))),
+
+                                      //],
+                                      ))),
                           Positioned(
                             bottom:
                                 10, // Adjust position to be at the bottom of the image
@@ -393,7 +386,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       child: Container(
                         width: screenWidth,
                         height: MediaQuery.of(context).size.height,
-                        
                       ),
                     ),
                 ]));
@@ -603,7 +595,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                                     children: buildInstructions(widget.steps),
                                   ),
                                   SizedBox(height: 40),
-                                  
                                 ],
                               ),
                             ],
@@ -618,10 +609,8 @@ class _RecipeCardState extends State<GuestRecipeCard> {
           }),
         ),
       ),
-    ).then((_) {
-    });
+    ).then((_) {});
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -652,6 +641,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         _showRecipeDetails();
       }
     }
+
     return GestureDetector(
       onTap: handleTap,
       child: MouseRegion(
@@ -709,7 +699,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       SizedBox(
                           height:
                               5), // Add some spacing between name and counts
-                      
                     ],
                   ),
                 ),
@@ -972,7 +961,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                       SizedBox(
                         height: MediaQuery.of(context).size.width * 0.006,
                       ), // Add some spacing between name and counts
-                      
                     ],
                   ),
                 ),
@@ -990,7 +978,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
                     //   ),
                     //   onPressed: _showTimerPopup,
                     // ),
-                    
                   ],
                 )),
           ],
@@ -1392,7 +1379,6 @@ class _RecipeCardState extends State<GuestRecipeCard> {
   //   }
   // }
 
-
   Widget buildActionButton(BuildContext context, bool isMobile) {
     final theme = Theme.of(context);
     final clickColor =
@@ -1436,7 +1422,7 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     );
   }
 
-    void _showSignUpPrompt() {
+  void _showSignUpPrompt() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1456,10 +1442,8 @@ class _RecipeCardState extends State<GuestRecipeCard> {
     );
   }
 
-
   Widget buildIngredientsList(
       BuildContext context, StateSetter dialogSetState) {
-
     final double screenWidth = MediaQuery.of(context).size.width;
     final double fontSize;
     if (screenWidth > 550) {
@@ -1483,17 +1467,13 @@ class _RecipeCardState extends State<GuestRecipeCard> {
         ...widget.ingredients.asMap().entries.map((entry) {
           Map<String, dynamic> ingredient = entry.value;
 
-          
-
           return GuestCheckableItem(
             title:
                 '${ingredient['name']} (${ingredient['quantity']} ${ingredient['measurement_unit']})',
             requiredQuantity: ingredient['quantity'],
             requiredUnit: ingredient['measurement_unit'],
-            onChanged: (bool? value) {
-              
-            },
-            
+            onChanged: (bool? value) {},
+
             recipeID: widget.recipeID, // Pass recipeID here
             onRecipeUpdate: (Map<String, dynamic> alteredRecipe) {
               _updateRecipe(alteredRecipe);

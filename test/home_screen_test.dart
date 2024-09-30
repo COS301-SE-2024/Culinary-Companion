@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 //import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
-import 'package:flutter_application_1/screens/home_screen.dart';
-import 'package:flutter_application_1/widgets/help_home.dart';
+import 'package:culinary_companion/screens/home_screen.dart';
+import 'package:culinary_companion/widgets/help_home.dart';
 
 // Generate a MockClient using the Mockito package.
 @GenerateMocks([http.Client])
@@ -24,24 +24,23 @@ void main() {
     //       .thenAnswer((_) async => http.Response('[]', 200));
 
     //   await tester.pumpWidget(MaterialApp(home: HomeScreen()));
-      
+
     //   // Wait for async operations and rebuild
     //   await tester.pumpAndSettle();
 
     //   expect(find.byType(GridView), findsOneWidget);
     // });
 
-    testWidgets('HomeScreen displays help menu when help icon is tapped', (WidgetTester tester) async {
+    testWidgets('HomeScreen displays help menu when help icon is tapped',
+        (WidgetTester tester) async {
       await tester.pumpWidget(MaterialApp(home: HomeScreen()));
 
       // Find and tap the help icon
       await tester.tap(find.byIcon(Icons.help));
       await tester.pump(const Duration(milliseconds: 500));
 
-
       // Verify that the HelpMenu is displayed
       expect(find.byType(HelpMenu), findsOneWidget);
     });
-
   });
 }
