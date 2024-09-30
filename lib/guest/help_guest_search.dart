@@ -17,9 +17,8 @@ class HelpMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final clickColor = theme.brightness == Brightness.light
-        ? Color(0xFFEDEDED)
-        : Color(0xFF283330);
+    final clickColor =
+        theme.brightness == Brightness.light ? Color(0xFFEDEDED) : Color(0xFF283330);
 
     final fontColor = getFontColor(context);
 
@@ -41,11 +40,7 @@ class HelpMenu extends StatelessWidget {
                   Center(
                     child: Column(
                       children: [
-                        Image.asset(
-                            theme.brightness == Brightness.light
-                                ? 'assets/light_helper_chef.png'
-                                : 'assets/helper_chef.png',
-                            height: 80),
+                        Image.asset(theme.brightness == Brightness.light ? 'assets/light_helper_chef.png' : 'assets/helper_chef.png', height: 80),
                         SizedBox(height: 10),
                         Text(
                           'How may I help you?',
@@ -94,7 +89,7 @@ class HelpMenu extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: ElevatedButton(
-                      key: ValueKey('close_help_menu'),
+                      key: Key('close_help_menu'),
                       onPressed: onClose,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFFDC945F),
@@ -149,29 +144,29 @@ class HelpMenu extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSubSectionTitle('Navigating the Pantry Page', fontColor),
+        _buildSubSectionTitle('Navigating the Search Recipes Page', fontColor),
         _buildParagraph(
-            'The pantry is where you can easily add or remove necessary ingredients that you already have in your pantry. Here’s how you can navigate and use it effectively:',
+            'The Search Recipes page is your starting point to explore a wide variety of recipes based on specific criteria. Here’s how to make the most of it:',
             fontColor),
         _buildStep(
-            '1', 'Tap the "+" button at the bottom of the screen.', fontColor),
-        _buildStep('2', 'Enter the ingredient name in the "Item Name" field.',
+            '1',
+            'Use the search bar at the top to quickly find recipes by name, ingredient, cuisine type, or dietary preference.',
             fontColor),
         _buildStep(
-            '3', 'Enter the quantity in the "Quantity" field.', fontColor),
+            '2',
+            'Use the filters to narrow down results based on dietary constraints, course or cuisine type, and more.',
+            fontColor),
         _buildStep(
-            '4', 'Tap "Add" to add the ingredient to the pantry.', fontColor),
+            '3',
+            'Click on a recipe card to view detailed information, including ingredients, cooking instructions, and nutritional information.',
+            fontColor),
+        _buildStep(
+            '4',
+            'Tap the "Save" button on a recipe card to add it to your saved recipes for easy access later.',
+            fontColor),
         _buildStep(
             '5',
-            'To edit the quantity, locate the ingredient you wish to edit and tap the pencil icon next to it to edit it.',
-            fontColor),
-        _buildStep(
-            '6',
-            'To delete an ingredient from your pantry, locate the ingredient you wish to remove and tap the trash can icon next to it to delete it.',
-            fontColor),
-        _buildStep(
-            '7',
-            'You can click on the camera button next to the "+" button to upload a shopping receipt to easily add ingredients to your pantry.',
+            'Use the "Clear Filters" button to reset all applied filters and start a new search.',
             fontColor),
       ],
     );
@@ -216,7 +211,7 @@ class HelpMenu extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildFAQ(
-            'Q: How can I edit my dietary preferences?',
+            'Q: How can I edit my dietary preferences? (Only available for users who are signed up)',
             'A: Go to the "Profile" section and update your dietary preferences. This will help us suggest recipes that match your dietary needs.',
             fontColor),
         _buildFAQ(
@@ -224,19 +219,19 @@ class HelpMenu extends StatelessWidget {
             'A: Tap on the "Home" section in the navbar to return to the Home page at any time.',
             fontColor),
         _buildFAQ(
-            'Q: How do I add a new recipe?',
+            'Q: How do I add a new recipe? (Only available for users who are signed up)',
             'A: Navigate to the "Add Recipe" section by tapping on the "Add Recipe" tab and fill in the required details to share your recipe with the community.',
             fontColor),
         _buildFAQ(
-            'Q: How can I manage my shopping list?',
+            'Q: How can I manage my shopping list? (Only available for users who are signed up)',
             'A: Go to the "Inventory" section to access the "Shopping List" to view and manage your shopping items.',
             fontColor),
         _buildFAQ(
-            'Q: How do I keep track of items in my pantry?',
+            'Q: How do I keep track of items in my pantry? (Only available for users who are signed up)',
             'A: Go to the "Inventory" section to access the "Pantry" where you can add, edit, and remove items.',
             fontColor),
         _buildFAQ(
-            'Q: Where can I manage my kitchen appliances?',
+            'Q: Where can I manage my kitchen appliances? (Only available for users who are signed up)',
             'A: Go to the "Inventory" section to access the "Appliances" tab to view and manage your kitchen appliances.',
             fontColor),
         _buildFAQ(
@@ -244,11 +239,11 @@ class HelpMenu extends StatelessWidget {
             'A: Go to the "Search Recipes" section to be able to search for recipes by name, ingredients and filter according to your preferences.',
             fontColor),
         _buildFAQ(
-            'Q: How do I view my saved recipes?',
+            'Q: How do I view my saved recipes? (Only available for users who are signed up)',
             'A: Navigate to the "Saved Recipes" section by tapping on the "Saved Recipes" tab to see all your saved recipes.',
             fontColor),
         _buildFAQ(
-            'Q: How can I update my profile information?',
+            'Q: How can I update my profile information? (Only available for users who are signed up)',
             'A: Go to the "Profile" section by tapping on the "Profile" tab to update your profile information.',
             fontColor),
       ],
