@@ -58,7 +58,7 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   Future<void> _initializeChat() async {
     // await dotenv.load();
-    const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+    const String apiKey = String.fromEnvironment('API_KEY');
     if (apiKey.isEmpty) {
       print('No API_KEY environment variable');
       return;

@@ -6,7 +6,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 // import '/screens/home_screen.dart';
 
 Future<String> fetchContentBackpack() async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -19,7 +19,7 @@ Future<String> fetchContentBackpack() async {
 }
 
 Future<String> fetchContentHorse() async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -166,7 +166,7 @@ Future<String> fetchMealPlannerRecipes(
     String mealPlanName,
     BuildContext context // Add context to access the Scaffold/AlertDialog
     ) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -303,7 +303,7 @@ void _showErrorSnackbar(BuildContext context, String message) {
 Future<String> fetchIngredientSubstitutionRecipe(
     String recipeId, String substitute, String substitutedIngredient) async {
   // takes in a recipe id and substitute. finds a recipe using the substitute given
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -454,7 +454,7 @@ Future<String> fetchIngredientSubstitutions(
     String recipeId, String substitute, String userId) async {
   // takes in the recipe id and substitute. This is the ingredient for which we want to find
   // substitutes for
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -566,7 +566,7 @@ Future<String> fetchIngredientSubstitutions(
 }
 
 Future<String> fetchKeywords(String recipeId) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -669,7 +669,7 @@ Future<String> fetchKeywords(String recipeId) async {
 }
 
 Future<String> fetchDietaryConstraints(String recipeId) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY') ;
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -810,7 +810,7 @@ Future<String> fetchDietaryConstraints(String recipeId) async {
 
 // gets the user's pantry list and creates a recipe based off of the ingredients
 Future<String> fetchRecipeFromPantryIngredients(String userId) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -893,7 +893,7 @@ Future<String> fetchRecipeFromPantryIngredients(String userId) async {
 // only 1 dietary constraint
 Future<String> fetchDietaryConstraintRecipe(
     String dietaryConstraint, String recipeId) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -1049,7 +1049,7 @@ Future<List<String>> fetchAllowedAppliances() async {
 ///extract json data for recipe
 Future<Map<String, dynamic>?> extractRecipeData(
     String pastedText, String selectedImage) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     print('Error: API_KEY environment variable is missing.');
     return null;
@@ -1286,7 +1286,7 @@ Future<void> addExtractedRecipeToDatabase(
 }
 
 Future<List<String>> identifyIngredientFromReceipt(String items) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return ['No API_KEY environment variable'];
   }
@@ -1349,7 +1349,7 @@ Future<List<String>> identifyIngredientFromReceipt(String items) async {
 
 Future<String> findBestMatchingIngredient(
     String identifiedIngredient, List<String> dbIngredients) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -1374,7 +1374,7 @@ Future<String> findBestMatchingIngredient(
 // all dietary constraints
 Future<String> fetchDietaryConstraintsRecipe(
     String userId, String recipeId) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
@@ -1508,7 +1508,7 @@ Future<String> fetchDietaryConstraintsRecipe(
 
 Future<List<String>> validateRecipe(
     String name, String description, List<String> steps) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return ['No API_KEY environment variable'];
   }

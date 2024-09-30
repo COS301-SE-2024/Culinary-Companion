@@ -768,7 +768,7 @@ class _PantryScreenState extends State<PantryScreen> {
 
 
 Future<String> _extractTextFromImage(dynamic imageData) async {
-  const String apiKey = String.fromEnvironment('API_KEY') ?? '';
+  const String apiKey = String.fromEnvironment('API_KEY');
   if (apiKey.isEmpty) {
     return 'No API_KEY environment variable';
   }
