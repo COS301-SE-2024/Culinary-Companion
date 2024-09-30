@@ -4,7 +4,7 @@ import 'package:flutter_application_1/guest/guest_recipe_card.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:lottie/lottie.dart';
-import '../widgets/help_search.dart';
+import '../guest/help_guest_search.dart';
 import '../widgets/filter_recipes.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
