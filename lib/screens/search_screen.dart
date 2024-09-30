@@ -180,7 +180,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   List<Map<String, dynamic>> recipes = [];
-  bool _isLoading = false;
+  bool _isLoading = true;
 
   Future<void> fetchRecipeDetails(String recipeId) async {
     final url =
@@ -284,8 +284,10 @@ class _SearchScreenState extends State<SearchScreen> {
       bool matchesSpiceLevel = selectedSpiceLevel == null ||
           recipe['spicelevel'] == int.tryParse(selectedSpiceLevel!);
       bool matchesDietary = selectedDietaryOptions.isEmpty ||
-          selectedDietaryOptions
-              .any((option) => recipe['dietary'].contains(option));
+    selectedDietaryOptions.any((option) => 
+        (recipe['dietary'] != null && recipe['dietary'].contains(option))
+    );
+
 
       return matchesCourse &&
           matchesCuisine &&
@@ -635,8 +637,9 @@ class _SearchScreenState extends State<SearchScreen> {
                   child: Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    // mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      _buildSearchAndFilterBar(),
                       Icon(
                         Icons.search_off,
                         size: 100,

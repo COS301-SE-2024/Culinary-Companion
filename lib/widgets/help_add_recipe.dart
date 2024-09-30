@@ -167,7 +167,7 @@ class HelpMenu extends StatelessWidget {
             fontColor),
         _buildStep(
             '4',
-            'Use the "Add My Own Recipe" tab to manually input recipe details, including ingredients, steps, and more.',
+            'Use the "Add with Form" tab to manually input recipe details, including ingredients, steps, and more.',
             fontColor),
         _buildStep(
             '5',

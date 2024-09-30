@@ -659,7 +659,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        LayoutBuilder(
+        //check if loading or no recipes
+        _isLoading
+          ? Center(
+              child: Lottie.asset('assets/loading.json'),
+            )
+            : recipes.isEmpty
+            ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.no_meals_ouline,
+                        size: 100,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        'No recipes added yet!',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Navigate to the Add Recipe page to start adding recipes.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                : LayoutBuilder(
           builder: (context, constraints) {
             double width = constraints.maxWidth;
             double itemWidth;
@@ -731,13 +766,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           : (width < 650
                               ? 24
                               : 28)), // Different icon sizes for larger screens
-                  // Different icon sizes for mobile and tablet
-                );
-              },
-            );
-          },
-        ),
-      ],
-    );
-  }
+                        );
+                      },
+                    );
+                  },
+                ),
+    ],
+  );
+}
 }
