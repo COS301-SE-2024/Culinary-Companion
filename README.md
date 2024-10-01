@@ -74,6 +74,7 @@ As a project committed to continuous improvement and user satisfaction, Culinary
 <a href="https://docs.google.com/document/d/1TtUSZpYhsh_iInPwA0NXK4ulTC5MQL7r3TyqDy5_5rg/edit#heading=h.guha62j8eqgf">Technical Installation Manual</a><br>
   <a href="https://docs.google.com/document/d/11qPYwyVB8KJonYqkCW78GCDqaoV_rP52/edit?usp=sharing&ouid=102858177285156656233&rtpof=true&sd=true">LLM Decisions</a><br>
   <a href="https://docs.google.com/document/d/1LgrV6KfBaQ7jbH0I2oQmZ9g1dJnnBALD/edit?usp=sharing&ouid=102858177285156656233&rtpof=true&sd=true">Gemini Prompt Engineering </a><br>
+  <a href="https://drive.google.com/file/d/1_F9IM3ZkZygTar6c8lDQO6WmJa-2qDgp/view?usp=drive_link">Deployment Diagram </a><br>
 </p>
 
 # Our Tech stack
