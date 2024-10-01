@@ -54,6 +54,7 @@ As a project committed to continuous improvement and user satisfaction, Culinary
 <a href="https://drive.google.com/file/d/15_5Z1gA2fE5ary6gUPKAXGd8STM5MKtF/view?usp=sharing">Demo 1</a><br>
 <a href="https://drive.google.com/file/d/1V_g0KkcuujZR5V86HbeliEnzHzAhgSkR/view?usp=sharing">Demo 2</a><br>
 <a href="https://drive.google.com/file/d/1nwWkCSMbDmbQ0SQXtcBWU9rSVNt_obrt/view?usp=sharing">Demo 3</a><br>
+<a href="https://drive.google.com/file/d/1IGajpOF9SY4D0nETkcBsR0SHE2AW9wlv/view?usp=sharing">Demo 4</a><br>
 <!-- <a href="">Demo 2</a><br> -->
 </p>
 
@@ -71,6 +72,8 @@ As a project committed to continuous improvement and user satisfaction, Culinary
 <a href="https://drive.google.com/drive/u/0/folders/1J3UkGzdmvfzHlvo3s3H9XGm8tCHz1Uby">User Manual</a><br>
 <a href="https://docs.google.com/document/d/1tnc2obcVK6tWu-XDuHJx8DG9czl4Mv55UhOr-jQdhVY/edit">Design Specification</a><br>
 <a href="https://docs.google.com/document/d/1TtUSZpYhsh_iInPwA0NXK4ulTC5MQL7r3TyqDy5_5rg/edit#heading=h.guha62j8eqgf">Technical Installation Manual</a><br>
+  <a href="https://docs.google.com/document/d/11qPYwyVB8KJonYqkCW78GCDqaoV_rP52/edit?usp=sharing&ouid=102858177285156656233&rtpof=true&sd=true">LLM Decisions</a><br>
+  <a href="https://docs.google.com/document/d/1LgrV6KfBaQ7jbH0I2oQmZ9g1dJnnBALD/edit?usp=sharing&ouid=102858177285156656233&rtpof=true&sd=true">Gemini Prompt Engineering </a><br>
 </p>
 
 # Our Tech stack
